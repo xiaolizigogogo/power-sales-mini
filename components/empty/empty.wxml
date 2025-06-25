@@ -1,0 +1,9 @@
+<view class="custom-empty">
+  <image src="{{image}}" mode="aspectFit" class="custom-empty-image"></image>
+  <text class="custom-empty-description">{{description}}</text>
+  <button 
+    wx:if="{{buttonText}}" 
+    class="custom-empty-button"
+    bindtap="onButtonTap"
+  >{{buttonText}}</button>
+</view> 

@@ -1,0 +1,112 @@
+.custom-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-loading-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
+}
+
+.custom-loading-container {
+  display: flex;
+  align-items: center;
+}
+
+.custom-loading-vertical {
+  flex-direction: column;
+}
+
+.custom-loading-spinner {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-loading-spinner.small {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.custom-loading-spinner.default {
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.custom-loading-spinner.large {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.custom-loading-circular {
+  width: 100%;
+  height: 100%;
+  border: 4rpx solid;
+  border-color: currentColor currentColor currentColor transparent;
+  border-radius: 50%;
+  animation: loading-rotate 0.8s linear infinite;
+}
+
+.custom-loading-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: loading-dot-fade 1s linear infinite;
+}
+
+.custom-loading-dot::before {
+  content: '';
+  display: block;
+  width: 8rpx;
+  height: 25%;
+  margin: 0 auto;
+  background-color: currentColor;
+  border-radius: 40%;
+}
+
+.custom-loading-text {
+  margin-left: 20rpx;
+  font-size: 28rpx;
+}
+
+.custom-loading-vertical .custom-loading-text {
+  margin: 20rpx 0 0;
+}
+
+@keyframes loading-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-dot-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.25;
+  }
+}
+
+.custom-loading-dot:nth-child(1) { transform: rotate(0deg); }
+.custom-loading-dot:nth-child(2) { transform: rotate(30deg); animation-delay: -0.916666667s; }
+.custom-loading-dot:nth-child(3) { transform: rotate(60deg); animation-delay: -0.833333333s; }
+.custom-loading-dot:nth-child(4) { transform: rotate(90deg); animation-delay: -0.75s; }
+.custom-loading-dot:nth-child(5) { transform: rotate(120deg); animation-delay: -0.666666667s; }
+.custom-loading-dot:nth-child(6) { transform: rotate(150deg); animation-delay: -0.583333333s; }
+.custom-loading-dot:nth-child(7) { transform: rotate(180deg); animation-delay: -0.5s; }
+.custom-loading-dot:nth-child(8) { transform: rotate(210deg); animation-delay: -0.416666667s; }
+.custom-loading-dot:nth-child(9) { transform: rotate(240deg); animation-delay: -0.333333333s; }
+.custom-loading-dot:nth-child(10) { transform: rotate(270deg); animation-delay: -0.25s; }
+.custom-loading-dot:nth-child(11) { transform: rotate(300deg); animation-delay: -0.166666667s; }
+.custom-loading-dot:nth-child(12) { transform: rotate(330deg); animation-delay: -0.083333333s; } 

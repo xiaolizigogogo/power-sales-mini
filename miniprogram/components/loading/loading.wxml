@@ -1,0 +1,6 @@
+<view class="loading-container {{show ? 'show' : ''}}" style="{{mask ? 'background: rgba(255, 255, 255, 0.9);' : ''}}">
+  <view class="loading-wrapper">
+    <view class="loading {{type}} {{size}}" style="border-color: {{color}}; border-top-color: transparent;"></view>
+    <view wx:if="{{text}}" class="loading-text" style="color: {{color}}">{{text}}</view>
+  </view>
+</view> 

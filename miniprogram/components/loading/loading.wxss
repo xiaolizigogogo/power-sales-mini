@@ -1,0 +1,101 @@
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.loading-container.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading {
+  display: inline-block;
+  border-style: solid;
+  border-radius: 50%;
+  animation: rotate 1s linear infinite;
+}
+
+/* 尺寸 */
+.loading.small {
+  width: 30rpx;
+  height: 30rpx;
+  border-width: 3rpx;
+}
+
+.loading.default {
+  width: 40rpx;
+  height: 40rpx;
+  border-width: 4rpx;
+}
+
+.loading.large {
+  width: 50rpx;
+  height: 50rpx;
+  border-width: 5rpx;
+}
+
+/* 加载文字 */
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+}
+
+/* 旋转动画 */
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 点状加载 */
+.loading.dots {
+  position: relative;
+  width: 60rpx;
+  height: 60rpx;
+  border: none;
+  animation: none;
+}
+
+.loading.dots::before,
+.loading.dots::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.6;
+  animation: dots 2s infinite ease-in-out;
+}
+
+.loading.dots::after {
+  animation-delay: -1s;
+}
+
+@keyframes dots {
+  0%, 100% {
+    transform: scale(0.2);
+  }
+  50% {
+    transform: scale(1);
+  }
+} 

@@ -1,0 +1,314 @@
+.container {
+  padding: 30rpx;
+  padding-bottom: 180rpx;
+}
+
+.status-card {
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+  color: #fff;
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.status-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 16rpx;
+}
+
+.status-text {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.status-desc {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+.info-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 30rpx;
+}
+
+.info-group {
+  margin-bottom: 24rpx;
+}
+
+.info-group:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  display: block;
+  font-size: 28rpx;
+  color: #6b7280;
+  margin-bottom: 8rpx;
+}
+
+.info-value {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: #1f2937;
+}
+
+.copy-button {
+  font-size: 24rpx;
+  color: #409EFF;
+  margin-left: 20rpx;
+  padding: 8rpx 20rpx;
+  background: rgba(64, 158, 255, 0.1);
+  border-radius: 24rpx;
+}
+
+.product-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.product-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  margin-right: 30rpx;
+}
+
+.product-content {
+  flex: 1;
+}
+
+.product-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 12rpx;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-value {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.price-unit {
+  font-size: 24rpx;
+  color: #ef4444;
+}
+
+.arrow-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 20rpx;
+}
+
+.license-image {
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 12rpx;
+  margin-top: 12rpx;
+}
+
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.action-left,
+.action-right {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-button {
+  height: 88rpx;
+  padding: 0 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  border-radius: 12rpx;
+  border: none;
+}
+
+.action-button::after {
+  display: none;
+}
+
+.action-button.service {
+  color: #409EFF;
+  background: rgba(64, 158, 255, 0.1);
+}
+
+.action-button.cancel {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.cancel-dialog {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  visibility: hidden;
+}
+
+.cancel-dialog.show {
+  visibility: visible;
+}
+
+.dialog-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cancel-dialog.show .dialog-mask {
+  opacity: 1;
+}
+
+.dialog-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.cancel-dialog.show .dialog-content {
+  transform: translateY(0);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 2rpx solid #f3f4f6;
+}
+
+.dialog-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.dialog-close {
+  width: 40rpx;
+  height: 40rpx;
+  padding: 20rpx;
+  margin: -20rpx;
+}
+
+.dialog-body {
+  padding: 30rpx;
+}
+
+.dialog-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 12rpx;
+}
+
+.dialog-textarea {
+  width: 100%;
+  height: 180rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+  color: #1f2937;
+  background: #f9fafb;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+
+.dialog-footer {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx;
+  border-top: 2rpx solid #f3f4f6;
+}
+
+.dialog-button {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  border-radius: 12rpx;
+  border: none;
+}
+
+.dialog-button::after {
+  display: none;
+}
+
+.dialog-button.cancel {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.dialog-button.confirm {
+  color: #fff;
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+}
+
+.dialog-button.confirm.loading {
+  opacity: 0.8;
+}
+
+.loading-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} 

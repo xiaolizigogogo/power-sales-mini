@@ -1,0 +1,9 @@
+<view class="navbar {{fixed ? 'fixed' : ''}}" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px; background-color: {{backgroundColor}};">
+  <view class="navbar-content" style="height: {{navBarHeight}}px;">
+    <view wx:if="{{showBack}}" class="navbar-back" bindtap="handleBack">
+      <view class="back-icon" style="border-color: {{textColor}};"></view>
+    </view>
+    <view class="navbar-title" style="color: {{textColor}};">{{title}}</view>
+  </view>
+</view>
+<view wx:if="{{fixed}}" class="navbar-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view> 

@@ -1,0 +1,47 @@
+page {
+  /* 主题色 */
+  --primary-color: #409EFF;
+  --primary-light: #a0cfff;
+  --primary-dark: #337ecc;
+
+  /* 文字颜色 */
+  --text-primary: #333333;
+  --text-regular: #666666;
+  --text-secondary: #999999;
+
+  /* 边框颜色 */
+  --border-color: #DCDFE6;
+  --border-light: #E4E7ED;
+  --border-lighter: #EBEEF5;
+
+  /* 背景颜色 */
+  --background-color: #F5F7FA;
+  --background-white: #FFFFFF;
+
+  /* 功能色 */
+  --success: #67C23A;
+  --warning: #E6A23C;
+  --danger: #F56C6C;
+  --info: #909399;
+
+  /* 间距 */
+  --spacing-mini: 4rpx;
+  --spacing-small: 8rpx;
+  --spacing-base: 16rpx;
+  --spacing-large: 24rpx;
+  --spacing-larger: 32rpx;
+
+  /* 圆角 */
+  --radius-small: 4rpx;
+  --radius-base: 8rpx;
+  --radius-large: 16rpx;
+  --radius-round: 999rpx;
+
+  /* 字体大小 */
+  --font-size-mini: 24rpx;
+  --font-size-small: 26rpx;
+  --font-size-base: 28rpx;
+  --font-size-medium: 32rpx;
+  --font-size-large: 36rpx;
+  --font-size-larger: 40rpx;
+} 

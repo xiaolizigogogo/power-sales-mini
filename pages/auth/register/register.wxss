@@ -1,0 +1,144 @@
+.container {
+  padding: 30rpx;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60rpx;
+}
+
+.logo {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 12rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+.form-group {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 12rpx;
+}
+
+.form-label.required::after {
+  content: '*';
+  color: #ef4444;
+  margin-left: 4rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #1f2937;
+  background: #fff;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #409EFF;
+}
+
+.code-input-group {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.code-input {
+  flex: 1;
+}
+
+.code-button {
+  width: 200rpx;
+  height: 88rpx;
+  padding: 0;
+  font-size: 28rpx;
+  color: #409EFF;
+  background: rgba(64, 158, 255, 0.1);
+  border: none;
+  border-radius: 12rpx;
+}
+
+.code-button::after {
+  display: none;
+}
+
+.code-button.disabled {
+  opacity: 0.6;
+}
+
+.submit-button {
+  width: 100%;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+  border-radius: 12rpx;
+  margin-top: 60rpx;
+  border: none;
+}
+
+.submit-button::after {
+  display: none;
+}
+
+.submit-button.loading {
+  opacity: 0.8;
+}
+
+.register-footer {
+  margin-top: 30rpx;
+  text-align: center;
+}
+
+.register-footer-text {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+.register-footer-link {
+  font-size: 28rpx;
+  color: #409EFF;
+  margin-left: 8rpx;
+}
+
+.register-notice {
+  margin-top: 40rpx;
+  text-align: center;
+}
+
+.register-notice-text {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.register-notice-link {
+  font-size: 24rpx;
+  color: #409EFF;
+} 

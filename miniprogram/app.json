@@ -1,0 +1,25 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/auth/register/register",
+    "pages/auth/verify/verify",
+    "pages/products/list/list",
+    "pages/products/detail/detail",
+    "pages/products/calculator/calculator",
+    "pages/orders/create/create",
+    "pages/orders/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#409EFF",
+    "navigationBarTitleText": "电力销售平台",
+    "navigationBarTextStyle": "white"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "loading": "/components/loading/loading",
+    "empty": "/components/empty/empty",
+    "navbar": "/components/navbar/navbar"
+  }
+} 

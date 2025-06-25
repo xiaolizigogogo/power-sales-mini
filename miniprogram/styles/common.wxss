@@ -1,0 +1,115 @@
+/* flex布局 */
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+/* 间距 */
+.mt-mini { margin-top: var(--spacing-mini); }
+.mt-small { margin-top: var(--spacing-small); }
+.mt-base { margin-top: var(--spacing-base); }
+.mt-large { margin-top: var(--spacing-large); }
+.mt-larger { margin-top: var(--spacing-larger); }
+
+.mb-mini { margin-bottom: var(--spacing-mini); }
+.mb-small { margin-bottom: var(--spacing-small); }
+.mb-base { margin-bottom: var(--spacing-base); }
+.mb-large { margin-bottom: var(--spacing-large); }
+.mb-larger { margin-bottom: var(--spacing-larger); }
+
+/* 文本样式 */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-regular {
+  color: var(--text-regular);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+/* 边框 */
+.border {
+  border: 1rpx solid var(--border-color);
+}
+
+.border-top {
+  border-top: 1rpx solid var(--border-color);
+}
+
+.border-bottom {
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+/* 圆角 */
+.radius-small {
+  border-radius: var(--radius-small);
+}
+
+.radius-base {
+  border-radius: var(--radius-base);
+}
+
+.radius-large {
+  border-radius: var(--radius-large);
+}
+
+.radius-round {
+  border-radius: var(--radius-round);
+} 

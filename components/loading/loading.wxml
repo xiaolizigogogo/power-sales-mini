@@ -1,0 +1,13 @@
+<view class="custom-loading {{mask ? 'custom-loading-mask' : ''}}" wx:if="{{show}}">
+  <view class="custom-loading-container {{vertical ? 'custom-loading-vertical' : ''}}">
+    <view class="custom-loading-spinner {{type}} {{size}}" style="color: {{color}}">
+      <block wx:if="{{type === 'circular'}}">
+        <view class="custom-loading-circular"></view>
+      </block>
+      <block wx:else>
+        <view class="custom-loading-dot" wx:for="{{12}}" wx:key="*this"></view>
+      </block>
+    </view>
+    <text wx:if="{{text}}" class="custom-loading-text" style="color: {{color}}">{{text}}</text>
+  </view>
+</view> 

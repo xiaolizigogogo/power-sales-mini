@@ -1,0 +1,171 @@
+<view class="page-container">
+  <custom-navbar 
+    title="订单详情" 
+    bgColor="#409EFF"
+  />
+  
+  <block wx:if="{{!loading && detail}}">
+    <view class="container">
+      <view class="status-card">
+        <view class="status-header">
+          <image src="/assets/icons/status/{{detail.status}}.png" class="status-icon" />
+          <text class="status-text">{{detail.statusText}}</text>
+        </view>
+        <view class="status-desc">{{detail.statusDesc}}</view>
+      </view>
+
+      <view class="info-card">
+        <view class="info-group">
+          <text class="info-label">订单编号</text>
+          <view class="info-value">
+            <text>{{detail.orderNo}}</text>
+            <text class="copy-button" bindtap="copyOrderNo">复制</text>
+          </view>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">下单时间</text>
+          <text class="info-value">{{detail.createTime}}</text>
+        </view>
+
+        <view wx:if="{{detail.cancelTime}}" class="info-group">
+          <text class="info-label">取消时间</text>
+          <text class="info-value">{{detail.cancelTime}}</text>
+        </view>
+
+        <view wx:if="{{detail.cancelReason}}" class="info-group">
+          <text class="info-label">取消原因</text>
+          <text class="info-value">{{detail.cancelReason}}</text>
+        </view>
+      </view>
+
+      <view class="product-card" bindtap="goToProduct">
+        <image src="{{detail.product.image}}" mode="aspectFill" class="product-image" />
+        <view class="product-content">
+          <text class="product-name">{{detail.product.name}}</text>
+          <view class="product-price">
+            <text class="price-unit">¥</text>
+            <text class="price-value">{{detail.product.price}}</text>
+            <text class="price-unit">/度</text>
+          </view>
+        </view>
+        <image src="/assets/icons/arrow-right.png" class="arrow-icon" />
+      </view>
+
+      <view class="info-card">
+        <view class="card-title">用电信息</view>
+
+        <view class="info-group">
+          <text class="info-label">电压等级</text>
+          <text class="info-value">{{detail.voltage}}V</text>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">相数</text>
+          <text class="info-value">{{detail.phase}}</text>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">预计用电量</text>
+          <text class="info-value">{{detail.estimatedPower}}度/月</text>
+        </view>
+      </view>
+
+      <view class="info-card">
+        <view class="card-title">联系信息</view>
+
+        <view class="info-group">
+          <text class="info-label">联系人</text>
+          <text class="info-value">{{detail.name}}</text>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">联系电话</text>
+          <text class="info-value">{{detail.phone}}</text>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">安装地址</text>
+          <text class="info-value">{{detail.address}}</text>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">公司名称</text>
+          <text class="info-value">{{detail.companyName}}</text>
+        </view>
+
+        <view class="info-group">
+          <text class="info-label">营业执照</text>
+          <image 
+            src="{{detail.businessLicense}}" 
+            mode="aspectFill" 
+            class="license-image"
+            data-url="{{detail.businessLicense}}"
+            bindtap="previewImage"
+          />
+        </view>
+
+        <view wx:if="{{detail.remark}}" class="info-group">
+          <text class="info-label">备注说明</text>
+          <text class="info-value">{{detail.remark}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-bar">
+      <view class="action-left">
+        <button 
+          class="action-button service" 
+          bindtap="contactService"
+        >联系客服</button>
+      </view>
+      <view class="action-right">
+        <button 
+          wx:if="{{detail.status === 'pending'}}"
+          class="action-button cancel" 
+          bindtap="showCancelDialog"
+        >取消订单</button>
+      </view>
+    </view>
+
+    <view class="cancel-dialog {{showCancelDialog ? 'show' : ''}}">
+      <view class="dialog-mask" bindtap="hideCancelDialog"></view>
+      <view class="dialog-content">
+        <view class="dialog-header">
+          <text class="dialog-title">取消订单</text>
+          <image 
+            src="/assets/icons/close.png" 
+            class="dialog-close"
+            bindtap="hideCancelDialog"
+          />
+        </view>
+        <view class="dialog-body">
+          <text class="dialog-label">取消原因</text>
+          <textarea 
+            class="dialog-textarea"
+            placeholder="请输入取消原因"
+            value="{{cancelReason}}"
+            bindinput="onCancelReasonInput"
+          />
+        </view>
+        <view class="dialog-footer">
+          <button 
+            class="dialog-button cancel" 
+            bindtap="hideCancelDialog"
+          >取消</button>
+          <button 
+            class="dialog-button confirm {{submitting ? 'loading' : ''}}" 
+            bindtap="handleCancel"
+            disabled="{{submitting}}"
+          >
+            <text>{{submitting ? '提交中...' : '确认'}}</text>
+          </button>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{loading}}" class="loading-container">
+    <custom-loading />
+  </view>
+</view> 

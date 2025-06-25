@@ -1,0 +1,172 @@
+<view class="page-container">
+  <custom-navbar 
+    title="提交订单" 
+    bgColor="#409EFF"
+  />
+  
+  <block wx:if="{{!loading && productInfo}}">
+    <view class="container">
+      <view class="product-info">
+        <image src="{{productInfo.image}}" mode="aspectFill" class="product-image" />
+        <view class="product-content">
+          <text class="product-name">{{productInfo.name}}</text>
+          <view class="product-price">
+            <text class="price-unit">¥</text>
+            <text class="price-value">{{productInfo.price}}</text>
+            <text class="price-unit">/度</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-card">
+        <view class="card-title">基本信息</view>
+
+        <view class="form-group">
+          <text class="form-label required">联系人姓名</text>
+          <input 
+            class="form-input"
+            placeholder="请输入联系人姓名"
+            value="{{form.name}}"
+            data-field="name"
+            bindinput="onInput"
+          />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label required">联系电话</text>
+          <input 
+            class="form-input"
+            type="number"
+            maxlength="11"
+            placeholder="请输入联系电话"
+            value="{{form.phone}}"
+            data-field="phone"
+            bindinput="onInput"
+          />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label required">安装地址</text>
+          <input 
+            class="form-input"
+            placeholder="请输入详细安装地址"
+            value="{{form.address}}"
+            data-field="address"
+            bindinput="onInput"
+          />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label required">公司名称</text>
+          <input 
+            class="form-input"
+            placeholder="请输入公司名称"
+            value="{{form.companyName}}"
+            data-field="companyName"
+            bindinput="onInput"
+          />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label required">营业执照</text>
+          <view class="upload-container">
+            <view 
+              class="upload-box {{form.businessLicense ? 'has-image' : ''}}"
+              data-field="businessLicense"
+              bindtap="uploadImage"
+            >
+              <image 
+                wx:if="{{form.businessLicense}}"
+                src="{{form.businessLicense}}"
+                mode="aspectFill"
+                class="upload-image"
+                data-url="{{form.businessLicense}}"
+                catchtap="previewImage"
+              />
+              <view wx:else class="upload-placeholder">
+                <image src="/assets/icons/upload.png" class="upload-icon" />
+                <text>上传营业执照</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-card">
+        <view class="card-title">用电信息</view>
+
+        <view class="form-group">
+          <text class="form-label">电压等级</text>
+          <picker 
+            mode="selector" 
+            range="{{voltageOptions}}"
+            value="{{voltageOptions.indexOf(form.voltage)}}"
+            data-field="voltage"
+            bindchange="onPickerChange"
+          >
+            <view class="picker-view">
+              <text>{{form.voltage}}V</text>
+              <image src="/assets/icons/arrow-down.png" class="picker-arrow" />
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">相数</text>
+          <picker 
+            mode="selector" 
+            range="{{phaseOptions}}"
+            value="{{phaseOptions.indexOf(form.phase)}}"
+            data-field="phase"
+            bindchange="onPickerChange"
+          >
+            <view class="picker-view">
+              <text>{{form.phase}}</text>
+              <image src="/assets/icons/arrow-down.png" class="picker-arrow" />
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-group">
+          <text class="form-label required">预计用电量</text>
+          <view class="input-group">
+            <input 
+              class="form-input"
+              type="digit"
+              placeholder="请输入预计每月用电量"
+              value="{{form.estimatedPower}}"
+              data-field="estimatedPower"
+              bindinput="onInput"
+            />
+            <text class="input-unit">度/月</text>
+          </view>
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">备注说明</text>
+          <textarea 
+            class="form-textarea"
+            placeholder="请输入备注说明（选填）"
+            value="{{form.remark}}"
+            data-field="remark"
+            bindinput="onInput"
+          />
+        </view>
+      </view>
+
+      <view class="submit-bar">
+        <button 
+          class="submit-button {{submitting ? 'loading' : ''}}" 
+          bindtap="handleSubmit"
+          disabled="{{submitting}}"
+        >
+          <text>{{submitting ? '提交中...' : '提交订单'}}</text>
+        </button>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{loading}}" class="loading-container">
+    <custom-loading />
+  </view>
+</view> 

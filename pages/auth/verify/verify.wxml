@@ -1,0 +1,139 @@
+<view class="page-container">
+  <custom-navbar 
+    title="身份认证" 
+    bgColor="#409EFF"
+  />
+  
+  <view class="container">
+    <view class="verify-tips">
+      <text class="verify-tips-title">认证说明</text>
+      <text class="verify-tips-content">为了保证交易安全，请提供真实的身份信息和企业资质。我们将对您提供的信息进行严格保密。</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required">姓名</text>
+      <input 
+        class="form-input"
+        placeholder="请输入姓名"
+        value="{{form.name}}"
+        data-field="name"
+        bindinput="onInput"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required">身份证号</text>
+      <input 
+        class="form-input"
+        placeholder="请输入身份证号"
+        value="{{form.idCard}}"
+        data-field="idCard"
+        bindinput="onInput"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required">手机号</text>
+      <input 
+        class="form-input"
+        type="number"
+        maxlength="11"
+        placeholder="请输入手机号"
+        value="{{form.phone}}"
+        data-field="phone"
+        bindinput="onInput"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required">公司名称</text>
+      <input 
+        class="form-input"
+        placeholder="请输入公司名称"
+        value="{{form.companyName}}"
+        data-field="companyName"
+        bindinput="onInput"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required">营业执照</text>
+      <view class="upload-container">
+        <view 
+          class="upload-box {{form.businessLicense ? 'has-image' : ''}}"
+          data-field="businessLicense"
+          bindtap="uploadImage"
+        >
+          <image 
+            wx:if="{{form.businessLicense}}"
+            src="{{form.businessLicense}}"
+            mode="aspectFill"
+            class="upload-image"
+            data-url="{{form.businessLicense}}"
+            catchtap="previewImage"
+          />
+          <view wx:else class="upload-placeholder">
+            <image src="/assets/icons/upload.png" class="upload-icon" />
+            <text>上传营业执照</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required">身份证照片</text>
+      <view class="upload-container">
+        <view 
+          class="upload-box {{form.idCardFront ? 'has-image' : ''}}"
+          data-field="idCardFront"
+          bindtap="uploadImage"
+        >
+          <image 
+            wx:if="{{form.idCardFront}}"
+            src="{{form.idCardFront}}"
+            mode="aspectFill"
+            class="upload-image"
+            data-url="{{form.idCardFront}}"
+            catchtap="previewImage"
+          />
+          <view wx:else class="upload-placeholder">
+            <image src="/assets/icons/upload.png" class="upload-icon" />
+            <text>上传正面照</text>
+          </view>
+        </view>
+
+        <view 
+          class="upload-box {{form.idCardBack ? 'has-image' : ''}}"
+          data-field="idCardBack"
+          bindtap="uploadImage"
+        >
+          <image 
+            wx:if="{{form.idCardBack}}"
+            src="{{form.idCardBack}}"
+            mode="aspectFill"
+            class="upload-image"
+            data-url="{{form.idCardBack}}"
+            catchtap="previewImage"
+          />
+          <view wx:else class="upload-placeholder">
+            <image src="/assets/icons/upload.png" class="upload-icon" />
+            <text>上传背面照</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <button 
+      class="submit-button {{loading ? 'loading' : ''}}" 
+      bindtap="handleSubmit"
+      disabled="{{loading}}"
+    >
+      <text>{{loading ? '提交中...' : '提交认证'}}</text>
+    </button>
+
+    <view class="verify-notice">
+      <text class="verify-notice-text">提交即代表同意</text>
+      <text class="verify-notice-link">《认证服务协议》</text>
+    </view>
+  </view>
+</view> 

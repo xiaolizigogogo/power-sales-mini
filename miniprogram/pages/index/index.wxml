@@ -1,0 +1,60 @@
+<view class="container">
+  <navbar title="电力销售平台" show-back="{{false}}"></navbar>
+  
+  <!-- 搜索框 -->
+  <view class="search-box">
+    <navigator url="/pages/products/list/list" class="search-bar">
+      <image class="search-icon" src="/assets/images/icons/search.png"></image>
+      <text class="search-placeholder">搜索电力产品</text>
+    </navigator>
+  </view>
+
+  <!-- 产品分类 -->
+  <view class="category-section">
+    <view class="category-grid">
+      <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="navigateToList" data-id="{{item.id}}">
+        <image class="category-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 电费计算器入口 -->
+  <view class="calculator-section" bindtap="navigateToCalculator">
+    <image class="calculator-bg" src="/assets/images/calculator-bg.png" mode="aspectFill"></image>
+    <view class="calculator-content">
+      <text class="calculator-title">电费计算器</text>
+      <text class="calculator-desc">快速估算用电成本</text>
+    </view>
+  </view>
+
+  <!-- 热门产品 -->
+  <view class="hot-section">
+    <view class="section-header">
+      <text class="section-title">热门产品</text>
+      <navigator url="/pages/products/list/list" class="section-more">
+        查看更多
+        <text class="more-icon">></text>
+      </navigator>
+    </view>
+
+    <view class="product-list">
+      <loading wx:if="{{loading}}" />
+      <block wx:elif="{{hotProducts.length > 0}}">
+        <view class="product-item" wx:for="{{hotProducts}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}">
+          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="product-info">
+            <text class="product-name text-ellipsis">{{item.name}}</text>
+            <text class="product-desc text-ellipsis">{{item.description}}</text>
+            <view class="product-price">
+              <text class="price-unit">¥</text>
+              <text class="price-value">{{item.price}}</text>
+              <text class="price-unit">/度</text>
+            </view>
+          </view>
+        </view>
+      </block>
+      <empty wx:else text="暂无热门产品" />
+    </view>
+  </view>
+</view> 
