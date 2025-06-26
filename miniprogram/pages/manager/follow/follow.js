@@ -1,5 +1,5 @@
 const api = require('../../../utils/api')
-const util = require('../../../utils/util')
+const util = require('../../../utils/common')
 
 Page({
   data: {

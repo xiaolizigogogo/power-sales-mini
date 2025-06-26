@@ -1,6 +1,6 @@
 const api = require('../../../utils/api');
 const auth = require('../../../utils/auth');
-const { formatDate, formatMoney } = require('../../../utils/format');
+const { formatDate, formatMoney } = require('../../../utils/common');
 
 Page({
   data: {

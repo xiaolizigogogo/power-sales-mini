@@ -1,5 +1,5 @@
 const api = require('../../../utils/api')
-const { showToast, showLoading, hideLoading } = require('../../../utils/util')
+const { showToast, showLoading, hideLoading } = require('../../../utils/common')
 
 Page({
   data: {

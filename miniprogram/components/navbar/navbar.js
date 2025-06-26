@@ -29,12 +29,26 @@ Component({
 
   lifetimes: {
     attached() {
-      const systemInfo = wx.getSystemInfoSync();
-      const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-      
-      this.setData({
-        statusBarHeight: systemInfo.statusBarHeight,
-        navBarHeight: (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height
+      // 使用新的 API 替代废弃的 getSystemInfoSync
+      wx.getWindowInfo({
+        success: (windowInfo) => {
+          const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+          
+          this.setData({
+            statusBarHeight: windowInfo.statusBarHeight,
+            navBarHeight: (menuButtonInfo.top - windowInfo.statusBarHeight) * 2 + menuButtonInfo.height
+          });
+        },
+        fail: () => {
+          // 降级处理：如果新 API 不支持，使用旧 API
+          const systemInfo = wx.getSystemInfoSync();
+          const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+          
+          this.setData({
+            statusBarHeight: systemInfo.statusBarHeight,
+            navBarHeight: (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height
+          });
+        }
       });
     }
   },

@@ -1,6 +1,6 @@
 // 客户经理 - 我的客户页面
 const api = require('../../../utils/api')
-const util = require('../../../utils/util')
+const util = require('../../../utils/common')
 
 Page({
   data: {

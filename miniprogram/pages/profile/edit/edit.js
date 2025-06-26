@@ -1,7 +1,7 @@
 // pages/profile/edit/edit.js
 const api = require('../../../utils/api');
 const auth = require('../../../utils/auth');
-const utils = require('../../../utils/utils');
+const utils = require('../../../utils/common');
 
 Page({
   data: {

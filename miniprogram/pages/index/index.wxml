@@ -13,7 +13,7 @@
   <view class="category-section">
     <view class="category-grid">
       <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="navigateToList" data-id="{{item.id}}">
-        <image class="category-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <text class="category-icon">{{item.icon}}</text>
         <text class="category-name">{{item.name}}</text>
       </view>
     </view>
@@ -21,10 +21,12 @@
 
   <!-- 电费计算器入口 -->
   <view class="calculator-section" bindtap="navigateToCalculator">
-    <image class="calculator-bg" src="/assets/images/calculator-bg.png" mode="aspectFill"></image>
     <view class="calculator-content">
-      <text class="calculator-title">电费计算器</text>
-      <text class="calculator-desc">快速估算用电成本</text>
+      <text class="calculator-icon">🧮</text>
+      <view class="calculator-text">
+        <text class="calculator-title">电费计算器</text>
+        <text class="calculator-desc">快速估算用电成本</text>
+      </view>
     </view>
   </view>
 

@@ -1,6 +1,6 @@
 const app = getApp()
 const api = require('../../../utils/api')
-const utils = require('../../../utils/util')
+const utils = require('../../../utils/common')
 
 Page({
   data: {

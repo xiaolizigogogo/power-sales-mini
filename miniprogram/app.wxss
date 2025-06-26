@@ -1,18 +1,11 @@
 /**app.wxss**/
+@import "styles/variables.wxss";
+@import "styles/common.wxss";
+
 page {
-  --primary-color: #1890ff;
-  --success-color: #52c41a;
-  --warning-color: #faad14;
-  --error-color: #f5222d;
-  --font-size-small: 24rpx;
-  --font-size-base: 28rpx;
-  --font-size-large: 32rpx;
-  --border-radius: 8rpx;
-  --border-color: #eee;
-  
   font-size: var(--font-size-base);
-  color: #333;
-  background-color: #f5f5f5;
+  color: var(--text-primary);
+  background-color: var(--bg-color);
 }
 
 .container {
@@ -61,7 +54,7 @@ page {
 }
 
 .text-error {
-  color: var(--error-color);
+  color: var(--danger-color);
 }
 
 .text-center {
@@ -81,11 +74,11 @@ page {
 }
 
 .text-small {
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-sm);
 }
 
 .text-large {
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-lg);
 }
 
 .margin-top {
@@ -126,7 +119,7 @@ page {
 
 .button {
   padding: 20rpx 40rpx;
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-base);
   font-size: var(--font-size-base);
   text-align: center;
   border: none;
@@ -149,16 +142,16 @@ page {
 }
 
 .button-error {
-  background-color: var(--error-color);
+  background-color: var(--danger-color);
   color: #fff;
 }
 
 .card {
-  background-color: #fff;
-  border-radius: var(--border-radius);
+  background-color: var(--bg-white);
+  border-radius: var(--border-radius-base);
   padding: 20rpx;
   margin: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-base);
 }
 
 .divider {
@@ -177,7 +170,7 @@ page {
   display: inline-block;
   padding: 4rpx 12rpx;
   border-radius: 20rpx;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-sm);
   color: #fff;
   background-color: var(--primary-color);
 }

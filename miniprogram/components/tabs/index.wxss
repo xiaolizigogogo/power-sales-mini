@@ -120,7 +120,7 @@
 }
 
 /* 等宽分布 */
-.tabs-wrapper:not(.tabs-scroll .tabs-wrapper) .tab-item {
+.tabs-wrapper:not(.tabs-scroll) .tab-item {
   flex: 1;
 }
 
