@@ -1,7 +1,7 @@
 <view class="container">
   <!-- 未登录状态 -->
   <view wx:if="{{!isLogin}}" class="not-login-container flex-column flex-center">
-    <image src="/assets/images/not-login.png" mode="aspectFit" class="not-login-image"></image>
+    <text class="not-login-icon">👤</text>
     <text class="not-login-text">请先登录</text>
     <navigator url="/pages/auth/login/login" class="button button-primary">去登录</navigator>
   </view>
@@ -10,7 +10,9 @@
   <view wx:else class="profile-container">
     <!-- 用户信息头部 -->
     <view class="profile-header">
-      <image src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}" class="avatar"></image>
+              <view class="avatar">
+          <text class="avatar-text">{{userInfo.name ? userInfo.name.charAt(0) : '👤'}}</text>
+        </view>
       <view class="user-info">
         <text class="nickname">{{userInfo.nickName || '用户'}}</text>
         <text class="role">{{userRole === 'manager' ? '客户经理' : '普通客户'}}</text>
@@ -22,28 +24,28 @@
       <view class="menu-group">
         <view class="menu-item" bindtap="goToSettings">
           <view class="menu-item-left">
-            <image src="/assets/images/icons/settings.png" class="menu-icon"></image>
+            <text class="menu-icon">⚙️</text>
             <text>设置</text>
           </view>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon"></image>
+          <text class="arrow-icon">→</text>
         </view>
       </view>
 
       <view class="menu-group">
         <view class="menu-item">
           <view class="menu-item-left">
-            <image src="/assets/images/icons/about.png" class="menu-icon"></image>
+            <text class="menu-icon">ℹ️</text>
             <text>关于我们</text>
           </view>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon"></image>
+          <text class="arrow-icon">→</text>
         </view>
 
         <view class="menu-item">
           <view class="menu-item-left">
-            <image src="/assets/images/icons/feedback.png" class="menu-icon"></image>
+            <text class="menu-icon">💬</text>
             <text>意见反馈</text>
           </view>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon"></image>
+          <text class="arrow-icon">→</text>
         </view>
       </view>
 
