@@ -3,7 +3,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'https://your-api-domain.com/api/v1',
+    baseUrl: 'https://your-api-domain.com/power/api/v1',
     isLogin: false,
     userRole: '', // customer: 普通客户, manager: 客户经理
     companyInfo: null,

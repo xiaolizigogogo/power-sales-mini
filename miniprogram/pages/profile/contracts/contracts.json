@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "我的合同",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f8f9fa",
+  "backgroundTextStyle": "dark",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "loading": "/components/loading/loading",
+    "empty": "/components/empty/empty"
+  }
+} 

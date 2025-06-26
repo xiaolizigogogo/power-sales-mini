@@ -1,9 +1,16 @@
-<view class="navbar {{fixed ? 'fixed' : ''}}" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px; background-color: {{backgroundColor}};">
-  <view class="navbar-content" style="height: {{navBarHeight}}px;">
-    <view wx:if="{{showBack}}" class="navbar-back" bindtap="handleBack">
-      <view class="back-icon" style="border-color: {{textColor}};"></view>
+<view class="custom-navbar {{fixed ? 'fixed' : ''}}" style="background-color: {{bgColor}};">
+  <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+  <view class="nav-bar" style="height: {{navBarHeight}}px;">
+    <view class="nav-bar-left">
+      <view 
+        wx:if="{{showBack}}" 
+        class="back-icon" 
+        bindtap="handleBack"
+        style="border-color: {{textColor}}"
+      ></view>
     </view>
-    <view class="navbar-title" style="color: {{textColor}};">{{title}}</view>
+    <view class="nav-bar-title" style="color: {{textColor}}">{{title}}</view>
+    <view class="nav-bar-right"></view>
   </view>
 </view>
-<view wx:if="{{fixed}}" class="navbar-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view> 
+<view wx:if="{{fixed}}" class="custom-navbar-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view> 

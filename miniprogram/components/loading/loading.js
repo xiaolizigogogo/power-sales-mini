@@ -6,7 +6,7 @@ Component({
     },
     type: {
       type: String,
-      value: 'spinner' // spinner或dots
+      value: 'circular' // circular, spinner
     },
     size: {
       type: String,
@@ -20,9 +20,13 @@ Component({
       type: String,
       value: '加载中...'
     },
+    vertical: {
+      type: Boolean,
+      value: false
+    },
     mask: {
       type: Boolean,
       value: false
     }
   }
-}) 
+}); 

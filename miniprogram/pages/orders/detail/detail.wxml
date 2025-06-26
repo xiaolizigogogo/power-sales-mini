@@ -1,2 +1,192 @@
-<!--pages/orders/detail/detail.wxml-->
-<text>pages/orders/detail/detail.wxml</text>
+<view class="container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <van-loading size="24px" vertical>加载中...</van-loading>
+  </view>
+
+  <!-- 订单详情内容 -->
+  <block wx:elif="{{orderInfo}}">
+    <!-- 订单状态进度 -->
+    <view class="progress-section">
+      <view class="progress-steps">
+        <view class="step-item {{index <= orderInfo.currentStatusIndex ? 'completed' : ''}}" 
+              wx:for="{{statusFlow}}" 
+              wx:key="key">
+          <view class="step-dot"></view>
+          <view class="step-text">{{item.name}}</view>
+        </view>
+      </view>
+      <view class="progress-line">
+        <view class="progress-fill" style="width: {{(orderInfo.currentStatusIndex + 1) * 100 / statusFlow.length}}%"></view>
+      </view>
+    </view>
+
+    <!-- 订单基本信息 -->
+    <view class="info-card">
+      <view class="card-header">
+        <text class="card-title">订单信息</text>
+        <view class="order-status {{orderInfo.status}}">{{orderInfo.statusText}}</view>
+      </view>
+      <view class="info-list">
+        <view class="info-item" bindtap="onCopyOrderNo">
+          <text class="info-label">订单编号</text>
+          <text class="info-value">{{orderInfo.orderNo}}</text>
+          <image class="copy-icon" src="/images/icons/copy.png" mode="aspectFit"></image>
+        </view>
+        <view class="info-item">
+          <text class="info-label">下单时间</text>
+          <text class="info-value">{{orderInfo.createTimeFormatted}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">更新时间</text>
+          <text class="info-value">{{orderInfo.updateTimeFormatted}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderInfo.serviceStartDateFormatted}}">
+          <text class="info-label">服务开始</text>
+          <text class="info-value">{{orderInfo.serviceStartDateFormatted}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderInfo.serviceEndDateFormatted}}">
+          <text class="info-label">服务结束</text>
+          <text class="info-value">{{orderInfo.serviceEndDateFormatted}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 产品信息 -->
+    <view class="info-card">
+      <view class="card-header">
+        <text class="card-title">产品信息</text>
+      </view>
+      <view class="product-info">
+        <image class="product-image" src="{{orderInfo.productImage}}" mode="aspectFill"></image>
+        <view class="product-details">
+          <text class="product-name">{{orderInfo.productName}}</text>
+          <text class="product-desc">{{orderInfo.productDesc}}</text>
+          <view class="product-specs">
+            <text class="spec-item" wx:for="{{orderInfo.specs}}" wx:key="index">{{item}}</text>
+          </view>
+        </view>
+        <view class="product-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-amount">{{orderInfo.amountFormatted}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 服务经理信息 -->
+    <view class="info-card" wx:if="{{orderInfo.managerInfo}}">
+      <view class="card-header">
+        <text class="card-title">服务经理</text>
+        <view class="contact-btn" bindtap="onContactManager">
+          <image src="/images/icons/contact.png" mode="aspectFit"></image>
+          <text>联系</text>
+        </view>
+      </view>
+      <view class="manager-info">
+        <image class="manager-avatar" src="{{orderInfo.managerInfo.avatar}}" mode="aspectFill"></image>
+        <view class="manager-details">
+          <text class="manager-name">{{orderInfo.managerInfo.name}}</text>
+          <text class="manager-title">{{orderInfo.managerInfo.title}}</text>
+          <text class="manager-phone" bindtap="onCopyPhone">{{orderInfo.managerInfo.phoneFormatted}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 合同信息 -->
+    <view class="info-card" wx:if="{{orderInfo.canViewContract}}">
+      <view class="card-header">
+        <text class="card-title">合同信息</text>
+      </view>
+      <view class="contract-info">
+        <view class="contract-item" bindtap="onViewContract">
+          <image class="contract-icon" src="/images/icons/contract.png" mode="aspectFit"></image>
+          <view class="contract-details">
+            <text class="contract-name">{{orderInfo.contractName || '服务合同'}}</text>
+            <text class="contract-desc">点击查看合同详情</text>
+          </view>
+          <image class="arrow-icon" src="/images/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-bar">
+      <block wx:if="{{orderInfo.canCancel}}">
+        <button class="action-btn secondary" bindtap="onCancelOrder">取消订单</button>
+      </block>
+      <block wx:if="{{orderInfo.canPay}}">
+        <button class="action-btn primary" bindtap="onPayOrder">立即支付</button>
+      </block>
+      <block wx:if="{{orderInfo.status === 'completed'}}">
+        <button class="action-btn secondary" bindtap="onEvaluateOrder">评价订单</button>
+        <button class="action-btn primary" bindtap="onBuyAgain">再次购买</button>
+      </block>
+      <block wx:if="{{orderInfo.status === 'active'}}">
+        <button class="action-btn secondary" bindtap="onViewLogistics">查看进度</button>
+        <button class="action-btn primary" bindtap="onRequestRefund">申请退款</button>
+      </block>
+    </view>
+  </block>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <image class="empty-icon" src="/images/empty/order.png" mode="aspectFit"></image>
+    <text class="empty-text">订单不存在或已被删除</text>
+    <text class="empty-desc">您可以返回订单列表查看其他订单</text>
+    <button class="empty-btn" bindtap="navigateBack">返回列表</button>
+  </view>
+
+  <!-- 确认弹窗 -->
+  <van-dialog
+    use-slot
+    title="{{confirmDialog.title}}"
+    show="{{showConfirmDialog}}"
+    show-cancel-button
+    confirm-button-text="确定"
+    cancel-button-text="取消"
+    bind:confirm="onConfirmDialogConfirm"
+    bind:cancel="onConfirmDialogCancel"
+  >
+    <view class="dialog-content">
+      <text>{{confirmDialog.message}}</text>
+    </view>
+  </van-dialog>
+
+  <!-- 联系方式选择 -->
+  <van-action-sheet
+    show="{{showContactSheet}}"
+    actions="{{contactActions}}"
+    bind:select="onContactMethodSelect"
+    bind:cancel="onContactSheetCancel"
+    cancel-text="取消"
+  />
+
+  <!-- 支付方式选择 -->
+  <van-popup
+    show="{{showPaymentSheet}}"
+    position="bottom"
+    round
+    bind:close="onPaymentSheetCancel"
+  >
+    <view class="payment-popup">
+      <view class="payment-header">
+        <text class="payment-title">选择支付方式</text>
+        <text class="payment-amount">¥{{orderInfo.amountFormatted}}</text>
+      </view>
+      <view class="payment-methods">
+        <view class="payment-method" 
+              wx:for="{{paymentMethods}}" 
+              wx:key="value"
+              data-method="{{item.value}}"
+              bindtap="onPaymentMethodSelect">
+          <image class="method-icon" src="{{item.icon}}" mode="aspectFit"></image>
+          <view class="method-info">
+            <text class="method-name">{{item.name}}</text>
+            <text class="method-desc">{{item.desc}}</text>
+          </view>
+          <image class="check-icon" src="/images/icons/check.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+  </van-popup>
+</view> 

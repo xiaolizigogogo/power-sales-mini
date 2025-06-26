@@ -1,0 +1,34 @@
+<!-- 小程序空状态组件模板 -->
+<view class="empty-container">
+  <view class="empty-content">
+    <!-- 空状态图标 -->
+    <view class="empty-icon">
+      <image wx:if="{{type === 'noData'}}" src="/images/empty/no-data.png" class="empty-image" />
+      <image wx:elif="{{type === 'network'}}" src="/images/empty/network-error.png" class="empty-image" />
+      <image wx:elif="{{type === 'search'}}" src="/images/empty/no-search.png" class="empty-image" />
+      <image wx:elif="{{type === 'order'}}" src="/images/empty/no-order.png" class="empty-image" />
+      <image wx:elif="{{type === 'customer'}}" src="/images/empty/no-customer.png" class="empty-image" />
+      <image wx:else src="/images/empty/default.png" class="empty-image" />
+    </view>
+    
+    <!-- 空状态文本 -->
+    <view class="empty-text">
+      <text class="empty-title">{{title || defaultTitle}}</text>
+      <text wx:if="{{description}}" class="empty-desc">{{description}}</text>
+    </view>
+    
+    <!-- 操作按钮 -->
+    <view wx:if="{{showButton}}" class="empty-actions">
+      <button 
+        wx:if="{{buttonText}}" 
+        class="empty-button {{buttonType}}"
+        bindtap="onButtonTap"
+      >
+        {{buttonText}}
+      </button>
+      
+      <!-- 自定义操作按钮 -->
+      <slot name="actions"></slot>
+    </view>
+  </view>
+</view> 

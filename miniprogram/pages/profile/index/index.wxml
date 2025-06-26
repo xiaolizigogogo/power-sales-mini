@@ -1,0 +1,125 @@
+<!--pages/profile/index/index.wxml-->
+<view class="profile-container">
+  <!-- 加载状态 -->
+  <loading wx:if="{{loading}}" text="加载中..." />
+  
+  <!-- 用户信息区域 -->
+  <view class="user-section" wx:if="{{!loading}}">
+    <view class="user-header">
+      <view class="user-info" bindtap="onAvatarTap">
+        <view class="avatar-container">
+          <image 
+            class="user-avatar" 
+            src="{{userInfo ? userInfo.avatar_url : '/images/default-avatar.png'}}" 
+            mode="aspectFill"
+          />
+          <view class="edit-icon">
+            <text class="iconfont icon-edit"></text>
+          </view>
+        </view>
+        <view class="user-details">
+          <view class="user-name">
+            {{userInfo ? userInfo.name : '未登录'}}
+          </view>
+          <view class="user-company" wx:if="{{userInfo && userInfo.company_name}}">
+            {{userInfo.company_name}}
+          </view>
+          <view class="login-tip" wx:else>
+            点击登录，享受更多服务
+          </view>
+        </view>
+      </view>
+      
+      <!-- 认证状态 -->
+      <view class="auth-status" wx:if="{{userInfo}}">
+        <view class="status-item {{userInfo.auth_status === 'verified' ? 'verified' : 'pending'}}">
+          <text class="iconfont {{userInfo.auth_status === 'verified' ? 'icon-check-circle' : 'icon-time-circle'}}"></text>
+          <text class="status-text">
+            {{userInfo.auth_status === 'verified' ? '已认证' : '待认证'}}
+          </text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 数据统计 -->
+    <view class="stats-section" wx:if="{{userInfo}}">
+      <view class="stats-grid">
+        <view class="stats-item" data-type="orders" bindtap="onStatsTap">
+          <view class="stats-number">{{formatNumber(stats.totalOrders)}}</view>
+          <view class="stats-label">订单数量</view>
+        </view>
+        <view class="stats-item" data-type="amount" bindtap="onStatsTap">
+          <view class="stats-number">{{formatAmount(stats.totalAmount)}}</view>
+          <view class="stats-label">累计金额</view>
+        </view>
+        <view class="stats-item" data-type="savings" bindtap="onStatsTap">
+          <view class="stats-number">{{formatAmount(stats.totalSavings)}}</view>
+          <view class="stats-label">节省金额</view>
+        </view>
+        <view class="stats-item" data-type="carbon" bindtap="onStatsTap">
+          <view class="stats-number">{{formatNumber(stats.carbonReduction)}}</view>
+          <view class="stats-label">碳减排(吨)</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section" wx:if="{{!loading}}">
+    <view class="menu-group" wx:for="{{menuItems}}" wx:key="id">
+      <view class="menu-item" data-item="{{item}}" bindtap="onMenuTap">
+        <view class="menu-icon">
+          <text class="iconfont {{item.icon}}"></text>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title">{{item.title}}</view>
+          <view class="menu-subtitle">{{item.subtitle}}</view>
+        </view>
+        <view class="menu-right">
+          <view class="menu-badge" wx:if="{{item.badge > 0}}">{{item.badge}}</view>
+          <text class="iconfont icon-arrow-right"></text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions" wx:if="{{!loading}}">
+    <view 
+      class="quick-action-item"
+      wx:for="{{quickActions}}"
+      wx:key="id"
+      data-action="{{item}}"
+      bindtap="onQuickActionTap"
+      style="background-color: {{item.color}}10"
+    >
+      <view class="action-icon" style="color: {{item.color}}">
+        <text class="iconfont {{item.icon}}"></text>
+      </view>
+      <view class="action-title" style="color: {{item.color}}">{{item.title}}</view>
+    </view>
+  </view>
+
+  <!-- 退出登录按钮 -->
+  <view class="logout-section" wx:if="{{userInfo && !loading}}">
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text class="version-text">版本号：{{version}}</text>
+  </view>
+
+  <!-- 登录提示对话框 -->
+  <view class="auth-dialog" wx:if="{{showAuthDialog}}">
+    <view class="auth-dialog-mask" bindtap="onAuthCancel"></view>
+    <view class="auth-dialog-content">
+      <view class="auth-dialog-title">登录提示</view>
+      <view class="auth-dialog-message">登录后可查看更多信息</view>
+      <view class="auth-dialog-buttons">
+        <button class="auth-btn-cancel" bindtap="onAuthCancel">取消</button>
+        <button class="auth-btn-confirm" bindtap="onAuthConfirm">去登录</button>
+      </view>
+    </view>
+  </view>
+</view> 

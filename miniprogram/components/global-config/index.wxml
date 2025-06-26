@@ -1,0 +1,24 @@
+<!-- 全局配置组件 - 隐藏组件，仅提供配置服务 -->
+<view class="global-config" hidden>
+  <!-- 加载状态 -->
+  <view wx:if="{{isLoading}}" class="config-loading">
+    <text>正在初始化配置...</text>
+  </view>
+  
+  <!-- 配置信息展示（仅开发环境） -->
+  <view wx:if="{{globalConfig.debug}}" class="config-debug">
+    <text class="debug-title">全局配置信息</text>
+    <view class="debug-item">
+      <text class="debug-label">应用名称:</text>
+      <text class="debug-value">{{globalConfig.appName}}</text>
+    </view>
+    <view class="debug-item">
+      <text class="debug-label">版本号:</text>
+      <text class="debug-value">{{globalConfig.version}}</text>
+    </view>
+    <view class="debug-item">
+      <text class="debug-label">API超时:</text>
+      <text class="debug-value">{{globalConfig.apiConfig.timeout}}ms</text>
+    </view>
+  </view>
+</view> 

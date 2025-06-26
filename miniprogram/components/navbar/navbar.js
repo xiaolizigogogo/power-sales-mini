@@ -8,7 +8,7 @@ Component({
       type: Boolean,
       value: true
     },
-    backgroundColor: {
+    bgColor: {
       type: String,
       value: '#409EFF'
     },
@@ -29,33 +29,28 @@ Component({
 
   lifetimes: {
     attached() {
-      const systemInfo = wx.getSystemInfoSync()
-      const menuButtonInfo = wx.getMenuButtonBoundingClientRect()
+      const systemInfo = wx.getSystemInfoSync();
+      const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
       
-      // 状态栏高度
-      const statusBarHeight = systemInfo.statusBarHeight
-      // 导航栏高度 = 胶囊按钮上下间距 + 胶囊按钮高度
-      const navBarHeight = (menuButtonInfo.top - statusBarHeight) * 2 + menuButtonInfo.height
-
       this.setData({
-        statusBarHeight,
-        navBarHeight
-      })
+        statusBarHeight: systemInfo.statusBarHeight,
+        navBarHeight: (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height
+      });
     }
   },
 
   methods: {
     handleBack() {
       if (this.data.showBack) {
-        const pages = getCurrentPages()
+        const pages = getCurrentPages();
         if (pages.length > 1) {
-          wx.navigateBack()
+          wx.navigateBack();
         } else {
           wx.reLaunch({
             url: '/pages/index/index'
-          })
+          });
         }
       }
     }
   }
-}) 
+}); 

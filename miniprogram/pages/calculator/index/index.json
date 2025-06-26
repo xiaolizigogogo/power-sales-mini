@@ -1,0 +1,16 @@
+{
+  "navigationBarTitleText": "节电效益计算器",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#667eea",
+  "backgroundTextStyle": "light",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "loading": "/components/loading/index",
+    "empty": "/components/empty/index", 
+    "modal": "/components/modal/index",
+    "tabs": "/components/tabs/index"
+  },
+  "disableScroll": false
+} 

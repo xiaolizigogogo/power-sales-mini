@@ -2,11 +2,11 @@
   <navbar title="电力销售平台" show-back="{{false}}"></navbar>
   
   <!-- 搜索框 -->
-  <view class="search-box">
-    <navigator url="/pages/products/list/list" class="search-bar">
-      <image class="search-icon" src="/assets/images/icons/search.png"></image>
-      <text class="search-placeholder">搜索电力产品</text>
-    </navigator>
+  <view class="search-container">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索产品" />
+    </view>
   </view>
 
   <!-- 产品分类 -->

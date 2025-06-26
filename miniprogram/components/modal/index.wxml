@@ -1,0 +1,47 @@
+<!-- 小程序模态框组件模板 -->
+<view wx:if="{{visible}}" class="modal-mask" bindtap="onMaskTap">
+  <view 
+    class="modal-container {{customClass}}" 
+    animation="{{animationData}}"
+    bindtap="preventTap"
+  >
+    <!-- 模态框头部 -->
+    <view wx:if="{{title}}" class="modal-header">
+      <!-- 类型图标 -->
+      <view wx:if="{{type !== 'default'}}" class="modal-icon modal-icon-{{type}}">
+        <text wx:if="{{type === 'success'}}" class="icon">✓</text>
+        <text wx:elif="{{type === 'warning'}}" class="icon">!</text>
+        <text wx:elif="{{type === 'error'}}" class="icon">✕</text>
+      </view>
+      
+      <text class="modal-title">{{title}}</text>
+    </view>
+
+    <!-- 模态框内容 -->
+    <view class="modal-body">
+      <text wx:if="{{content}}" class="modal-content">{{content}}</text>
+      <slot></slot>
+    </view>
+
+    <!-- 模态框底部按钮 -->
+    <view wx:if="{{showConfirm || showCancel}}" class="modal-footer">
+      <button 
+        wx:if="{{showCancel}}"
+        class="modal-button modal-button-cancel"
+        style="color: {{cancelColor}}"
+        bindtap="onCancel"
+      >
+        {{cancelText}}
+      </button>
+      
+      <button 
+        wx:if="{{showConfirm}}"
+        class="modal-button modal-button-confirm"
+        style="color: {{confirmColor}}"
+        bindtap="onConfirm"
+      >
+        {{confirmText}}
+      </button>
+    </view>
+  </view>
+</view> 

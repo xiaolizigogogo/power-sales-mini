@@ -1,0 +1,149 @@
+/* 小程序模态框组件样式 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 24rpx;
+  max-width: 600rpx;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 模态框头部 */
+.modal-header {
+  padding: 40rpx 40rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.modal-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.modal-icon .icon {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.modal-icon-success {
+  background: #52c41a;
+}
+
+.modal-icon-warning {
+  background: #faad14;
+}
+
+.modal-icon-error {
+  background: #ff4d4f;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* 模态框内容 */
+.modal-body {
+  padding: 20rpx 40rpx 40rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modal-content {
+  font-size: 32rpx;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* 模态框底部 */
+.modal-footer {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.modal-button {
+  flex: 1;
+  height: 100rpx;
+  line-height: 100rpx;
+  text-align: center;
+  font-size: 32rpx;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.modal-button::after {
+  border: none;
+}
+
+.modal-button-cancel {
+  border-right: 1rpx solid #f0f0f0;
+  color: #999;
+}
+
+.modal-button-confirm {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* 单按钮样式 */
+.modal-footer .modal-button:only-child {
+  border-right: none;
+}
+
+/* 长内容适配 */
+.modal-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 响应式适配 */
+@media (max-width: 750rpx) {
+  .modal-container {
+    max-width: 90%;
+  }
+  
+  .modal-header {
+    padding: 32rpx 32rpx 16rpx;
+  }
+  
+  .modal-body {
+    padding: 16rpx 32rpx 32rpx;
+  }
+  
+  .modal-title {
+    font-size: 32rpx;
+  }
+  
+  .modal-content {
+    font-size: 28rpx;
+  }
+} 

@@ -1,0 +1,26 @@
+<!-- 加载组件 -->
+<view wx:if="{{visible}}" class="{{getContainerClass()}}" style="{{getMaskStyle()}}" catchtap="onMaskTap">
+  <view class="loading-content">
+    <!-- Spinner 加载器 -->
+    <view wx:if="{{type === 'spinner'}}" class="{{getLoaderClass()}}" style="{{getLoaderStyle()}}">
+      <view class="spinner-border"></view>
+    </view>
+    
+    <!-- Dots 加载器 -->
+    <view wx:elif="{{type === 'dots'}}" class="{{getLoaderClass()}}">
+      <view class="dot" style="background-color: {{color}};"></view>
+      <view class="dot" style="background-color: {{color}};"></view>
+      <view class="dot" style="background-color: {{color}};"></view>
+    </view>
+    
+    <!-- Pulse 加载器 -->
+    <view wx:elif="{{type === 'pulse'}}" class="{{getLoaderClass()}}">
+      <view class="pulse-ring" style="border-color: {{color}};"></view>
+      <view class="pulse-ring" style="border-color: {{color}};"></view>
+      <view class="pulse-ring" style="border-color: {{color}};"></view>
+    </view>
+    
+    <!-- 加载文字 -->
+    <text wx:if="{{showText && text}}" class="loading-text" style="color: {{color}};">{{text}}</text>
+  </view>
+</view> 

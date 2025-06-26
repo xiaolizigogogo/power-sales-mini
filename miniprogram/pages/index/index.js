@@ -2,10 +2,10 @@ Page({
   data: {
     // 产品分类
     categories: [
-      { id: 1, name: '工商业用电', icon: '/assets/images/icons/business.png' },
-      { id: 2, name: '居民用电', icon: '/assets/images/icons/home.png' },
-      { id: 3, name: '农业用电', icon: '/assets/images/icons/agriculture.png' },
-      { id: 4, name: '临时用电', icon: '/assets/images/icons/temporary.png' }
+      { id: 1, name: '工商业用电', icon: '🏢' },
+      { id: 2, name: '居民用电', icon: '🏠' },
+      { id: 3, name: '农业用电', icon: '🌾' },
+      { id: 4, name: '临时用电', icon: '⚡' }
     ],
     // 热门产品
     hotProducts: [],
@@ -22,7 +22,7 @@ Page({
     try {
       const app = getApp()
       const res = await app.request({
-        url: '/api/products/hot',
+        url: '/products/hot',
         method: 'GET'
       })
       

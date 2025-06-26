@@ -1,0 +1,302 @@
+<!-- 业绩统计页面 -->
+<view class="performance-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-title">业绩统计</view>
+    <view class="header-actions">
+      <view class="action-btn" bindtap="showShareModal">
+        <image src="/images/icons/share.png" class="action-icon" />
+      </view>
+      <view class="action-btn" bindtap="exportData">
+        <image src="/images/icons/export.png" class="action-icon" />
+      </view>
+      <view class="action-btn" bindtap="setReminder">
+        <image src="/images/icons/reminder.png" class="action-icon" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 时间筛选 -->
+  <view class="time-filter">
+    <view class="filter-tabs">
+      <view 
+        wx:for="{{periodOptions}}" 
+        wx:key="value"
+        class="filter-tab {{currentPeriod === item.value ? 'active' : ''}}"
+        data-period="{{item.value}}"
+        bindtap="onPeriodChange"
+      >
+        {{item.label}}
+      </view>
+    </view>
+    
+    <view class="custom-date">
+      <view class="date-picker" bindtap="showDatePicker" data-type="start">
+        <text class="date-text">{{customDateRange.startDate || '开始日期'}}</text>
+        <image src="/images/icons/calendar.png" class="date-icon" />
+      </view>
+      <view class="date-separator">至</view>
+      <view class="date-picker" bindtap="showDatePicker" data-type="end">
+        <text class="date-text">{{customDateRange.endDate || '结束日期'}}</text>
+        <image src="/images/icons/calendar.png" class="date-icon" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content-container">
+    <!-- 标签页 -->
+    <view class="tabs">
+      <view 
+        wx:for="{{tabs}}" 
+        wx:key="key"
+        class="tab-item {{activeTab === index ? 'active' : ''}}"
+        data-index="{{index}}"
+        bindtap="onTabChange"
+      >
+        {{item.title}}
+      </view>
+    </view>
+
+    <!-- 业绩概览 -->
+    <view wx:if="{{activeTab === 0}}" class="tab-content">
+      <!-- 核心指标卡片 -->
+      <view class="metrics-grid">
+        <view class="metric-card">
+          <view class="metric-value">{{performanceData.overview.totalCustomers}}</view>
+          <view class="metric-label">总客户数</view>
+          <view class="metric-change positive">
+            <image src="/images/icons/arrow-up.png" class="change-icon" />
+            +{{performanceData.overview.newCustomers}}
+          </view>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-value">{{performanceData.overview.totalOrders}}</view>
+          <view class="metric-label">总订单数</view>
+          <view class="metric-change positive">
+            <image src="/images/icons/arrow-up.png" class="change-icon" />
+            +{{performanceData.overview.signedCustomers}}
+          </view>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-value">{{formatAmount(performanceData.overview.totalAmount)}}</view>
+          <view class="metric-label">总订单金额</view>
+          <view class="metric-change positive">
+            <image src="/images/icons/arrow-up.png" class="change-icon" />
+            {{formatPercent(performanceData.overview.achievementRate)}}
+          </view>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-value">{{performanceData.overview.ranking}}</view>
+          <view class="metric-label">个人排名</view>
+          <view class="metric-change">
+            完成率{{formatPercent(performanceData.overview.completionRate)}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 目标完成进度 -->
+      <view class="progress-section">
+        <view class="section-title">
+          <text>目标完成进度</text>
+          <text class="target-action" bindtap="setTarget">设置目标</text>
+        </view>
+        <view class="progress-card">
+          <view class="progress-info">
+            <view class="progress-text">
+              <text class="current-amount">{{formatAmount(performanceData.overview.totalAmount)}}</text>
+              <text class="target-amount">/ {{formatAmount(performanceData.overview.targetAmount)}}</text>
+            </view>
+            <view class="progress-percent">{{formatPercent(performanceData.overview.achievementRate)}}</view>
+          </view>
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{performanceData.overview.achievementRate}}%"></view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 快速操作 -->
+      <view class="quick-actions">
+        <view class="action-grid">
+          <view class="action-item" bindtap="viewCustomerDistribution" data-type="byStatus">
+            <image src="/images/icons/customers.png" class="action-icon" />
+            <text class="action-text">客户分布</text>
+          </view>
+          <view class="action-item" bindtap="viewDetailAnalysis" data-type="order">
+            <image src="/images/icons/orders.png" class="action-icon" />
+            <text class="action-text">订单分析</text>
+          </view>
+          <view class="action-item" bindtap="viewDetailAnalysis" data-type="follow">
+            <image src="/images/icons/follow.png" class="action-icon" />
+            <text class="action-text">跟进效率</text>
+          </view>
+          <view class="action-item" bindtap="viewTargetDetail">
+            <image src="/images/icons/target.png" class="action-icon" />
+            <text class="action-text">目标管理</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数据分析 -->
+    <view wx:if="{{activeTab === 1}}" class="tab-content">
+      <!-- 趋势图表 -->
+      <view class="chart-section">
+        <view class="section-title">业绩趋势</view>
+        <view class="chart-container">
+          <ec-canvas id="trend-chart" canvas-id="trendChart" ec="{{chartOptions.trend}}"></ec-canvas>
+        </view>
+      </view>
+
+      <!-- 客户分布 -->
+      <view class="chart-section">
+        <view class="section-title">客户分布</view>
+        <view class="distribution-tabs">
+          <view class="dist-tab active">按状态</view>
+          <view class="dist-tab">按行业</view>
+          <view class="dist-tab">按地区</view>
+        </view>
+        <view class="chart-container">
+          <ec-canvas id="dist-chart" canvas-id="distChart" ec="{{chartOptions.distribution}}"></ec-canvas>
+        </view>
+      </view>
+
+      <!-- 详细数据 -->
+      <view class="data-section">
+        <view class="section-title">详细数据</view>
+        <view class="data-grid">
+          <view class="data-item">
+            <view class="data-label">平均客单价</view>
+            <view class="data-value">{{formatAmount(performanceData.orderAnalysis.avgOrderValue)}}</view>
+          </view>
+          <view class="data-item">
+            <view class="data-label">转化率</view>
+            <view class="data-value">{{formatPercent(performanceData.orderAnalysis.conversionRate)}}</view>
+          </view>
+          <view class="data-item">
+            <view class="data-label">客户满意度</view>
+            <view class="data-value">{{performanceData.followEfficiency.customerSatisfaction}}分</view>
+          </view>
+          <view class="data-item">
+            <view class="data-label">平均响应时间</view>
+            <view class="data-value">{{performanceData.followEfficiency.avgResponseTime}}小时</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 排行榜 -->
+    <view wx:if="{{activeTab === 2}}" class="tab-content">
+      <!-- 个人排行 -->
+      <view class="ranking-section">
+        <view class="section-title">
+          <text>个人排行榜</text>
+          <text class="ranking-action" bindtap="viewRankingDetail" data-type="personal">查看更多</text>
+        </view>
+        <view class="ranking-list">
+          <view 
+            wx:for="{{rankings.personal}}" 
+            wx:key="id"
+            class="ranking-item {{index < 3 ? 'top-three' : ''}}"
+          >
+            <view class="ranking-position">
+              <text wx:if="{{index < 3}}" class="medal">{{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}}</text>
+              <text wx:else class="rank-number">{{index + 1}}</text>
+            </view>
+            <view class="ranking-info">
+              <view class="employee-name">{{item.name}}</view>
+              <view class="employee-dept">{{item.department}}</view>
+            </view>
+            <view class="ranking-data">
+              <view class="data-primary">{{formatAmount(item.totalAmount)}}</view>
+              <view class="data-secondary">{{item.customerCount}}客户</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 团队排行 -->
+      <view class="ranking-section">
+        <view class="section-title">
+          <text>团队排行榜</text>
+          <text class="ranking-action" bindtap="viewRankingDetail" data-type="team">查看更多</text>
+        </view>
+        <view class="ranking-list">
+          <view 
+            wx:for="{{rankings.team}}" 
+            wx:key="id"
+            class="ranking-item {{index < 3 ? 'top-three' : ''}}"
+          >
+            <view class="ranking-position">
+              <text wx:if="{{index < 3}}" class="medal">{{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}}</text>
+              <text wx:else class="rank-number">{{index + 1}}</text>
+            </view>
+            <view class="ranking-info">
+              <view class="team-name">{{item.name}}</view>
+              <view class="team-members">{{item.memberCount}}人</view>
+            </view>
+            <view class="ranking-data">
+              <view class="data-primary">{{formatAmount(item.totalAmount)}}</view>
+              <view class="data-secondary">{{item.orderCount}}订单</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">数据加载中...</text>
+  </view>
+</view>
+
+<!-- 日期选择器 -->
+<picker
+  wx:if="{{showDatePicker}}"
+  mode="date"
+  value="{{datePickerType === 'start' ? customDateRange.startDate : customDateRange.endDate}}"
+  bindchange="onDateConfirm"
+  bindcancel="onDateCancel"
+>
+  <view class="date-picker-mask"></view>
+</picker>
+
+<!-- 分享弹窗 -->
+<view wx:if="{{showShareModal}}" class="modal-overlay" bindtap="hideShareModal">
+  <view class="share-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">分享业绩</text>
+      <view class="modal-close" bindtap="hideShareModal">×</view>
+    </view>
+    <view class="share-options">
+      <view 
+        wx:for="{{shareOptions}}" 
+        wx:key="name"
+        class="share-option"
+        open-type="{{item.openType}}"
+        data-action="{{item.action}}"
+        bindtap="onShareAction"
+      >
+        <image src="/images/icons/{{item.icon}}.png" class="share-icon" />
+        <text class="share-text">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 底部操作栏 -->
+<view class="bottom-actions">
+  <view class="action-button secondary" bindtap="refreshData">
+    <image src="/images/icons/refresh.png" class="btn-icon" />
+    <text>刷新数据</text>
+  </view>
+  <view class="action-button primary" bindtap="exportData">
+    <image src="/images/icons/download.png" class="btn-icon" />
+    <text>导出报告</text>
+  </view>
+</view> 

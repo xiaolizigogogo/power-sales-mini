@@ -1,34 +1,32 @@
-.empty-container {
+.custom-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60rpx 32rpx;
+  padding: 60rpx 30rpx;
 }
 
-.empty-image {
+.custom-empty-image {
   width: 240rpx;
   height: 240rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 30rpx;
 }
 
-.empty-text {
+.custom-empty-description {
   font-size: 28rpx;
-  color: var(--text-secondary);
-  margin-bottom: 32rpx;
+  color: #6b7280;
+  margin-bottom: 30rpx;
 }
 
-.empty-button {
-  min-width: 200rpx;
-  height: 80rpx;
-  line-height: 80rpx;
+.custom-empty-button {
+  padding: 20rpx 40rpx;
   font-size: 28rpx;
   color: #fff;
-  background: var(--primary-color);
-  border-radius: var(--radius-base);
-  padding: 0 32rpx;
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+  border-radius: 12rpx;
+  border: none;
 }
 
-.empty-button::after {
-  border: none;
+.custom-empty-button::after {
+  display: none;
 } 

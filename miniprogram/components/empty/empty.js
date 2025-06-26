@@ -1,6 +1,6 @@
 Component({
   properties: {
-    text: {
+    description: {
       type: String,
       value: '暂无数据'
     },
@@ -15,8 +15,8 @@ Component({
   },
 
   methods: {
-    handleButtonClick() {
-      this.triggerEvent('click')
+    onButtonTap() {
+      this.triggerEvent('button-click');
     }
   }
-}) 
+}); 

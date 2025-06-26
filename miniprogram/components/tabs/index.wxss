@@ -1,0 +1,139 @@
+/* 小程序标签页组件样式 */
+.tabs-container {
+  position: relative;
+  background: white;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tabs-scroll {
+  white-space: nowrap;
+}
+
+.tabs-wrapper {
+  display: flex;
+  position: relative;
+  min-height: 88rpx;
+}
+
+/* 标签项 */
+.tab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 32rpx;
+  min-width: 120rpx;
+  font-size: 28rpx;
+  color: #666;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.tab-item.tab-active {
+  font-weight: 500;
+}
+
+/* 可滚动时的标签项 */
+.tabs-scroll .tab-item {
+  white-space: nowrap;
+}
+
+/* 标签图标 */
+.tab-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 8rpx;
+}
+
+.tab-text {
+  flex-shrink: 0;
+}
+
+/* 徽章 */
+.tab-badge {
+  position: absolute;
+  top: 12rpx;
+  right: 20rpx;
+  background: #ff4d4f;
+  color: white;
+  border-radius: 20rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  transform: scale(0.8);
+}
+
+.badge-text {
+  padding: 0 8rpx;
+  line-height: 1;
+}
+
+/* 线条类型 */
+.tabs-line .tab-line {
+  position: absolute;
+  bottom: 0;
+  height: 4rpx;
+  background: var(--primary-color);
+  border-radius: 2rpx;
+  transition: all 0.3s;
+}
+
+/* 卡片类型 */
+.tabs-card .tabs-wrapper {
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 8rpx;
+  margin: 16rpx;
+}
+
+.tabs-card .tab-item {
+  border-radius: 8rpx;
+  margin: 0 4rpx;
+  background: transparent;
+}
+
+.tabs-card .tab-item.tab-active {
+  background: white;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 按钮类型 */
+.tabs-button .tabs-wrapper {
+  padding: 16rpx;
+  gap: 16rpx;
+}
+
+.tabs-button .tab-item {
+  border: 2rpx solid #e8e8e8;
+  border-radius: 48rpx;
+  background: white;
+  flex: 1;
+}
+
+.tabs-button .tab-item.tab-active {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  color: white;
+}
+
+/* 等宽分布 */
+.tabs-wrapper:not(.tabs-scroll .tabs-wrapper) .tab-item {
+  flex: 1;
+}
+
+/* 响应式适配 */
+@media (max-width: 750rpx) {
+  .tab-item {
+    padding: 16rpx 24rpx;
+    font-size: 26rpx;
+    min-width: 100rpx;
+  }
+  
+  .tab-icon {
+    width: 28rpx;
+    height: 28rpx;
+  }
+} 

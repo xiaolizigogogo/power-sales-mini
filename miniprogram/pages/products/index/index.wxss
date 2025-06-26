@@ -1,0 +1,374 @@
+/* 产品列表页面样式 */
+.container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 搜索区域 */
+.search-section {
+  padding: 20rpx;
+  background-color: #fff;
+  margin-bottom: 20rpx;
+}
+
+.search-bar {
+  position: relative;
+  background-color: #f8f8f8;
+  border-radius: 50rpx;
+  padding: 20rpx 40rpx;
+  display: flex;
+  align-items: center;
+  border: 2rpx solid #e0e0e0;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 20rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.search-input.placeholder {
+  color: #999;
+}
+
+/* 筛选区域 */
+.filter-section {
+  padding: 20rpx;
+  background-color: #fff;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.filter-tabs {
+  display: flex;
+  align-items: center;
+}
+
+.filter-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  position: relative;
+  font-size: 28rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.filter-item.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.filter-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: var(--primary-color);
+  border-radius: 2rpx;
+}
+
+/* 产品列表区域 */
+.product-list {
+  padding: 0 20rpx;
+}
+
+.product-card {
+  background-color: #fff;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6rpx;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.product-card:active {
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.12);
+}
+
+/* 产品头部 */
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.product-title {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  margin-right: 20rpx;
+}
+
+.product-tag {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  color: #fff;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.product-tag.hot {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+}
+
+.product-tag.new {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+}
+
+.product-tag.recommend {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 产品信息 */
+.product-info {
+  margin-bottom: 25rpx;
+}
+
+.price-section {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 15rpx;
+}
+
+.price-range {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-right: 10rpx;
+}
+
+.price-unit {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.savings {
+  font-size: 26rpx;
+  color: #ff6b6b;
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+}
+
+.savings-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 8rpx;
+}
+
+/* 产品特点 */
+.product-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+  margin-bottom: 25rpx;
+}
+
+.feature-item {
+  background-color: #f8f9ff;
+  color: var(--primary-color);
+  padding: 12rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  border: 1rpx solid rgba(64, 158, 255, 0.2);
+}
+
+/* 适用信息 */
+.suitable-info {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 25rpx;
+  background-color: #fafafa;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  border-left: 4rpx solid var(--primary-color);
+}
+
+/* 产品底部 */
+.product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-detail {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: #fff;
+  padding: 20rpx 40rpx;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  box-shadow: 0 8rpx 20rpx rgba(64, 158, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.view-detail:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 4rpx 15rpx rgba(64, 158, 255, 0.4);
+}
+
+.customer-info {
+  font-size: 22rpx;
+  color: #999;
+  display: flex;
+  align-items: center;
+}
+
+.customer-count {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-left: 8rpx;
+}
+
+/* 加载状态 */
+.loading-section {
+  padding: 60rpx 20rpx;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.loading-icon {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 20rpx;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 空状态 */
+.empty-section {
+  padding: 100rpx 20rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  line-height: 1.5;
+}
+
+/* 底部加载更多 */
+.load-more {
+  padding: 40rpx 20rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.load-more.loading {
+  color: var(--primary-color);
+}
+
+/* 返回顶部按钮 */
+.back-to-top {
+  position: fixed;
+  bottom: 120rpx;
+  right: 30rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 25rpx rgba(64, 158, 255, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
+}
+
+.back-to-top:active {
+  transform: scale(0.95);
+}
+
+.back-to-top-icon {
+  width: 36rpx;
+  height: 36rpx;
+  opacity: 0.9;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 320px) {
+  .product-title {
+    font-size: 30rpx;
+  }
+  
+  .price-range {
+    font-size: 32rpx;
+  }
+  
+  .product-card {
+    padding: 25rpx;
+  }
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #1a1a1a;
+  }
+  
+  .search-section,
+  .filter-section,
+  .product-card {
+    background-color: #2d2d2d;
+  }
+  
+  .search-bar {
+    background-color: #3a3a3a;
+    border-color: #4a4a4a;
+  }
+  
+  .product-title {
+    color: #fff;
+  }
+  
+  .suitable-info {
+    background-color: #3a3a3a;
+  }
+  
+  .feature-item {
+    background-color: rgba(64, 158, 255, 0.1);
+  }
+} 

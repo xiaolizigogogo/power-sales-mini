@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "身份认证",
+  "navigationBarTextStyle": "black",
+  "navigationBarBackgroundColor": "#ffffff",
+  "backgroundColor": "#f8fafc",
+  "enablePullDownRefresh": false,
+  "disableScroll": false,
+  "usingComponents": {
+    "custom-loading": "/components/loading/loading",
+    "custom-toast": "/components/toast/toast"
+  }
+} 

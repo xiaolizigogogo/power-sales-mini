@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "创建订单",
+  "usingComponents": {
+    "loading": "/components/loading/index",
+    "modal": "/components/modal/index"
+  }
+} 

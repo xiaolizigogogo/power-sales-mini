@@ -1,2 +1,154 @@
-<!--pages/products/detail/detail.wxml-->
-<text>pages/products/detail/detail.wxml</text>
+<view class="page-container">
+  <custom-navbar 
+    title="产品详情" 
+    bgColor="#409EFF"
+  />
+  
+  <block wx:if="{{!loading && detail}}">
+    <scroll-view 
+      class="detail-scroll" 
+      scroll-y 
+      enhanced 
+      show-scrollbar="{{false}}"
+    >
+      <swiper 
+        class="banner" 
+        indicator-dots 
+        circular 
+        autoplay
+      >
+        <swiper-item 
+          wx:for="{{detail.images}}" 
+          wx:key="*this"
+          bindtap="previewImage"
+          data-current="{{item}}"
+        >
+          <image src="{{item}}" mode="aspectFill" class="banner-image" />
+        </swiper-item>
+      </swiper>
+
+      <view class="info-card">
+        <view class="product-title">
+          <text class="product-name">{{detail.name}}</text>
+          <view class="share-button" bindtap="showSharePanel">
+            <image src="/assets/icons/share.png" class="share-icon" />
+            <text>分享</text>
+          </view>
+        </view>
+
+        <view class="product-price">
+          <text class="price-unit">¥</text>
+          <text class="price-value">{{detail.price}}</text>
+          <text class="price-unit">/度</text>
+        </view>
+
+        <view class="product-tags">
+          <view class="tag">{{detail.categoryName}}</view>
+          <view class="tag">{{detail.voltage}}V</view>
+          <view class="tag">{{detail.phase}}相</view>
+        </view>
+      </view>
+
+      <view class="detail-card">
+        <view class="card-title">产品说明</view>
+        <view class="product-desc">{{detail.description}}</view>
+      </view>
+
+      <view class="detail-card">
+        <view class="card-title">适用范围</view>
+        <view class="scope-list">
+          <view 
+            wx:for="{{detail.scopes}}" 
+            wx:key="*this"
+            class="scope-item"
+          >
+            <image src="/assets/icons/check.png" class="check-icon" />
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="detail-card">
+        <view class="card-title">优惠政策</view>
+        <view class="policy-list">
+          <view 
+            wx:for="{{detail.policies}}" 
+            wx:key="*this"
+            class="policy-item"
+          >
+            <image src="/assets/icons/policy.png" class="policy-icon" />
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="detail-card">
+        <view class="card-title">办理流程</view>
+        <view class="process-list">
+          <view 
+            wx:for="{{detail.process}}" 
+            wx:key="step"
+            class="process-item"
+          >
+            <view class="process-step">{{item.step}}</view>
+            <view class="process-content">
+              <view class="process-title">{{item.title}}</view>
+              <view class="process-desc">{{item.description}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </scroll-view>
+
+    <view class="action-bar">
+      <view class="action-left">
+        <view class="action-button" bindtap="contactService">
+          <image src="/assets/icons/service.png" class="action-icon" />
+          <text>客服</text>
+        </view>
+        <view class="action-button" bindtap="goToCalculator">
+          <image src="/assets/icons/calculator.png" class="action-icon" />
+          <text>计算器</text>
+        </view>
+      </view>
+      <button class="buy-button" bindtap="handleBuy">立即购买</button>
+    </view>
+
+    <view class="share-panel {{showShare ? 'show' : ''}}">
+      <view class="share-mask" bindtap="hideSharePanel"></view>
+      <view class="share-content">
+        <view class="share-title">分享方式</view>
+        <view class="share-options">
+          <button 
+            class="share-item" 
+            open-type="share"
+          >
+            <image src="/assets/icons/wechat.png" class="share-item-icon" />
+            <text>微信好友</text>
+          </button>
+          <view 
+            class="share-item"
+            bindtap="generatePoster"
+          >
+            <image src="/assets/icons/moments.png" class="share-item-icon" />
+            <text>生成海报</text>
+          </view>
+          <view 
+            class="share-item"
+            bindtap="copyLink"
+          >
+            <image src="/assets/icons/link.png" class="share-item-icon" />
+            <text>复制链接</text>
+          </view>
+        </view>
+        <view class="share-cancel" bindtap="hideSharePanel">取消</view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{loading}}" class="loading-container">
+    <custom-loading />
+  </view>
+</view> 

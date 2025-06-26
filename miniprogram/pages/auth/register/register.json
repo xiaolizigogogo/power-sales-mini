@@ -1,0 +1,14 @@
+{
+  "navigationBarTitleText": "用户注册",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f8f9fa",
+  "backgroundTextStyle": "dark",
+  "enablePullDownRefresh": false,
+  "disableScroll": false,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "loading": "/components/loading/loading",
+    "toast": "/components/toast/toast"
+  }
+} 

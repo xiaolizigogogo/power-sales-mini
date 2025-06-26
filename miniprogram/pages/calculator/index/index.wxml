@@ -1,0 +1,357 @@
+<!-- pages/calculator/index/index.wxml -->
+<view class="calculator-container">
+  <!-- 页面头部 -->
+  <view class="header-section">
+    <view class="title">节电效益计算器</view>
+    <view class="subtitle">精准计算，智能选择最优电力套餐</view>
+    
+    <!-- 提示轮播 -->
+    <view class="tips-carousel">
+      <view class="tip-item">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">{{tips[currentTip]}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表单输入区域 -->
+  <view class="form-section">
+    <view class="section-title">
+      <text class="title-text">用电信息</text>
+      <view class="section-actions">
+        <text class="action-btn" bindtap="onUploadBill">📷 拍电费单</text>
+        <text class="action-btn" bindtap="onUseTemplate">📋 使用模板</text>
+      </view>
+    </view>
+
+    <!-- 用电容量输入 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">用电容量</text>
+        <text class="required">*</text>
+      </view>
+      <view class="input-wrapper">
+        <input
+          class="form-input {{errors.capacity ? 'error' : ''}}"
+          type="digit"
+          placeholder="请输入用电容量"
+          value="{{powerInfo.capacity}}"
+          data-field="capacity"
+          bindinput="onInputChange"
+        />
+        <text class="input-unit">kW</text>
+      </view>
+      <view class="error-text" wx:if="{{errors.capacity}}">{{errors.capacity}}</view>
+    </view>
+
+    <!-- 月用电量输入 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">月用电量</text>
+        <text class="required">*</text>
+      </view>
+      <view class="input-wrapper">
+        <input
+          class="form-input {{errors.monthlyUsage ? 'error' : ''}}"
+          type="digit"
+          placeholder="请输入月用电量"
+          value="{{powerInfo.monthlyUsage}}"
+          data-field="monthlyUsage"
+          bindinput="onInputChange"
+        />
+        <text class="input-unit">kWh</text>
+      </view>
+      <view class="error-text" wx:if="{{errors.monthlyUsage}}">{{errors.monthlyUsage}}</view>
+    </view>
+
+    <!-- 当前电价输入 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">当前电价</text>
+        <text class="required">*</text>
+      </view>
+      <view class="input-wrapper">
+        <input
+          class="form-input {{errors.currentPrice ? 'error' : ''}}"
+          type="digit"
+          placeholder="请输入当前电价"
+          value="{{powerInfo.currentPrice}}"
+          data-field="currentPrice"
+          bindinput="onInputChange"
+        />
+        <text class="input-unit">元/kWh</text>
+      </view>
+      <view class="error-text" wx:if="{{errors.currentPrice}}">{{errors.currentPrice}}</view>
+    </view>
+
+    <!-- 行业类型选择 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">行业类型</text>
+        <text class="required">*</text>
+      </view>
+      <picker
+        class="form-picker {{errors.industryType ? 'error' : ''}}"
+        mode="selector"
+        range="{{industryTypes}}"
+        range-key="name"
+        value="{{industryIndex}}"
+        bindchange="onIndustryChange"
+      >
+        <view class="picker-content">
+          <text class="picker-text {{industryIndex === -1 ? 'placeholder' : ''}}">
+            {{industryIndex === -1 ? '请选择行业类型' : industryTypes[industryIndex].name}}
+          </text>
+          <text class="picker-arrow">></text>
+        </view>
+      </picker>
+      <view class="error-text" wx:if="{{errors.industryType}}">{{errors.industryType}}</view>
+    </view>
+
+    <!-- 用电性质选择 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-text">用电性质</text>
+      </view>
+      <picker
+        class="form-picker"
+        mode="selector"
+        range="{{usagePatterns}}"
+        value="{{usageIndex}}"
+        bindchange="onUsagePatternChange"
+      >
+        <view class="picker-content">
+          <text class="picker-text">{{usagePatterns[usageIndex]}}</text>
+          <text class="picker-arrow">></text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="form-actions">
+      <button class="calculate-btn" bindtap="onCalculate" disabled="{{loading}}">
+        <text wx:if="{{!loading}}">🧮 开始计算</text>
+        <text wx:else>计算中...</text>
+      </button>
+      <view class="action-links">
+        <text class="link-btn" bindtap="onClearForm">清空</text>
+        <text class="link-btn" bindtap="onSaveTemplate">保存模板</text>
+        <text class="link-btn" bindtap="onViewHistory">历史记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 计算结果区域 -->
+  <view class="results-section" wx:if="{{showResults}}">
+    <view class="section-title">
+      <text class="title-text">计算结果</text>
+      <text class="subtitle-text">为您推荐以下电力套餐</text>
+    </view>
+
+    <!-- 推荐产品卡片 -->
+    <view class="recommended-card" wx:if="{{recommendedProduct}}">
+      <view class="card-header">
+        <view class="recommend-badge">🏆 最佳推荐</view>
+        <view class="share-btn" bindtap="onShareResult">分享</view>
+      </view>
+      <view class="product-info">
+        <view class="product-name">{{recommendedProduct.productName}}</view>
+        <view class="savings-highlight">
+          预计年节省：<text class="amount">{{recommendedProduct.annualSavings}}</text>元
+        </view>
+      </view>
+      <view class="calculation-details">
+        <view class="detail-item">
+          <text class="detail-label">新电价：</text>
+          <text class="detail-value">{{recommendedProduct.newPrice}}元/kWh</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">月节省：</text>
+          <text class="detail-value">{{recommendedProduct.monthlySavings}}元</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">投资回收期：</text>
+          <text class="detail-value">{{recommendedProduct.paybackPeriod}}个月</text>
+        </view>
+      </view>
+      <view class="card-actions">
+        <button 
+          class="detail-btn" 
+          data-product-id="{{recommendedProduct.productId}}"
+          bindtap="onViewDetails"
+        >
+          查看详情
+        </button>
+        <button 
+          class="order-btn" 
+          data-product-id="{{recommendedProduct.productId}}"
+          bindtap="onCreateOrder"
+        >
+          立即下单
+        </button>
+      </view>
+    </view>
+
+    <!-- 其他产品列表 -->
+    <view class="other-products" wx:if="{{calculationResults.length > 1}}">
+      <view class="section-subtitle">其他可选方案</view>
+      <view class="product-list">
+        <view 
+          class="product-item" 
+          wx:for="{{calculationResults}}" 
+          wx:key="productId"
+          wx:if="{{item.productId !== recommendedProduct.productId}}"
+        >
+          <view class="product-header">
+            <view class="product-name">{{item.productName}}</view>
+            <view class="product-price">{{item.priceDisplay}}</view>
+          </view>
+          <view class="savings-info">
+            <view class="savings-item">
+              <text class="savings-label">年节省：</text>
+              <text class="savings-value positive" wx:if="{{item.annualSavings > 0}}">
+                +{{item.annualSavings}}元
+              </text>
+              <text class="savings-value negative" wx:else>
+                {{item.annualSavings}}元
+              </text>
+            </view>
+            <view class="savings-item">
+              <text class="savings-label">月节省：</text>
+              <text class="savings-value positive" wx:if="{{item.monthlySavings > 0}}">
+                +{{item.monthlySavings}}元
+              </text>
+              <text class="savings-value negative" wx:else>
+                {{item.monthlySavings}}元
+              </text>
+            </view>
+          </view>
+          <view class="product-actions">
+            <text 
+              class="action-link" 
+              data-product-id="{{item.productId}}"
+              bindtap="onViewDetails"
+            >
+              详情
+            </text>
+            <text 
+              class="action-link" 
+              data-product-id="{{item.productId}}"
+              bindtap="onSelectProduct"
+            >
+              查看
+            </text>
+            <text 
+              class="action-link primary" 
+              data-product-id="{{item.productId}}"
+              bindtap="onCreateOrder"
+              wx:if="{{item.annualSavings > 0}}"
+            >
+              下单
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 计算说明 -->
+    <view class="calculation-note">
+      <view class="note-title">💡 计算说明</view>
+      <view class="note-content">
+        <text>• 以上计算结果基于您提供的用电信息进行估算</text>
+        <text>• 实际节费金额可能因用电量波动而有所差异</text>
+        <text>• 建议上传近期电费单获得更精准的计算结果</text>
+        <text>• 如需详细分析，请联系客服获得专业咨询</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详情弹窗 -->
+  <view class="detail-modal" wx:if="{{showDetails}}" bindtap="onCloseDetails">
+    <view class="modal-content" catchtap="">
+      <view class="modal-header">
+        <view class="modal-title">计算详情</view>
+        <view class="close-btn" bindtap="onCloseDetails">×</view>
+      </view>
+      <view class="modal-body" wx:if="{{selectedResult}}">
+        <view class="detail-section">
+          <view class="section-title">产品信息</view>
+          <view class="info-item">
+            <text class="info-label">产品名称：</text>
+            <text class="info-value">{{selectedResult.productName}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">产品类型：</text>
+            <text class="info-value">{{selectedResult.productType}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">新电价：</text>
+            <text class="info-value">{{selectedResult.newPrice}}元/kWh</text>
+          </view>
+        </view>
+
+        <view class="detail-section">
+          <view class="section-title">节费分析</view>
+          <view class="info-item">
+            <text class="info-label">当前月电费：</text>
+            <text class="info-value">{{selectedResult.currentMonthlyBill}}元</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">新电费：</text>
+            <text class="info-value">{{selectedResult.newMonthlyBill}}元</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">月节省金额：</text>
+            <text class="info-value highlight">{{selectedResult.monthlySavings}}元</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">年节省金额：</text>
+            <text class="info-value highlight">{{selectedResult.annualSavings}}元</text>
+          </view>
+        </view>
+
+        <view class="detail-section">
+          <view class="section-title">投资分析</view>
+          <view class="info-item">
+            <text class="info-label">初期投资：</text>
+            <text class="info-value">{{selectedResult.initialCost}}元</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">投资回收期：</text>
+            <text class="info-value">{{selectedResult.paybackPeriod}}个月</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">三年总收益：</text>
+            <text class="info-value highlight">{{selectedResult.threeYearSavings}}元</text>
+          </view>
+        </view>
+      </view>
+      <view class="modal-actions">
+        <button class="modal-btn secondary" bindtap="onCloseDetails">关闭</button>
+        <button 
+          class="modal-btn primary" 
+          data-product-id="{{selectedResult.productId}}"
+          bindtap="onSelectProduct"
+        >
+          查看产品
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作区 -->
+  <view class="bottom-actions">
+    <button class="contact-btn" bindtap="onContactService">
+      <text class="btn-icon">📞</text>
+      <text class="btn-text">联系客服</text>
+    </button>
+  </view>
+
+  <!-- 加载遮罩 -->
+  <view class="loading-mask" wx:if="{{loading}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">计算中，请稍候...</text>
+    </view>
+  </view>
+</view> 

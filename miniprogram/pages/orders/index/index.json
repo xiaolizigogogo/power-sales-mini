@@ -1,0 +1,15 @@
+{
+  "navigationBarTitleText": "我的订单",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f8f9fa",
+  "backgroundTextStyle": "dark",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100,
+  "usingComponents": {
+    "van-loading": "@vant/weapp/lib/loading/index",
+    "van-popup": "@vant/weapp/lib/popup/index",
+    "van-dialog": "@vant/weapp/lib/dialog/index",
+    "van-action-sheet": "@vant/weapp/lib/action-sheet/index"
+  }
+} 

@@ -1,2 +1,261 @@
-<!--pages/orders/create/create.wxml-->
-<text>pages/orders/create/create.wxml</text>
+<view class="create-order-container">
+  <!-- 加载状态 -->
+  <loading wx:if="{{loading}}" />
+  
+  <!-- 页面内容 -->
+  <view class="page-content" wx:else>
+    <!-- 产品信息卡片 -->
+    <view class="product-card" wx:if="{{product}}">
+      <view class="product-header">
+        <text class="product-name">{{product.name}}</text>
+        <text class="product-type">{{product.typeName}}</text>
+      </view>
+      <view class="product-price">
+        <text class="price-label">参考电价：</text>
+        <text class="price-value">{{product.priceDisplay}}</text>
+      </view>
+      <view class="product-desc">{{product.shortDescription}}</view>
+    </view>
+    
+    <!-- 联系信息 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-text">联系信息</text>
+        <text class="required-mark">*</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">联系人</text>
+        <input
+          class="input {{errors.contactName ? 'error' : ''}}"
+          placeholder="请输入联系人姓名"
+          value="{{orderInfo.contactName}}"
+          data-field="contactName"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.contactName}}">{{errors.contactName}}</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">联系电话</text>
+        <input
+          class="input {{errors.contactPhone ? 'error' : ''}}"
+          placeholder="请输入联系电话"
+          type="number"
+          value="{{orderInfo.contactPhone}}"
+          data-field="contactPhone"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.contactPhone}}">{{errors.contactPhone}}</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">企业名称</text>
+        <input
+          class="input {{errors.companyName ? 'error' : ''}}"
+          placeholder="请输入企业名称"
+          value="{{orderInfo.companyName}}"
+          data-field="companyName"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.companyName}}">{{errors.companyName}}</text>
+      </view>
+    </view>
+    
+    <!-- 用电信息 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-text">用电信息</text>
+        <text class="required-mark">*</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">用电容量(kW)</text>
+        <input
+          class="input {{errors.powerCapacity ? 'error' : ''}}"
+          placeholder="请输入用电容量"
+          type="digit"
+          value="{{orderInfo.powerCapacity}}"
+          data-field="powerCapacity"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.powerCapacity}}">{{errors.powerCapacity}}</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">月用电量(kWh)</text>
+        <input
+          class="input {{errors.monthlyUsage ? 'error' : ''}}"
+          placeholder="请输入月用电量"
+          type="digit"
+          value="{{orderInfo.monthlyUsage}}"
+          data-field="monthlyUsage"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.monthlyUsage}}">{{errors.monthlyUsage}}</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">当前电价(元/kWh)</text>
+        <input
+          class="input {{errors.currentPrice ? 'error' : ''}}"
+          placeholder="请输入当前电价"
+          type="digit"
+          value="{{orderInfo.currentPrice}}"
+          data-field="currentPrice"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.currentPrice}}">{{errors.currentPrice}}</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">行业类型</text>
+        <picker
+          mode="selector"
+          range="{{industryTypes}}"
+          range-key="name"
+          value="{{industryIndex}}"
+          bindchange="onIndustryChange"
+        >
+          <view class="picker {{errors.industryType ? 'error' : ''}}">
+            <text class="picker-text">{{orderInfo.industryType || '请选择行业类型'}}</text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+        <text class="error-text" wx:if="{{errors.industryType}}">{{errors.industryType}}</text>
+      </view>
+    </view>
+    
+    <!-- 服务期限 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-text">服务期限</text>
+        <text class="required-mark">*</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">服务开始日期</text>
+        <picker
+          mode="date"
+          value="{{orderInfo.serviceStartDate}}"
+          start="{{minDate}}"
+          bindchange="onStartDateChange"
+        >
+          <view class="picker {{errors.serviceStartDate ? 'error' : ''}}">
+            <text class="picker-text">{{orderInfo.serviceStartDate || '请选择开始日期'}}</text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+        <text class="error-text" wx:if="{{errors.serviceStartDate}}">{{errors.serviceStartDate}}</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">服务期限</text>
+        <picker
+          mode="selector"
+          range="{{servicePeriods}}"
+          range-key="name"
+          value="{{periodIndex}}"
+          bindchange="onPeriodChange"
+        >
+          <view class="picker {{errors.servicePeriod ? 'error' : ''}}">
+            <text class="picker-text">{{orderInfo.servicePeriod || '请选择服务期限'}}</text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+        <text class="error-text" wx:if="{{errors.servicePeriod}}">{{errors.servicePeriod}}</text>
+      </view>
+      
+      <view class="form-item" wx:if="{{orderInfo.serviceEndDate}}">
+        <text class="label">服务结束日期</text>
+        <view class="readonly-field">{{orderInfo.serviceEndDate}}</view>
+      </view>
+    </view>
+    
+    <!-- 费用信息 -->
+    <view class="form-section" wx:if="{{costInfo.totalAmount}}">
+      <view class="section-title">
+        <text class="title-text">费用信息</text>
+      </view>
+      
+      <view class="cost-item">
+        <text class="cost-label">预估年节省金额</text>
+        <text class="cost-value">￥{{costInfo.annualSavings}}</text>
+      </view>
+      
+      <view class="cost-item">
+        <text class="cost-label">服务费用</text>
+        <text class="cost-value">￥{{costInfo.serviceFee}}</text>
+      </view>
+      
+      <view class="cost-item total">
+        <text class="cost-label">预估总金额</text>
+        <text class="cost-value">￥{{costInfo.totalAmount}}</text>
+      </view>
+    </view>
+    
+    <!-- 特殊需求 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-text">特殊需求</text>
+        <text class="optional-mark">(可选)</text>
+      </view>
+      
+      <view class="form-item">
+        <textarea
+          class="textarea"
+          placeholder="请描述您的特殊需求或备注信息"
+          value="{{orderInfo.remark}}"
+          data-field="remark"
+          bindinput="onInputChange"
+          maxlength="500"
+        />
+        <view class="char-count">{{orderInfo.remark.length}}/500</view>
+      </view>
+    </view>
+    
+    <!-- 协议确认 -->
+    <view class="agreement-section">
+      <view class="agreement-item" bindtap="toggleAgreement">
+        <view class="checkbox {{agreedToTerms ? 'checked' : ''}}">
+          <text class="checkbox-icon" wx:if="{{agreedToTerms}}">✓</text>
+        </view>
+        <text class="agreement-text">
+          我已阅读并同意
+          <text class="link" bindtap="viewTerms">《服务协议》</text>
+          和
+          <text class="link" bindtap="viewPrivacy">《隐私政策》</text>
+        </text>
+      </view>
+      <text class="error-text" wx:if="{{errors.agreement}}">{{errors.agreement}}</text>
+    </view>
+    
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button
+        class="submit-btn {{canSubmit ? 'active' : 'disabled'}}"
+        disabled="{{!canSubmit || submitting}}"
+        bindtap="onSubmit"
+      >
+        <text wx:if="{{submitting}}">提交中...</text>
+        <text wx:else>确认提交订单</text>
+      </button>
+      
+      <view class="tips">
+        <text class="tips-text">提交后我们将在24小时内与您联系确认需求</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 模态框组件 -->
+  <modal
+    wx:if="{{showModal}}"
+    title="{{modalTitle}}"
+    content="{{modalContent}}"
+    confirmText="{{modalConfirmText}}"
+    cancelText="{{modalCancelText}}"
+    showCancel="{{modalShowCancel}}"
+    bind:confirm="onModalConfirm"
+    bind:cancel="onModalCancel"
+  />
+</view> 

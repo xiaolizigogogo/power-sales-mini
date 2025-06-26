@@ -1,0 +1,22 @@
+{
+  "navigationBarTitleText": "业绩统计",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f7fa",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "van-tabs": "@vant/weapp/lib/tabs/index",
+    "van-tab": "@vant/weapp/lib/tab/index",
+    "van-picker": "@vant/weapp/lib/picker/index",
+    "van-popup": "@vant/weapp/lib/popup/index",
+    "van-loading": "@vant/weapp/lib/loading/index",
+    "van-empty": "@vant/weapp/lib/empty/index",
+    "van-button": "@vant/weapp/lib/button/index",
+    "van-field": "@vant/weapp/lib/field/index",
+    "van-cell": "@vant/weapp/lib/cell/index",
+    "van-cell-group": "@vant/weapp/lib/cell-group/index",
+    "van-toast": "@vant/weapp/lib/toast/index"
+  }
+} 

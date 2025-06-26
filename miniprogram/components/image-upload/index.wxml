@@ -1,0 +1,201 @@
+<!-- components/image-upload/index.wxml -->
+<view class="image-upload-container {{customClass}}">
+  <!-- 网格模式 -->
+  <view class="image-grid" wx:if="{{previewMode === 'grid' || previewMode === 'default'}}">
+    <!-- 已上传图片列表 -->
+    <view 
+      class="image-item"
+      wx:for="{{imageList}}"
+      wx:key="id"
+      data-index="{{index}}"
+      bindtap="previewImage"
+    >
+      <image 
+        class="image-preview"
+        src="{{item.thumbUrl || item.url}}"
+        mode="aspectFill"
+        lazy-load="{{true}}"
+      />
+      
+      <!-- 删除按钮 -->
+      <view 
+        class="delete-btn" 
+        wx:if="{{showDelete && !disabled}}"
+        data-index="{{index}}"
+        bindtap="deleteImage"
+        catchtap="true"
+      >
+        <text class="delete-icon">✕</text>
+      </view>
+      
+      <!-- 加载状态 -->
+      <view class="loading-mask" wx:if="{{item.loading}}">
+        <text class="loading-text">上传中...</text>
+      </view>
+      
+      <!-- 错误状态 -->
+      <view class="error-mask" wx:if="{{item.error}}">
+        <text class="error-text">上传失败</text>
+        <view 
+          class="retry-btn"
+          data-index="{{index}}"
+          bindtap="retryUpload"
+          catchtap="true"
+        >
+          重试
+        </view>
+      </view>
+    </view>
+    
+    <!-- 上传按钮 -->
+    <view 
+      class="upload-btn"
+      wx:if="{{showUploadBtn && imageList.length < maxCount && !disabled}}"
+      bindtap="chooseImage"
+    >
+      <view class="upload-icon">
+        <text class="icon">📷</text>
+      </view>
+      <text class="upload-text">{{uploadText}}</text>
+      <text class="upload-count">{{imageList.length}}/{{maxCount}}</text>
+    </view>
+  </view>
+  
+  <!-- 列表模式 -->
+  <view class="image-list" wx:if="{{previewMode === 'list'}}">
+    <!-- 已上传图片列表 -->
+    <view 
+      class="list-item"
+      wx:for="{{imageList}}"
+      wx:key="id"
+    >
+      <image 
+        class="list-image"
+        src="{{item.thumbUrl || item.url}}"
+        mode="aspectFill"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      />
+      
+      <view class="list-content">
+        <text class="list-name">图片{{index + 1}}</text>
+        <text class="list-time">{{item.uploadTime}}</text>
+        
+        <!-- 进度条 -->
+        <view class="progress-bar" wx:if="{{item.loading && showProgress}}">
+          <view class="progress-fill" style="width: {{item.progress || 0}}%"></view>
+        </view>
+        
+        <!-- 状态文字 -->
+        <text class="list-status" wx:if="{{item.loading}}">上传中...</text>
+        <text class="list-status error" wx:if="{{item.error}}">上传失败</text>
+      </view>
+      
+      <view class="list-actions">
+        <!-- 重试按钮 -->
+        <view 
+          class="action-btn retry"
+          wx:if="{{item.error}}"
+          data-index="{{index}}"
+          bindtap="retryUpload"
+        >
+          重试
+        </view>
+        
+        <!-- 删除按钮 -->
+        <view 
+          class="action-btn delete"
+          wx:if="{{showDelete && !disabled}}"
+          data-index="{{index}}"
+          bindtap="deleteImage"
+        >
+          删除
+        </view>
+      </view>
+    </view>
+    
+    <!-- 上传按钮 -->
+    <view 
+      class="list-upload-btn"
+      wx:if="{{showUploadBtn && imageList.length < maxCount && !disabled}}"
+      bindtap="chooseImage"
+    >
+      <view class="upload-icon">
+        <text class="icon">➕</text>
+      </view>
+      <view class="upload-content">
+        <text class="upload-title">{{uploadText}}</text>
+        <text class="upload-desc">支持JPG、PNG格式，单个文件不超过{{maxSize}}MB</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 全局上传进度 -->
+  <view class="global-progress" wx:if="{{uploading && showProgress}}">
+    <view class="progress-header">
+      <text class="progress-title">正在上传图片...</text>
+      <text class="progress-percent">{{uploadProgress}}%</text>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{uploadProgress}}%"></view>
+    </view>
+  </view>
+  
+  <!-- 提示信息 -->
+  <view class="upload-tips" wx:if="{{showTips && tips}}">
+    <text class="tips-text">{{tips}}</text>
+  </view>
+  
+  <!-- 错误信息 -->
+  <view class="error-tips" wx:if="{{errorMessage}}">
+    <text class="error-text">{{errorMessage}}</text>
+  </view>
+</view>
+
+<!-- 图片预览弹窗 -->
+<view class="preview-modal" wx:if="{{previewVisible}}" bindtap="closePreview">
+  <view class="preview-container" catchtap="stopPropagation">
+    <view class="preview-header">
+      <text class="preview-title">图片预览 ({{previewIndex + 1}}/{{imageList.length}})</text>
+      <view class="preview-close" bindtap="closePreview">
+        <text class="close-icon">✕</text>
+      </view>
+    </view>
+    
+    <swiper 
+      class="preview-swiper"
+      current="{{previewIndex}}"
+      bindchange="onPreviewChange"
+      indicator-dots="{{imageList.length > 1}}"
+      indicator-color="rgba(255,255,255,0.5)"
+      indicator-active-color="#ffffff"
+    >
+      <swiper-item wx:for="{{imageList}}" wx:key="id">
+        <image 
+          class="preview-image"
+          src="{{item.url}}"
+          mode="aspectFit"
+          bindload="onPreviewImageLoad"
+          binderror="onPreviewImageError"
+        />
+      </swiper-item>
+    </swiper>
+    
+    <view class="preview-actions" wx:if="{{imageList.length > 1}}">
+      <view 
+        class="action-item"
+        bindtap="prevImage"
+        disabled="{{previewIndex === 0}}"
+      >
+        <text class="action-text">上一张</text>
+      </view>
+      <view 
+        class="action-item"
+        bindtap="nextImage"
+        disabled="{{previewIndex === imageList.length - 1}}"
+      >
+        <text class="action-text">下一张</text>
+      </view>
+    </view>
+  </view>
+</view> 

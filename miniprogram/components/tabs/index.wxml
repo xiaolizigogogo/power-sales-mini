@@ -1,0 +1,69 @@
+<!-- 小程序标签页组件模板 -->
+<view class="tabs-container {{customClass}} tabs-{{type}}" style="background-color: {{backgroundColor}}">
+  <!-- 可滚动标签页 -->
+  <scroll-view 
+    wx:if="{{scrollable}}"
+    class="tabs-scroll"
+    scroll-x
+    scroll-left="{{scrollLeft}}"
+    scroll-with-animation
+    show-scrollbar="{{false}}"
+  >
+    <view class="tabs-wrapper">
+      <view 
+        wx:for="{{tabs}}" 
+        wx:key="index"
+        class="tab-item {{current === index ? 'tab-active' : ''}}"
+        data-index="{{index}}"
+        style="{{getTabStyle(index)}}"
+        bindtap="onTabTap"
+      >
+        <!-- 标签图标 -->
+        <image wx:if="{{item.icon}}" class="tab-icon" src="{{item.icon}}" />
+        
+        <!-- 标签文本 -->
+        <text class="tab-text">{{item.title || item.name}}</text>
+        
+        <!-- 徽章 -->
+        <view 
+          wx:if="{{showBadge && getBadgeCount(item) > 0}}" 
+          class="tab-badge"
+        >
+          <text class="badge-text">{{getBadgeCount(item)}}</text>
+        </view>
+      </view>
+      
+      <!-- 下划线 -->
+      <view wx:if="{{type === 'line'}}" class="tab-line" style="{{lineStyle}}"></view>
+    </view>
+  </scroll-view>
+  
+  <!-- 固定标签页 -->
+  <view wx:else class="tabs-wrapper">
+    <view 
+      wx:for="{{tabs}}" 
+      wx:key="index"
+      class="tab-item {{current === index ? 'tab-active' : ''}}"
+      data-index="{{index}}"
+      style="{{getTabStyle(index)}}"
+      bindtap="onTabTap"
+    >
+      <!-- 标签图标 -->
+      <image wx:if="{{item.icon}}" class="tab-icon" src="{{item.icon}}" />
+      
+      <!-- 标签文本 -->
+      <text class="tab-text">{{item.title || item.name}}</text>
+      
+      <!-- 徽章 -->
+      <view 
+        wx:if="{{showBadge && getBadgeCount(item) > 0}}" 
+        class="tab-badge"
+      >
+        <text class="badge-text">{{getBadgeCount(item)}}</text>
+      </view>
+    </view>
+    
+    <!-- 下划线 -->
+    <view wx:if="{{type === 'line'}}" class="tab-line" style="{{lineStyle}}"></view>
+  </view>
+</view> 

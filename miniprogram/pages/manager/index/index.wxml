@@ -1,0 +1,211 @@
+<!--客户经理工作台首页-->
+<view class="container">
+  <!-- 加载状态 -->
+  <loading wx:if="{{loading}}" />
+  
+  <!-- 主要内容 -->
+  <view wx:else class="content">
+    <!-- 欢迎区域 -->
+    <view class="welcome-section">
+      <view class="welcome-header">
+        <view class="welcome-text">
+          <view class="greeting">
+            <text class="time">{{refreshing ? '刷新中...' : '早上好'}}</text>
+            <text class="name">{{userInfo.name || '客户经理'}}</text>
+          </view>
+          <view class="date">{{refreshing ? '' : '今天是个好日子，加油！'}}</view>
+        </view>
+        <view class="avatar">
+          <image src="{{userInfo.avatar_url || '/images/default-avatar.png'}}" mode="aspectFill" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 今日数据 -->
+    <view class="today-section">
+      <view class="section-title">今日概况</view>
+      <view class="today-grid">
+        <view class="today-item" bindtap="onTodayDataTap" data-type="customers">
+          <view class="today-number primary">{{workbenchData.todayData.newCustomers}}</view>
+          <view class="today-label">新增客户</view>
+        </view>
+        <view class="today-item" bindtap="onTodayDataTap" data-type="tasks">
+          <view class="today-number warning">{{workbenchData.todayData.followUpTasks}}</view>
+          <view class="today-label">待跟进</view>
+        </view>
+        <view class="today-item" bindtap="onTodayDataTap" data-type="orders">
+          <view class="today-number">{{workbenchData.todayData.newOrders}}</view>
+          <view class="today-label">新订单</view>
+        </view>
+        <view class="today-item">
+          <view class="today-number success">{{formatAmount(workbenchData.todayData.orderAmount)}}</view>
+          <view class="today-label">成交金额</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快捷操作 -->
+    <view class="quick-section">
+      <view class="section-title">快捷操作</view>
+      <view class="quick-grid">
+        <view 
+          wx:for="{{quickActions}}" 
+          wx:key="title"
+          class="quick-item"
+          bindtap="onQuickActionTap"
+          data-url="{{item.url}}"
+        >
+          <view class="quick-icon" style="background-color: {{item.color}}20;">
+            <text class="icon-{{item.icon}}" style="color: {{item.color}};"></text>
+          </view>
+          <view class="quick-content">
+            <view class="quick-title">{{item.title}}</view>
+            <view class="quick-subtitle">{{item.subtitle}}</view>
+          </view>
+          <view class="quick-arrow">
+            <text class="icon-arrow-right"></text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 本月业绩 -->
+    <view class="performance-section">
+      <view class="section-title">本月业绩</view>
+      <view class="performance-card">
+        <view class="performance-header">
+          <view class="performance-item">
+            <view class="performance-number">{{workbenchData.monthData.newCustomers}}</view>
+            <view class="performance-label">新增客户</view>
+          </view>
+          <view class="performance-item">
+            <view class="performance-number">{{workbenchData.monthData.totalOrders}}</view>
+            <view class="performance-label">成交订单</view>
+          </view>
+          <view class="performance-item">
+            <view class="performance-number">{{formatAmount(workbenchData.monthData.orderAmount)}}</view>
+            <view class="performance-label">成交金额</view>
+          </view>
+        </view>
+        
+        <view class="target-progress" bindtap="onTargetTap">
+          <view class="target-header">
+            <view class="target-title">目标完成度</view>
+            <view class="target-percent">{{workbenchData.monthData.targetProgress}}%</view>
+          </view>
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{workbenchData.monthData.targetProgress}}%;"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最近客户 -->
+    <view wx:if="{{recentCustomers.length > 0}}" class="recent-section">
+      <view class="section-header">
+        <view class="section-title">最近客户</view>
+        <view class="section-more" bindtap="onMoreCustomersTap">
+          <text>查看更多</text>
+          <text class="icon-arrow-right"></text>
+        </view>
+      </view>
+      <view class="recent-list">
+        <view 
+          wx:for="{{recentCustomers}}" 
+          wx:key="id"
+          class="recent-item"
+          bindtap="onCustomerTap"
+          data-customer-id="{{item.id}}"
+        >
+          <view class="customer-avatar">
+            <image src="{{item.avatar_url || '/images/default-company.png'}}" mode="aspectFill" />
+          </view>
+          <view class="customer-info">
+            <view class="customer-name">{{item.company_name || item.name}}</view>
+            <view class="customer-contact">{{item.phone}}</view>
+            <view class="customer-time">{{formatDate(item.last_contact_time)}}</view>
+          </view>
+          <view class="customer-status">
+            <view class="status-tag status-{{item.status}}">{{item.status_text}}</view>
+          </view>
+          <view class="customer-actions">
+            <view class="action-btn" bindtap="onCallTap" data-phone="{{item.phone}}" catchtap="true">
+              <text class="icon-phone"></text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 紧急任务 -->
+    <view wx:if="{{urgentTasks.length > 0}}" class="urgent-section">
+      <view class="section-header">
+        <view class="section-title">紧急任务</view>
+        <view class="section-more" bindtap="onMoreTasksTap">
+          <text>查看更多</text>
+          <text class="icon-arrow-right"></text>
+        </view>
+      </view>
+      <view class="urgent-list">
+        <view 
+          wx:for="{{urgentTasks}}" 
+          wx:key="id"
+          class="urgent-item"
+        >
+          <view class="task-priority" style="background-color: {{getTaskPriorityColor(item.priority)}};"></view>
+          <view class="task-content">
+            <view class="task-title">{{item.title}}</view>
+            <view class="task-customer">客户：{{item.customer_name}}</view>
+            <view class="task-time">截止：{{item.deadline}}</view>
+          </view>
+          <view class="task-action">
+            <button 
+              class="follow-btn" 
+              size="mini"
+              bindtap="onFollowTap"
+              data-customer-id="{{item.customer_id}}"
+              data-task-id="{{item.id}}"
+            >
+              立即跟进
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态提示 -->
+    <view wx:if="{{recentCustomers.length === 0 && urgentTasks.length === 0}}" class="empty-section">
+      <empty 
+        icon="manager" 
+        title="暂无待处理事项" 
+        description="您可以主动添加客户或等待系统分配"
+      />
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area-bottom"></view>
+</view>
+
+<!-- 浮动操作按钮 (可选) -->
+<view class="fab-container" wx:if="{{showFab}}">
+  <view class="fab-main" bindtap="onFabTap">
+    <text class="icon-add"></text>
+  </view>
+  <view class="fab-options" wx:if="{{fabExpanded}}">
+    <view class="fab-option" bindtap="onAddCustomerTap">
+      <text class="icon-user-add"></text>
+      <text>添加客户</text>
+    </view>
+    <view class="fab-option" bindtap="onQuickFollowTap">
+      <text class="icon-phone"></text>
+      <text>快速跟进</text>
+    </view>
+  </view>
+</view>
+
+<!-- 下拉刷新提示 -->
+<view class="refresh-tip" wx:if="{{showRefreshTip}}">
+  <text class="icon-refresh"></text>
+  <text>数据已更新</text>
+</view> 

@@ -1,0 +1,102 @@
+/* 小程序空状态组件样式 */
+.empty-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400rpx;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* 空状态图标 */
+.empty-icon {
+  margin-bottom: 32rpx;
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  opacity: 0.6;
+}
+
+/* 空状态文本 */
+.empty-text {
+  margin-bottom: 40rpx;
+}
+
+.empty-title {
+  display: block;
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.empty-desc {
+  display: block;
+  font-size: 28rpx;
+  color: #999;
+  line-height: 1.6;
+  max-width: 500rpx;
+}
+
+/* 操作按钮 */
+.empty-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.empty-button {
+  padding: 20rpx 60rpx;
+  border-radius: 48rpx;
+  font-size: 28rpx;
+  border: none;
+  min-width: 200rpx;
+}
+
+.empty-button.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.empty-button.default {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.empty-button.ghost {
+  background: transparent;
+  color: var(--primary-color);
+  border: 2rpx solid var(--primary-color);
+}
+
+.empty-button::after {
+  border: none;
+}
+
+/* 响应式适配 */
+@media (max-width: 750rpx) {
+  .empty-image {
+    width: 160rpx;
+    height: 160rpx;
+  }
+  
+  .empty-title {
+    font-size: 30rpx;
+  }
+  
+  .empty-desc {
+    font-size: 26rpx;
+  }
+} 

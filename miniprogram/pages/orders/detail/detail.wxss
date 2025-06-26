@@ -1,0 +1,551 @@
+.container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding-bottom: 120rpx;
+}
+
+.status-card {
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+  color: #fff;
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.status-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 16rpx;
+}
+
+.status-text {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.status-desc {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+.info-card {
+  background-color: #fff;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.order-status {
+  padding: 8rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.order-status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.order-status.confirmed {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.order-status.contract {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.order-status.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.order-status.completed {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.order-status.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.copy-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 16rpx;
+  opacity: 0.6;
+}
+
+.product-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.product-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.product-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-name {
+  display: block;
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-desc {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+.product-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.spec-item {
+  font-size: 24rpx;
+  color: #999;
+  background-color: #f5f5f5;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+.price-symbol {
+  font-size: 24rpx;
+  color: var(--price-color);
+  margin-right: 4rpx;
+}
+
+.price-amount {
+  font-size: 36rpx;
+  color: var(--price-color);
+  font-weight: 600;
+}
+
+.manager-info {
+  display: flex;
+  align-items: center;
+}
+
+.manager-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+}
+
+.manager-details {
+  flex: 1;
+}
+
+.manager-name {
+  display: block;
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.manager-title {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.manager-phone {
+  display: block;
+  font-size: 26rpx;
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.contact-btn {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 24rpx;
+  background-color: #f5f5f5;
+  border-radius: 30rpx;
+}
+
+.contact-btn image {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 8rpx;
+}
+
+.contact-btn text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.contract-info {
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.contract-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+}
+
+.contract-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 20rpx;
+}
+
+.contract-details {
+  flex: 1;
+}
+
+.contract-name {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.contract-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.arrow-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.3;
+}
+
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  box-shadow: 0 -2rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.action-btn {
+  min-width: 180rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: none;
+  padding: 0 40rpx;
+}
+
+.action-btn.primary {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.action-btn.secondary {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 60rpx;
+}
+
+.empty-btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  border-radius: 50rpx;
+  padding: 20rpx 60rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.dialog-content {
+  padding: 40rpx 30rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.payment-popup {
+  padding: 40rpx 30rpx;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.payment-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.payment-amount {
+  font-size: 36rpx;
+  color: var(--price-color);
+  font-weight: 600;
+}
+
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+  transition: background-color 0.3s;
+}
+
+.payment-method:active {
+  background-color: #f0f0f0;
+}
+
+.method-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 20rpx;
+}
+
+.method-info {
+  flex: 1;
+}
+
+.method-name {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.method-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.check-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.payment-method.selected .check-icon {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #1a1a1a;
+  }
+  
+  .info-card, .progress-section, .action-bar {
+    background-color: #2a2a2a;
+  }
+  
+  .card-title, .product-name, .manager-name {
+    color: #fff;
+  }
+  
+  .info-label, .info-value, .product-desc, .manager-title {
+    color: #ccc;
+  }
+  
+  .spec-item, .payment-method {
+    background-color: #333;
+  }
+  
+  .action-btn.secondary {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .info-item {
+    border-color: #333;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.progress-section {
+  background-color: #fff;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+  position: relative;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background-color: #ddd;
+  margin-bottom: 16rpx;
+  transition: background-color 0.3s;
+}
+
+.step-item.completed .step-dot {
+  background-color: var(--primary-color);
+}
+
+.step-text {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.step-item.completed .step-text {
+  color: var(--primary-color);
+}
+
+.progress-line {
+  height: 4rpx;
+  background-color: #eee;
+  border-radius: 2rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 2rpx;
+  transition: width 0.3s ease;
+} 

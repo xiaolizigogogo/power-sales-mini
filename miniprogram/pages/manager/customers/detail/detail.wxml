@@ -1,0 +1,419 @@
+<!--pages/manager/customers/detail/detail.wxml-->
+<view class="customer-detail">
+  <!-- 顶部信息卡片 -->
+  <view class="info-card">
+    <view class="customer-header">
+      <view class="avatar-section">
+        <image class="avatar" src="{{customerInfo.avatar_url || '/images/default-avatar.png'}}" mode="aspectFill"/>
+        <view class="status-dot {{customerInfo.status}}"></view>
+      </view>
+      <view class="basic-info">
+        <view class="name-row">
+          <text class="customer-name">{{customerInfo.name}}</text>
+          <text class="customer-status" style="color: {{customerInfo.status_config.color}}">{{customerInfo.status_config.text}}</text>
+        </view>
+        <view class="company-row">
+          <text class="company-name">{{customerInfo.company_name || '未填写企业'}}</text>
+          <text class="customer-value">{{customerInfo.total_amount_text}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="contact-info">
+      <view class="contact-item" bindtap="onCallCustomer" wx:if="{{customerInfo.phone}}">
+        <text class="iconfont icon-phone"></text>
+        <text class="contact-text">{{customerInfo.phone}}</text>
+      </view>
+      <view class="contact-item" bindtap="onSendMessage" wx:if="{{customerInfo.wechat}}">
+        <text class="iconfont icon-wechat"></text>
+        <text class="contact-text">{{customerInfo.wechat}}</text>
+      </view>
+      <view class="contact-item" wx:if="{{customerInfo.email}}">
+        <text class="iconfont icon-email"></text>
+        <text class="contact-text">{{customerInfo.email}}</text>
+      </view>
+    </view>
+
+    <view class="quick-actions">
+      <view class="action-btn" bindtap="showAddFollowDialog">
+        <text class="iconfont icon-edit"></text>
+        <text>添加跟进</text>
+      </view>
+      <view class="action-btn" bindtap="showUpdateStatusDialog">
+        <text class="iconfont icon-status"></text>
+        <text>更新状态</text>
+      </view>
+      <view class="action-btn" bindtap="showTagManageDialog">
+        <text class="iconfont icon-tag"></text>
+        <text>标签管理</text>
+      </view>
+      <view class="action-btn" bindtap="editCustomerInfo">
+        <text class="iconfont icon-setting"></text>
+        <text>编辑资料</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 标签页导航 -->
+  <van-tabs active="{{activeTab}}" bind:change="onTabChange" sticky animated swipeable>
+    <!-- 基本信息标签页 -->
+    <van-tab title="基本信息" name="info">
+      <view class="tab-content info-tab">
+        <van-cell-group>
+          <van-cell title="客户来源" value="{{customerInfo.source || '未知'}}" />
+          <van-cell title="所属行业" value="{{customerInfo.industry || '未填写'}}" />
+          <van-cell title="企业规模" value="{{customerInfo.scale || '未填写'}}" />
+          <van-cell title="注册时间" value="{{customerInfo.created_at_text}}" />
+          <van-cell title="最近跟进" value="{{customerInfo.last_follow_time_text || '暂无'}}" />
+          <van-cell title="跟进次数" value="{{customerInfo.follow_count || 0}}次" />
+          <van-cell title="订单数量" value="{{customerInfo.order_count || 0}}个" />
+          <van-cell title="合同数量" value="{{customerInfo.contract_count || 0}}份" />
+        </van-cell-group>
+
+        <view class="section-title">标签信息</view>
+        <view class="tags-container">
+          <van-tag
+            wx:for="{{customerInfo.tags}}"
+            wx:key="id"
+            type="{{item.type}}"
+            size="medium"
+            class="tag-item"
+          >{{item.name}}</van-tag>
+          <view class="empty-tags" wx:if="{{!customerInfo.tags.length}}">暂无标签</view>
+        </view>
+
+        <view class="section-title">备注信息</view>
+        <view class="remark-container">
+          <text>{{customerInfo.remark || '暂无备注'}}</text>
+        </view>
+      </view>
+    </van-tab>
+
+    <!-- 跟进记录标签页 -->
+    <van-tab title="跟进记录" name="follow">
+      <view class="tab-content follow-tab">
+        <view class="follow-list">
+          <view
+            class="follow-item"
+            wx:for="{{followRecords}}"
+            wx:key="id"
+          >
+            <view class="follow-header">
+              <view class="follow-type">
+                <text class="iconfont {{item.type_icon}}"></text>
+                <text>{{formatFollowType(item.type)}}</text>
+              </view>
+              <text class="follow-time">{{formatTime(item.created_at)}}</text>
+            </view>
+            <view class="follow-content">{{item.content}}</view>
+            <view class="follow-footer" wx:if="{{item.next_follow_date || item.remark}}">
+              <view class="next-follow" wx:if="{{item.next_follow_date}}">
+                下次跟进：{{item.next_follow_date}}
+              </view>
+              <view class="follow-remark" wx:if="{{item.remark}}">
+                备注：{{item.remark}}
+              </view>
+            </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <van-empty
+            wx:if="{{!followRecords.length && !followLoading}}"
+            description="暂无跟进记录"
+          >
+            <van-button
+              type="primary"
+              size="small"
+              bind:click="showAddFollowDialog"
+            >添加跟进</van-button>
+          </van-empty>
+          
+          <!-- 加载状态 -->
+          <view class="loading-more" wx:if="{{followLoading}}">
+            <van-loading size="24rpx">加载中...</van-loading>
+          </view>
+          
+          <!-- 没有更多数据 -->
+          <view class="no-more" wx:if="{{!followHasMore && followRecords.length > 0}}">
+            没有更多数据了
+          </view>
+        </view>
+      </view>
+    </van-tab>
+
+    <!-- 订单记录标签页 -->
+    <van-tab title="订单记录" name="orders">
+      <view class="tab-content orders-tab">
+        <view class="order-list">
+          <view
+            class="order-item"
+            wx:for="{{orders}}"
+            wx:key="id"
+            bindtap="viewOrderDetail"
+            data-order-id="{{item.id}}"
+          >
+            <view class="order-header">
+              <text class="order-no">订单号：{{item.order_no}}</text>
+              <text class="order-status" style="color: {{item.status_config.color}}">
+                {{formatOrderStatus(item.status)}}
+              </text>
+            </view>
+            <view class="order-info">
+              <view class="order-amount">
+                <text class="amount-label">订单金额</text>
+                <text class="amount-value">¥{{item.total_amount}}</text>
+              </view>
+              <view class="order-time">{{formatTime(item.created_at)}}</view>
+            </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <van-empty
+            wx:if="{{!orders.length && !orderLoading}}"
+            description="暂无订单记录"
+          />
+          
+          <!-- 加载状态 -->
+          <view class="loading-more" wx:if="{{orderLoading}}">
+            <van-loading size="24rpx">加载中...</van-loading>
+          </view>
+          
+          <!-- 没有更多数据 -->
+          <view class="no-more" wx:if="{{!orderHasMore && orders.length > 0}}">
+            没有更多数据了
+          </view>
+        </view>
+      </view>
+    </van-tab>
+
+    <!-- 合同记录标签页 -->
+    <van-tab title="合同记录" name="contracts">
+      <view class="tab-content contracts-tab">
+        <view class="contract-list">
+          <view
+            class="contract-item"
+            wx:for="{{contracts}}"
+            wx:key="id"
+            bindtap="viewContractDetail"
+            data-contract-id="{{item.id}}"
+          >
+            <view class="contract-header">
+              <text class="contract-no">合同编号：{{item.contract_no}}</text>
+              <text class="contract-status" style="color: {{item.status_config.color}}">
+                {{item.status_text}}
+              </text>
+            </view>
+            <view class="contract-info">
+              <view class="contract-name">{{item.name}}</view>
+              <view class="contract-amount">
+                <text class="amount-label">合同金额</text>
+                <text class="amount-value">¥{{item.total_amount}}</text>
+              </view>
+              <view class="contract-date">
+                <text>签订日期：{{item.sign_date}}</text>
+                <text>到期日期：{{item.expire_date}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <van-empty
+            wx:if="{{!contracts.length}}"
+            description="暂无合同记录"
+          />
+        </view>
+      </view>
+    </van-tab>
+  </van-tabs>
+
+  <!-- 添加跟进记录弹窗 -->
+  <van-popup
+    show="{{showFollowDialog}}"
+    position="bottom"
+    round
+    bind:close="hideFollowDialog"
+  >
+    <view class="follow-dialog">
+      <view class="dialog-header">
+        <text class="dialog-title">添加跟进记录</text>
+        <view class="dialog-close" bindtap="hideFollowDialog">
+          <text class="iconfont icon-close"></text>
+        </view>
+      </view>
+      
+      <view class="dialog-content">
+        <van-cell-group>
+          <van-field
+            label="跟进方式"
+            value="{{followForm.type}}"
+            readonly
+            is-link
+            bind:tap="showFollowTypePopup"
+          />
+          <van-field
+            label="跟进内容"
+            value="{{followForm.content}}"
+            type="textarea"
+            placeholder="请输入跟进内容"
+            autosize
+            bind:input="onFollowContentInput"
+          />
+          <van-field
+            label="下次跟进"
+            value="{{followForm.nextFollowDate}}"
+            readonly
+            is-link
+            bind:tap="showDatePicker"
+          />
+          <van-field
+            label="备注"
+            value="{{followForm.remark}}"
+            type="textarea"
+            placeholder="请输入备注信息"
+            autosize
+            bind:input="onFollowRemarkInput"
+          />
+        </van-cell-group>
+      </view>
+      
+      <view class="dialog-footer">
+        <van-button
+          block
+          type="primary"
+          bind:click="submitFollowRecord"
+        >提交</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 更新状态弹窗 -->
+  <van-popup
+    show="{{showStatusDialog}}"
+    position="bottom"
+    round
+    bind:close="hideStatusDialog"
+  >
+    <view class="status-dialog">
+      <view class="dialog-header">
+        <text class="dialog-title">更新客户状态</text>
+        <view class="dialog-close" bindtap="hideStatusDialog">
+          <text class="iconfont icon-close"></text>
+        </view>
+      </view>
+      
+      <view class="dialog-content">
+        <van-radio-group value="{{selectedStatus}}" bind:change="onStatusChange">
+          <van-cell-group>
+            <van-cell
+              wx:for="{{statusOptions}}"
+              wx:key="value"
+              title="{{item.label}}"
+              clickable
+              data-value="{{item.value}}"
+              bind:click="onStatusChange"
+            >
+              <van-radio slot="right-icon" name="{{item.value}}" />
+            </van-cell>
+          </van-cell-group>
+        </van-radio-group>
+      </view>
+      
+      <view class="dialog-footer">
+        <van-button
+          block
+          type="primary"
+          bind:click="updateCustomerStatus"
+        >确认</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 标签管理弹窗 -->
+  <van-popup
+    show="{{showTagDialog}}"
+    position="bottom"
+    round
+    bind:close="hideTagDialog"
+  >
+    <view class="tag-dialog">
+      <view class="dialog-header">
+        <text class="dialog-title">标签管理</text>
+        <view class="dialog-close" bindtap="hideTagDialog">
+          <text class="iconfont icon-close"></text>
+        </view>
+      </view>
+      
+      <view class="dialog-content">
+        <van-checkbox-group value="{{selectedTags}}" bind:change="onTagChange">
+          <van-cell-group>
+            <van-cell
+              wx:for="{{availableTags}}"
+              wx:key="id"
+              title="{{item.name}}"
+              clickable
+              data-id="{{item.id}}"
+              bind:click="onTagChange"
+            >
+              <van-checkbox
+                catch:tap="noop"
+                class="checkboxes-{{item.id}}"
+                name="{{item.id}}"
+              />
+            </van-cell>
+          </van-cell-group>
+        </van-checkbox-group>
+      </view>
+      
+      <view class="dialog-footer">
+        <van-button
+          block
+          type="primary"
+          bind:click="updateCustomerTags"
+        >确认</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 分配客户经理弹窗 -->
+  <van-popup
+    show="{{showAssignDialog}}"
+    position="bottom"
+    round
+    bind:close="hideAssignDialog"
+  >
+    <view class="assign-dialog">
+      <view class="dialog-header">
+        <text class="dialog-title">分配客户经理</text>
+        <view class="dialog-close" bindtap="hideAssignDialog">
+          <text class="iconfont icon-close"></text>
+        </view>
+      </view>
+      
+      <view class="dialog-content">
+        <van-radio-group value="{{selectedEmployee}}" bind:change="onEmployeeChange">
+          <van-cell-group>
+            <van-cell
+              wx:for="{{employees}}"
+              wx:key="id"
+              title="{{item.name}}"
+              label="{{item.department}}"
+              clickable
+              data-id="{{item.id}}"
+              bind:click="onEmployeeChange"
+            >
+              <van-radio slot="right-icon" name="{{item.id}}" />
+            </van-cell>
+          </van-cell-group>
+        </van-radio-group>
+      </view>
+      
+      <view class="dialog-footer">
+        <van-button
+          block
+          type="primary"
+          bind:click="assignCustomer"
+        >确认</van-button>
+      </view>
+    </view>
+  </van-popup>
+</view> 

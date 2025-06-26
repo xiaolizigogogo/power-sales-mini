@@ -1,0 +1,16 @@
+{
+  "navigationBarTitleText": "个人中心",
+  "navigationBarBackgroundColor": "#2196F3",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f5f5",
+  "backgroundTextStyle": "dark",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "loading": "/components/loading/loading"
+  },
+  "style": "v2",
+  "singlePage": {
+    "navigationBarFit": "float"
+  }
+} 

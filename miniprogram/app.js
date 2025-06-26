@@ -2,7 +2,7 @@ App({
   globalData: {
     userInfo: null,
     token: '',
-    baseUrl: 'https://api.example.com', // 替换为实际的API地址
+    baseUrl: 'https://dyh.zytcft.com/power/api/v1', // 替换为实际的API地址
   },
 
   onLaunch() {

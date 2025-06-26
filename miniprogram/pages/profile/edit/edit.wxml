@@ -1,0 +1,236 @@
+<!--pages/profile/edit/edit.wxml-->
+<view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-text">
+      <text class="loading-icon">⏳</text>
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- 表单内容 -->
+  <view wx:else class="form-container">
+    <form bindsubmit="onSubmit">
+      <!-- 个人基本信息 -->
+      <view class="form-section">
+        <view class="section-title">个人基本信息</view>
+        
+        <!-- 姓名 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>姓名</text>
+          </view>
+          <input
+            class="form-input {{errors.name ? 'error' : ''}}"
+            type="text"
+            placeholder="请输入姓名"
+            value="{{formData.name}}"
+            data-field="name"
+            bindinput="onInputChange"
+            maxlength="20"
+          />
+          <view wx:if="{{errors.name}}" class="error-text">{{errors.name}}</view>
+        </view>
+
+        <!-- 手机号 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>手机号</text>
+          </view>
+          <input
+            class="form-input {{errors.phone ? 'error' : ''}}"
+            type="number"
+            placeholder="请输入手机号"
+            value="{{formData.phone}}"
+            data-field="phone"
+            bindinput="onInputChange"
+            maxlength="11"
+          />
+          <view wx:if="{{errors.phone}}" class="error-text">{{errors.phone}}</view>
+        </view>
+
+        <!-- 邮箱 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text>邮箱</text>
+          </view>
+          <input
+            class="form-input {{errors.email ? 'error' : ''}}"
+            type="text"
+            placeholder="请输入邮箱（可选）"
+            value="{{formData.email}}"
+            data-field="email"
+            bindinput="onInputChange"
+          />
+          <view wx:if="{{errors.email}}" class="error-text">{{errors.email}}</view>
+        </view>
+      </view>
+
+      <!-- 企业信息 -->
+      <view class="form-section">
+        <view class="section-title">企业信息</view>
+        
+        <!-- 企业名称 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>企业名称</text>
+          </view>
+          <view class="search-input-container">
+            <input
+              class="form-input {{errors.company_name ? 'error' : ''}}"
+              type="text"
+              placeholder="请输入企业名称"
+              value="{{formData.company_name}}"
+              data-field="company_name"
+              bindinput="onInputChange"
+              maxlength="100"
+            />
+            <!-- 搜索结果下拉框 -->
+            <view wx:if="{{showCompanySearch && companySearchResults.length > 0}}" class="search-results">
+              <view
+                wx:for="{{companySearchResults}}"
+                wx:key="id"
+                class="search-item"
+                data-company="{{item}}"
+                bindtap="onCompanySelect"
+              >
+                <view class="company-name">{{item.company_name}}</view>
+                <view class="company-address">{{item.registered_address}}</view>
+              </view>
+            </view>
+            <!-- 搜索结果为空 -->
+            <view wx:if="{{showCompanySearch && companySearchResults.length === 0 && companySearchKeyword.length >= 2}}" class="search-empty">
+              <text>未找到相关企业</text>
+            </view>
+          </view>
+          <view wx:if="{{errors.company_name}}" class="error-text">{{errors.company_name}}</view>
+        </view>
+
+        <!-- 行业类型 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>行业类型</text>
+          </view>
+          <view class="picker-container" bindtap="onShowIndustryPicker">
+            <input
+              class="form-input picker-input {{errors.industry_type ? 'error' : ''}}"
+              type="text"
+              placeholder="请选择行业类型"
+              value="{{industryIndex >= 0 ? industryOptions[industryIndex].label : ''}}"
+              disabled
+            />
+            <view class="picker-arrow">></view>
+          </view>
+          <view wx:if="{{errors.industry_type}}" class="error-text">{{errors.industry_type}}</view>
+        </view>
+
+        <!-- 注册地址 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>注册地址</text>
+          </view>
+          <textarea
+            class="form-textarea {{errors.registered_address ? 'error' : ''}}"
+            placeholder="请输入注册地址"
+            value="{{formData.registered_address}}"
+            data-field="registered_address"
+            bindinput="onInputChange"
+            maxlength="200"
+            auto-height
+          />
+          <view wx:if="{{errors.registered_address}}" class="error-text">{{errors.registered_address}}</view>
+        </view>
+
+        <!-- 联系人 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>联系人</text>
+          </view>
+          <input
+            class="form-input {{errors.contact_person ? 'error' : ''}}"
+            type="text"
+            placeholder="请输入联系人姓名"
+            value="{{formData.contact_person}}"
+            data-field="contact_person"
+            bindinput="onInputChange"
+            maxlength="20"
+          />
+          <view wx:if="{{errors.contact_person}}" class="error-text">{{errors.contact_person}}</view>
+        </view>
+
+        <!-- 联系电话 -->
+        <view class="form-item">
+          <view class="form-label">
+            <text class="required">*</text>
+            <text>联系电话</text>
+          </view>
+          <input
+            class="form-input {{errors.contact_phone ? 'error' : ''}}"
+            type="number"
+            placeholder="请输入联系电话"
+            value="{{formData.contact_phone}}"
+            data-field="contact_phone"
+            bindinput="onInputChange"
+            maxlength="11"
+          />
+          <view wx:if="{{errors.contact_phone}}" class="error-text">{{errors.contact_phone}}</view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="form-actions">
+        <button
+          class="btn-reset"
+          type="button"
+          bindtap="onReset"
+          disabled="{{submitting}}"
+        >
+          重置
+        </button>
+        <button
+          class="btn-submit"
+          form-type="submit"
+          disabled="{{submitting}}"
+          loading="{{submitting}}"
+        >
+          {{submitting ? '保存中...' : '保存'}}
+        </button>
+      </view>
+    </form>
+  </view>
+
+  <!-- 行业类型选择器 -->
+  <view wx:if="{{showIndustryPicker}}" class="picker-overlay" bindtap="onHideIndustryPicker">
+    <view class="picker-container-popup" catchtap="">
+      <view class="picker-header">
+        <text class="picker-cancel" bindtap="onHideIndustryPicker">取消</text>
+        <text class="picker-title">选择行业类型</text>
+        <text class="picker-confirm" bindtap="onHideIndustryPicker">确定</text>
+      </view>
+      <picker-view
+        class="picker-view"
+        value="{{[industryIndex >= 0 ? industryIndex : 0]}}"
+        bindchange="onIndustryChange"
+      >
+        <picker-view-column>
+          <view wx:for="{{industryOptions}}" wx:key="value" class="picker-item">
+            {{item.label}}
+          </view>
+        </picker-view-column>
+      </picker-view>
+    </view>
+  </view>
+
+  <!-- 遮罩层 - 点击隐藏企业搜索结果 -->
+  <view
+    wx:if="{{showCompanySearch}}"
+    class="search-overlay"
+    bindtap="onHideCompanySearch"
+  ></view>
+</view> 
