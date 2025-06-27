@@ -1,97 +1,125 @@
 <!-- pages/profile/contracts/contracts.wxml -->
 <view class="container">
   <!-- 统计卡片 -->
-  <view class="statistics-card">
-    <view class="stat-item">
-      <text class="stat-number">{{statistics.total}}</text>
-      <text class="stat-label">总合同</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-number">{{statistics.signed}}</text>
-      <text class="stat-label">已签署</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-number">{{statistics.executing}}</text>
-      <text class="stat-label">执行中</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-number">{{statistics.nearExpiry}}</text>
-      <text class="stat-label">即将到期</text>
+  <view class="statistics-section">
+    <view class="stat-grid">
+      <view class="stat-item">
+        <view class="stat-icon">📄</view>
+        <view class="stat-number">{{statistics.total}}</view>
+        <view class="stat-label">总合同</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-icon">✅</view>
+        <view class="stat-number">{{statistics.signed}}</view>
+        <view class="stat-label">已签署</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-icon">⚡</view>
+        <view class="stat-number">{{statistics.executing}}</view>
+        <view class="stat-label">执行中</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-icon">⏰</view>
+        <view class="stat-number">{{statistics.nearExpiry}}</view>
+        <view class="stat-label">即将到期</view>
+      </view>
     </view>
   </view>
 
   <!-- 搜索和筛选栏 -->
-  <view class="search-bar">
-    <view class="search-input-wrapper">
-      <icon class="search-icon" type="search" size="16" color="#999"></icon>
-      <input
-        class="search-input"
-        placeholder="搜索合同编号、名称"
-        value="{{searchKeyword}}"
-        bindinput="onSearchInput"
-        bindconfirm="onSearchConfirm"
-      />
-      <view wx:if="{{searchKeyword}}" class="clear-icon" bindtap="onSearchClear">
-        <icon type="clear" size="16" color="#999"></icon>
+  <view class="search-section">
+    <view class="search-bar">
+      <view class="search-input-wrapper">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          placeholder="搜索合同编号、名称"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          bindconfirm="onSearchConfirm"
+        />
+        <view wx:if="{{searchKeyword}}" class="clear-btn" bindtap="onSearchClear">
+          <text>❌</text>
+        </view>
+      </view>
+      <view class="filter-btn" bindtap="showFilter">
+        <text class="filter-icon">🔽</text>
+        <text>筛选</text>
       </view>
     </view>
-    <view class="filter-btn" bindtap="showFilter">
-      <icon type="filter" size="16" color="#007aff"></icon>
-      <text>筛选</text>
+  </view>
+
+  <!-- 状态标签栏 -->
+  <view class="status-tabs">
+    <view 
+      wx:for="{{statusTabs}}" 
+      wx:key="value"
+      class="status-tab {{currentStatus === item.value ? 'active' : ''}}"
+      bindtap="onStatusTabTap"
+      data-status="{{item.value}}"
+    >
+      <text class="tab-icon">{{item.icon}}</text>
+      <text class="tab-text">{{item.label}}</text>
+      <view wx:if="{{item.count > 0}}" class="tab-badge">{{item.count}}</view>
     </view>
   </view>
 
   <!-- 刷新指示器 -->
   <view wx:if="{{refreshing}}" class="refresh-indicator">
+    <text class="loading-icon">⏳</text>
     <text>刷新中...</text>
   </view>
 
   <!-- 合同列表 -->
   <view class="contracts-list">
     <view
-      wx:for="{{contracts}}"
+      wx:for="{{filteredContracts}}"
       wx:key="id"
       class="contract-item"
       bindtap="onContractTap"
       data-id="{{item.id}}"
     >
+      <!-- 合同状态指示条 -->
+      <view class="status-indicator status-{{item.status}}"></view>
+      
       <!-- 合同基本信息 -->
       <view class="contract-header">
-        <view class="contract-title">
-          <text class="contract-name">{{item.contract_name}}</text>
-          <view class="contract-status" style="color: {{getStatusColor(item.status)}}">
-            {{formatContractStatus(item.status)}}
-          </view>
+        <view class="contract-title-section">
+          <view class="contract-name">{{item.contractName}}</view>
+          <view class="contract-number">{{item.contractNumber}}</view>
         </view>
-        <view class="contract-number">合同编号：{{item.contract_number}}</view>
+        <view class="contract-status status-{{item.status}}">
+          <text class="status-icon">{{getStatusIcon(item.status)}}</text>
+          <text class="status-text">{{getStatusText(item.status)}}</text>
+        </view>
       </view>
 
       <!-- 合同详情 -->
       <view class="contract-details">
         <view class="detail-row">
-          <text class="detail-label">签署日期：</text>
-          <text class="detail-value">{{item.signed_date ? formatDate(item.signed_date) : '-'}}</text>
+          <text class="detail-label">📅 签署日期</text>
+          <text class="detail-value">{{item.signedDate ? formatDate(item.signedDate) : '未签署'}}</text>
         </view>
         <view class="detail-row">
-          <text class="detail-label">服务期限：</text>
+          <text class="detail-label">⏰ 服务期限</text>
           <text class="detail-value">
-            {{formatDate(item.start_date)}} 至 {{formatDate(item.end_date)}}
+            {{formatDate(item.startDate)}} - {{formatDate(item.endDate)}}
           </text>
         </view>
         <view class="detail-row">
-          <text class="detail-label">合同金额：</text>
+          <text class="detail-label">💰 合同金额</text>
           <text class="detail-value amount">{{formatAmount(item.amount)}}</text>
         </view>
-        <view wx:if="{{item.product_name}}" class="detail-row">
-          <text class="detail-label">服务产品：</text>
-          <text class="detail-value">{{item.product_name}}</text>
+        <view wx:if="{{item.productName}}" class="detail-row">
+          <text class="detail-label">🔧 服务产品</text>
+          <text class="detail-value">{{item.productName}}</text>
         </view>
       </view>
 
       <!-- 到期提醒 -->
-      <view wx:if="{{isNearExpiry(item.end_date)}}" class="expiry-notice">
-        <icon type="warn" size="16" color="#ff9500"></icon>
-        <text>合同即将到期，请及时续签</text>
+      <view wx:if="{{isNearExpiry(item.endDate)}}" class="expiry-notice">
+        <text class="notice-icon">⚠️</text>
+        <text class="notice-text">合同即将到期，请及时续签</text>
       </view>
 
       <!-- 操作按钮 -->
@@ -102,7 +130,7 @@
           catchtap="signContract"
           data-id="{{item.id}}"
         >
-          立即签署
+          ✍️ 立即签署
         </button>
         
         <button
@@ -111,7 +139,7 @@
           catchtap="renewContract"
           data-id="{{item.id}}"
         >
-          申请续签
+          🔄 申请续签
         </button>
         
         <button
@@ -119,49 +147,38 @@
           catchtap="previewContract"
           data-id="{{item.id}}"
         >
-          预览
+          👁️ 预览
         </button>
         
         <button
-          wx:if="{{item.status === 'signed' || item.status === 'executing' || item.status === 'completed'}}"
+          wx:if="{{item.status !== 'pending'}}"
           class="action-btn secondary"
           catchtap="downloadContract"
           data-id="{{item.id}}"
         >
-          下载
-        </button>
-        
-        <button
-          wx:if="{{item.status === 'pending' || item.status === 'signed'}}"
-          class="action-btn danger"
-          catchtap="cancelContract"
-          data-id="{{item.id}}"
-        >
-          取消
-        </button>
-        
-        <button
-          class="action-btn secondary"
-          catchtap="contactCustomerService"
-          data-id="{{item.id}}"
-        >
-          联系客服
+          📥 下载
         </button>
       </view>
     </view>
   </view>
 
-  <!-- 加载更多 -->
-  <view wx:if="{{loading}}" class="loading">
-    <text>加载中...</text>
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-section">
+    <text class="loading-icon">⏳</text>
+    <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- 无数据提示 -->
-  <view wx:if="{{!loading && contracts.length === 0}}" class="empty-state">
-    <icon type="contract" size="64" color="#ccc"></icon>
-    <text class="empty-text">暂无合同记录</text>
-    <text class="empty-hint">您还没有任何合同，去看看我们的产品吧</text>
-    <button class="empty-btn" bindtap="goToProducts">浏览产品</button>
+  <!-- 空状态提示 -->
+  <view wx:if="{{!loading && filteredContracts.length === 0}}" class="empty-section">
+    <view class="empty-content">
+      <text class="empty-icon">📋</text>
+      <text class="empty-title">{{getEmptyTitle()}}</text>
+      <text class="empty-desc">{{getEmptyDesc()}}</text>
+      <view class="empty-actions">
+        <button class="empty-btn secondary" bindtap="goBack">← 返回上页</button>
+        <button class="empty-btn primary" bindtap="goToProducts">浏览产品</button>
+      </view>
+    </view>
   </view>
 
   <!-- 筛选弹窗 -->
@@ -170,40 +187,40 @@
     <view class="filter-content">
       <view class="filter-header">
         <text class="filter-title">筛选条件</text>
-        <icon class="close-icon" type="clear" size="20" bindtap="hideFilter"></icon>
+        <view class="close-btn" bindtap="hideFilter">❌</view>
       </view>
 
-      <view class="filter-section">
-        <text class="section-title">合同状态</text>
-        <picker
-          bindchange="onStatusChange"
-          value="{{selectedStatusIndex}}"
-          range="{{statusOptions}}"
-          range-key="label"
-        >
-          <view class="picker-item">
-            <text>{{statusOptions[selectedStatusIndex].label || '选择状态'}}</text>
-            <icon type="arrow_right" size="16" color="#999"></icon>
+      <view class="filter-body">
+        <view class="filter-section">
+          <text class="section-title">合同状态</text>
+          <view class="status-options">
+            <view 
+              wx:for="{{statusOptions}}" 
+              wx:key="value"
+              class="status-option {{selectedStatus === item.value ? 'selected' : ''}}"
+              bindtap="onStatusSelect"
+              data-status="{{item.value}}"
+            >
+              <text class="option-icon">{{item.icon}}</text>
+              <text class="option-text">{{item.label}}</text>
+              <text wx:if="{{selectedStatus === item.value}}" class="check-icon">✅</text>
+            </view>
           </view>
-        </picker>
-      </view>
+        </view>
 
-      <view class="filter-section">
-        <text class="section-title">签署日期</text>
-        <view class="date-range">
-          <picker mode="date" bindchange="onStartDateChange" value="{{dateRange.start}}">
-            <view class="date-picker">
-              <text>{{dateRange.start || '开始日期'}}</text>
-              <icon type="calendar" size="16" color="#999"></icon>
+        <view class="filter-section">
+          <text class="section-title">签署日期</text>
+          <view class="date-range">
+            <view class="date-picker" bindtap="selectStartDate">
+              <text class="date-icon">📅</text>
+              <text class="date-text">{{dateRange.start || '开始日期'}}</text>
             </view>
-          </picker>
-          <text class="date-separator">至</text>
-          <picker mode="date" bindchange="onEndDateChange" value="{{dateRange.end}}">
-            <view class="date-picker">
-              <text>{{dateRange.end || '结束日期'}}</text>
-              <icon type="calendar" size="16" color="#999"></icon>
+            <text class="date-separator">至</text>
+            <view class="date-picker" bindtap="selectEndDate">
+              <text class="date-icon">📅</text>
+              <text class="date-text">{{dateRange.end || '结束日期'}}</text>
             </view>
-          </picker>
+          </view>
         </view>
       </view>
 
@@ -220,48 +237,48 @@
     <view class="preview-content">
       <view class="preview-header">
         <text class="preview-title">合同预览</text>
-        <icon class="close-icon" type="clear" size="20" bindtap="closePreview"></icon>
+        <view class="close-btn" bindtap="closePreview">❌</view>
       </view>
 
       <scroll-view scroll-y class="preview-body">
         <view wx:if="{{previewContract}}" class="contract-preview">
           <view class="preview-info">
-            <text class="preview-contract-name">{{previewContract.contract_name}}</text>
-            <text class="preview-contract-number">{{previewContract.contract_number}}</text>
+            <text class="preview-contract-name">{{previewContract.contractName}}</text>
+            <text class="preview-contract-number">编号：{{previewContract.contractNumber}}</text>
           </view>
 
           <view class="preview-parties">
             <view class="party">
-              <text class="party-title">甲方（服务方）</text>
-              <text class="party-name">{{previewContract.party_a_name}}</text>
-              <text class="party-address">{{previewContract.party_a_address}}</text>
+              <text class="party-title">🏢 甲方（服务方）</text>
+              <text class="party-name">{{previewContract.partyAName}}</text>
+              <text class="party-address">{{previewContract.partyAAddress}}</text>
             </view>
             <view class="party">
-              <text class="party-title">乙方（客户方）</text>
-              <text class="party-name">{{previewContract.party_b_name}}</text>
-              <text class="party-address">{{previewContract.party_b_address}}</text>
+              <text class="party-title">👤 乙方（客户方）</text>
+              <text class="party-name">{{previewContract.partyBName}}</text>
+              <text class="party-address">{{previewContract.partyBAddress}}</text>
             </view>
           </view>
 
           <view class="preview-terms">
-            <text class="terms-title">主要条款</text>
+            <text class="terms-title">📋 主要条款</text>
             <view class="term-item">
               <text class="term-label">服务内容：</text>
-              <text class="term-value">{{previewContract.service_content}}</text>
+              <text class="term-value">{{previewContract.serviceContent}}</text>
             </view>
             <view class="term-item">
               <text class="term-label">服务期限：</text>
               <text class="term-value">
-                {{formatDate(previewContract.start_date)}} 至 {{formatDate(previewContract.end_date)}}
+                {{formatDate(previewContract.startDate)}} - {{formatDate(previewContract.endDate)}}
               </text>
             </view>
             <view class="term-item">
               <text class="term-label">合同金额：</text>
-              <text class="term-value">{{formatAmount(previewContract.amount)}}</text>
+              <text class="term-value amount">{{formatAmount(previewContract.amount)}}</text>
             </view>
             <view class="term-item">
               <text class="term-label">付款方式：</text>
-              <text class="term-value">{{previewContract.payment_method}}</text>
+              <text class="term-value">{{previewContract.paymentMethod}}</text>
             </view>
           </view>
         </view>
@@ -275,9 +292,21 @@
           bindtap="signContract"
           data-id="{{previewContract.id}}"
         >
-          立即签署
+          ✍️ 立即签署
         </button>
       </view>
     </view>
+  </view>
+
+  <!-- 底部快捷操作 -->
+  <view class="bottom-actions">
+    <button class="bottom-btn secondary" bindtap="goBack">
+      <text class="btn-icon">←</text>
+      <text>返回</text>
+    </button>
+    <button class="bottom-btn primary" bindtap="goToProducts">
+      <text class="btn-icon">🛍️</text>
+      <text>浏览产品</text>
+    </button>
   </view>
 </view> 

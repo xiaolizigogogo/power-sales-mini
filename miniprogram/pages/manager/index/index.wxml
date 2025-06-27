@@ -1,7 +1,9 @@
 <!--客户经理工作台首页-->
 <view class="container">
   <!-- 加载状态 -->
-  <loading wx:if="{{loading}}" />
+  <view class="loading-wrapper" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
   
   <!-- 主要内容 -->
   <view wx:else class="content">
@@ -14,10 +16,22 @@
             <text class="name">{{userInfo.name || '客户经理'}}</text>
           </view>
           <view class="date">{{refreshing ? '' : '今天是个好日子，加油！'}}</view>
+          <!-- 调试信息 -->
+          <view class="debug-info" wx:if="{{tokenInitialized}}">
+            <text class="debug-text">🔐 认证已初始化</text>
+          </view>
         </view>
         <view class="avatar">
-          <image src="{{userInfo.avatar_url || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <view class="avatar-placeholder" wx:if="{{!userInfo.avatar}}">👤</view>
+          <image wx:else src="{{userInfo.avatar}}" mode="aspectFill" />
         </view>
+      </view>
+      
+      <!-- Token调试按钮 -->
+      <view class="debug-section" wx:if="{{tokenInitialized}}">
+        <button class="debug-btn" size="mini" bindtap="onTokenDebugTap">🔧 Token调试</button>
+        <button class="debug-btn" size="mini" bindtap="onRefreshTokenTap">🔄 刷新Token</button>
+        <button class="debug-btn logout" size="mini" bindtap="onLogoutTap">🚪 退出登录</button>
       </view>
     </view>
 
@@ -34,11 +48,11 @@
           <view class="today-label">待跟进</view>
         </view>
         <view class="today-item" bindtap="onTodayDataTap" data-type="orders">
-          <view class="today-number">{{workbenchData.todayData.newOrders}}</view>
+          <view class="today-number success">{{workbenchData.todayData.newOrders}}</view>
           <view class="today-label">新订单</view>
         </view>
         <view class="today-item">
-          <view class="today-number success">{{formatAmount(workbenchData.todayData.orderAmount)}}</view>
+          <view class="today-number money">{{formatAmount(workbenchData.todayData.orderAmount)}}</view>
           <view class="today-label">成交金额</view>
         </view>
       </view>
@@ -56,14 +70,14 @@
           data-url="{{item.url}}"
         >
           <view class="quick-icon" style="background-color: {{item.color}}20;">
-            <text class="icon-{{item.icon}}" style="color: {{item.color}};"></text>
+            <text class="quick-icon-text" style="color: {{item.color}};">{{item.icon === 'customers' ? '👥' : item.icon === 'follow' ? '📝' : item.icon === 'performance' ? '📊' : '📋'}}</text>
           </view>
           <view class="quick-content">
             <view class="quick-title">{{item.title}}</view>
             <view class="quick-subtitle">{{item.subtitle}}</view>
           </view>
           <view class="quick-arrow">
-            <text class="icon-arrow-right"></text>
+            <text class="arrow-text">›</text>
           </view>
         </view>
       </view>
@@ -106,7 +120,7 @@
         <view class="section-title">最近客户</view>
         <view class="section-more" bindtap="onMoreCustomersTap">
           <text>查看更多</text>
-          <text class="icon-arrow-right"></text>
+          <text class="arrow-text">›</text>
         </view>
       </view>
       <view class="recent-list">
@@ -118,19 +132,22 @@
           data-customer-id="{{item.id}}"
         >
           <view class="customer-avatar">
-            <image src="{{item.avatar_url || '/images/default-company.png'}}" mode="aspectFill" />
+            <view class="avatar-placeholder" wx:if="{{!item.avatar_url}}">🏢</view>
+            <image wx:else src="{{item.avatar_url}}" mode="aspectFill" />
           </view>
           <view class="customer-info">
-            <view class="customer-name">{{item.company_name || item.name}}</view>
+            <view class="customer-name">{{item.company || item.name}}</view>
             <view class="customer-contact">{{item.phone}}</view>
-            <view class="customer-time">{{formatDate(item.last_contact_time)}}</view>
+            <view class="customer-time">{{formatDate(item.lastContact)}}</view>
           </view>
           <view class="customer-status">
-            <view class="status-tag status-{{item.status}}">{{item.status_text}}</view>
+            <view class="status-tag status-{{item.status}}">
+              {{item.status === 'following' ? '跟进中' : item.status === 'negotiating' ? '商务洽谈' : item.status === 'potential' ? '潜在客户' : '其他'}}
+            </view>
           </view>
           <view class="customer-actions">
             <view class="action-btn" bindtap="onCallTap" data-phone="{{item.phone}}" catchtap="true">
-              <text class="icon-phone"></text>
+              <text>📞</text>
             </view>
           </view>
         </view>
@@ -143,7 +160,7 @@
         <view class="section-title">紧急任务</view>
         <view class="section-more" bindtap="onMoreTasksTap">
           <text>查看更多</text>
-          <text class="icon-arrow-right"></text>
+          <text class="arrow-text">›</text>
         </view>
       </view>
       <view class="urgent-list">
@@ -154,16 +171,16 @@
         >
           <view class="task-priority" style="background-color: {{getTaskPriorityColor(item.priority)}};"></view>
           <view class="task-content">
-            <view class="task-title">{{item.title}}</view>
-            <view class="task-customer">客户：{{item.customer_name}}</view>
-            <view class="task-time">截止：{{item.deadline}}</view>
+            <view class="task-title">{{item.content}}</view>
+            <view class="task-customer">客户：{{item.customerName}}</view>
+            <view class="task-time">截止：{{item.dueDate}}</view>
           </view>
           <view class="task-action">
             <button 
               class="follow-btn" 
               size="mini"
               bindtap="onFollowTap"
-              data-customer-id="{{item.customer_id}}"
+              data-customer-id="{{item.customerId}}"
               data-task-id="{{item.id}}"
             >
               立即跟进
@@ -175,11 +192,11 @@
 
     <!-- 空状态提示 -->
     <view wx:if="{{recentCustomers.length === 0 && urgentTasks.length === 0}}" class="empty-section">
-      <empty 
-        icon="manager" 
-        title="暂无待处理事项" 
-        description="您可以主动添加客户或等待系统分配"
-      />
+      <view class="empty-content">
+        <text class="empty-icon">📋</text>
+        <text class="empty-title">暂无待处理事项</text>
+        <text class="empty-desc">您可以主动添加客户或等待系统分配</text>
+      </view>
     </view>
   </view>
 

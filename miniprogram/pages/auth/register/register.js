@@ -1,16 +1,17 @@
-const api = require('../../../utils/api')
 const { showToast, showLoading, hideLoading } = require('../../../utils/common')
+const app = getApp()
 
 Page({
   data: {
     currentStep: 1,
-    totalSteps: 3,
+    totalSteps: 1,
     
     // 步骤1：基本信息
     formData: {
       name: '',
       phone: '',
       code: '',
+      password: '',
       companyName: '',
       companyId: '',
     },
@@ -64,6 +65,7 @@ Page({
       name: '',
       phone: '',
       code: '',
+      password: '',
       companyName: ''
     },
     
@@ -120,9 +122,13 @@ Page({
   // 搜索企业
   async searchCompanies(keyword) {
     try {
-      const response = await api.get('/companies/search', {
-        keyword,
-        limit: 10
+      const response = await app.request({
+        url: '/companies/search',
+        method: 'GET',
+        data: {
+          keyword,
+          limit: 10
+        }
       })
       
       this.setData({
@@ -165,9 +171,13 @@ Page({
     try {
       showLoading('发送中...')
       
-      await api.post('/auth/send-code', { 
-        phone,
-        type: 'register'
+      await app.request({
+        url: '/auth/send-code',
+        method: 'POST',
+        data: { 
+          phone,
+          type: 'register'
+        }
       })
       
       showToast('验证码已发送')
@@ -326,7 +336,7 @@ Page({
 
   // 验证步骤1
   validateStep1() {
-    const { name, phone, code, companyName } = this.data.formData
+    const { name, phone, password, companyName } = this.data.formData
     
     if (!name.trim()) {
       showToast('请输入姓名')
@@ -338,8 +348,15 @@ Page({
       return false
     }
     
-    if (!code || code.length !== 6) {
-      showToast('请输入6位验证码')
+    // 验证码验证已移除
+    
+    if (!password) {
+      showToast('请设置密码')
+      return false
+    }
+    
+    if (password.length < 6 || password.length > 20) {
+      showToast('密码长度应为6-20位')
       return false
     }
     
@@ -441,13 +458,25 @@ Page({
         }
         break
         
-      case 'code':
+      // case 'code':
+      //   if (!value) {
+      //     this.setFormError('code', '请输入验证码')
+      //   } else if (value.length !== 6) {
+      //     this.setFormError('code', '验证码为6位数字')
+      //   } else {
+      //     this.clearFormError('code')
+      //   }
+      //   break
+        
+      case 'password':
         if (!value) {
-          this.setFormError('code', '请输入验证码')
-        } else if (value.length !== 6) {
-          this.setFormError('code', '验证码为6位数字')
+          this.setFormError('password', '请设置密码')
+        } else if (value.length < 6) {
+          this.setFormError('password', '密码不能少于6位')
+        } else if (value.length > 20) {
+          this.setFormError('password', '密码不能超过20位')
         } else {
-          this.clearFormError('code')
+          this.clearFormError('password')
         }
         break
         
@@ -478,6 +507,7 @@ Page({
         name: '',
         phone: '',
         code: '',
+        password: '',
         companyName: '',
         companyId: '',
       },
@@ -497,6 +527,7 @@ Page({
         name: '',
         phone: '',
         code: '',
+        password: '',
         companyName: ''
       },
       authStatus: {
@@ -514,7 +545,7 @@ Page({
 
   // 提交注册
   async submitRegister() {
-    if (!this.checkAllStepsComplete()) {
+    if (!this.validateStep1()) {
       return
     }
 
@@ -522,23 +553,33 @@ Page({
       this.setData({ loading: true })
       showLoading('提交中...')
       
+      // 构造符合后端接口的数据结构
       const requestData = {
-        ...this.data.formData,
-        powerInfo: this.data.powerInfo,
-        authInfo: this.data.authInfo
+        phone: this.data.formData.phone,
+        password: this.data.formData.password,
+        name: this.data.formData.name,
+        companyName: this.data.formData.companyName,
+        companyAddress: '', // 可以从其他地方获取
+        contactPerson: this.data.formData.name,
+        contactPhone: this.data.formData.phone,
+        industry: this.data.powerInfo.industryType,
+        province: '', // 可以从地址选择器获取
+        city: '',     // 可以从地址选择器获取
+        district: ''  // 可以从地址选择器获取
       }
       
-      const response = await api.post('/auth/register', requestData)
+      const response = await app.request({
+        url: '/auth/register',
+        method: 'POST',
+        data: requestData
+      })
       
-      // 保存用户信息
-      wx.setStorageSync('userInfo', response.userInfo)
+      showToast('注册成功，请等待审核')
       
-      showToast('注册成功')
-      
-      // 跳转到登录页面或首页
+      // 跳转到登录页面
       setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/index/index'
+        wx.navigateTo({
+          url: '/pages/auth/login/login'
         })
       }, 1500)
       

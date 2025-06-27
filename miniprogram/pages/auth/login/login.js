@@ -7,6 +7,22 @@ Page({
     loading: false
   },
 
+  onLoad() {
+    // 检查是否已经登录
+    const app = getApp()
+    console.log('登录页面加载，当前登录状态:', app.globalData.isLogin)
+    
+    // 延迟检查，确保app.js的checkLogin已经执行完成
+    setTimeout(() => {
+      if (app.globalData.isLogin) {
+        console.log('用户已登录，跳转到首页')
+        wx.reLaunch({
+          url: '/pages/index/index'
+        })
+      }
+    }, 100)
+  },
+
   // 输入手机号
   onPhoneInput(e) {
     this.setData({
@@ -40,23 +56,18 @@ Page({
       });
 
       // 登录成功
-      app.login(res.data.userInfo, res.data.token, res.data.userRole);
+      app.login(res.data.userInfo, res.data.accessToken, res.data.userRole);
       
       wx.showToast({
         title: '登录成功',
         icon: 'success'
       });
 
-      // 返回上一页或首页
+      // 登录成功后直接跳转到首页
       setTimeout(() => {
-        const pages = getCurrentPages();
-        if (pages.length > 1) {
-          wx.navigateBack();
-        } else {
-          wx.reLaunch({
-            url: '/pages/index/index'
-          });
-        }
+        wx.reLaunch({
+          url: '/pages/index/index'
+        });
       }, 1500);
 
     } catch (error) {

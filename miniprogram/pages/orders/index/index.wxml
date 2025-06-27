@@ -3,7 +3,7 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrapper">
-      <image class="search-icon" src="/images/icons/search.png" mode="aspectFit"></image>
+      <text class="search-icon">🔍</text>
       <input 
         class="search-input"
         placeholder="搜索订单号、产品名称"
@@ -14,11 +14,11 @@
         bindconfirm="onSearchConfirm"
       />
       <view class="search-clear {{searchKeyword ? 'show' : ''}}" bindtap="onClearSearch">
-        <image src="/images/icons/close.png" mode="aspectFit"></image>
+        <text>✕</text>
       </view>
     </view>
     <view class="filter-btn" bindtap="onShowFilter">
-      <image src="/images/icons/filter.png" mode="aspectFit"></image>
+      <text>⚙️</text>
     </view>
   </view>
 
@@ -44,8 +44,8 @@
     <van-loading size="24px" vertical wx:if="{{loading && orderList.length === 0}}">加载中...</van-loading>
 
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && orderList.length === 0}}">
-      <image class="empty-icon" src="/images/empty/orders.png" mode="aspectFit"></image>
+    <view class="empty-state" wx:if="{{!loading && isEmpty}}">
+      <text class="empty-icon">📋</text>
       <text class="empty-text">暂无订单</text>
       <text class="empty-desc">您还没有任何订单，快去选购产品吧~</text>
       <button class="empty-btn" bindtap="onGoShopping">去选购</button>
@@ -91,7 +91,7 @@
         <!-- 服务信息 -->
         <view class="service-info" wx:if="{{item.assignedEmployee}}">
           <view class="service-item">
-            <image class="service-icon" src="/images/icons/service.png" mode="aspectFit"></image>
+            <text class="service-icon">👨‍💼</text>
             <text class="service-text">服务经理：{{item.assignedEmployee.name}}</text>
             <text class="service-phone" catchtap="onCallService" data-phone="{{item.assignedEmployee.phone}}">
               {{item.assignedEmployee.phone}}
@@ -203,7 +203,7 @@
               bindtap="onFilterOptionTap"
             >
               <text>{{item.label}}</text>
-              <image class="check-icon" src="/images/icons/check.png" mode="aspectFit"></image>
+              <text class="check-icon">✓</text>
             </view>
           </view>
         </view>
@@ -221,7 +221,7 @@
               bindtap="onFilterOptionTap"
             >
               <text>{{item.label}}</text>
-              <image class="check-icon" src="/images/icons/check.png" mode="aspectFit"></image>
+              <text class="check-icon">✓</text>
             </view>
           </view>
         </view>
@@ -239,7 +239,7 @@
               bindtap="onFilterOptionTap"
             >
               <text>{{item.label}}</text>
-              <image class="check-icon" src="/images/icons/check.png" mode="aspectFit"></image>
+              <text class="check-icon">✓</text>
             </view>
           </view>
         </view>

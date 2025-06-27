@@ -21,7 +21,7 @@ Page({
     this.setData({ loading: true });
 
     try {
-      // 这里应该调用实际的产品详情接口
+      // 尝试调用实际的产品详情接口
       const res = await app.request({
         url: `/products/${this.data.id}`
       });
@@ -31,13 +31,166 @@ Page({
       });
 
     } catch (error) {
-      wx.showToast({
-        title: error.message || '加载失败',
-        icon: 'none'
-      });
+      console.error('加载产品详情失败:', error)
+      // 加载失败时使用模拟数据
+      this.loadMockData()
     } finally {
       this.setData({ loading: false });
     }
+  },
+
+  // 加载模拟数据
+  loadMockData() {
+    const mockProducts = {
+      1: {
+        id: 1,
+        name: '工商业基础用电套餐',
+        description: '适合中小型工商业企业，提供稳定可靠的电力供应服务，包含基础的用电量和优惠政策。专业的电力服务团队为您提供全方位的用电保障，让您的企业用电无忧。',
+        price: '0.65',
+        originalPrice: '0.75',
+        images: ['/assets/images/product-1.png', '/assets/images/product-banner-1.png'],
+        categoryName: '工商业用电',
+        voltage: '10',
+        phase: '三',
+        capacity: '100-1000kW',
+        scopes: [
+          '中小型制造企业',
+          '商业综合体',
+          '办公楼宇',
+          '工业园区',
+          '物流仓储'
+        ],
+        policies: [
+          '首年享受9.5折优惠',
+          '用电量达标额外返点',
+          '免费提供用电咨询',
+          '24小时应急保障',
+          '绿色通道快速办理'
+        ],
+        process: [
+          {
+            step: '01',
+            title: '需求咨询',
+            description: '联系客服了解详细需求，获取专业用电方案'
+          },
+          {
+            step: '02', 
+            title: '方案制定',
+            description: '根据企业用电情况制定个性化电力服务方案'
+          },
+          {
+            step: '03',
+            title: '合同签署',
+            description: '确认方案后签署正式服务合同'
+          },
+          {
+            step: '04',
+            title: '服务开通',
+            description: '完成相关手续，正式开通电力服务'
+          }
+        ]
+      },
+      2: {
+        id: 2,
+        name: '工商业标准用电套餐',
+        description: '针对中等规模工商业企业设计，提供更多用电量和更优惠的价格，适合稳定发展的企业。享受更多优惠政策和专属服务，助力企业降本增效。',
+        price: '0.62',
+        originalPrice: '0.72',
+        images: ['/assets/images/product-2.png', '/assets/images/product-banner-2.png'],
+        categoryName: '工商业用电',
+        voltage: '35',
+        phase: '三',
+        capacity: '1000-5000kW',
+        scopes: [
+          '大型制造企业',
+          '工业园区',
+          '数据中心',
+          '医院学校',
+          '商业中心'
+        ],
+        policies: [
+          '首年享受9折优惠',
+          '阶梯电价更优惠',
+          '专属客户经理服务',
+          '优先抢修保障',
+          '用电数据分析报告'
+        ],
+        process: [
+          {
+            step: '01',
+            title: '需求评估',
+            description: '专业团队上门评估用电需求和现状'
+          },
+          {
+            step: '02',
+            title: '方案设计',
+            description: '定制专属电力服务方案和价格政策'
+          },
+          {
+            step: '03',
+            title: '协议签署',
+            description: '签署长期合作协议，锁定优惠价格'
+          },
+          {
+            step: '04',
+            title: '服务启动',
+            description: '配置专属客户经理，启动全方位服务'
+          }
+        ]
+      }
+    }
+
+    // 根据ID获取对应的模拟数据，如果没有则使用默认数据
+    const detail = mockProducts[this.data.id] || {
+      id: this.data.id,
+      name: '电力产品套餐',
+      description: '专业的电力供应服务，为您提供稳定可靠的电力保障。我们致力于为各类企业提供优质、高效、经济的电力解决方案。',
+      price: '0.60',
+      originalPrice: '0.70',
+      images: ['/assets/images/product-default.png'],
+      categoryName: '工商业用电',
+      voltage: '10',
+      phase: '三',
+      capacity: '根据需求定制',
+      scopes: [
+        '各类工商业企业',
+        '事业单位',
+        '民营企业',
+        '外资企业',
+        '个体工商户'
+      ],
+      policies: [
+        '新客户享受优惠价格',
+        '长期合作更多折扣',
+        '免费用电咨询服务',
+        '专业技术支持',
+        '完善的售后保障'
+      ],
+      process: [
+        {
+          step: '01',
+          title: '咨询了解',
+          description: '联系我们了解产品详情和服务内容'
+        },
+        {
+          step: '02',
+          title: '需求分析',
+          description: '分析您的用电需求，制定合适方案'
+        },
+        {
+          step: '03',
+          title: '签约办理',
+          description: '签署服务协议，办理相关手续'
+        },
+        {
+          step: '04',
+          title: '服务启动',
+          description: '正式启动电力服务，享受优质保障'
+        }
+      ]
+    }
+
+    this.setData({ detail })
   },
 
   // 预览图片

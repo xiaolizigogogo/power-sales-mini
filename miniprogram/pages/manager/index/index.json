@@ -1,13 +1,9 @@
 {
   "navigationBarTitleText": "工作台",
-  "navigationBarBackgroundColor": "#2E7CF6",
+  "navigationBarBackgroundColor": "#409eff",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#f8f9fa",
+  "backgroundColor": "#f5f7fa",
   "backgroundTextStyle": "dark",
   "enablePullDownRefresh": true,
-  "onReachBottomDistance": 100,
-  "usingComponents": {
-    "loading": "/components/loading/loading",
-    "empty": "/components/empty/empty"
-  }
+  "onReachBottomDistance": 100
 } 

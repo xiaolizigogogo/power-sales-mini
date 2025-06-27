@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="settings-list">
+    <view class="setting-item" wx:for="{{settings}}" wx:key="id">
+      <view class="setting-left">
+        <text class="setting-icon">{{item.icon}}</text>
+        <text class="setting-name">{{item.name}}</text>
+      </view>
+      <view class="setting-right">
+        <switch wx:if="{{!item.action}}" 
+               checked="{{item.enabled}}" 
+               data-id="{{item.id}}"
+               bindchange="toggleSetting" />
+        <view wx:else 
+              class="action-button"
+              data-id="{{item.id}}"
+              bindtap="performAction">
+          <text>执行</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

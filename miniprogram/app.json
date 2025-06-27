@@ -1,19 +1,59 @@
 {
   "pages": [
+    "pages/auth/login/login",
     "pages/index/index",
+    "pages/products/list/list",
+    "pages/orders/index/index",
+    "pages/manager/index/index",
+    "pages/user/profile/profile",
     "pages/auth/register/register",
     "pages/auth/verify/verify",
-    "pages/products/list/list",
     "pages/products/detail/detail",
     "pages/products/calculator/calculator",
     "pages/orders/create/create",
-    "pages/orders/detail/detail"
+    "pages/orders/detail/detail",
+    "pages/manager/customers/customers",
+    "pages/manager/customers/detail/detail",
+    "pages/manager/customer-add/customer-add",
+    "pages/manager/follow/follow",
+    "pages/manager/performance/performance",
+    "pages/profile/edit/edit",
+    "pages/profile/contracts/contracts",
+    "pages/user/settings/settings"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#409EFF",
     "navigationBarTitleText": "电力销售平台",
     "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#409EFF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/products/list/list",
+        "text": "产品"
+      },
+      {
+        "pagePath": "pages/orders/index/index",
+        "text": "订单"
+      },
+      {
+        "pagePath": "pages/manager/index/index",
+        "text": "客户"
+      },
+      {
+        "pagePath": "pages/user/profile/profile",
+        "text": "我的"
+      }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",

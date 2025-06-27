@@ -19,13 +19,27 @@
     </view>
   </view>
 
-  <!-- 电费计算器入口 -->
-  <view class="calculator-section" bindtap="navigateToCalculator">
-    <view class="calculator-content">
-      <text class="calculator-icon">🧮</text>
-      <view class="calculator-text">
-        <text class="calculator-title">电费计算器</text>
-        <text class="calculator-desc">快速估算用电成本</text>
+  <!-- 快捷功能 -->
+  <view class="quick-actions">
+    <view class="section-header">
+      <text class="section-title">快捷功能</text>
+    </view>
+    <view class="action-grid">
+      <view class="action-item" bindtap="navigateToCalculator">
+        <text class="action-icon">🧮</text>
+        <text class="action-name">电费计算器</text>
+      </view>
+      <view class="action-item" bindtap="navigateToOrders">
+        <text class="action-icon">📋</text>
+        <text class="action-name">我的订单</text>
+      </view>
+      <view class="action-item" bindtap="navigateToCustomers">
+        <text class="action-icon">👥</text>
+        <text class="action-name">客户管理</text>
+      </view>
+      <view class="action-item" bindtap="navigateToContracts">
+        <text class="action-icon">📄</text>
+        <text class="action-name">我的合同</text>
       </view>
     </view>
   </view>
@@ -44,14 +58,20 @@
       <loading wx:if="{{loading}}" />
       <block wx:elif="{{hotProducts.length > 0}}">
         <view class="product-item" wx:for="{{hotProducts}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}">
-          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="product-image" src="{{item.imageUrl || 'https://via.placeholder.com/300x200/E6E6E6/999999?text=暂无图片'}}" mode="aspectFill"></image>
           <view class="product-info">
             <text class="product-name text-ellipsis">{{item.name}}</text>
             <text class="product-desc text-ellipsis">{{item.description}}</text>
-            <view class="product-price">
-              <text class="price-unit">¥</text>
-              <text class="price-value">{{item.price}}</text>
-              <text class="price-unit">/度</text>
+            <view class="product-meta">
+              <view class="capacity-range">
+                <text class="capacity-label">适用容量：</text>
+                <text class="capacity-value">{{item.minCapacity}}-{{item.maxCapacity}}kW</text>
+              </view>
+              <view class="product-price">
+                <text class="price-unit">¥</text>
+                <text class="price-value">{{item.basePrice}}</text>
+                <text class="price-unit">/度</text>
+              </view>
             </view>
           </view>
         </view>

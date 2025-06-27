@@ -267,6 +267,31 @@ const authAPI = {
   // 更新用户信息
   updateUserInfo: (userData) => {
     return apiService.put('/auth/me', userData)
+  },
+
+  // 退出登录
+  logout: () => {
+    return apiService.post('/auth/logout')
+  },
+
+  // 获取当前用户信息
+  getCurrentUser: () => {
+    return apiService.get('/auth/me')
+  },
+
+  // 获取用户统计数据
+  getUserStats: () => {
+    return apiService.get('/auth/stats')
+  },
+
+  // 获取未读通知数量
+  getUnreadNotificationCount: () => {
+    return apiService.get('/notifications/unread-count')
+  },
+
+  // 获取客户经理信息
+  getCustomerManager: () => {
+    return apiService.get('/auth/customer-manager')
   }
 }
 

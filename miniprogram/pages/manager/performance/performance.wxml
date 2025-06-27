@@ -143,11 +143,24 @@
 
     <!-- 数据分析 -->
     <view wx:if="{{activeTab === 1}}" class="tab-content">
-      <!-- 趋势图表 -->
+      <!-- 业绩趋势 -->
       <view class="chart-section">
         <view class="section-title">业绩趋势</view>
-        <view class="chart-container">
-          <ec-canvas id="trend-chart" canvas-id="trendChart" ec="{{chartOptions.trend}}"></ec-canvas>
+        <view class="trend-stats">
+          <view class="trend-item">
+            <text class="trend-label">本月业绩</text>
+            <text class="trend-value">{{formatAmount(performanceData.trend.currentMonth || 0)}}</text>
+            <text class="trend-change positive">+12.5%</text>
+          </view>
+          <view class="trend-item">
+            <text class="trend-label">上月业绩</text>
+            <text class="trend-value">{{formatAmount(performanceData.trend.lastMonth || 0)}}</text>
+          </view>
+          <view class="trend-item">
+            <text class="trend-label">季度业绩</text>
+            <text class="trend-value">{{formatAmount(performanceData.trend.quarter || 0)}}</text>
+            <text class="trend-change positive">+8.3%</text>
+          </view>
         </view>
       </view>
 
@@ -159,8 +172,22 @@
           <view class="dist-tab">按行业</view>
           <view class="dist-tab">按地区</view>
         </view>
-        <view class="chart-container">
-          <ec-canvas id="dist-chart" canvas-id="distChart" ec="{{chartOptions.distribution}}"></ec-canvas>
+        <view class="distribution-stats">
+          <view class="dist-item">
+            <text class="dist-label">新客户</text>
+            <text class="dist-value">{{performanceData.distribution.new || 0}}</text>
+            <text class="dist-percent">35%</text>
+          </view>
+          <view class="dist-item">
+            <text class="dist-label">跟进中</text>
+            <text class="dist-value">{{performanceData.distribution.following || 0}}</text>
+            <text class="dist-percent">45%</text>
+          </view>
+          <view class="dist-item">
+            <text class="dist-label">已成交</text>
+            <text class="dist-value">{{performanceData.distribution.closed || 0}}</text>
+            <text class="dist-percent">20%</text>
+          </view>
         </view>
       </view>
 

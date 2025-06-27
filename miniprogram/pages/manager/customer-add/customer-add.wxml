@@ -1,0 +1,220 @@
+<!--pages/manager/customer-add/customer-add.wxml-->
+<view class="container">
+  <form bindsubmit="onSubmit">
+    <view class="form-section">
+      <view class="section-title">基本信息</view>
+      
+      <view class="form-item">
+        <view class="form-label required">客户姓名</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入客户姓名"
+          value="{{form.name}}"
+          bindinput="onNameInput"
+          maxlength="20"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label required">企业名称</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入企业名称"
+          value="{{form.companyName}}"
+          bindinput="onCompanyNameInput"
+          maxlength="50"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label required">联系电话</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入联系电话"
+          value="{{form.phone}}"
+          bindinput="onPhoneInput"
+          type="number"
+          maxlength="11"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label required">邮箱地址</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入邮箱地址"
+          value="{{form.email}}"
+          bindinput="onEmailInput"
+          type="email"
+          maxlength="50"
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">企业信息</view>
+      
+      <view class="form-item">
+        <view class="form-label">企业地址</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入企业地址"
+          value="{{form.companyAddress}}"
+          bindinput="onCompanyAddressInput"
+          maxlength="100"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">营业执照号</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入营业执照号"
+          value="{{form.businessLicense}}"
+          bindinput="onBusinessLicenseInput"
+          maxlength="30"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">所属行业</view>
+        <picker 
+          bindchange="onIndustryChange" 
+          value="{{industryIndex}}" 
+          range="{{industryOptions}}"
+          range-key="label"
+        >
+          <view class="form-input picker-input">
+            {{industryIndex >= 0 ? industryOptions[industryIndex].label : '请选择行业'}}
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">电压等级</view>
+        <picker 
+          bindchange="onVoltageLevelChange" 
+          value="{{voltageLevelIndex}}" 
+          range="{{voltageLevelOptions}}"
+          range-key="label"
+        >
+          <view class="form-input picker-input">
+            {{voltageLevelIndex >= 0 ? voltageLevelOptions[voltageLevelIndex].label : '请选择电压等级'}}
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">年用电量</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入年用电量(万千瓦时)"
+          value="{{form.annualConsumption}}"
+          bindinput="onAnnualConsumptionInput"
+          type="digit"
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">联系信息</view>
+      
+      <view class="form-item">
+        <view class="form-label">联系人</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入联系人姓名"
+          value="{{form.contactPerson}}"
+          bindinput="onContactPersonInput"
+          maxlength="20"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">联系人电话</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入联系人电话"
+          value="{{form.contactPhone}}"
+          bindinput="onContactPhoneInput"
+          type="number"
+          maxlength="11"
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">地址信息</view>
+      
+      <view class="form-row">
+        <view class="form-item half">
+          <view class="form-label">省份</view>
+          <input 
+            class="form-input" 
+            placeholder="省份"
+            value="{{form.province}}"
+            bindinput="onProvinceInput"
+            maxlength="10"
+          />
+        </view>
+        
+        <view class="form-item half">
+          <view class="form-label">城市</view>
+          <input 
+            class="form-input" 
+            placeholder="城市"
+            value="{{form.city}}"
+            bindinput="onCityInput"
+            maxlength="10"
+          />
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">区县</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入区县"
+          value="{{form.district}}"
+          bindinput="onDistrictInput"
+          maxlength="20"
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">备注信息</view>
+      
+      <view class="form-item">
+        <view class="form-label">备注</view>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入备注信息（可选）"
+          value="{{form.remark}}"
+          bindinput="onRemarkInput"
+          maxlength="200"
+          auto-height
+        />
+      </view>
+    </view>
+
+    <view class="form-actions">
+      <button 
+        class="btn btn-secondary" 
+        bindtap="onReset"
+        disabled="{{submitting}}"
+      >
+        重置
+      </button>
+      <button 
+        class="btn btn-primary" 
+        form-type="submit"
+        loading="{{submitting}}"
+      >
+        {{submitting ? '提交中...' : '提交'}}
+      </button>
+    </view>
+  </form>
+</view> 

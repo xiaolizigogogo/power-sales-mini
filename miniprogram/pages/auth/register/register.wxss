@@ -493,20 +493,32 @@
   align-items: center;
   justify-content: center;
   border: none;
+  box-sizing: border-box;
+}
+
+.btn::after {
+  display: none;
 }
 
 .btn-secondary {
   background: #f0f0f0;
-  color: var(--text-color);
+  color: #333;
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  color: white;
+  background: #409EFF !important;
+  color: white !important;
+  border: none !important;
 }
 
 .btn-primary.loading {
-  background: #cccccc;
+  background: #cccccc !important;
+  opacity: 0.8;
+}
+
+.btn-primary:not(.loading):active {
+  background: #337ECC !important;
+  transform: scale(0.98);
 }
 
 .btn.full-width {
@@ -522,7 +534,7 @@
 }
 
 .link-text {
-  color: var(--primary-color);
+  color: #409EFF;
   margin-left: 8rpx;
 }
 

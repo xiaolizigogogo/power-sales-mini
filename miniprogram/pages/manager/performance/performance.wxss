@@ -673,6 +673,98 @@
   }
 }
 
+/* 业绩趋势统计 */
+.trend-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-top: 16rpx;
+}
+
+.trend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #e9ecef;
+}
+
+.trend-item:last-child {
+  border-bottom: none;
+}
+
+.trend-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.trend-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.trend-change {
+  font-size: 24rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 4rpx;
+}
+
+.trend-change.positive {
+  color: #43e97b;
+  background-color: rgba(67, 233, 123, 0.1);
+}
+
+.trend-change.negative {
+  color: #f5576c;
+  background-color: rgba(245, 87, 108, 0.1);
+}
+
+/* 客户分布统计 */
+.distribution-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-top: 16rpx;
+}
+
+.dist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #e9ecef;
+}
+
+.dist-item:last-child {
+  border-bottom: none;
+}
+
+.dist-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.dist-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.dist-percent {
+  font-size: 24rpx;
+  color: #667eea;
+  background-color: rgba(102, 126, 234, 0.1);
+  padding: 4rpx 8rpx;
+  border-radius: 4rpx;
+}
+
 /* 主题色变量 */
 :root {
   --primary-color: #667eea;

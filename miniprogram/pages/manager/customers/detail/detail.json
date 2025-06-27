@@ -19,8 +19,7 @@
     "van-dialog": "@vant/weapp/lib/dialog/index",
     "van-loading": "@vant/weapp/lib/loading/index",
     "van-empty": "@vant/weapp/lib/empty/index",
-    "van-divider": "@vant/weapp/lib/divider/index",
-    "ec-canvas": "../../components/ec-canvas/ec-canvas"
+    "van-divider": "@vant/weapp/lib/divider/index"
   },
   "disableScroll": false,
   "style": "v2"

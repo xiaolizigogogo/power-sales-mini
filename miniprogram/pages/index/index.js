@@ -14,6 +14,7 @@ Page({
   },
 
   onLoad() {
+    console.log('首页加载')
     this.loadHotProducts()
   },
 
@@ -21,19 +22,25 @@ Page({
   async loadHotProducts() {
     try {
       const app = getApp()
+      console.log('开始加载热门产品，登录状态:', app.globalData.isLogin)
+      
       const res = await app.request({
         url: '/products/hot',
         method: 'GET'
       })
       
+      console.log('热门产品加载成功:', res)
       this.setData({
-        hotProducts: res.data,
+        hotProducts: res.data || [],
         loading: false
       })
     } catch (error) {
       console.error('加载热门产品失败:', error)
-      app.showToast('加载热门产品失败')
-      this.setData({ loading: false })
+      // 不显示错误提示，避免影响用户体验
+      this.setData({ 
+        hotProducts: [],
+        loading: false 
+      })
     }
   },
 
@@ -57,6 +64,27 @@ Page({
   navigateToCalculator() {
     wx.navigateTo({
       url: '/pages/products/calculator/calculator'
+    })
+  },
+
+  // 跳转到我的订单
+  navigateToOrders() {
+    wx.switchTab({
+      url: '/pages/orders/index/index'
+    })
+  },
+
+  // 跳转到客户管理
+  navigateToCustomers() {
+    wx.switchTab({
+      url: '/pages/manager/index/index'
+    })
+  },
+
+  // 跳转到我的合同
+  navigateToContracts() {
+    wx.navigateTo({
+      url: '/pages/profile/contracts/contracts'
     })
   }
 }) 

@@ -102,19 +102,87 @@ function login(loginData) {
 
 // 退出登录
 function logout() {
+  return new Promise((resolve) => {
+    wx.showModal({
+      title: '确认退出',
+      content: '确定要退出登录吗？',
+      confirmText: '退出',
+      confirmColor: '#ff4757',
+      success: (res) => {
+        if (res.confirm) {
+          performLogout().then(resolve)
+        } else {
+          resolve(false)
+        }
+      },
+      fail: () => {
+        resolve(false)
+      }
+    })
+  })
+}
+
+// 执行退出登录
+async function performLogout() {
   try {
-    // 清除所有认证相关的存储
+    wx.showLoading({
+      title: '退出中...',
+      mask: true
+    })
+
+    const app = getApp()
+
+    // 调用后端退出登录接口（如果需要的话）
+    try {
+      const { authAPI } = require('./api')
+      await authAPI.logout()
+    } catch (error) {
+      console.log('后端退出登录失败，继续本地清理:', error)
+    }
+
+    // 清除本地存储的用户信息
     wx.removeStorageSync('token')
-    wx.removeStorageSync('refreshToken')
     wx.removeStorageSync('userInfo')
-    wx.removeStorageSync('loginTime')
-    
-    // 跳转到登录页面
-    navigateTo('/pages/auth/login/login')
-    
+    wx.removeStorageSync('userRole')
+
+    // 清除全局数据
+    app.globalData.token = ''
+    app.globalData.userInfo = null
+    app.globalData.userRole = ''
+    app.globalData.isLogin = false
+
+    // 清除Token管理器的数据
+    try {
+      const tokenManager = require('./token')
+      tokenManager.clearToken()
+    } catch (error) {
+      console.log('清除Token管理器数据失败:', error)
+    }
+
+    wx.hideLoading()
+
+    wx.showToast({
+      title: '已退出登录',
+      icon: 'success',
+      duration: 2000
+    })
+
+    // 延迟跳转到登录页面
+    setTimeout(() => {
+      wx.reLaunch({
+        url: '/pages/auth/login/login'
+      })
+    }, 2000)
+
     return true
+
   } catch (error) {
+    wx.hideLoading()
     console.error('退出登录失败:', error)
+    wx.showToast({
+      title: '退出失败，请重试',
+      icon: 'error'
+    })
     return false
   }
 }

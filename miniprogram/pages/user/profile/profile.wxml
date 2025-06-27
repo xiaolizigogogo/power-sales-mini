@@ -21,6 +21,53 @@
 
     <!-- 功能列表 -->
     <view class="profile-content">
+      <!-- 个人信息 -->
+      <view class="menu-group">
+        <view class="menu-item" bindtap="goToEditProfile">
+          <view class="menu-item-left">
+            <text class="menu-icon">👤</text>
+            <text>个人信息</text>
+          </view>
+          <text class="arrow-icon">→</text>
+        </view>
+      </view>
+
+      <!-- 业务功能 -->
+      <view class="menu-group">
+        <view class="menu-item" bindtap="goToOrders">
+          <view class="menu-item-left">
+            <text class="menu-icon">📋</text>
+            <text>我的订单</text>
+          </view>
+          <text class="arrow-icon">→</text>
+        </view>
+
+        <view class="menu-item" bindtap="goToContracts">
+          <view class="menu-item-left">
+            <text class="menu-icon">📄</text>
+            <text>我的合同</text>
+          </view>
+          <text class="arrow-icon">→</text>
+        </view>
+
+        <view class="menu-item" wx:if="{{userRole === 'manager'}}" bindtap="goToCustomers">
+          <view class="menu-item-left">
+            <text class="menu-icon">👥</text>
+            <text>客户管理</text>
+          </view>
+          <text class="arrow-icon">→</text>
+        </view>
+
+        <view class="menu-item" wx:if="{{userRole === 'manager'}}" bindtap="goToPerformance">
+          <view class="menu-item-left">
+            <text class="menu-icon">📊</text>
+            <text>业绩统计</text>
+          </view>
+          <text class="arrow-icon">→</text>
+        </view>
+      </view>
+
+      <!-- 系统功能 -->
       <view class="menu-group">
         <view class="menu-item" bindtap="goToSettings">
           <view class="menu-item-left">
@@ -29,10 +76,8 @@
           </view>
           <text class="arrow-icon">→</text>
         </view>
-      </view>
 
-      <view class="menu-group">
-        <view class="menu-item">
+        <view class="menu-item" bindtap="goToAbout">
           <view class="menu-item-left">
             <text class="menu-icon">ℹ️</text>
             <text>关于我们</text>
@@ -40,7 +85,7 @@
           <text class="arrow-icon">→</text>
         </view>
 
-        <view class="menu-item">
+        <view class="menu-item" bindtap="goToFeedback">
           <view class="menu-item-left">
             <text class="menu-icon">💬</text>
             <text>意见反馈</text>

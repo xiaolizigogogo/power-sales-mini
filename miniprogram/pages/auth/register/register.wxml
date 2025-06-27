@@ -5,7 +5,8 @@
     <view class="header-subtitle">完善您的企业信息，享受专业服务</view>
   </view>
 
-  <!-- 步骤指示器 -->
+  <!-- 简化注册，隐藏步骤指示器 -->
+  <!--
   <view class="step-indicator">
     <view class="step-list">
       <block wx:for="{{stepTitles}}" wx:key="index">
@@ -20,11 +21,12 @@
       </block>
     </view>
   </view>
+  -->
 
   <!-- 表单内容区域 -->
   <view class="form-container">
-    <!-- 步骤1：基本信息 -->
-    <view wx:if="{{currentStep === 1}}" class="step-content">
+    <!-- 简化为单页注册表单 -->
+    <view class="step-content">
       <view class="form-title">基本信息</view>
       
       <view class="form-group">
@@ -59,6 +61,8 @@
         <view wx:if="{{formErrors.phone}}" class="error-msg">{{formErrors.phone}}</view>
       </view>
 
+      <!-- 验证码功能已隐藏 -->
+      <!--
       <view class="form-group">
         <view class="form-label">
           <text class="required">*</text>验证码
@@ -74,7 +78,7 @@
             bindblur="validateInput"
           />
           <button 
-            class="code-btn {{!canGetCode ? 'disabled' : ''}}"
+            class="code-button {{!canGetCode ? 'disabled' : ''}}"
             disabled="{{!canGetCode}}"
             bindtap="getVerifyCode"
           >
@@ -82,6 +86,23 @@
           </button>
         </view>
         <view wx:if="{{formErrors.code}}" class="error-msg">{{formErrors.code}}</view>
+      </view>
+      -->
+
+      <view class="form-group">
+        <view class="form-label">
+          <text class="required">*</text>设置密码
+        </view>
+        <input 
+          class="form-input {{formErrors.password ? 'error' : ''}}"
+          type="password"
+          placeholder="请设置登录密码（6-20位）"
+          value="{{formData.password}}"
+          data-field="password"
+          bindinput="onInputChange"
+          bindblur="validateInput"
+        />
+        <view wx:if="{{formErrors.password}}" class="error-msg">{{formErrors.password}}</view>
       </view>
 
       <view class="form-group">
@@ -110,9 +131,25 @@
         </view>
         <view wx:if="{{formErrors.companyName}}" class="error-msg">{{formErrors.companyName}}</view>
       </view>
+      <!-- 行业类型选择 -->
+      <view class="form-group">
+        <view class="form-label">行业类型</view>
+        <picker 
+          mode="selector" 
+          range="{{industryTypes}}" 
+          range-key="label"
+          value="{{industryIndex}}"
+          bindchange="onIndustryChange"
+        >
+          <view class="picker-view {{industryIndex === -1 ? 'placeholder' : ''}}">
+            {{industryIndex === -1 ? '请选择行业类型' : industryTypes[industryIndex].label}}
+          </view>
+        </picker>
+      </view>
     </view>
 
-    <!-- 步骤2：用电信息 -->
+    <!-- 隐藏步骤2和步骤3 -->
+    <!--
     <view wx:if="{{currentStep === 2}}" class="step-content">
       <view class="form-title">用电信息</view>
       
@@ -264,24 +301,14 @@
         </view>
       </view>
     </view>
+    -->
   </view>
 
   <!-- 底部按钮区域 -->
   <view class="bottom-actions">
     <view class="action-buttons">
-      <button wx:if="{{currentStep > 1}}" class="btn btn-secondary" bindtap="prevStep">上一步</button>
-      
       <button 
-        wx:if="{{currentStep < totalSteps}}" 
-        class="btn btn-primary {{currentStep === 1 ? 'full-width' : ''}}" 
-        bindtap="nextStep"
-      >
-        下一步
-      </button>
-      
-      <button 
-        wx:if="{{currentStep === totalSteps}}" 
-        class="btn btn-primary {{loading ? 'loading' : ''}}" 
+        class="btn btn-primary full-width {{loading ? 'loading' : ''}}" 
         disabled="{{loading}}"
         bindtap="submitRegister"
       >

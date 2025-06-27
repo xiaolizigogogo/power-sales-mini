@@ -1,12 +1,13 @@
 // 全局配置文件
+const { getApiBaseURL, isDevelopment } = require('./env')
 
 // 开发环境
-const isDev = true
+const isDev = isDevelopment()
 
 // API 配置
 const apiConfig = {
   // API 基础路径
-  baseURL: isDev ? 'http://localhost:3000/power/api/v1' : 'https://dyh.zytcft.com/power/api/v1',
+  baseURL: getApiBaseURL(),
   
   // 请求超时时间（毫秒）
   timeout: 10000,

@@ -122,40 +122,46 @@
   text-align: center;
 }
 
-/* 电费计算器 */
-.calculator-section {
+/* 快捷功能 */
+.quick-actions {
   margin: 20rpx;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  background-color: var(--bg-white);
   border-radius: var(--border-radius-lg);
-  padding: 30rpx;
-  box-shadow: var(--shadow-base);
+  padding: 30rpx 20rpx;
 }
 
-.calculator-content {
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
+  margin-top: 20rpx;
+}
+
+.action-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  padding: 20rpx;
+  border-radius: var(--border-radius-base);
+  transition: var(--transition-base);
 }
 
-.calculator-icon {
-  font-size: 64rpx;
-  margin-right: 24rpx;
+.action-item:active {
+  background-color: var(--bg-light);
+  transform: scale(0.95);
 }
 
-.calculator-text {
-  flex: 1;
+.action-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+  line-height: 1;
 }
 
-.calculator-title {
-  display: block;
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: white;
-  margin-bottom: 8rpx;
-}
-
-.calculator-desc {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.8);
+.action-name {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.2;
 }
 
 /* 热门产品 */
@@ -238,6 +244,32 @@
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+.product-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.capacity-range {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+}
+
+.capacity-label {
+  color: var(--text-muted);
+  margin-right: 8rpx;
+}
+
+.capacity-value {
+  color: var(--text-secondary);
+  font-weight: 500;
+  background-color: var(--bg-light);
+  padding: 4rpx 12rpx;
+  border-radius: var(--border-radius-sm);
 }
 
 .product-price {

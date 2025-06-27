@@ -1,8 +1,8 @@
 <view class="container">
   <view class="login-header">
-    <image src="/assets/images/logo.png" mode="aspectFit" class="logo"></image>
-    <text class="title">销售力小程序</text>
-    <text class="subtitle">专业的销售管理工具</text>
+    <view class="logo">⚡</view>
+    <text class="title">电力销售平台</text>
+    <text class="subtitle">专业的电力销售管理工具</text>
   </view>
 
   <view class="login-form">

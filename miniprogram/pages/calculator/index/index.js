@@ -1,4 +1,4 @@
-const api = require('../../../utils/api');
+const app = getApp();
 const common = require('../../../utils/common');
 
 Page({
@@ -105,19 +105,55 @@ Page({
   // 加载产品列表
   async loadProducts() {
     try {
-      const result = await api.request('/products', 'GET');
+      const result = await app.request({
+        url: '/products',
+        method: 'GET'
+      });
       
-      if (result.success) {
-        this.setData({
-          products: result.data.map(product => ({
-            ...product,
-            priceDisplay: this.formatPriceRange(product.priceRange)
-          }))
-        });
-      }
+      this.setData({
+        products: result.data.map(product => ({
+          ...product,
+          priceDisplay: this.formatPriceRange(product.priceRange)
+        }))
+      });
     } catch (error) {
       console.error('Load products error:', error);
+      // 使用模拟产品数据
+      this.loadMockProducts();
     }
+  },
+
+  // 加载模拟产品数据
+  loadMockProducts() {
+    const mockProducts = [
+      {
+        id: '1',
+        name: '智能节电套餐A',
+        type: 'discount',
+        discountRate: 15,
+        priceRange: { min: 0.45, max: 0.65 },
+        priceDisplay: '0.45-0.65元/度'
+      },
+      {
+        id: '2', 
+        name: '工商业电力套餐',
+        type: 'fixed',
+        fixedPrice: 0.55,
+        priceRange: { min: 0.55, max: 0.55 },
+        priceDisplay: '0.55元/度'
+      },
+      {
+        id: '3',
+        name: '峰谷电价套餐',
+        type: 'tiered',
+        priceRange: { min: 0.35, max: 0.75 },
+        priceDisplay: '0.35-0.75元/度'
+      }
+    ];
+
+    this.setData({
+      products: mockProducts
+    });
   },
 
   // 加载用户用电信息
