@@ -261,12 +261,12 @@ const authAPI = {
 
   // 获取用户信息
   getUserInfo: () => {
-    return apiService.get('/auth/me')
+    return apiService.get('/user/profile')
   },
 
   // 更新用户信息
   updateUserInfo: (userData) => {
-    return apiService.put('/auth/me', userData)
+    return apiService.put('/user/profile', userData)
   }
 }
 
@@ -282,9 +282,24 @@ const productAPI = {
     return apiService.get(`/products/${id}`)
   },
 
+  // 获取热门产品
+  getHotProducts: (limit = 10) => {
+    return apiService.get('/products/hot', { limit })
+  },
+
+  // 获取推荐产品
+  getRecommendedProducts: (limit = 5) => {
+    return apiService.get('/products/recommended', { limit })
+  },
+
   // 节电效益计算
   calculateSavings: (params) => {
     return apiService.post('/products/calculate', params)
+  },
+
+  // 搜索产品
+  searchProducts: (keyword) => {
+    return apiService.get('/products/search', { keyword })
   }
 }
 

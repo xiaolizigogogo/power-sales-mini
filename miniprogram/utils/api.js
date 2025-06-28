@@ -261,12 +261,12 @@ const authAPI = {
 
   // 获取用户信息
   getUserInfo: () => {
-    return apiService.get('/auth/me')
+    return apiService.get('/user/profile')
   },
 
   // 更新用户信息
   updateUserInfo: (userData) => {
-    return apiService.put('/auth/me', userData)
+    return apiService.put('/user/profile', userData)
   },
 
   // 退出登录
@@ -279,19 +279,19 @@ const authAPI = {
     return apiService.get('/auth/me')
   },
 
-  // 获取用户统计数据
+  // 获取用户统计信息
   getUserStats: () => {
-    return apiService.get('/auth/stats')
+    return apiService.get('/user/statistics')
   },
 
   // 获取未读通知数量
   getUnreadNotificationCount: () => {
-    return apiService.get('/notifications/unread-count')
+    return apiService.get('/user/notifications/unread-count')
   },
 
   // 获取客户经理信息
   getCustomerManager: () => {
-    return apiService.get('/auth/customer-manager')
+    return apiService.get('/user/customer-manager')
   }
 }
 

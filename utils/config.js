@@ -5,8 +5,8 @@ const isDev = true
 
 // API 配置
 const apiConfig = {
-  // API 基础路径
-  baseURL: 'https://dyh.zytcft.com/power/api/v1',
+  // API 基础路径 - 小程序端专用路径
+  baseURL: 'http://localhost:8000/mini',
   
   // 请求超时时间（毫秒）
   timeout: 10000,

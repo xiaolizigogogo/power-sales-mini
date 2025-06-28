@@ -12,13 +12,13 @@ const CURRENT_ENV = ENV_TYPES.DEVELOPMENT
 // 环境配置
 const envConfigs = {
   [ENV_TYPES.DEVELOPMENT]: {
-    apiBaseURL: 'https://dyh.zytcft.com/power/api/v1',
+    apiBaseURL: 'http://localhost:8000/mini',
     enableDebug: true,
     enableMock: true,
     logLevel: 'debug'
   },
   [ENV_TYPES.PRODUCTION]: {
-    apiBaseURL: 'https://dyh.zytcft.com/power/api/v1',
+    apiBaseURL: 'https://dyh.zytcft.com/power/mini',
     enableDebug: false,
     enableMock: false,
     logLevel: 'error'
