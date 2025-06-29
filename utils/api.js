@@ -239,9 +239,14 @@ const authAPI = {
     return apiService.post('/auth/wechat-login', { code, userInfo })
   },
 
-  // 手机号绑定
-  bindPhone: (phoneNumber, verifyCode) => {
-    return apiService.post('/auth/bind-phone', { phoneNumber, verifyCode })
+  // 用户手机号+密码登录
+  userLogin: (phone, password) => {
+    return apiService.post('/auth/login', { phone, password })
+  },
+
+  // 验证码登录
+  verifyCodeLogin: (phone, verifyCode) => {
+    return apiService.post('/auth/verify-code-login', { phone, verifyCode })
   },
 
   // 发送验证码
@@ -252,6 +257,26 @@ const authAPI = {
   // 用户注册
   register: (userData) => {
     return apiService.post('/auth/register', userData)
+  },
+
+  // 获取当前用户信息
+  getCurrentUser: () => {
+    return apiService.get('/auth/me')
+  },
+
+  // 刷新令牌
+  refreshToken: (refreshToken) => {
+    return apiService.post(`/auth/refresh?refreshToken=${refreshToken}`)
+  },
+
+  // 退出登录
+  logout: (refreshToken) => {
+    return apiService.post(`/auth/logout?refreshToken=${refreshToken}`)
+  },
+
+  // 手机号绑定
+  bindPhone: (phoneNumber, verifyCode) => {
+    return apiService.post('/auth/bind-phone', { phoneNumber, verifyCode })
   },
 
   // 身份认证
@@ -310,6 +335,11 @@ const orderAPI = {
     return apiService.get('/orders', params)
   },
 
+  // 获取我的订单
+  getMyOrders: (params) => {
+    return apiService.get('/orders/my', params)
+  },
+
   // 获取订单详情
   getOrderDetail: (id) => {
     return apiService.get(`/orders/${id}`)
@@ -328,6 +358,51 @@ const orderAPI = {
   // 取消订单
   cancelOrder: (id, reason) => {
     return apiService.post(`/orders/${id}/cancel`, { reason })
+  },
+
+  // 确认收货
+  confirmOrder: (id) => {
+    return apiService.post(`/orders/${id}/confirm`)
+  },
+
+  // 申请退款
+  requestRefund: (id, reason, description) => {
+    return apiService.post(`/orders/${id}/refund`, { reason, description })
+  },
+
+  // 订单支付
+  payOrder: (id, paymentMethod) => {
+    return apiService.post(`/orders/${id}/pay`, { paymentMethod })
+  },
+
+  // 获取订单统计
+  getOrderStatistics: () => {
+    return apiService.get('/orders/statistics')
+  },
+
+  // 获取订单统计（简短路径）
+  getOrderStats: () => {
+    return apiService.get('/orders/stats')
+  },
+
+  // 订单评价
+  reviewOrder: (id, rating, comment) => {
+    return apiService.post(`/orders/${id}/review`, { rating, comment })
+  },
+
+  // 重新下单
+  reorder: (id) => {
+    return apiService.post(`/orders/${id}/reorder`)
+  },
+
+  // 获取物流信息
+  getLogistics: (id) => {
+    return apiService.get(`/orders/${id}/logistics`)
+  },
+
+  // 查看退款详情
+  getRefundDetail: (id) => {
+    return apiService.get(`/orders/${id}/refund`)
   }
 }
 
@@ -405,12 +480,42 @@ const uploadAPI = {
   }
 }
 
+// 管理相关 API  
+const managerAPI = {
+  // 获取工作台数据
+  getWorkbenchData: () => {
+    return apiService.get('/manager/workbench')
+  },
+
+  // 获取最近客户
+  getRecentCustomers: (limit = 5) => {
+    return apiService.get('/manager/recent-customers', { limit })
+  },
+
+  // 获取紧急任务
+  getUrgentTasks: (limit = 5) => {
+    return apiService.get('/manager/urgent-tasks', { limit })
+  },
+
+  // 获取客户统计
+  getCustomerStats: () => {
+    return apiService.get('/manager/customer-stats')
+  },
+
+  // 获取任务统计
+  getTaskStats: () => {
+    return apiService.get('/manager/task-stats')
+  }
+}
+
 module.exports = {
   apiService,
   authAPI,
+  userAPI,
   productAPI,
   orderAPI,
   customerAPI,
   performanceAPI,
-  uploadAPI
+  uploadAPI,
+  managerAPI
 } 

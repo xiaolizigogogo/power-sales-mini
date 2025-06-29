@@ -242,7 +242,9 @@ Page({
         source: 'manager_add' // 标记为管理员添加
       }
 
-      // 调用API提交数据
+      // 调用真实API提交数据
+      console.log('提交客户数据到后端:', submitData)
+      
       const result = await app.request({
         url: '/customers',
         method: 'POST',

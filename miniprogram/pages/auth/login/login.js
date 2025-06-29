@@ -55,8 +55,8 @@ Page({
         }
       });
 
-      // 登录成功
-      app.login(res.data.userInfo, res.data.accessToken, res.data.userRole);
+      // 登录成功，保存令牌和用户信息
+      app.login(res.data.userInfo, res.data.accessToken, res.data.userRole, res.data.refreshToken);
       
       wx.showToast({
         title: '登录成功',

@@ -239,9 +239,14 @@ const authAPI = {
     return apiService.post('/auth/wechat-login', { code, userInfo })
   },
 
-  // 手机号绑定
-  bindPhone: (phoneNumber, verifyCode) => {
-    return apiService.post('/auth/bind-phone', { phoneNumber, verifyCode })
+  // 用户手机号+密码登录
+  userLogin: (phone, password) => {
+    return apiService.post('/auth/login', { phone, password })
+  },
+
+  // 验证码登录
+  verifyCodeLogin: (phone, verifyCode) => {
+    return apiService.post('/auth/verify-code-login', { phone, verifyCode })
   },
 
   // 发送验证码
@@ -252,6 +257,26 @@ const authAPI = {
   // 用户注册
   register: (userData) => {
     return apiService.post('/auth/register', userData)
+  },
+
+  // 获取当前用户信息
+  getCurrentUser: () => {
+    return apiService.get('/auth/me')
+  },
+
+  // 刷新令牌
+  refreshToken: (refreshToken) => {
+    return apiService.post(`/auth/refresh?refreshToken=${refreshToken}`)
+  },
+
+  // 退出登录
+  logout: (refreshToken) => {
+    return apiService.post(`/auth/logout?refreshToken=${refreshToken}`)
+  },
+
+  // 手机号绑定
+  bindPhone: (phoneNumber, verifyCode) => {
+    return apiService.post('/auth/bind-phone', { phoneNumber, verifyCode })
   },
 
   // 身份认证
@@ -269,16 +294,6 @@ const authAPI = {
     return apiService.put('/user/profile', userData)
   },
 
-  // 退出登录
-  logout: () => {
-    return apiService.post('/auth/logout')
-  },
-
-  // 获取当前用户信息
-  getCurrentUser: () => {
-    return apiService.get('/auth/me')
-  },
-
   // 获取用户统计信息
   getUserStats: () => {
     return apiService.get('/user/statistics')
@@ -292,6 +307,11 @@ const authAPI = {
   // 获取客户经理信息
   getCustomerManager: () => {
     return apiService.get('/user/customer-manager')
+  },
+
+  // 获取用户用电信息
+  getUserPowerInfo: () => {
+    return apiService.get('/user/power-info')
   }
 }
 
@@ -320,6 +340,11 @@ const orderAPI = {
     return apiService.get('/orders', params)
   },
 
+  // 获取我的订单
+  getMyOrders: (params) => {
+    return apiService.get('/orders/my', params)
+  },
+
   // 获取订单详情
   getOrderDetail: (id) => {
     return apiService.get(`/orders/${id}`)
@@ -338,6 +363,51 @@ const orderAPI = {
   // 取消订单
   cancelOrder: (id, reason) => {
     return apiService.post(`/orders/${id}/cancel`, { reason })
+  },
+
+  // 确认收货
+  confirmOrder: (id) => {
+    return apiService.post(`/orders/${id}/confirm`)
+  },
+
+  // 申请退款
+  requestRefund: (id, reason, description) => {
+    return apiService.post(`/orders/${id}/refund`, { reason, description })
+  },
+
+  // 订单支付
+  payOrder: (id, paymentMethod) => {
+    return apiService.post(`/orders/${id}/pay`, { paymentMethod })
+  },
+
+  // 获取订单统计
+  getOrderStatistics: () => {
+    return apiService.get('/orders/statistics')
+  },
+
+  // 获取订单统计（简短路径）
+  getOrderStats: () => {
+    return apiService.get('/orders/stats')
+  },
+
+  // 订单评价
+  reviewOrder: (id, rating, comment) => {
+    return apiService.post(`/orders/${id}/review`, { rating, comment })
+  },
+
+  // 重新下单
+  reorder: (id) => {
+    return apiService.post(`/orders/${id}/reorder`)
+  },
+
+  // 获取物流信息
+  getLogistics: (id) => {
+    return apiService.get(`/orders/${id}/logistics`)
+  },
+
+  // 查看退款详情
+  getRefundDetail: (id) => {
+    return apiService.get(`/orders/${id}/refund`)
   }
 }
 
@@ -366,6 +436,44 @@ const customerAPI = {
   // 更新客户状态
   updateCustomerStatus: (customerId, status) => {
     return apiService.put(`/customers/${customerId}/status`, { status })
+  }
+}
+
+// 跟进管理相关 API
+const followAPI = {
+  // 获取跟进列表
+  getFollowList: (params) => {
+    return apiService.get('/manager/follow', params)
+  },
+
+  // 获取跟进统计
+  getFollowStatistics: () => {
+    return apiService.get('/manager/follow/statistics')
+  },
+
+  // 获取跟进详情
+  getFollowDetail: (id) => {
+    return apiService.get(`/manager/follow/${id}`)
+  },
+
+  // 添加跟进记录
+  addFollowRecord: (followData) => {
+    return apiService.post('/manager/follow', followData)
+  },
+
+  // 完成跟进
+  completeFollow: (id, result) => {
+    return apiService.post(`/manager/follow/${id}/complete`, { result })
+  },
+
+  // 重新安排跟进
+  rescheduleFollow: (id, newDate) => {
+    return apiService.post(`/manager/follow/${id}/reschedule`, { newDate })
+  },
+
+  // 批量操作跟进
+  batchFollow: (action, followIds, data = {}) => {
+    return apiService.post('/manager/follow/batch', { action, followIds, ...data })
   }
 }
 
@@ -415,12 +523,35 @@ const uploadAPI = {
   }
 }
 
+// 为了向后兼容，直接导出跟进API的方法
 module.exports = {
+  // 基础服务
   apiService,
+  
+  // API 模块
   authAPI,
+  userAPI: authAPI, // 向后兼容
   productAPI,
   orderAPI,
   customerAPI,
+  followAPI,
   performanceAPI,
-  uploadAPI
+  uploadAPI,
+  
+  // 跟进相关方法的直接导出（为了与follow.js兼容）
+  getFollowList: followAPI.getFollowList,
+  getFollowStatistics: followAPI.getFollowStatistics,
+  getFollowDetail: followAPI.getFollowDetail,
+  addFollowRecord: followAPI.addFollowRecord,
+  completeFollow: followAPI.completeFollow,
+  rescheduleFollow: followAPI.rescheduleFollow,
+  batchFollow: followAPI.batchFollow,
+
+  // 产品相关方法的直接导出
+  getProducts: productAPI.getProducts,
+  getProductDetail: productAPI.getProductDetail,
+  calculateSavings: productAPI.calculateSavings,
+
+  // 用户相关方法的直接导出
+  getUserPowerInfo: authAPI.getUserPowerInfo
 } 

@@ -151,12 +151,13 @@ async function performLogout() {
     app.globalData.userRole = ''
     app.globalData.isLogin = false
 
-    // 清除Token管理器的数据
+    // 清除相关存储数据
     try {
-      const tokenManager = require('./token')
-      tokenManager.clearToken()
+      // 清除其他可能的存储项
+      wx.removeStorageSync('loginTime')
+      wx.removeStorageSync('refreshToken')
     } catch (error) {
-      console.log('清除Token管理器数据失败:', error)
+      console.log('清除其他存储数据失败:', error)
     }
 
     wx.hideLoading()

@@ -133,6 +133,7 @@ Page({
       count: mockStats[tab.key] || 0
     }));
     
+    console.log('设置模拟统计数据:', tabList);
     this.setData({ tabList });
   },
 
@@ -158,7 +159,7 @@ Page({
       console.log('加载订单列表，参数:', params);
 
       const response = await app.request({
-        url: '/orders',
+        url: '/user/orders',
         method: 'GET',
         data: params
       });
@@ -167,23 +168,42 @@ Page({
 
       if (response.data) {
         let items = [];
+        let hasMore = false;
+        let totalElements = 0;
+        
+        // 解析后端返回的数据结构
         if (Array.isArray(response.data)) {
+          // 直接返回数组
           items = response.data;
+          hasMore = items.length >= this.data.pageSize;
         } else if (response.data.content) {
+          // 标准分页响应
           items = response.data.content;
+          hasMore = !response.data.last;
+          totalElements = response.data.totalElements || 0;
         } else if (response.data.list) {
+          // 自定义list字段
           items = response.data.list;
+          hasMore = response.data.hasMore || false;
+          totalElements = response.data.total || 0;
         }
+        
+        console.log('解析到的订单数据:', items.length, '条');
+        console.log('是否有更多数据:', hasMore);
+        console.log('总数据量:', totalElements);
         
         // 处理订单数据
         const processedOrders = items.map(order => this.processOrderData(order));
         
         this.setData({
           orderList: reset ? processedOrders : this.data.orderList.concat(processedOrders),
-          hasMore: processedOrders.length >= this.data.pageSize,
+          hasMore: hasMore,
           page: page + 1,
+          total: totalElements,
           isEmpty: reset && processedOrders.length === 0
         });
+        
+        console.log('订单列表更新完成，当前订单数:', this.data.orderList.length);
       }
     } catch (error) {
       console.error('加载订单列表失败:', error);
@@ -299,20 +319,22 @@ Page({
 
   // 处理订单数据
   processOrderData(order) {
+    console.log('处理订单数据:', order);
+    
     return {
       ...order,
       // 基本信息
       orderNumber: order.orderNo || order.order_no || `PO${order.id}`,
-      createdAt: formatDate(order.created_at, 'MM-DD HH:mm'),
-      updatedAt: formatDate(order.updated_at, 'MM-DD HH:mm'),
+      createdAt: formatDate(order.createdAt || order.created_at, 'MM-DD HH:mm'),
+      updatedAt: formatDate(order.updatedAt || order.updated_at, 'MM-DD HH:mm'),
       
       // 状态相关
-      statusText: this.getStatusText(order.status),
+      statusText: order.statusText || this.getStatusText(order.status),
       statusClass: this.getStatusClass(order.status),
       
       // 产品信息
       productImage: order.productImage || '/assets/images/default-product.png',
-      productDesc: `单价：¥${order.productPrice}/度`,
+      productDesc: order.productName ? `产品：${order.productName}` : `单价：¥${order.productPrice || '0.60'}/度`,
       capacity: order.capacity || '标准容量',
       servicePeriod: this.getServicePeriod(order),
       amount: formatMoney(order.amount),
@@ -326,12 +348,12 @@ Page({
       progressSteps: this.getProgressSteps(),
       progressPercent: this.getProgressPercent(order.status),
       
-      // 操作权限
-      canCancel: ['pending'].includes(order.status),
-      canModify: ['pending'].includes(order.status),
-      canPay: order.status === 'confirmed',
-      canViewContract: ['contract', 'active', 'completed'].includes(order.status),
-      canConfirm: order.status === 'active'
+      // 操作权限（后端可能已经返回了这些字段）
+      canCancel: order.canCancel !== undefined ? order.canCancel : ['pending'].includes(order.status),
+      canModify: order.canModify !== undefined ? order.canModify : ['pending'].includes(order.status),
+      canPay: order.canPay !== undefined ? order.canPay : order.status === 'confirmed',
+      canViewContract: order.canViewContract !== undefined ? order.canViewContract : ['contract', 'active', 'completed'].includes(order.status),
+      canConfirm: order.canConfirm !== undefined ? order.canConfirm : order.status === 'active'
     };
   },
 

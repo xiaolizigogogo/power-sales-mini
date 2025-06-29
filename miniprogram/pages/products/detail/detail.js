@@ -10,7 +10,13 @@ Page({
 
   onLoad(options) {
     const { id } = options;
+    console.log('产品详情页加载，ID:', id);
     this.setData({ id });
+    
+    // 立即加载模拟数据，确保页面不空白
+    this.loadMockData();
+    
+    // 尝试加载真实数据
     this.loadData();
   },
 
@@ -18,22 +24,27 @@ Page({
   async loadData() {
     if (!this.data.id) return;
 
-    this.setData({ loading: true });
+    this.setData({ loading: false }); // 不显示loading，因为已有模拟数据
 
     try {
+      console.log('尝试加载产品详情，ID:', this.data.id);
       // 尝试调用实际的产品详情接口
       const res = await app.request({
         url: `/products/${this.data.id}`
       });
 
-      this.setData({
-        detail: res.data
-      });
+      console.log('产品详情加载成功:', res);
+      if (res && res.data) {
+        this.setData({
+          detail: res.data
+        });
+        console.log('真实产品详情数据设置成功');
+      }
 
     } catch (error) {
       console.error('加载产品详情失败:', error)
-      // 加载失败时使用模拟数据
-      this.loadMockData()
+      console.log('保持使用模拟数据');
+      // 不需要重新加载模拟数据，因为已经在onLoad中加载了
     } finally {
       this.setData({ loading: false });
     }
@@ -291,23 +302,123 @@ Page({
 
   // 联系客服
   contactService() {
-    // 这里可以根据实际需求跳转到客服会话或拨打电话
-    wx.makePhoneCall({
-      phoneNumber: '400-123-4567'
+    console.log('用户点击联系客服');
+    
+    const options = ['拨打客服电话', '在线客服咨询', '微信客服'];
+    
+    wx.showActionSheet({
+      itemList: options,
+      success: (res) => {
+        console.log('用户选择客服方式:', res.tapIndex);
+        
+        switch (res.tapIndex) {
+          case 0:
+            // 拨打客服电话
+            wx.showModal({
+              title: '拨打客服电话',
+              content: '客服热线：400-123-4567\n服务时间：09:00-18:00',
+              confirmText: '立即拨打',
+              cancelText: '取消',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  wx.makePhoneCall({
+                    phoneNumber: '400-123-4567',
+                    fail: () => {
+                      wx.showToast({
+                        title: '拨打失败，请手动拨打400-123-4567',
+                        icon: 'none',
+                        duration: 3000
+                      });
+                    }
+                  });
+                }
+              }
+            });
+            break;
+            
+          case 1:
+            // 在线客服咨询
+            wx.showModal({
+              title: '在线客服',
+              content: '即将跳转到在线客服页面，客服将为您提供专业的产品咨询服务',
+              confirmText: '进入咨询',
+              cancelText: '取消',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  // 这里可以跳转到客服聊天页面或打开客服链接
+                  wx.showToast({
+                    title: '客服功能开发中',
+                    icon: 'none'
+                  });
+                }
+              }
+            });
+            break;
+            
+          case 2:
+            // 微信客服
+            wx.showModal({
+              title: '微信客服',
+              content: '微信搜索"电力服务助手"小程序客服，或扫描客服二维码添加微信客服',
+              confirmText: '知道了',
+              showCancel: false
+            });
+            break;
+        }
+      },
+      fail: () => {
+        console.log('用户取消选择客服方式');
+      }
     });
   },
 
   // 立即购买
   handleBuy() {
-    if (!app.globalData.isLogin) {
-      wx.navigateTo({
-        url: '/pages/auth/login/login'
+    console.log('用户点击购买按钮');
+    
+    // 检查产品信息
+    if (!this.data.detail) {
+      wx.showToast({
+        title: '产品信息加载中',
+        icon: 'none'
       });
       return;
     }
-
-    wx.navigateTo({
-      url: `/pages/orders/create/create?productId=${this.data.id}`
+    
+    // 检查用户登录状态
+    if (!app.globalData.isLogin) {
+      wx.showModal({
+        title: '需要登录',
+        content: '购买前需要先登录，是否前往登录？',
+        confirmText: '去登录',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            });
+          }
+        }
+      });
+      return;
+    }
+    
+    // 显示购买选项
+    wx.showModal({
+      title: '购买咨询',
+      content: `您选择的是「${this.data.detail.name}」，该产品需要专业评估用电需求。是否联系客服进行详细咨询？`,
+      confirmText: '立即咨询',
+      cancelText: '查看更多',
+      success: (res) => {
+        if (res.confirm) {
+          this.contactService();
+        } else {
+          // 跳转到订单创建页面或产品计算器
+          wx.navigateTo({
+            url: `/pages/products/calculator/calculator?id=${this.data.id}`
+          });
+        }
+      }
     });
   }
 }); 

@@ -1,1 +1,271 @@
- 
+.page-container {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.container {
+  padding: 20rpx;
+}
+
+.calculator-header {
+  position: relative;
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+  color: white;
+  text-align: center;
+}
+
+.calculator-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16rpx;
+  opacity: 0.1;
+}
+
+.calculator-title {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  opacity: 0.8;
+}
+
+.calculator-form {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+  margin-bottom: 30rpx;
+}
+
+.product-image {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+}
+
+.product-content {
+  flex: 1;
+}
+
+.product-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-unit {
+  font-size: 24rpx;
+  color: #ef4444;
+}
+
+.price-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ef4444;
+  margin: 0 4rpx;
+}
+
+.arrow-icon {
+  width: 32rpx;
+  height: 32rpx;
+  font-size: 24rpx;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-group {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #374151;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.form-label.required::before {
+  content: '*';
+  color: #ef4444;
+  margin-right: 4rpx;
+}
+
+.picker-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 20rpx;
+  background: #f9fafb;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #374151;
+}
+
+.picker-arrow {
+  width: 24rpx;
+  height: 24rpx;
+  font-size: 20rpx;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+}
+
+.form-input {
+  flex: 1;
+  height: 88rpx;
+  font-size: 28rpx;
+  color: #374151;
+}
+
+.input-unit {
+  font-size: 26rpx;
+  color: #6b7280;
+  margin-left: 12rpx;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 40rpx;
+}
+
+.reset-button {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 8rpx;
+  border: none;
+}
+
+.reset-button::after {
+  display: none;
+}
+
+.calculate-button {
+  flex: 2;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
+  border-radius: 8rpx;
+  border: none;
+}
+
+.calculate-button::after {
+  display: none;
+}
+
+.result-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.result-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.result-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+}
+
+.result-label {
+  font-size: 28rpx;
+  color: #4b5563;
+}
+
+.result-value {
+  display: flex;
+  align-items: baseline;
+}
+
+.result-value .unit {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.result-value .value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 4rpx;
+}
+
+.result-value .value.highlight {
+  color: #ef4444;
+  font-size: 36rpx;
+}
+
+.result-divider {
+  height: 2rpx;
+  background: #e5e7eb;
+  margin: 20rpx 0;
+}
+
+.result-tips {
+  font-size: 24rpx;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 20rpx;
+  line-height: 1.5;
+}

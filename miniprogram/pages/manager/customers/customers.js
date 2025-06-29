@@ -19,11 +19,9 @@ Page({
     // 标签页配置
     tabs: [
       { key: 'all', name: '全部', count: 0 },
-      { key: 'potential', name: '潜在客户', count: 0 },
-      { key: 'following', name: '跟进中', count: 0 },
-      { key: 'negotiating', name: '商务洽谈', count: 0 },
-      { key: 'deal', name: '已成交', count: 0 },
-      { key: 'lost', name: '已流失', count: 0 }
+      { key: 'pending', name: '待审核', count: 0 },
+      { key: 'active', name: '正常', count: 0 },
+      { key: 'inactive', name: '暂停', count: 0 }
     ],
     
     // 客户列表
@@ -52,6 +50,9 @@ Page({
     
     // 客户状态配置
     statusConfig: {
+      pending: { text: '待审核', color: '#909399' },
+      active: { text: '正常', color: '#67C23A' },
+      inactive: { text: '暂停', color: '#F56C6C' },
       potential: { text: '潜在客户', color: '#909399' },
       following: { text: '跟进中', color: '#E6A23C' },
       negotiating: { text: '商务洽谈', color: '#409EFF' },
@@ -61,6 +62,7 @@ Page({
   },
 
   onLoad(options) {
+    console.log('客户页面onLoad开始')
     // 获取传入的状态参数
     if (options.status) {
       this.setData({
@@ -68,6 +70,8 @@ Page({
       })
     }
     
+    // 加载真实数据
+    console.log('开始加载真实数据')
     this.loadCustomers(true)
     this.loadStatistics()
   },
@@ -136,26 +140,34 @@ Page({
         params.scale = selectedScale
       }
 
+      console.log('准备请求客户数据:', app.globalData.baseUrl + '/manager/customers', params)
+
       const result = await app.request({
         url: '/manager/customers',
         method: 'GET',
         data: params
       })
 
-      const customers = result.data.items || []
-      const hasMore = customers.length === pageSize
+      console.log('客户数据请求成功:', result)
+
+      // 根据后端返回的数据结构解析
+      const responseData = result.data?.data || result.data || result
+      const customers = responseData.items || []
+      const hasMore = responseData.has_more || (customers.length === pageSize)
 
       // 处理客户数据
       const processedCustomers = customers.map(customer => ({
         ...customer,
-        avatar_url: customer.avatar_url || '/images/default-company.png',
+        avatar_url: customer.avatar_url || '',
         last_contact_time_text: customer.last_contact_time ? 
           util.formatDate(customer.last_contact_time) : '暂无联系',
-        status_config: this.data.statusConfig[customer.status] || { text: '未知', color: '#909399' },
+        status_config: this.data.statusConfig[customer.status] || { text: '待审核', color: '#909399' },
         contact_count_text: customer.contact_count ? `已联系${customer.contact_count}次` : '未联系',
         order_count_text: customer.order_count ? `${customer.order_count}个订单` : '暂无订单',
-        total_amount_text: customer.total_amount ? util.formatAmount(customer.total_amount) : '￥0'
+        total_amount_text: customer.total_amount ? util.formatMoney(customer.total_amount) : '￥0'
       }))
+
+      console.log('处理后的客户数据:', processedCustomers)
 
       this.setData({
         customers: refresh ? processedCustomers : [...this.data.customers, ...processedCustomers],
@@ -168,13 +180,14 @@ Page({
     } catch (error) {
       console.error('加载客户列表失败:', error)
       
-      // 使用模拟数据
-      console.log('API请求失败，使用模拟客户数据')
-      if (refresh || this.data.customers.length === 0) {
+      // 只有在没有客户数据且是首次加载时才使用模拟数据
+      if (this.data.customers.length === 0 && refresh) {
+        console.log('API请求失败且无现有数据，使用模拟客户数据')
         this.loadMockCustomers()
       } else {
+        console.log('API请求失败:', error)
         wx.showToast({
-          title: '加载失败',
+          title: '加载失败，请重试',
           icon: 'none'
         })
       }
@@ -193,6 +206,8 @@ Page({
         url: '/manager/customers/statistics',
         method: 'GET'
       })
+      
+      console.log('统计数据请求成功:', result)
       const stats = result.data || {}
       
       // 更新标签页计数
@@ -222,7 +237,7 @@ Page({
         phone: '13800138001',
         company_name: '北京科技有限公司',
         industry: 'manufacturing',
-        status: 'following',
+        status: 'active',
         avatar_url: '',
         last_contact_time: '2024-12-26 15:30:00',
         contact_count: 5,
@@ -235,7 +250,7 @@ Page({
         phone: '13800138002',
         company_name: '上海贸易有限公司',
         industry: 'commerce',
-        status: 'negotiating',
+        status: 'active',
         avatar_url: '',
         last_contact_time: '2024-12-25 09:15:00',
         contact_count: 8,
@@ -248,7 +263,7 @@ Page({
         phone: '13800138003',
         company_name: '广州服务有限公司',
         industry: 'service',
-        status: 'deal',
+        status: 'active',
         avatar_url: '',
         last_contact_time: '2024-12-24 11:20:00',
         contact_count: 12,
@@ -261,7 +276,7 @@ Page({
         phone: '13800138004',
         company_name: '深圳建筑有限公司',
         industry: 'construction',
-        status: 'potential',
+        status: 'pending',
         avatar_url: '',
         last_contact_time: null,
         contact_count: 0,
@@ -274,10 +289,36 @@ Page({
         phone: '13800138005',
         company_name: '杭州制造有限公司',
         industry: 'manufacturing',
-        status: 'lost',
+        status: 'inactive',
         avatar_url: '',
         last_contact_time: '2024-12-20 14:45:00',
         contact_count: 3,
+        order_count: 0,
+        total_amount: 0
+      },
+      {
+        id: 6,
+        name: '刘八',
+        phone: '13800138006',
+        company_name: '成都电子有限公司',
+        industry: 'manufacturing',
+        status: 'pending',
+        avatar_url: '',
+        last_contact_time: null,
+        contact_count: 0,
+        order_count: 0,
+        total_amount: 0
+      },
+      {
+        id: 7,
+        name: '周九',
+        phone: '13800138007',
+        company_name: '西安机械有限公司',
+        industry: 'manufacturing',
+        status: 'inactive',
+        avatar_url: '',
+        last_contact_time: '2024-12-22 16:00:00',
+        contact_count: 2,
         order_count: 0,
         total_amount: 0
       }
@@ -313,7 +354,7 @@ Page({
       status_config: this.data.statusConfig[customer.status] || { text: '未知', color: '#909399' },
       contact_count_text: customer.contact_count ? `已联系${customer.contact_count}次` : '未联系',
       order_count_text: customer.order_count ? `${customer.order_count}个订单` : '暂无订单',
-      total_amount_text: customer.total_amount ? `￥${util.formatMoney(customer.total_amount)}` : '￥0'
+      total_amount_text: customer.total_amount ? util.formatMoney(customer.total_amount) : '￥0'
     }))
 
     console.log('设置模拟客户数据:', processedCustomers.length, '个客户')
@@ -323,17 +364,18 @@ Page({
       loading: false,
       loadingMore: false
     })
+    
+    // 同时更新统计数据
+    this.loadMockStatistics()
   },
 
   // 加载模拟统计数据
   loadMockStatistics() {
     const mockStats = {
-      all: 5,
-      potential: 1,
-      following: 1,
-      negotiating: 1,
-      deal: 1,
-      lost: 1
+      all: 7,
+      pending: 2,
+      active: 3,
+      inactive: 2
     }
 
     const updatedTabs = this.data.tabs.map(tab => ({
@@ -456,10 +498,32 @@ Page({
 
   // 客户详情
   onCustomerTap(e) {
-    const { customerId } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/manager/customer-detail/customer-detail?id=${customerId}`
+    const { customer } = e.currentTarget.dataset
+    console.log('点击客户:', customer)
+    
+    if (!customer || !customer.id) {
+      console.error('客户数据无效:', customer)
+      wx.showToast({
+        title: '客户信息错误',
+        icon: 'none'
+      })
+      return
+    }
+    
+    // 先显示客户信息，而不是跳转到可能不存在的详情页
+    wx.showModal({
+      title: customer.name,
+      content: `公司：${customer.company_name}\n电话：${customer.phone}\n状态：${customer.status_config?.text || '未知'}`,
+      showCancel: false,
+      confirmText: '确定'
     })
+    
+    // 如果需要跳转详情页，可以取消注释下面的代码
+    /*
+    wx.navigateTo({
+      url: `/pages/manager/customer-detail/customer-detail?id=${customer.id}`
+    })
+    */
   },
 
   // 拨打电话

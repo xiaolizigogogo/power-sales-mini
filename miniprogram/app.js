@@ -64,7 +64,7 @@ App({
   },
 
   // 用户登录
-  login(userInfo, token, userRole) {
+  login(userInfo, token, userRole, refreshToken) {
     this.globalData.userInfo = userInfo;
     this.globalData.token = token;
     this.globalData.isLogin = true;
@@ -74,6 +74,11 @@ App({
     wx.setStorageSync('userInfo', userInfo);
     wx.setStorageSync('token', token);
     wx.setStorageSync('userRole', userRole);
+    
+    // 存储刷新令牌
+    if (refreshToken) {
+      wx.setStorageSync('refreshToken', refreshToken);
+    }
   },
 
   // 用户登出

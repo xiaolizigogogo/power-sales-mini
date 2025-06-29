@@ -1,6 +1,5 @@
 // 客户经理工作台首页
 const app = getApp()
-const tokenManager = require('../../../utils/token')
 
 Page({
   data: {
@@ -58,26 +57,17 @@ Page({
     recentCustomers: [],
     urgentTasks: [],
     loading: true,
-    refreshing: false,
-    tokenInitialized: false
+    refreshing: false
   },
 
   async onLoad(options) {
     console.log('📱 管理员首页开始加载...')
     
     try {
-      await this.initializeToken()
       this.checkManagerAuth()
       
-      // 如果Token初始化成功，立即加载数据
-      if (this.data.tokenInitialized) {
-        await this.loadAllData()
-      } else {
-        // 如果Token未初始化，使用模拟数据
-        console.log('Token未初始化，使用模拟数据')
-        this.loadMockWorkbenchData()
-        this.loadMockRecentData()
-      }
+      // 直接加载数据（使用模拟数据）
+      await this.loadAllData()
     } catch (error) {
       console.error('页面加载失败:', error)
       // 发生错误时使用模拟数据
@@ -90,113 +80,14 @@ Page({
   onShow() {
     console.log('📱 管理员首页显示')
     
-    // 如果已经初始化但数据还在加载中，重新加载
-    if (this.data.tokenInitialized && this.data.loading) {
+    // 如果数据还在加载中，重新加载
+    if (this.data.loading) {
       console.log('🔄 重新加载数据...')
       this.loadAllData()
     }
-    
-    // 安全检查：如果页面显示3秒后仍在loading状态，强制使用模拟数据
-    setTimeout(() => {
-      if (this.data.loading) {
-        console.log('⚠️ 检测到长时间加载，强制使用模拟数据')
-        this.loadMockWorkbenchData()
-        this.loadMockRecentData()
-        wx.showToast({
-          title: '已切换到离线模式',
-          icon: 'none',
-          duration: 2000
-        })
-      }
-    }, 3000)
   },
 
-  // 初始化Token
-  async initializeToken() {
-    try {
-      console.log('开始初始化Token认证...')
-      this.setData({ loading: true }) // 开始时设置loading为true
-      
-      // 检查是否已有有效token
-      const existingToken = wx.getStorageSync('token')
-      if (existingToken) {
-        try {
-          console.log('检查现有Token有效性...')
-          const verification = await tokenManager.verifyCurrentToken()
-          if (verification.valid) {
-            console.log('现有Token有效，认证成功')
-            this.setData({ tokenInitialized: true })
-            wx.showToast({
-              title: '认证成功',
-              icon: 'success',
-              duration: 1500
-            })
-            // 立即加载数据
-            await this.loadAllData()
-            return
-          }
-        } catch (error) {
-          console.log('现有Token无效，将重新生成:', error.message)
-        }
-      }
 
-      // 生成新的测试Token
-      console.log('正在生成新的测试Token...')
-      wx.showLoading({ title: '正在认证...' })
-      
-      await tokenManager.initTestEnvironment()
-      
-      wx.hideLoading()
-      this.setData({ tokenInitialized: true })
-      
-      console.log('Token认证初始化成功')
-      wx.showToast({
-        title: '认证成功',
-        icon: 'success',
-        duration: 1500
-      })
-      
-      // 立即加载数据
-      await this.loadAllData()
-      
-    } catch (error) {
-      wx.hideLoading()
-      console.error('Token初始化失败:', error)
-      
-      // 检查具体错误类型
-      let errorMessage = '认证初始化失败'
-      if (error.message && error.message.includes('request:fail')) {
-        errorMessage = '网络连接失败，请检查后端服务是否启动'
-      } else if (error.message && error.message.includes('timeout')) {
-        errorMessage = '请求超时，请稍后重试'
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-      
-      console.log('显示错误提示:', errorMessage)
-      
-      wx.showModal({
-        title: '认证失败',
-        content: `${errorMessage}\n\n将使用离线模式继续`,
-        showCancel: true,
-        cancelText: '重试',
-        confirmText: '离线模式',
-        success: async (res) => {
-          if (res.cancel) {
-            // 用户选择重试
-            await this.initializeToken()
-          } else {
-            // 用户选择离线模式
-            console.log('进入离线模式')
-            this.setData({ tokenInitialized: true })
-            this.enterOfflineMode()
-            // 离线模式也要加载数据
-            await this.loadAllData()
-          }
-        }
-      })
-    }
-  },
 
   // 进入离线模式
   enterOfflineMode() {
@@ -265,9 +156,36 @@ Page({
       })
       
       console.log('工作台数据加载成功:', result)
+      
+      // 正确解析后端返回的数据结构
+      const data = result.data || result
+      console.log('解析工作台数据:', data)
+      
       this.setData({
-        workbenchData: result.data || result
+        workbenchData: {
+          todayData: {
+            newCustomers: data.todayStats?.newCustomers || 0,
+            followUpTasks: data.todayStats?.followUpTasks || 0,
+            newOrders: data.todayStats?.newOrders || 0,
+            orderAmount: data.todayStats?.orderAmount || 0
+          },
+          monthData: {
+            newCustomers: data.monthStats?.newCustomers || 0,
+            totalOrders: data.monthStats?.totalOrders || 0,
+            orderAmount: data.monthStats?.orderAmount || 0,
+            targetProgress: data.monthStats?.targetProgress || 0
+          },
+          statistics: {
+            totalCustomers: data.statistics?.totalCustomers || 0,
+            activeCustomers: data.statistics?.activeCustomers || 0,
+            completedOrders: data.statistics?.completedOrders || 0,
+            satisfaction: data.statistics?.satisfaction || 0
+          }
+        },
+        loading: false
       })
+      
+      console.log('工作台数据设置完成:', this.data.workbenchData)
     } catch (error) {
       console.error('加载工作台数据失败:', error)
       console.error('错误详情:', {
@@ -329,22 +247,22 @@ Page({
     console.log('开始加载模拟工作台数据')
     const mockData = {
       todayData: {
-        newCustomers: 3,
-        followUpTasks: 8,
-        newOrders: 2,
-        orderAmount: 45000
+        newCustomers: 2,
+        followUpTasks: 5,
+        newOrders: 1,
+        orderAmount: 15000
       },
       monthData: {
-        newCustomers: 25,
-        totalOrders: 18,
-        orderAmount: 320000,
-        targetProgress: 68
+        newCustomers: 7,
+        totalOrders: 3,
+        orderAmount: 85000,
+        targetProgress: 45
       },
       statistics: {
-        totalCustomers: 156,
-        activeCustomers: 89,
-        completedOrders: 45,
-        satisfaction: 4.8
+        totalCustomers: 7,
+        activeCustomers: 3,
+        completedOrders: 2,
+        satisfaction: 95
       }
     }
 
@@ -591,19 +509,21 @@ Page({
       console.log('开始加载所有数据...')
       this.setData({ loading: true })
       
+      // 优先加载真实数据
+      console.log('尝试加载真实数据...')
+      
       // 并行加载工作台数据和最近数据
       await Promise.all([
         this.loadWorkbenchData(),
         this.loadRecentData()
       ])
       
-      console.log('所有数据加载完成')
-      this.setData({ loading: false })
+      console.log('真实数据加载完成')
     } catch (error) {
-      console.error('加载数据失败:', error)
+      console.error('加载真实数据失败:', error)
       
       // 如果加载失败，使用模拟数据
-      console.log('使用模拟数据作为备选方案')
+      console.log('真实数据加载失败，使用模拟数据作为备选方案')
       this.loadMockWorkbenchData()
       this.loadMockRecentData()
       this.setData({ loading: false })
@@ -624,50 +544,30 @@ Page({
     }
   },
 
-  // Token调试
+  // 系统调试
   async onTokenDebugTap() {
     try {
       const token = wx.getStorageSync('token')
       const userInfo = wx.getStorageSync('userInfo')
       const isOfflineMode = wx.getStorageSync('isOfflineMode')
       
-      let debugInfo = `🔍 Token调试信息\n\n`
+      let debugInfo = `🔍 系统调试信息\n\n`
       debugInfo += `Token状态: ${token ? '✅ 存在' : '❌ 不存在'}\n`
       debugInfo += `用户信息: ${userInfo ? '✅ 存在' : '❌ 不存在'}\n`
       debugInfo += `离线模式: ${isOfflineMode ? '✅ 已启用' : '❌ 未启用'}\n`
-      debugInfo += `API地址: ${tokenManager.baseURL}\n\n`
+      debugInfo += `API地址: ${app.globalData.baseUrl || '未配置'}\n\n`
       
       if (token) {
         debugInfo += `Token预览: ${token.substring(0, 20)}...\n\n`
-        
-        // 测试网络连接
-        debugInfo += `🌐 网络连接测试...\n`
-        try {
-          const networkTest = await this.testNetworkConnection()
-          debugInfo += `网络状态: ✅ ${networkTest.message}\n`
-        } catch (error) {
-          debugInfo += `网络状态: ❌ ${error.message}\n`
-        }
-        
-        // 测试Token验证
-        debugInfo += `\n🔐 Token验证测试...\n`
-        try {
-          const verification = await tokenManager.verifyCurrentToken()
-          debugInfo += `Token验证: ✅ 有效\n`
-          debugInfo += `用户: ${verification.username}\n`
-          debugInfo += `角色: ${verification.role}\n`
-        } catch (error) {
-          debugInfo += `Token验证: ❌ ${error.message}\n`
-        }
-        
-        // 测试API权限
-        debugInfo += `\n🔑 API权限测试...\n`
-        try {
-          await tokenManager.testManagerPermission()
-          debugInfo += `权限测试: ✅ 通过\n`
-        } catch (error) {
-          debugInfo += `权限测试: ❌ ${error.message}\n`
-        }
+      }
+      
+      // 测试网络连接
+      debugInfo += `🌐 网络连接测试...\n`
+      try {
+        const networkTest = await this.testNetworkConnection()
+        debugInfo += `网络状态: ✅ ${networkTest.message}\n`
+      } catch (error) {
+        debugInfo += `网络状态: ❌ ${error.message}\n`
       }
       
       if (userInfo) {
@@ -678,14 +578,14 @@ Page({
       }
       
       wx.showModal({
-        title: 'Token调试信息',
+        title: '系统调试信息',
         content: debugInfo,
         showCancel: false,
         confirmText: '确定'
       })
       
     } catch (error) {
-      console.error('Token调试失败:', error)
+      console.error('系统调试失败:', error)
       wx.showToast({
         title: '调试失败',
         icon: 'none'

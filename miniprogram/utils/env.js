@@ -12,7 +12,7 @@ const CURRENT_ENV = ENV_TYPES.DEVELOPMENT
 // 环境配置
 const envConfigs = {
   [ENV_TYPES.DEVELOPMENT]: {
-    apiBaseURL: 'http://localhost:8000/mini',
+    apiBaseURL: 'http://localhost:8000/api/v1/mini',
     enableDebug: true,
     enableMock: true,
     logLevel: 'debug'

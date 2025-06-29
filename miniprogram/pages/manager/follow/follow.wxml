@@ -1,16 +1,32 @@
 <!--pages/manager/follow/follow.wxml-->
 <view class="container">
+  <!-- 标签页导航 -->
+  <view class="tabs-container">
+    <view class="tabs-nav">
+      <view 
+        class="tab-item {{activeTab === index ? 'active' : ''}}" 
+        wx:for="{{tabs}}" 
+        wx:key="index"
+        bindtap="onTabChange"
+        data-index="{{index}}"
+      >
+        <text>{{item}}</text>
+        <view class="tab-indicator" wx:if="{{activeTab === index}}"></view>
+      </view>
+    </view>
+  </view>
+
   <!-- 顶部筛选栏 -->
   <view class="filter-bar">
     <view class="filter-item">
       <picker 
-        bindchange="onStatusChange" 
-        value="{{statusIndex}}" 
-        range="{{statusList}}"
+        bindchange="onStatusFilter" 
+        value="{{statusFilterIndex}}" 
+        range="{{statusFilterOptions}}"
         range-key="label"
       >
         <view class="picker-text">
-          {{statusList[statusIndex].label}}
+          {{statusFilterOptions[statusFilterIndex].label}}
           <text class="iconfont icon-arrow-down"></text>
         </view>
       </picker>
@@ -19,11 +35,11 @@
     <view class="filter-item">
       <picker 
         mode="date" 
-        value="{{filterDate}}" 
-        bindchange="onDateChange"
+        value="{{dateFilter}}" 
+        bindchange="onDateFilter"
       >
         <view class="picker-text">
-          {{filterDate || '选择日期'}}
+          {{dateFilter || '选择日期'}}
           <text class="iconfont icon-calendar"></text>
         </view>
       </picker>
@@ -36,52 +52,50 @@
         value="{{searchKeyword}}"
         bindinput="onSearchInput"
         confirm-type="search"
-        bindconfirm="onSearch"
+        bindconfirm="onSearchConfirm"
       />
-      <text class="iconfont icon-search" bindtap="onSearch"></text>
+      <text class="iconfont icon-search" bindtap="onSearchConfirm"></text>
     </view>
   </view>
 
   <!-- 统计信息 -->
   <view class="stats-bar">
     <view class="stat-item">
-      <text class="stat-number">{{stats.todayFollow}}</text>
+      <text class="stat-number">{{statistics.todayFollow}}</text>
       <text class="stat-label">今日跟进</text>
     </view>
     <view class="stat-item">
-      <text class="stat-number">{{stats.weekFollow}}</text>
-      <text class="stat-label">本周跟进</text>
+      <text class="stat-number">{{statistics.overdueFollow}}</text>
+      <text class="stat-label">逾期跟进</text>
     </view>
     <view class="stat-item">
-      <text class="stat-number">{{stats.pendingFollow}}</text>
-      <text class="stat-label">待跟进</text>
+      <text class="stat-number">{{statistics.weeklyTarget}}</text>
+      <text class="stat-label">周目标</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-number">{{statistics.completionRatePercent}}%</text>
+      <text class="stat-label">完成率</text>
     </view>
   </view>
 
   <!-- 快速操作栏 -->
   <view class="quick-actions">
-    <view class="action-btn primary" bindtap="onAddFollow">
-      <text class="iconfont icon-add"></text>
+    <view class="action-btn primary" bindtap="showAddFollowDialog">
       <text>添加跟进</text>
     </view>
-    <view class="action-btn" bindtap="onBatchOperation">
-      <text class="iconfont icon-batch"></text>
-      <text>批量操作</text>
-    </view>
-    <view class="action-btn" bindtap="onExport">
-      <text class="iconfont icon-export"></text>
-      <text>导出记录</text>
+    <view class="action-btn" bindtap="toggleSelectMode">
+      <text>{{selectMode ? '取消选择' : '批量操作'}}</text>
     </view>
   </view>
 
   <!-- 跟进列表 -->
   <view class="follow-list">
     <view 
-      class="follow-item {{item.isUrgent ? 'urgent' : ''}}" 
+      class="follow-item {{item.priority === 'high' ? 'urgent' : ''}}" 
       wx:for="{{followList}}" 
       wx:key="id"
-      bindtap="onItemTap"
-      data-item="{{item}}"
+      bindtap="onFollowItemTap"
+      data-follow="{{item}}"
     >
       <!-- 客户信息头部 -->
       <view class="item-header">
@@ -89,21 +103,19 @@
           <text class="customer-name">{{item.customerName}}</text>
           <text class="company-name">{{item.companyName}}</text>
           <view class="status-badges">
-            <text class="badge status-{{item.customerStatus}}">{{item.customerStatusText}}</text>
-            <text class="badge priority-{{item.priority}}" wx:if="{{item.isUrgent}}">紧急</text>
+            <text class="badge status-{{item.status}}">{{item.statusText || '待跟进'}}</text>
+            <text class="badge priority-high" wx:if="{{item.priority === 'high'}}">紧急</text>
           </view>
         </view>
         <view class="item-actions">
-          <text class="iconfont icon-phone" bindtap="onCallCustomer" data-phone="{{item.phone}}"></text>
-          <text class="iconfont icon-wechat" bindtap="onContactWechat" data-id="{{item.id}}"></text>
+          <text class="phone-btn" bindtap="onCallCustomer" data-phone="{{item.phone}}">📞</text>
         </view>
       </view>
 
       <!-- 跟进内容 -->
       <view class="follow-content">
         <view class="follow-type">
-          <text class="type-icon {{item.followType}}"></text>
-          <text class="type-text">{{item.followTypeText}}</text>
+          <text class="type-text">{{item.typeText || '电话沟通'}}</text>
         </view>
         <view class="follow-desc">{{item.content}}</view>
         <view class="follow-result" wx:if="{{item.result}}">
@@ -116,11 +128,9 @@
       <view class="item-footer">
         <view class="time-info">
           <view class="follow-time">
-            <text class="iconfont icon-time"></text>
-            <text>{{item.followTime}}</text>
+            <text>跟进时间：{{item.followDate}}</text>
           </view>
           <view class="next-follow" wx:if="{{item.nextFollowDate}}">
-            <text class="iconfont icon-calendar"></text>
             <text class="{{item.isOverdue ? 'overdue' : ''}}">
               下次跟进：{{item.nextFollowDate}}
             </text>
@@ -128,198 +138,142 @@
         </view>
         
         <view class="operation-btns">
-          <text class="op-btn" bindtap="onEditFollow" data-id="{{item.id}}">编辑</text>
-          <text class="op-btn" bindtap="onAddNextFollow" data-customer="{{item}}">继续跟进</text>
-        </view>
-      </view>
-
-      <!-- 附件显示 -->
-      <view class="attachments" wx:if="{{item.attachments && item.attachments.length > 0}}">
-        <text class="attach-label">附件：</text>
-        <view class="attach-list">
-          <view 
-            class="attach-item" 
-            wx:for="{{item.attachments}}" 
-            wx:key="id" 
-            wx:for-item="file"
-            bindtap="onPreviewFile"
-            data-file="{{file}}"
-          >
-            <text class="iconfont icon-{{file.type}}"></text>
-            <text class="file-name">{{file.name}}</text>
-          </view>
+          <text class="op-btn" bindtap="onEditFollow" data-follow="{{item}}">编辑</text>
+          <text class="op-btn" bindtap="onContinueFollow" data-follow="{{item}}">继续跟进</text>
         </view>
       </view>
     </view>
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{followList.length === 0 && !loading}}">
-      <image class="empty-icon" src="/images/empty-follow.png"></image>
       <text class="empty-text">暂无跟进记录</text>
-      <view class="empty-action" bindtap="onAddFollow">
+      <view class="empty-action" bindtap="showAddFollowDialog">
         <text>添加第一条跟进记录</text>
       </view>
     </view>
 
-    <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasMore}}">
-      <text class="loading-text" wx:if="{{loading}}">加载中...</text>
-      <text class="load-text" wx:else bindtap="onLoadMore">点击加载更多</text>
+    <!-- 加载中状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 调试信息 -->
+    <view class="debug-info" style="padding: 20rpx; background: #f0f0f0; margin: 20rpx;">
+      <text>调试信息：</text>
+      <text>followList长度: {{followList.length}}</text>
+      <text>loading状态: {{loading ? '是' : '否'}}</text>
+      <text>activeTab: {{activeTab}}</text>
     </view>
   </view>
 
   <!-- 添加跟进浮动按钮 -->
-  <view class="fab" bindtap="onAddFollow">
-    <text class="iconfont icon-add"></text>
+  <view class="fab" bindtap="showAddFollowDialog">
+    <text>+</text>
   </view>
 </view>
 
 <!-- 添加/编辑跟进弹窗 -->
-<view class="modal-overlay" wx:if="{{showFollowModal}}" bindtap="onCloseModal">
-  <view class="modal-content" catchtap="stopPropagation">
+<van-popup show="{{showAddFollow}}" position="bottom" round bind:close="closeAddFollow">
+  <view class="modal-content">
     <view class="modal-header">
-      <text class="modal-title">{{isEditMode ? '编辑跟进记录' : '添加跟进记录'}}</text>
-      <text class="iconfont icon-close" bindtap="onCloseModal"></text>
+      <text class="modal-title">{{followForm.id ? '编辑跟进记录' : '添加跟进记录'}}</text>
+      <text class="iconfont icon-close" bindtap="closeAddFollow"></text>
     </view>
     
     <view class="modal-body">
       <!-- 客户选择 -->
-      <view class="form-group" wx:if="{{!isEditMode}}">
-        <label class="form-label">选择客户</label>
-        <picker 
-          bindchange="onCustomerChange" 
-          value="{{customerIndex}}" 
-          range="{{customerList}}"
-          range-key="name"
-        >
-          <view class="form-input picker-input">
-            {{selectedCustomer ? selectedCustomer.name + ' - ' + selectedCustomer.companyName : '请选择客户'}}
-            <text class="iconfont icon-arrow-down"></text>
-          </view>
-        </picker>
-      </view>
+      <van-field 
+        wx:if="{{!followForm.id}}"
+        label="选择客户"
+        value="{{followForm.customerName}}"
+        placeholder="请选择客户"
+        readonly
+        is-link
+        bindtap="selectCustomer"
+      />
 
       <!-- 跟进类型 -->
-      <view class="form-group">
-        <label class="form-label">跟进类型</label>
-        <picker 
-          bindchange="onFollowTypeChange" 
-          value="{{followTypeIndex}}" 
-          range="{{followTypeList}}"
-          range-key="label"
-        >
-          <view class="form-input picker-input">
-            {{followForm.type ? followTypeList[followTypeIndex].label : '请选择类型'}}
-            <text class="iconfont icon-arrow-down"></text>
-          </view>
-        </picker>
-      </view>
+      <van-field
+        label="跟进类型"
+        value="{{followForm.typeText}}"
+        placeholder="请选择跟进类型"
+        readonly
+        is-link
+        bindtap="selectFollowType"
+      />
 
       <!-- 跟进内容 -->
-      <view class="form-group">
-        <label class="form-label">跟进内容</label>
-        <textarea 
-          class="form-textarea" 
-          placeholder="请输入跟进内容..." 
-          value="{{followForm.content}}"
-          bindinput="onContentInput"
-          maxlength="500"
-        ></textarea>
-        <text class="char-count">{{followForm.content.length}}/500</text>
-      </view>
+      <van-field
+        label="跟进内容"
+        type="textarea"
+        value="{{followForm.content}}"
+        placeholder="请输入跟进内容..."
+        maxlength="500"
+        show-word-limit
+        autosize
+        bind:change="onContentInput"
+      />
 
       <!-- 跟进结果 -->
-      <view class="form-group">
-        <label class="form-label">跟进结果</label>
-        <textarea 
-          class="form-textarea" 
-          placeholder="请输入跟进结果..." 
-          value="{{followForm.result}}"
-          bindinput="onResultInput"
-          maxlength="300"
-        ></textarea>
-      </view>
+      <van-field
+        label="跟进结果"
+        type="textarea"
+        value="{{followForm.result}}"
+        placeholder="请输入跟进结果..."
+        maxlength="300"
+        show-word-limit
+        autosize
+        bind:change="onResultInput"
+      />
 
       <!-- 下次跟进时间 -->
-      <view class="form-group">
-        <label class="form-label">下次跟进时间</label>
-        <picker 
-          mode="multiSelector" 
-          value="{{nextFollowIndex}}" 
-          range="{{nextFollowRange}}"
-          bindchange="onNextFollowChange"
-        >
-          <view class="form-input picker-input">
-            {{followForm.nextFollowDate || '请选择时间'}}
-            <text class="iconfont icon-calendar"></text>
-          </view>
-        </picker>
-      </view>
+      <van-field
+        label="下次跟进"
+        value="{{followForm.nextFollowDate}}"
+        placeholder="请选择下次跟进时间"
+        readonly
+        is-link
+        bindtap="selectNextFollowDate"
+      />
 
       <!-- 优先级 -->
-      <view class="form-group">
-        <label class="form-label">优先级</label>
-        <radio-group bindchange="onPriorityChange">
-          <view class="radio-group">
-            <label class="radio-item" wx:for="{{priorityList}}" wx:key="value">
-              <radio value="{{item.value}}" checked="{{followForm.priority === item.value}}"/>
-              <text class="radio-text">{{item.label}}</text>
-            </label>
-          </view>
-        </radio-group>
-      </view>
+      <van-field label="优先级">
+        <van-radio-group value="{{followForm.priority}}" bind:change="onPriorityChange">
+          <van-radio name="low" icon-size="20rpx">低优先级</van-radio>
+          <van-radio name="medium" icon-size="20rpx">中优先级</van-radio>
+          <van-radio name="high" icon-size="20rpx">高优先级</van-radio>
+        </van-radio-group>
+      </van-field>
 
-      <!-- 附件上传 -->
-      <view class="form-group">
-        <label class="form-label">附件</label>
-        <view class="upload-area">
-          <view class="upload-btn" bindtap="onUploadAttachment">
-            <text class="iconfont icon-upload"></text>
-            <text>上传附件</text>
-          </view>
-          <view class="file-list" wx:if="{{followForm.attachments.length > 0}}">
-            <view 
-              class="file-item" 
-              wx:for="{{followForm.attachments}}" 
-              wx:key="id"
-              wx:for-item="file"
-            >
-              <text class="iconfont icon-{{file.type}}"></text>
-              <text class="file-name">{{file.name}}</text>
-              <text class="iconfont icon-delete" bindtap="onDeleteFile" data-index="{{index}}"></text>
-            </view>
-          </view>
-        </view>
-      </view>
+      <!-- 提醒设置 -->
+      <van-field label="提醒设置">
+        <van-switch checked="{{followForm.reminder}}" bind:change="onReminderChange" />
+      </van-field>
     </view>
     
     <view class="modal-footer">
-      <button class="btn btn-default" bindtap="onCloseModal">取消</button>
-      <button class="btn btn-primary" bindtap="onSaveFollow" loading="{{saving}}">
+      <van-button plain size="large" bindtap="closeAddFollow">取消</van-button>
+      <van-button type="primary" size="large" loading="{{saving}}" bindtap="saveFollow">
         {{saving ? '保存中...' : '保存'}}
-      </button>
+      </van-button>
     </view>
   </view>
-</view>
+</van-popup>
 
 <!-- 客户选择弹窗 -->
-<view class="modal-overlay" wx:if="{{showCustomerModal}}" bindtap="onCloseCustomerModal">
-  <view class="modal-content customer-modal" catchtap="stopPropagation">
+<van-popup show="{{showCustomerModal}}" position="bottom" round bind:close="closeCustomerModal">
+  <view class="modal-content customer-modal">
     <view class="modal-header">
       <text class="modal-title">选择客户</text>
-      <text class="iconfont icon-close" bindtap="onCloseCustomerModal"></text>
+      <text class="iconfont icon-close" bindtap="closeCustomerModal"></text>
     </view>
     
     <view class="modal-body">
-      <view class="search-box">
-        <input 
-          class="search-input" 
-          placeholder="搜索客户名称或公司" 
-          value="{{customerSearchKeyword}}"
-          bindinput="onCustomerSearchInput"
-        />
-        <text class="iconfont icon-search"></text>
-      </view>
+      <van-search 
+        value="{{customerSearchKeyword}}" 
+        placeholder="搜索客户名称或公司"
+        bind:change="onCustomerSearchInput"
+      />
       
       <view class="customer-list">
         <view 
@@ -335,15 +289,75 @@
             <text class="customer-phone">{{item.phone}}</text>
           </view>
           <view class="customer-status">
-            <text class="badge status-{{item.status}}">{{item.statusText}}</text>
+            <van-tag type="{{item.status === 'active' ? 'success' : 'default'}}" size="small">
+              {{item.statusText}}
+            </van-tag>
           </view>
         </view>
       </view>
     </view>
   </view>
-</view>
+</van-popup>
+
+<!-- 跟进类型选择弹窗 -->
+<van-action-sheet 
+  show="{{showFollowTypeModal}}" 
+  actions="{{followTypeActions}}"
+  bind:select="onFollowTypeSelect"
+  bind:close="closeFollowTypeModal"
+/>
+
+<!-- 日期时间选择器 -->
+<van-popup show="{{showDatePicker}}" position="bottom" bind:close="closeDatePicker">
+  <van-datetime-picker
+    type="datetime"
+    value="{{pickerDate}}"
+    min-date="{{minDate}}"
+    bind:confirm="onDateConfirm"
+    bind:cancel="closeDatePicker"
+  />
+</van-popup>
+
+<!-- 筛选面板 -->
+<van-popup show="{{showFilter}}" position="right" bind:close="closeFilter">
+  <view class="filter-panel">
+    <view class="filter-header">
+      <text class="filter-title">筛选条件</text>
+      <text class="filter-reset" bindtap="resetFilter">重置</text>
+    </view>
+    
+    <view class="filter-body">
+      <view class="filter-group">
+        <text class="filter-label">优先级</text>
+        <van-radio-group value="{{tempFilterParams.priority}}" bind:change="onFilterPriorityChange">
+          <van-radio name="" icon-size="20rpx">全部</van-radio>
+          <van-radio name="high" icon-size="20rpx">高优先级</van-radio>
+          <van-radio name="medium" icon-size="20rpx">中优先级</van-radio>
+          <van-radio name="low" icon-size="20rpx">低优先级</van-radio>
+        </van-radio-group>
+      </view>
+      
+      <view class="filter-group">
+        <text class="filter-label">时间范围</text>
+        <van-radio-group value="{{tempFilterParams.dateRange}}" bind:change="onFilterDateRangeChange">
+          <van-radio name="" icon-size="20rpx">全部</van-radio>
+          <van-radio name="today" icon-size="20rpx">今天</van-radio>
+          <van-radio name="week" icon-size="20rpx">本周</van-radio>
+          <van-radio name="month" icon-size="20rpx">本月</van-radio>
+          <van-radio name="overdue" icon-size="20rpx">已逾期</van-radio>
+        </van-radio-group>
+      </view>
+    </view>
+    
+    <view class="filter-footer">
+      <van-button plain size="large" bindtap="closeFilter">取消</van-button>
+      <van-button type="primary" size="large" bindtap="applyFilter">确定</van-button>
+    </view>
+  </view>
+</van-popup>
 
 <!-- Toast提示 -->
-<view class="toast {{showToast ? 'show' : ''}}" wx:if="{{toastMessage}}">
-  <text>{{toastMessage}}</text>
-</view> 
+<van-toast id="van-toast" />
+
+<!-- 加载中 -->
+<van-loading type="spinner" wx:if="{{loading}}" /> 

@@ -55,7 +55,7 @@ Component({
     // 上传接口地址
     uploadUrl: {
       type: String,
-      value: '/api/v1/upload/image'
+      value: '/mini/upload/image'
     },
     // 预览模式
     previewMode: {
