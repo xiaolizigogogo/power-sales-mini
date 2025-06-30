@@ -1,0 +1,15 @@
+<view class="signature-pad">
+  <canvas
+    type="2d"
+    id="signature-canvas"
+    class="signature-canvas"
+    style="width: {{ width }}px; height: {{ height }}px;"
+    bind:touchstart="onTouchStart"
+    bind:touchmove="onTouchMove"
+    bind:touchend="onTouchEnd"
+  ></canvas>
+  <view class="signature-actions">
+    <text class="action-tip">请在上方区域书写签名</text>
+    <view class="action-btn" bind:tap="clear">重写</view>
+  </view>
+</view> 

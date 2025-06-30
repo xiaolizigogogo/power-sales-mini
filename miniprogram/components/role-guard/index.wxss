@@ -1,0 +1,51 @@
+.role-guard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 20rpx;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #409EFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.role-guard-content {
+  /* 内容容器，透传所有样式 */
+}
+
+.role-guard-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 20rpx;
+  color: #999;
+}
+
+.denied-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.denied-text {
+  font-size: 32rpx;
+  color: #999;
+} 

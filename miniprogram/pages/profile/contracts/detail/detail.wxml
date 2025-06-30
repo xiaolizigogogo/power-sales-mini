@@ -1,0 +1,158 @@
+<view class="contract-detail">
+  <block wx:if="{{ !loading && contract }}">
+    <!-- 合同状态 -->
+    <view class="status-bar">
+      <view 
+        class="status-text"
+        style="color: {{ statusColorMap[contract.status] }}"
+      >{{ statusMap[contract.status] }}</view>
+    </view>
+
+    <!-- 合同基本信息 -->
+    <view class="info-section">
+      <view class="section-title">合同信息</view>
+      <view class="info-item">
+        <text class="label">合同编号</text>
+        <text class="value">{{ contract.contractNo }}</text>
+      </view>
+      <view class="info-item">
+        <text class="label">订单编号</text>
+        <text class="value">{{ contract.orderNo }}</text>
+      </view>
+      <view class="info-item">
+        <text class="label">产品名称</text>
+        <text class="value">{{ contract.productName }}</text>
+      </view>
+      <view class="info-item">
+        <text class="label">服务期限</text>
+        <text class="value">{{ contract.servicePeriod }}个月</text>
+      </view>
+      <view class="info-item">
+        <text class="label">合同金额</text>
+        <text class="value highlight">{{ contract.amount }} 元</text>
+      </view>
+      <view class="info-item">
+        <text class="label">创建时间</text>
+        <text class="value">{{ contract.createTime }}</text>
+      </view>
+    </view>
+
+    <!-- 签署信息 -->
+    <view class="sign-section" wx:if="{{ contract.status !== 'pending' }}">
+      <view class="section-title">签署信息</view>
+      <block wx:if="{{ contract.customerSignInfo }}">
+        <view class="sign-info">
+          <view class="sign-header">
+            <text class="sign-title">客户签署</text>
+            <text class="sign-time">{{ contract.customerSignInfo.signTime }}</text>
+          </view>
+          <view class="sign-content">
+            <image 
+              wx:if="{{ contract.customerSignInfo.signature }}"
+              class="signature-image" 
+              src="{{ contract.customerSignInfo.signature }}"
+              mode="aspectFit"
+            />
+            <image 
+              wx:if="{{ contract.customerSignInfo.seal }}"
+              class="seal-image" 
+              src="{{ contract.customerSignInfo.seal }}"
+              mode="aspectFit"
+            />
+          </view>
+        </view>
+      </block>
+      
+      <block wx:if="{{ contract.companySignInfo }}">
+        <view class="sign-info">
+          <view class="sign-header">
+            <text class="sign-title">企业签署</text>
+            <text class="sign-time">{{ contract.companySignInfo.signTime }}</text>
+          </view>
+          <view class="sign-content">
+            <image 
+              class="signature-image" 
+              src="{{ contract.companySignInfo.signature }}"
+              mode="aspectFit"
+            />
+            <image 
+              class="seal-image" 
+              src="{{ contract.companySignInfo.seal }}"
+              mode="aspectFit"
+            />
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-section">
+      <van-button 
+        type="info" 
+        block 
+        bind:click="previewContract"
+      >预览合同</van-button>
+
+      <block wx:if="{{ !isManager && contract.status === 'pending' }}">
+        <van-button 
+          type="primary" 
+          block 
+          bind:click="showSignatureDialog"
+          custom-class="action-btn"
+        >立即签署</van-button>
+      </block>
+
+      <block wx:if="{{ isManager && contract.status === 'customer_signed' }}">
+        <van-button 
+          type="primary" 
+          block 
+          bind:click="companySign"
+          custom-class="action-btn"
+        >企业签署</van-button>
+      </block>
+    </view>
+
+    <!-- 签署弹窗 -->
+    <van-dialog
+      use-slot
+      title="合同签署"
+      show="{{ showSignDialog }}"
+      bind:close="closeSignatureDialog"
+      confirmButtonText="确认签署"
+      bind:confirm="submitSign"
+    >
+      <view class="sign-dialog">
+        <!-- 签名区域 -->
+        <view class="signature-area">
+          <view class="area-title">手写签名</view>
+          <signature-pad
+            bind:complete="onSignatureComplete"
+          />
+        </view>
+
+        <!-- 印章上传 -->
+        <view class="seal-area">
+          <view class="area-title">企业印章（选填）</view>
+          <view class="seal-upload" bind:tap="uploadSeal">
+            <block wx:if="{{ sealUrl }}">
+              <image 
+                class="seal-preview" 
+                src="{{ sealUrl }}"
+                mode="aspectFit"
+              />
+            </block>
+            <block wx:else>
+              <van-icon name="plus" size="24px" />
+              <text class="upload-text">上传印章</text>
+            </block>
+          </view>
+        </view>
+      </view>
+    </van-dialog>
+  </block>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{ loading }}">
+    <van-loading size="24px">加载中...</van-loading>
+  </view>
+</view> 

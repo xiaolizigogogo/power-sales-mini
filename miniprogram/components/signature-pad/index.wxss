@@ -1,0 +1,30 @@
+.signature-pad {
+  background-color: #fff;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.signature-canvas {
+  background-color: #f5f5f5;
+  display: block;
+  margin: 0 auto;
+}
+
+.signature-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #fff;
+}
+
+.action-tip {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.action-btn {
+  font-size: 26rpx;
+  color: #1989fa;
+  padding: 10rpx 20rpx;
+} 

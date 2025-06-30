@@ -50,10 +50,38 @@ Page({
     
     // 页面状态
     loading: true,
-    refreshing: false
+    refreshing: false,
+    statusMap: {
+      'pending': '待签署',
+      'customer_signed': '客户已签署',
+      'completed': '签署完成',
+      'cancelled': '已取消'
+    },
+    statusColorMap: {
+      'pending': '#1989fa',
+      'customer_signed': '#ff976a',
+      'completed': '#07c160',
+      'cancelled': '#969799'
+    },
+    isManager: false,
+    
+    // 分页相关
+    pageNum: 1,
+    pageSize: 10,
+    hasMore: true,
+    
+    // 筛选相关
+    activeTab: 'all',
+    tabs: [
+      { key: 'all', name: '全部' },
+      { key: 'pending', name: '待签署' },
+      { key: 'customer_signed', name: '待企业签署' },
+      { key: 'completed', name: '已完成' }
+    ]
   },
 
   onLoad(options) {
+    this.checkUserRole()
     this.loadContracts()
   },
 
@@ -66,32 +94,66 @@ Page({
 
   onPullDownRefresh() {
     this.setData({ refreshing: true })
-    this.loadContracts().finally(() => {
+    this.loadContracts(true).finally(() => {
       this.setData({ refreshing: false })
       wx.stopPullDownRefresh()
     })
   },
 
-  // 加载合同数据
-  async loadContracts() {
+  // 检查用户角色
+  async checkUserRole() {
+    try {
+      const res = await app.request({
+        url: '/user/role'
+      })
+      
+      if (res.data) {
+        this.setData({
+          isManager: res.data.role === 'manager'
+        })
+      }
+    } catch (error) {
+      console.error('检查用户角色失败:', error)
+    }
+  },
+
+  // 加载合同列表
+  async loadContracts(refresh = false) {
+    if (refresh) {
+      this.setData({
+        pageNum: 1,
+        hasMore: true,
+        contracts: []
+      })
+    }
+
+    if (!this.data.hasMore) return
+
     try {
       this.setData({ loading: true })
-      
-      console.log('开始加载合同数据...')
-      console.log('API地址:', `${app.globalData.baseUrl}/contracts`)
-      
-      const result = await app.request({
+
+      const { pageNum, pageSize, activeTab } = this.data
+      const params = {
+        pageNum,
+        pageSize,
+        status: activeTab === 'all' ? '' : activeTab
+      }
+
+      const res = await app.request({
         url: '/contracts',
-        method: 'GET'
+        data: params
       })
-      
-      console.log('合同数据加载成功:', result)
-      
+
+      const { list = [], total = 0 } = res.data || {}
+      const hasMore = pageNum * pageSize < total
+
       this.setData({
-        contracts: result.data || result || [],
+        contracts: refresh ? list : this.data.contracts.concat(list),
+        hasMore,
+        pageNum: hasMore ? pageNum + 1 : pageNum,
         loading: false
       })
-      
+
       this.updateStatistics()
       this.filterContracts()
       
@@ -102,7 +164,7 @@ Page({
       })
       
     } catch (error) {
-      console.error('加载合同数据失败:', error)
+      console.error('加载合同列表失败:', error)
       console.error('错误详情:', {
         message: error.message,
         url: '/contracts'
@@ -526,6 +588,28 @@ Page({
     return {
       title: '我的合同管理',
       path: '/pages/profile/contracts/contracts'
+    }
+  },
+
+  // 切换标签
+  onTabChange(e) {
+    const { key } = e.detail
+    this.setData({ activeTab: key })
+    this.loadContracts(true)
+  },
+
+  // 查看合同详情
+  viewContractDetail(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/profile/contracts/detail/detail?id=${id}`
+    })
+  },
+
+  // 上拉加载更多
+  onReachBottom() {
+    if (!this.data.loading && this.data.hasMore) {
+      this.loadContracts()
     }
   }
 }) 

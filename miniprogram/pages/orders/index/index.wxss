@@ -168,152 +168,161 @@
 
 /* 订单列表样式 */
 .order-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
+  min-height: 100vh;
+  background-color: #f7f8fa;
 }
 
-.order-item {
+/* 订单卡片 */
+.order-container {
+  padding: 20rpx;
+}
+
+.order-card {
+  margin-bottom: 20rpx;
   background-color: #fff;
-  border-radius: 20rpx;
+  border-radius: 12rpx;
   padding: 30rpx;
-  box-shadow: 0 2rpx 20rpx rgba(0, 0, 0, 0.05);
 }
 
 /* 订单头部 */
 .order-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 30rpx;
-  padding-bottom: 20rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  align-items: center;
+  margin-bottom: 20rpx;
 }
 
-.order-info {
-  flex: 1;
-}
-
-.order-number {
-  display: block;
+.order-no {
   font-size: 28rpx;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 10rpx;
-}
-
-.order-date {
-  font-size: 24rpx;
-  color: #999;
+  color: #666;
 }
 
 .order-status {
-  padding: 8rpx 20rpx;
-  border-radius: 30rpx;
-  font-size: 24rpx;
+  font-size: 28rpx;
   font-weight: 500;
-}
-
-.order-status.status-warning {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.order-status.status-info {
-  background-color: #d1ecf1;
-  color: #0c5460;
-}
-
-.order-status.status-primary {
-  background-color: #e7f3ff;
-  color: #1890ff;
-}
-
-.order-status.status-success {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.order-status.status-error {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.order-status.status-default {
-  background-color: #f5f5f5;
-  color: #666;
 }
 
 /* 产品信息 */
 .product-info {
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 30rpx;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #f5f5f5;
 }
 
 .product-image {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 16rpx;
-  margin-right: 24rpx;
-  flex-shrink: 0;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
 }
 
-.product-details {
+.product-detail {
   flex: 1;
-  min-width: 0;
 }
 
 .product-name {
-  display: block;
-  font-size: 30rpx;
+  font-size: 32rpx;
+  font-weight: 500;
   color: #333;
-  font-weight: 600;
   margin-bottom: 12rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product-desc {
-  display: block;
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 16rpx;
-  line-height: 1.4;
-}
-
-.product-specs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20rpx;
-}
-
-.spec-item {
-  font-size: 24rpx;
-  color: #999;
-  background-color: #f5f5f5;
-  padding: 8rpx 16rpx;
-  border-radius: 12rpx;
 }
 
 .product-price {
   display: flex;
   align-items: baseline;
-  flex-shrink: 0;
-  margin-left: 20rpx;
 }
 
-.price-symbol {
-  font-size: 24rpx;
-  color: #ff6b35;
-  margin-right: 4rpx;
-}
-
-.price-amount {
+.product-price .price {
   font-size: 36rpx;
-  color: #ff6b35;
-  font-weight: 600;
+  font-weight: bold;
+  color: #f44;
+}
+
+.product-price .unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 4rpx;
+}
+
+/* 订单信息 */
+.order-info {
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #f5f5f5;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item .label {
+  color: #666;
+}
+
+.info-item .value {
+  color: #333;
+}
+
+/* 订单底部 */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.customer-name {
+  color: #666;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 加载状态 */
+.loading-more {
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+.load-all {
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 自定义van-tabs样式 */
+.van-tabs__line {
+  background-color: #1989fa !important;
+}
+
+.van-tab--active {
+  color: #1989fa !important;
+  font-weight: bold !important;
 }
 
 /* 服务信息 */

@@ -1,5 +1,7 @@
 // 客户经理工作台首页
 const app = getApp()
+const auth = require('../../../utils/auth')
+const { formatMoney, formatDate } = require('../../../utils/common')
 
 Page({
   data: {
@@ -30,43 +32,55 @@ Page({
         title: '我的客户',
         subtitle: '客户管理',
         url: '/pages/manager/customers/customers',
-        color: '#1890ff'
+        color: '#1890ff',
+        permission: auth.PERMISSIONS.CUSTOMER_VIEW
       },
       {
         icon: 'follow',
         title: '跟进任务',
         subtitle: '待跟进客户',
         url: '/pages/manager/follow/follow',
-        color: '#52c41a'
+        color: '#52c41a',
+        permission: auth.PERMISSIONS.FOLLOW_VIEW
       },
       {
         icon: 'performance',
         title: '业绩统计',
         subtitle: '我的业绩',
         url: '/pages/manager/performance/performance',
-        color: '#faad14'
+        color: '#faad14',
+        permission: auth.PERMISSIONS.PERFORMANCE_VIEW
       },
       {
         icon: 'orders',
         title: '订单管理',
         subtitle: '客户订单',
-        url: '/pages/manager/orders/orders',
-        color: '#722ed1'
+        url: '/pages/orders/index/index',
+        color: '#722ed1',
+        permission: auth.PERMISSIONS.ORDER_VIEW
       }
     ],
     recentCustomers: [],
     urgentTasks: [],
     loading: true,
-    refreshing: false
+    refreshing: false,
+    
+    // 权限控制
+    hasCustomerPermission: false,
+    hasFollowPermission: false,
+    hasPerformancePermission: false
   },
 
   async onLoad(options) {
     console.log('📱 管理员首页开始加载...')
     
     try {
-      this.checkManagerAuth()
+      // 检查登录状态和权限
+      if (!this.checkAuth()) {
+        return
+      }
       
-      // 直接加载数据（使用模拟数据）
+      // 直接加载数据
       await this.loadAllData()
     } catch (error) {
       console.error('页面加载失败:', error)
@@ -80,6 +94,11 @@ Page({
   onShow() {
     console.log('📱 管理员首页显示')
     
+    // 检查权限
+    if (!this.checkAuth()) {
+      return
+    }
+    
     // 如果数据还在加载中，重新加载
     if (this.data.loading) {
       console.log('🔄 重新加载数据...')
@@ -87,59 +106,41 @@ Page({
     }
   },
 
-
-
-  // 进入离线模式
-  enterOfflineMode() {
-    console.log('进入离线模式，使用模拟数据')
-    
-    // 设置离线用户信息
-    const offlineUserInfo = {
-      id: 1,
-      name: '张经理',
-      role: 'CUSTOMER_MANAGER',
-      phone: '13800138000',
-      avatar: '',
-      isOffline: true
+  // 检查认证和权限
+  checkAuth() {
+    // 检查登录状态
+    if (!auth.checkLogin()) {
+      return false
     }
     
-    // 保存到本地存储
-    wx.setStorageSync('userInfo', offlineUserInfo)
-    wx.setStorageSync('isOfflineMode', true)
+    // 检查是否为客户经理
+    if (!auth.isCustomerManager() && !auth.isManager()) {
+      wx.showModal({
+        title: '权限不足',
+        content: '您没有权限访问客户经理功能',
+        showCancel: false,
+        success: () => {
+          wx.switchTab({
+            url: '/pages/index/index'
+          })
+        }
+      })
+      return false
+    }
     
-    // 更新全局数据
-    const app = getApp()
-    app.globalData.userInfo = offlineUserInfo
-    app.globalData.isOfflineMode = true
-    
-    this.setData({ userInfo: offlineUserInfo })
-    
-    wx.showToast({
-      title: '已进入离线模式',
-      icon: 'none',
-      duration: 2000
+    // 设置权限状态
+    this.setData({
+      hasCustomerPermission: auth.hasPermission(auth.PERMISSIONS.CUSTOMER_VIEW),
+      hasFollowPermission: auth.hasPermission(auth.PERMISSIONS.FOLLOW_VIEW),
+      hasPerformancePermission: auth.hasPermission(auth.PERMISSIONS.PERFORMANCE_VIEW)
     })
-  },
-
-  // 检查客户经理权限
-  checkManagerAuth() {
-    const userInfo = app.globalData.userInfo
-    
-    // 如果没有用户信息，使用模拟数据
-    if (!userInfo) {
-      const mockUserInfo = {
-        id: 1,
-        name: '张经理',
-        role: 'manager',
-        phone: '13800138000',
-        avatar: ''
-      }
-      this.setData({ userInfo: mockUserInfo })
-      return true
-    }
     
     // 设置用户信息
-    this.setData({ userInfo })
+    const userInfo = auth.getUserInfo()
+    if (userInfo) {
+      this.setData({ userInfo })
+    }
+    
     return true
   },
 
@@ -147,8 +148,6 @@ Page({
   async loadWorkbenchData() {
     try {
       console.log('正在加载工作台数据...')
-      console.log('API地址:', `${app.globalData.baseUrl}/manager/workbench`)
-      console.log('Token:', app.globalData.token ? app.globalData.token.substring(0, 20) + '...' : '无Token')
       
       const result = await app.request({
         url: '/manager/workbench',
@@ -203,9 +202,9 @@ Page({
   // 加载最近数据
   async loadRecentData() {
     try {
-      console.log('正在加载最近数据...')
+      console.log('正在加载最近客户和任务数据...')
       
-      const requests = [
+      const [customersRes, tasksRes] = await Promise.all([
         app.request({
           url: '/manager/recent-customers',
           method: 'GET',
@@ -216,57 +215,45 @@ Page({
           method: 'GET',
           data: { limit: 5 }
         })
-      ]
+      ])
       
-      console.log('发起并行请求...')
-      const [customersResult, tasksResult] = await Promise.all(requests)
-
-      console.log('最近数据加载成功')
-      console.log('客户数据:', customersResult)
-      console.log('任务数据:', tasksResult)
+      console.log('最近数据加载成功:', { customers: customersRes, tasks: tasksRes })
       
       this.setData({
-        recentCustomers: (customersResult.data || customersResult) || [],
-        urgentTasks: (tasksResult.data || tasksResult) || []
-      })
-    } catch (error) {
-      console.error('加载最近数据失败:', error)
-      console.error('错误详情:', {
-        message: error.message,
-        stack: error.stack
+        recentCustomers: customersRes.data || [],
+        urgentTasks: tasksRes.data || []
       })
       
+    } catch (error) {
+      console.error('加载最近数据失败:', error)
       // 使用模拟数据
-      console.log('使用模拟最近数据')
       this.loadMockRecentData()
     }
   },
 
   // 加载模拟工作台数据
   loadMockWorkbenchData() {
-    console.log('开始加载模拟工作台数据')
     const mockData = {
       todayData: {
-        newCustomers: 2,
-        followUpTasks: 5,
-        newOrders: 1,
-        orderAmount: 15000
+        newCustomers: 3,
+        followUpTasks: 8,
+        newOrders: 2,
+        orderAmount: 45600
       },
       monthData: {
-        newCustomers: 7,
-        totalOrders: 3,
-        orderAmount: 85000,
-        targetProgress: 45
+        newCustomers: 28,
+        totalOrders: 15,
+        orderAmount: 326800,
+        targetProgress: 65
       },
       statistics: {
-        totalCustomers: 7,
-        activeCustomers: 3,
-        completedOrders: 2,
-        satisfaction: 95
+        totalCustomers: 156,
+        activeCustomers: 89,
+        completedOrders: 234,
+        satisfaction: 4.6
       }
     }
-
-    console.log('设置模拟工作台数据:', mockData)
+    
     this.setData({
       workbenchData: mockData,
       loading: false
@@ -275,242 +262,272 @@ Page({
 
   // 加载模拟最近数据
   loadMockRecentData() {
-    const mockCustomers = [
+    const mockRecentCustomers = [
       {
         id: 1,
         name: '张三',
-        company: '北京科技有限公司',
+        companyName: '某某科技有限公司',
         phone: '13800138001',
-        lastContact: '2024-12-26 15:30:00',
-        status: 'following',
-        avatar_url: ''
+        lastContactTime: '2024-01-15 14:30',
+        status: 'active',
+        statusText: '正常',
+        priority: 'high'
       },
       {
         id: 2,
         name: '李四',
-        company: '上海贸易有限公司',
+        companyName: '某某贸易公司',
         phone: '13800138002',
-        lastContact: '2024-12-26 10:20:00',
-        status: 'negotiating',
-        avatar_url: ''
+        lastContactTime: '2024-01-14 16:20',
+        status: 'following',
+        statusText: '跟进中',
+        priority: 'medium'
       },
       {
         id: 3,
         name: '王五',
-        company: '广州服务有限公司',
+        companyName: '某某制造企业',
         phone: '13800138003',
-        lastContact: '2024-12-25 16:45:00',
+        lastContactTime: '2024-01-13 10:15',
         status: 'potential',
-        avatar_url: ''
+        statusText: '潜在客户',
+        priority: 'low'
       }
     ]
-
-    const mockTasks = [
+    
+    const mockUrgentTasks = [
       {
         id: 1,
         customerId: 1,
         customerName: '张三',
-        company: '北京科技有限公司',
-        type: 'follow_up',
-        content: '跟进产品报价方案',
-        dueDate: '2024-12-27 10:00:00',
-        priority: 'high'
+        type: 'call',
+        typeText: '电话回访',
+        content: '跟进产品使用情况',
+        dueDate: '2024-01-16 09:00',
+        priority: 'high',
+        isOverdue: false
       },
       {
         id: 2,
         customerId: 2,
         customerName: '李四',
-        company: '上海贸易有限公司',
-        type: 'call',
-        content: '电话确认合同细节',
-        dueDate: '2024-12-27 14:00:00',
-        priority: 'medium'
+        type: 'visit',
+        typeText: '客户拜访',
+        content: '商务洽谈，签署合同',
+        dueDate: '2024-01-15 14:00',
+        priority: 'high',
+        isOverdue: true
       },
       {
         id: 3,
-        customerId: 4,
-        customerName: '赵六',
-        company: '深圳建筑有限公司',
-        type: 'visit',
-        content: '实地拜访客户',
-        dueDate: '2024-12-28 09:00:00',
-        priority: 'high'
+        customerId: 3,
+        customerName: '王五',
+        type: 'email',
+        typeText: '邮件跟进',
+        content: '发送产品资料',
+        dueDate: '2024-01-17 10:00',
+        priority: 'medium',
+        isOverdue: false
       }
     ]
-
+    
     this.setData({
-      recentCustomers: mockCustomers,
-      urgentTasks: mockTasks,
-      loading: false
+      recentCustomers: mockRecentCustomers,
+      urgentTasks: mockUrgentTasks
     })
   },
 
   // 下拉刷新
   async onPullDownRefresh() {
+    console.log('🔄 下拉刷新开始')
     this.setData({ refreshing: true })
     
     try {
-      await Promise.all([
-        this.loadWorkbenchData(),
-        this.loadRecentData()
-      ])
+      await this.loadAllData()
     } catch (error) {
       console.error('刷新失败:', error)
     } finally {
       this.setData({ refreshing: false })
       wx.stopPullDownRefresh()
+      console.log('🔄 下拉刷新完成')
     }
   },
 
   // 快捷操作点击
   onQuickActionTap(e) {
-    const { url } = e.currentTarget.dataset
-    if (url.startsWith('/pages')) {
-      wx.navigateTo({ url })
-    } else {
-      wx.switchTab({ url })
-    }
-  },
-
-  // 查看今日数据详情
-  onTodayDataTap(e) {
-    const { type } = e.currentTarget.dataset
-    const routes = {
-      customers: '/pages/manager/customers/customers?filter=today',
-      tasks: '/pages/manager/follow/follow?filter=today',
-      orders: '/pages/manager/orders/orders?filter=today'
-    }
+    const { index } = e.currentTarget.dataset
+    const action = this.data.quickActions[index]
     
-    if (routes[type]) {
-      wx.navigateTo({
-        url: routes[type]
-      })
-    }
-  },
-
-  // 查看客户详情
-  onCustomerTap(e) {
-    const { customerId } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/manager/customer-detail/customer-detail?id=${customerId}`
-    })
-  },
-
-  // 立即跟进
-  onFollowTap(e) {
-    const { customerId, taskId } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/manager/follow-detail/follow-detail?customerId=${customerId}&taskId=${taskId}`
-    })
-  },
-
-  // 一键电话
-  onCallTap(e) {
-    const { phone } = e.currentTarget.dataset
-    if (!phone) {
+    if (!action) return
+    
+    // 检查权限
+    if (action.permission && !auth.hasPermission(action.permission)) {
       wx.showToast({
-        title: '暂无电话号码',
+        title: '您没有权限访问此功能',
         icon: 'none'
       })
       return
     }
+    
+    if (action.url.startsWith('/pages/orders/')) {
+      wx.switchTab({ url: action.url })
+    } else {
+      wx.navigateTo({ url: action.url })
+    }
+  },
 
-    wx.makePhoneCall({
-      phoneNumber: phone,
-      fail: (error) => {
-        console.error('拨打电话失败:', error)
-        wx.showToast({
-          title: '拨打失败',
-          icon: 'error'
+  // 今日数据点击
+  onTodayDataTap(e) {
+    const { type } = e.currentTarget.dataset
+    
+    switch (type) {
+      case 'customers':
+        if (auth.hasPermission(auth.PERMISSIONS.CUSTOMER_VIEW)) {
+          wx.navigateTo({
+            url: '/pages/manager/customers/customers?status=pending'
+          })
+        }
+        break
+      case 'tasks':
+        if (auth.hasPermission(auth.PERMISSIONS.FOLLOW_VIEW)) {
+          wx.navigateTo({
+            url: '/pages/manager/follow/follow?tab=0'
+          })
+        }
+        break
+      case 'orders':
+        wx.switchTab({
+          url: '/pages/orders/index/index'
         })
+        break
+    }
+  },
+
+  // 客户点击
+  onCustomerTap(e) {
+    const { id } = e.currentTarget.dataset
+    if (auth.hasPermission(auth.PERMISSIONS.CUSTOMER_VIEW)) {
+      wx.navigateTo({
+        url: `/pages/manager/customers/detail/detail?id=${id}`
+      })
+    }
+  },
+
+  // 跟进任务点击
+  onFollowTap(e) {
+    const { id } = e.currentTarget.dataset
+    if (auth.hasPermission(auth.PERMISSIONS.FOLLOW_VIEW)) {
+      wx.navigateTo({
+        url: `/pages/manager/follow/follow?taskId=${id}`
+      })
+    }
+  },
+
+  // 拨打电话
+  onCallTap(e) {
+    const { phone } = e.currentTarget.dataset
+    if (!phone) {
+      wx.showToast({
+        title: '电话号码为空',
+        icon: 'none'
+      })
+      return
+    }
+    
+    wx.showModal({
+      title: '拨打电话',
+      content: `确定要拨打 ${phone} 吗？`,
+      success: (res) => {
+        if (res.confirm) {
+          wx.makePhoneCall({
+            phoneNumber: phone,
+            fail: (err) => {
+              console.error('拨打电话失败:', err)
+              wx.showToast({
+                title: '拨打电话失败',
+                icon: 'none'
+              })
+            }
+          })
+        }
       }
     })
   },
 
   // 查看更多客户
   onMoreCustomersTap() {
-    wx.navigateTo({
-      url: '/pages/manager/customers/customers'
-    })
+    if (auth.hasPermission(auth.PERMISSIONS.CUSTOMER_VIEW)) {
+      wx.navigateTo({
+        url: '/pages/manager/customers/customers'
+      })
+    }
   },
 
   // 查看更多任务
   onMoreTasksTap() {
-    wx.navigateTo({
-      url: '/pages/manager/follow/follow'
-    })
+    if (auth.hasPermission(auth.PERMISSIONS.FOLLOW_VIEW)) {
+      wx.navigateTo({
+        url: '/pages/manager/follow/follow'
+      })
+    }
   },
 
   // 添加客户
   onAddCustomerTap() {
-    wx.navigateTo({
-      url: '/pages/manager/customer-add/customer-add'
-    })
+    if (auth.hasPermission(auth.PERMISSIONS.CUSTOMER_CREATE)) {
+      wx.navigateTo({
+        url: '/pages/manager/customer-add/customer-add'
+      })
+    }
   },
 
-  // 目标进度点击
+  // 目标设置
   onTargetTap() {
-    wx.navigateTo({
-      url: '/pages/manager/performance/performance?tab=target'
+    wx.showToast({
+      title: '目标设置功能开发中',
+      icon: 'none'
     })
   },
 
   // 格式化金额
   formatAmount(amount) {
-    if (!amount) return '0'
-    return (amount / 10000).toFixed(1) + '万'
+    return formatMoney(amount)
   },
 
   // 格式化日期
   formatDate(dateStr) {
-    if (!dateStr) return ''
-    const date = new Date(dateStr)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    
-    if (days === 0) return '今天'
-    if (days === 1) return '昨天'
-    if (days < 7) return `${days}天前`
-    
-    return `${date.getMonth() + 1}/${date.getDate()}`
+    return formatDate(dateStr)
   },
 
   // 获取任务优先级颜色
   getTaskPriorityColor(priority) {
     const colors = {
-      high: '#ff4d4f',
-      medium: '#faad14',
-      low: '#52c41a'
+      high: '#ff4757',
+      medium: '#ffa502',
+      low: '#7bed9f'
     }
-    return colors[priority] || '#d9d9d9'
+    return colors[priority] || '#ddd'
   },
 
-  // 分享工作台
+  // 分享功能
   onShareAppMessage() {
     return {
-      title: '电力销售客户经理工作台',
-      path: '/pages/manager/index/index',
-      imageUrl: '/images/share-manager.png'
+      title: '电力销售平台 - 客户经理工作台',
+      path: '/pages/manager/index/index'
     }
   },
 
   // 分享到朋友圈
   onShareTimeline() {
     return {
-      title: '电力销售客户经理工作台',
-      imageUrl: '/images/share-manager.png'
+      title: '电力销售平台 - 专业的电力销售管理工具'
     }
   },
 
   // 加载所有数据
   async loadAllData() {
     try {
-      console.log('开始加载所有数据...')
       this.setData({ loading: true })
-      
-      // 优先加载真实数据
-      console.log('尝试加载真实数据...')
       
       // 并行加载工作台数据和最近数据
       await Promise.all([
@@ -518,14 +535,14 @@ Page({
         this.loadRecentData()
       ])
       
-      console.log('真实数据加载完成')
+      console.log('✅ 所有数据加载完成')
     } catch (error) {
-      console.error('加载真实数据失败:', error)
+      console.error('❌ 加载数据失败:', error)
       
-      // 如果加载失败，使用模拟数据
-      console.log('真实数据加载失败，使用模拟数据作为备选方案')
+      // 加载失败时使用模拟数据
       this.loadMockWorkbenchData()
       this.loadMockRecentData()
+    } finally {
       this.setData({ loading: false })
     }
   },
@@ -533,63 +550,33 @@ Page({
   // 测试网络连接
   async testNetworkConnection() {
     try {
-      const result = await app.request({
-        url: '/ping',
-        method: 'GET',
-        timeout: 5000
+      const res = await app.request({
+        url: '/health',
+        method: 'GET'
       })
-      return { success: true, message: '连接正常' }
+      console.log('网络连接正常:', res)
+      return true
     } catch (error) {
-      return { success: false, message: `连接失败: ${error.message}` }
+      console.error('网络连接失败:', error)
+      return false
     }
   },
 
-  // 系统调试
+  // Token调试
   async onTokenDebugTap() {
-    try {
-      const token = wx.getStorageSync('token')
-      const userInfo = wx.getStorageSync('userInfo')
-      const isOfflineMode = wx.getStorageSync('isOfflineMode')
-      
-      let debugInfo = `🔍 系统调试信息\n\n`
-      debugInfo += `Token状态: ${token ? '✅ 存在' : '❌ 不存在'}\n`
-      debugInfo += `用户信息: ${userInfo ? '✅ 存在' : '❌ 不存在'}\n`
-      debugInfo += `离线模式: ${isOfflineMode ? '✅ 已启用' : '❌ 未启用'}\n`
-      debugInfo += `API地址: ${app.globalData.baseUrl || '未配置'}\n\n`
-      
-      if (token) {
-        debugInfo += `Token预览: ${token.substring(0, 20)}...\n\n`
-      }
-      
-      // 测试网络连接
-      debugInfo += `🌐 网络连接测试...\n`
-      try {
-        const networkTest = await this.testNetworkConnection()
-        debugInfo += `网络状态: ✅ ${networkTest.message}\n`
-      } catch (error) {
-        debugInfo += `网络状态: ❌ ${error.message}\n`
-      }
-      
-      if (userInfo) {
-        debugInfo += `\n👤 用户信息:\n`
-        debugInfo += `姓名: ${userInfo.name || '未知'}\n`
-        debugInfo += `角色: ${userInfo.role || '未知'}\n`
-        debugInfo += `电话: ${userInfo.phone || '未知'}\n`
-      }
-      
-      wx.showModal({
-        title: '系统调试信息',
-        content: debugInfo,
-        showCancel: false,
-        confirmText: '确定'
-      })
-      
-    } catch (error) {
-      console.error('系统调试失败:', error)
-      wx.showToast({
-        title: '调试失败',
-        icon: 'none'
-      })
-    }
+    const token = auth.getToken()
+    const userInfo = auth.getUserInfo()
+    
+    console.log('当前Token:', token ? token.substring(0, 20) + '...' : '无Token')
+    console.log('用户信息:', userInfo)
+    console.log('登录状态:', auth.isLoggedIn())
+    console.log('用户角色:', auth.getUserRole())
+    console.log('是否客户经理:', auth.isCustomerManager())
+    
+    wx.showModal({
+      title: 'Token调试信息',
+      content: `Token: ${token ? '已设置' : '未设置'}\n用户: ${userInfo?.name || '未知'}\n角色: ${auth.getUserRole() || '未知'}`,
+      showCancel: false
+    })
   }
 })

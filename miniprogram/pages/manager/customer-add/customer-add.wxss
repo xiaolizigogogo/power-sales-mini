@@ -1,180 +1,329 @@
 /* pages/manager/customer-add/customer-add.wxss */
 .container {
-  padding: 20rpx;
-  background-color: #f5f5f5;
   min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
-.form-section {
-  background: white;
-  border-radius: 12rpx;
-  margin-bottom: 20rpx;
-  padding: 20rpx;
+/* 自定义导航栏 */
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #fff;
+  border-bottom: 1px solid #ebedf0;
+  padding-top: var(--status-bar-height, 44px);
 }
 
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20rpx;
-  padding-bottom: 10rpx;
-  border-bottom: 2rpx solid #f0f0f0;
-}
-
-.form-item {
-  margin-bottom: 24rpx;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.form-row {
-  display: flex;
-  gap: 20rpx;
-}
-
-.form-item.half {
-  flex: 1;
-}
-
-.form-label {
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 10rpx;
-  font-weight: 500;
-}
-
-.form-label.required::after {
-  content: '*';
-  color: #ff4757;
-  margin-left: 4rpx;
-}
-
-.form-input {
-  width: 100%;
-  height: 80rpx;
-  padding: 0 20rpx;
-  border: 2rpx solid #e8e8e8;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  color: #333;
-  background: white;
-  box-sizing: border-box;
-}
-
-.form-input:focus {
-  border-color: #007aff;
-}
-
-.form-input.picker-input {
+.navbar-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #333;
+  height: 44px;
+  padding: 0 16px;
 }
 
-.form-input.picker-input:empty::before {
-  content: attr(placeholder);
-  color: #999;
-}
-
-.picker-arrow {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.form-textarea {
-  width: 100%;
-  min-height: 120rpx;
-  padding: 20rpx;
-  border: 2rpx solid #e8e8e8;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  color: #333;
-  background: white;
-  box-sizing: border-box;
-}
-
-.form-textarea:focus {
-  border-color: #007aff;
-}
-
-.form-actions {
+.navbar-left {
+  width: 60px;
   display: flex;
-  gap: 20rpx;
-  padding: 40rpx 20rpx;
-  position: sticky;
-  bottom: 0;
-  background: white;
-  border-top: 2rpx solid #f0f0f0;
+  align-items: center;
 }
 
-.btn {
-  flex: 1;
-  height: 88rpx;
-  border-radius: 44rpx;
-  font-size: 32rpx;
+.navbar-title {
+  font-size: 17px;
   font-weight: 600;
-  border: none;
+  color: #323233;
+}
+
+.navbar-right {
+  width: 60px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.reset-btn {
+  font-size: 14px;
+  color: #1989fa;
+}
+
+/* 主要内容 */
+.main-content {
+  padding-top: calc(var(--status-bar-height, 44px) + 44px);
+  padding-bottom: 100px;
+  height: 100vh;
+}
+
+/* 表单区域 */
+.form-section {
+  margin-bottom: 12px;
+  background-color: #fff;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #323233;
+  border-bottom: 1px solid #ebedf0;
+}
+
+.section-title text {
+  margin-left: 8px;
+}
+
+.form-group {
+  padding: 0;
+}
+
+/* 客户标签 */
+.tags-container {
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tag-item {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.tag-item.selected {
+  color: #fff !important;
+}
+
+/* 企业名录匹配 */
+.company-matcher {
+  margin: 0 16px 16px;
+  border: 1px solid #ebedf0;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.matcher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ebedf0;
+}
+
+.matcher-title {
+  font-size: 14px;
+  color: #323233;
+  font-weight: 500;
+}
+
+.manual-input {
+  font-size: 12px;
+  color: #1989fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: rgba(25, 137, 250, 0.1);
+}
+
+.company-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.company-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ebedf0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.company-item:last-child {
+  border-bottom: none;
+}
+
+.company-item:active {
+  background-color: rgba(25, 137, 250, 0.05);
+}
+
+.company-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #323233;
+  margin-bottom: 4px;
+}
+
+.company-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.company-code {
+  font-size: 12px;
+  color: #969799;
+  margin-right: 12px;
+}
+
+.company-industry {
+  font-size: 12px;
+  color: #1989fa;
+  background-color: rgba(25, 137, 250, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.company-address {
+  font-size: 12px;
+  color: #969799;
+  line-height: 1.4;
+}
+
+/* 选择器样式 */
+.picker-value {
+  color: #323233;
+  font-size: 14px;
+}
+
+/* 底部操作区域 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background-color: #fff;
+  border-top: 1px solid #ebedf0;
+  z-index: 100;
+}
+
+.no-permission {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 12px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 8px;
+  color: #ff4d4f;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #007aff, #0056cc);
-  color: white;
+.no-permission text {
+  margin-left: 8px;
+  font-size: 14px;
 }
 
-.btn-primary:disabled {
-  background: #ccc;
-  color: #999;
+/* 自定义字段样式 */
+.van-field {
+  border-bottom: 1px solid #ebedf0;
 }
 
-.btn-secondary {
-  background: white;
-  color: #666;
-  border: 2rpx solid #e8e8e8;
+.van-field:last-child {
+  border-bottom: none;
 }
 
-.btn-secondary:disabled {
-  background: #f5f5f5;
-  color: #ccc;
-  border-color: #f0f0f0;
-}
-
-/* 输入框占位符样式 */
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: #999;
-  font-size: 28rpx;
-}
-
-/* 响应式布局 */
-@media screen and (max-width: 750rpx) {
-  .form-row {
-    flex-direction: column;
-    gap: 0;
+/* 响应式设计 */
+@media (max-width: 375px) {
+  .tags-container {
+    gap: 8px;
   }
   
-  .form-item.half {
-    margin-bottom: 24rpx;
+  .tag-item {
+    padding: 4px 8px;
+    font-size: 11px;
   }
+  
+  .company-matcher {
+    margin: 0 12px 12px;
+  }
+  
+  .bottom-actions {
+    padding: 12px;
+  }
+}
+
+/* 加载状态 */
+.van-loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+/* 弹窗样式优化 */
+.van-popup {
+  border-radius: 16px 16px 0 0;
+}
+
+.van-picker,
+.van-datetime-picker {
+  background-color: #fff;
+}
+
+/* 表单验证错误状态 */
+.van-field--error {
+  border-color: #ee0a24;
+}
+
+.van-field--error .van-field__label {
+  color: #ee0a24;
 }
 
 /* 动画效果 */
-.form-section {
-  animation: fadeInUp 0.3s ease-out;
+.company-matcher {
+  animation: slideDown 0.3s ease;
 }
 
-@keyframes fadeInUp {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(20rpx);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.tag-item {
+  transition: all 0.2s ease;
+}
+
+.tag-item:active {
+  transform: scale(0.95);
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #1a1a1a;
+  }
+  
+  .custom-navbar,
+  .form-section,
+  .bottom-actions {
+    background-color: #2a2a2a;
+    border-color: #404040;
+  }
+  
+  .navbar-title,
+  .section-title,
+  .company-name {
+    color: #fff;
+  }
+  
+  .company-matcher {
+    background-color: #333;
+    border-color: #404040;
+  }
+  
+  .company-code,
+  .company-address {
+    color: #999;
   }
 } 

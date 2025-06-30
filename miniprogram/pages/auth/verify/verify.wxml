@@ -402,4 +402,245 @@
       <image class="preview-full-image" src="{{previewUrl}}" mode="aspectFit" />
     </view>
   </view>
-</view> 
+</view>
+
+<!--客户认证审核页面-->
+<view class="container">
+  <!-- 头部状态卡片 -->
+  <view class="status-card">
+    <view class="status-icon">
+      <!-- 待审核状态 -->
+      <view class="icon-pending" wx:if="{{authStatus === 'pending'}}">
+        <van-icon name="clock-o" size="60px" color="#ff9500" />
+      </view>
+      
+      <!-- 审核中状态 -->
+      <view class="icon-processing" wx:if="{{authStatus === 'processing'}}">
+        <van-loading type="spinner" size="60px" color="#1989fa" />
+      </view>
+      
+      <!-- 审核通过状态 -->
+      <view class="icon-approved" wx:if="{{authStatus === 'approved'}}">
+        <van-icon name="checked" size="60px" color="#07c160" />
+      </view>
+      
+      <!-- 审核拒绝状态 -->
+      <view class="icon-rejected" wx:if="{{authStatus === 'rejected'}}">
+        <van-icon name="close" size="60px" color="#ee0a24" />
+      </view>
+    </view>
+    
+    <view class="status-content">
+      <!-- 待审核 -->
+      <view class="status-info" wx:if="{{authStatus === 'pending'}}">
+        <view class="status-title">申请已提交</view>
+        <view class="status-desc">您的注册申请已成功提交，请耐心等待审核</view>
+        <view class="status-time">预计审核时间：{{auditInfo.estimatedTime}}</view>
+      </view>
+      
+      <!-- 审核中 -->
+      <view class="status-info" wx:if="{{authStatus === 'processing'}}">
+        <view class="status-title">正在审核中</view>
+        <view class="status-desc">我们正在仔细审核您提交的材料，请耐心等待</view>
+        <view class="status-time">预计完成时间：{{auditInfo.estimatedTime}}</view>
+      </view>
+      
+      <!-- 审核通过 -->
+      <view class="status-info" wx:if="{{authStatus === 'approved'}}">
+        <view class="status-title">审核通过</view>
+        <view class="status-desc">恭喜您！认证已通过，现在可以开始使用我们的服务</view>
+        <view class="status-time">通过时间：{{auditInfo.approvedTime}}</view>
+      </view>
+      
+      <!-- 审核拒绝 -->
+      <view class="status-info" wx:if="{{authStatus === 'rejected'}}">
+        <view class="status-title">审核未通过</view>
+        <view class="status-desc">很抱歉，您的申请未通过审核，请查看原因并重新提交</view>
+        <view class="reject-reason">拒绝原因：{{auditInfo.rejectReason}}</view>
+      </view>
+    </view>
+    
+    <!-- 刷新按钮 -->
+    <view class="refresh-btn" bindtap="onRefresh" wx:if="{{authStatus !== 'approved'}}">
+      <van-icon name="refresh" size="20px" color="#1989fa" />
+      <text>刷新状态</text>
+    </view>
+  </view>
+
+  <!-- 用户信息卡片 -->
+  <view class="info-card">
+    <view class="card-title">
+      <van-icon name="contact" size="20px" color="#1989fa" />
+      <text>申请信息</text>
+    </view>
+    
+    <view class="info-list">
+      <view class="info-item">
+        <text class="info-label">申请人</text>
+        <text class="info-value">{{userInfo.realName}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">手机号</text>
+        <text class="info-value">{{userInfo.phone}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">企业名称</text>
+        <text class="info-value">{{userInfo.companyName}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">提交时间</text>
+        <text class="info-value">{{auditProgress[0].time}}</text>
+      </view>
+    </view>
+    
+    <view class="detail-btn" bindtap="viewAuditDetails">
+      <text>查看详情</text>
+      <van-icon name="arrow" size="16px" color="#999" />
+    </view>
+  </view>
+
+  <!-- 审核进度 -->
+  <view class="progress-card">
+    <view class="card-title">
+      <van-icon name="orders-o" size="20px" color="#1989fa" />
+      <text>审核进度</text>
+    </view>
+    
+    <view class="progress-list">
+      <view 
+        class="progress-item {{item.status}}"
+        wx:for="{{auditProgress}}"
+        wx:key="index"
+      >
+        <view class="progress-icon">
+          <!-- 已完成 -->
+          <view class="icon-completed" wx:if="{{item.status === 'completed'}}">
+            <van-icon name="success" size="20px" color="#07c160" />
+          </view>
+          
+          <!-- 进行中 -->
+          <view class="icon-current" wx:if="{{item.status === 'processing'}}">
+            <van-loading type="spinner" size="20px" color="#1989fa" />
+          </view>
+          
+          <!-- 待处理 -->
+          <view class="icon-pending" wx:if="{{item.status === 'pending'}}">
+            <view class="pending-dot"></view>
+          </view>
+        </view>
+        
+        <view class="progress-content">
+          <view class="progress-title">{{item.title}}</view>
+          <view class="progress-desc">{{item.desc}}</view>
+          <view class="progress-time" wx:if="{{item.time}}">{{item.time}}</view>
+        </view>
+        
+        <!-- 连接线 -->
+        <view class="progress-line" wx:if="{{index < auditProgress.length - 1}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 审核通过后的下一步 -->
+  <view class="next-steps-card" wx:if="{{authStatus === 'approved' && auditInfo.nextSteps.length > 0}}">
+    <view class="card-title">
+      <van-icon name="guide-o" size="20px" color="#07c160" />
+      <text>下一步操作</text>
+    </view>
+    
+    <view class="steps-list">
+      <view 
+        class="step-item"
+        wx:for="{{auditInfo.nextSteps}}"
+        wx:key="index"
+      >
+        <view class="step-number">{{index + 1}}</view>
+        <text class="step-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <!-- 待审核/审核中状态 -->
+    <view class="button-group" wx:if="{{authStatus === 'pending' || authStatus === 'processing'}}">
+      <van-button 
+        type="default" 
+        size="large" 
+        icon="phone-o"
+        bindtap="contactService"
+        custom-class="contact-btn"
+      >
+        联系客服
+      </van-button>
+    </view>
+    
+    <!-- 审核通过状态 -->
+    <view class="button-group" wx:if="{{authStatus === 'approved'}}">
+      <van-button 
+        type="primary" 
+        size="large" 
+        icon="success"
+        bindtap="startUsing"
+        custom-class="start-btn"
+      >
+        开始使用
+      </van-button>
+    </view>
+    
+    <!-- 审核拒绝状态 -->
+    <view class="button-group" wx:if="{{authStatus === 'rejected'}}">
+      <van-button 
+        type="primary" 
+        size="large" 
+        icon="replay"
+        bindtap="resubmitApplication"
+        custom-class="resubmit-btn"
+      >
+        重新提交
+      </van-button>
+      
+      <van-button 
+        type="default" 
+        size="large" 
+        icon="phone-o"
+        bindtap="contactService"
+        custom-class="contact-btn"
+      >
+        联系客服
+      </van-button>
+    </view>
+  </view>
+
+  <!-- 帮助信息 -->
+  <view class="help-card">
+    <view class="help-title">
+      <van-icon name="question-o" size="18px" color="#ff6b35" />
+      <text>审核说明</text>
+    </view>
+    
+    <view class="help-content">
+      <text class="help-item">• 我们会在1-3个工作日内完成审核</text>
+      <text class="help-item">• 审核结果将通过短信通知您</text>
+      <text class="help-item">• 如有疑问请联系客服：{{auditInfo.contactPhone}}</text>
+      <text class="help-item">• 审核通过后您将获得完整的服务权限</text>
+    </view>
+  </view>
+
+  <!-- 底部安全提示 -->
+  <view class="security-notice">
+    <van-icon name="shield-o" size="16px" color="#52c41a" />
+    <text>您的信息已加密保护，我们承诺严格保护您的隐私安全</text>
+  </view>
+</view>
+
+<!-- 下拉刷新 -->
+<van-pull-refresh 
+  value="{{refreshing}}" 
+  bind:refresh="onRefresh"
+  wx:if="{{authStatus !== 'approved'}}"
+>
+</van-pull-refresh> 

@@ -1,6 +1,91 @@
 // 认证工具类
 const { showToast, navigateTo, switchTab } = require('./common')
 
+// 角色常量定义
+const ROLES = {
+  CUSTOMER: 'CUSTOMER',
+  CUSTOMER_MANAGER: 'CUSTOMER_MANAGER', 
+  SALES_MANAGER: 'SALES_MANAGER',
+  SALES_DIRECTOR: 'SALES_DIRECTOR',
+  CUSTOMER_SERVICE: 'CUSTOMER_SERVICE',
+  FINANCE: 'FINANCE',
+  ADMIN: 'ADMIN'
+}
+
+// 权限常量定义
+const PERMISSIONS = {
+  // 客户管理权限
+  CUSTOMER_VIEW: 'customer:view',
+  CUSTOMER_CREATE: 'customer:create',
+  CUSTOMER_UPDATE: 'customer:update',
+  CUSTOMER_DELETE: 'customer:delete',
+  
+  // 订单管理权限
+  ORDER_VIEW: 'order:view',
+  ORDER_CREATE: 'order:create',
+  ORDER_UPDATE: 'order:update',
+  ORDER_CANCEL: 'order:cancel',
+  ORDER_APPROVE: 'order:approve',
+  
+  // 跟进管理权限
+  FOLLOW_VIEW: 'follow:view',
+  FOLLOW_CREATE: 'follow:create',
+  FOLLOW_UPDATE: 'follow:update',
+  FOLLOW_DELETE: 'follow:delete',
+  
+  // 业绩查看权限
+  PERFORMANCE_VIEW: 'performance:view',
+  PERFORMANCE_TEAM: 'performance:team',
+  
+  // 产品管理权限
+  PRODUCT_VIEW: 'product:view',
+  PRODUCT_PRICE: 'product:price',
+  
+  // 合同管理权限
+  CONTRACT_VIEW: 'contract:view',
+  CONTRACT_SIGN: 'contract:sign'
+}
+
+// 角色权限映射
+const ROLE_PERMISSIONS = {
+  [ROLES.CUSTOMER]: [
+    PERMISSIONS.PRODUCT_VIEW,
+    PERMISSIONS.ORDER_VIEW,
+    PERMISSIONS.ORDER_CREATE,
+    PERMISSIONS.ORDER_CANCEL,
+    PERMISSIONS.CONTRACT_VIEW
+  ],
+  [ROLES.CUSTOMER_MANAGER]: [
+    PERMISSIONS.CUSTOMER_VIEW,
+    PERMISSIONS.CUSTOMER_CREATE,
+    PERMISSIONS.CUSTOMER_UPDATE,
+    PERMISSIONS.ORDER_VIEW,
+    PERMISSIONS.ORDER_CREATE,
+    PERMISSIONS.ORDER_UPDATE,
+    PERMISSIONS.FOLLOW_VIEW,
+    PERMISSIONS.FOLLOW_CREATE,
+    PERMISSIONS.FOLLOW_UPDATE,
+    PERMISSIONS.FOLLOW_DELETE,
+    PERMISSIONS.PERFORMANCE_VIEW,
+    PERMISSIONS.PRODUCT_VIEW,
+    PERMISSIONS.PRODUCT_PRICE,
+    PERMISSIONS.CONTRACT_VIEW
+  ],
+  [ROLES.SALES_MANAGER]: [
+    PERMISSIONS.CUSTOMER_VIEW,
+    PERMISSIONS.CUSTOMER_UPDATE,
+    PERMISSIONS.ORDER_VIEW,
+    PERMISSIONS.ORDER_APPROVE,
+    PERMISSIONS.FOLLOW_VIEW,
+    PERMISSIONS.PERFORMANCE_VIEW,
+    PERMISSIONS.PERFORMANCE_TEAM,
+    PERMISSIONS.PRODUCT_VIEW,
+    PERMISSIONS.PRODUCT_PRICE,
+    PERMISSIONS.CONTRACT_VIEW,
+    PERMISSIONS.CONTRACT_SIGN
+  ]
+}
+
 // 获取用户信息
 function getUserInfo() {
   try {
@@ -199,14 +284,14 @@ function updateUserInfo(updates) {
   return setUserInfo(newUserInfo)
 }
 
-// 检查令牌是否过期（简单检查）
+// 检查token是否过期
 function isTokenExpired() {
   const loginTime = wx.getStorageSync('loginTime')
   if (!loginTime) return true
   
-  // 假设令牌7天过期
-  const expireTime = 7 * 24 * 60 * 60 * 1000
-  return Date.now() - loginTime > expireTime
+  const now = Date.now()
+  const expireTime = 24 * 60 * 60 * 1000 // 24小时
+  return (now - loginTime) > expireTime
 }
 
 // 获取用户角色
@@ -217,36 +302,52 @@ function getUserRole() {
 
 // 检查用户权限
 function hasPermission(permission) {
-  const userInfo = getUserInfo()
-  if (!userInfo || !userInfo.permissions) {
-    return false
-  }
+  const userRole = getUserRole()
+  if (!userRole) return false
   
-  return userInfo.permissions.includes(permission)
+  const rolePermissions = ROLE_PERMISSIONS[userRole] || []
+  return rolePermissions.includes(permission)
 }
 
-// 检查是否为管理员
-function isManager() {
+// 检查是否为客户经理
+function isCustomerManager() {
   const role = getUserRole()
-  return role === 'manager' || role === 'admin'
+  return role === ROLES.CUSTOMER_MANAGER
 }
 
-// 检查是否为客户
+// 检查是否为普通客户
 function isCustomer() {
   const role = getUserRole()
-  return role === 'customer'
+  return role === ROLES.CUSTOMER
+}
+
+// 检查是否为销售经理
+function isSalesManager() {
+  const role = getUserRole()
+  return role === ROLES.SALES_MANAGER
+}
+
+// 检查是否为管理员角色（包括各种管理员）
+function isManager() {
+  const role = getUserRole()
+  return [
+    ROLES.CUSTOMER_MANAGER,
+    ROLES.SALES_MANAGER,
+    ROLES.SALES_DIRECTOR,
+    ROLES.ADMIN
+  ].includes(role)
 }
 
 // 获取用户头像
 function getUserAvatar() {
   const userInfo = getUserInfo()
-  return userInfo ? userInfo.avatar : '/assets/images/default-avatar.png'
+  return userInfo ? userInfo.avatar : ''
 }
 
-// 获取用户名称
+// 获取用户姓名
 function getUserName() {
   const userInfo = getUserInfo()
-  return userInfo ? userInfo.name : '未知用户'
+  return userInfo ? userInfo.name : ''
 }
 
 // 获取用户手机号
@@ -255,7 +356,75 @@ function getUserPhone() {
   return userInfo ? userInfo.phone : ''
 }
 
+// 获取用户公司信息
+function getUserCompany() {
+  const userInfo = getUserInfo()
+  return userInfo ? userInfo.companyName : ''
+}
+
+// 权限检查装饰器
+function requirePermission(permission, showTip = true) {
+  return function(target, propertyKey, descriptor) {
+    const originalMethod = descriptor.value
+    
+    descriptor.value = function(...args) {
+      if (!hasPermission(permission)) {
+        if (showTip) {
+          showToast('您没有权限执行此操作')
+        }
+        return Promise.reject(new Error('权限不足'))
+      }
+      return originalMethod.apply(this, args)
+    }
+    
+    return descriptor
+  }
+}
+
+// 登录检查装饰器
+function requireLogin(showTip = true) {
+  return function(target, propertyKey, descriptor) {
+    const originalMethod = descriptor.value
+    
+    descriptor.value = function(...args) {
+      if (!checkLogin(showTip)) {
+        return Promise.reject(new Error('未登录'))
+      }
+      return originalMethod.apply(this, args)
+    }
+    
+    return descriptor
+  }
+}
+
+// 角色检查装饰器
+function requireRole(roles, showTip = true) {
+  return function(target, propertyKey, descriptor) {
+    const originalMethod = descriptor.value
+    
+    descriptor.value = function(...args) {
+      const userRole = getUserRole()
+      const allowedRoles = Array.isArray(roles) ? roles : [roles]
+      
+      if (!allowedRoles.includes(userRole)) {
+        if (showTip) {
+          showToast('您的角色无权限执行此操作')
+        }
+        return Promise.reject(new Error('角色权限不足'))
+      }
+      return originalMethod.apply(this, args)
+    }
+    
+    return descriptor
+  }
+}
+
 module.exports = {
+  // 常量
+  ROLES,
+  PERMISSIONS,
+  ROLE_PERMISSIONS,
+  
   // 基础认证
   getUserInfo,
   setUserInfo,
@@ -275,9 +444,17 @@ module.exports = {
   // 用户信息
   getUserRole,
   hasPermission,
-  isManager,
+  isCustomerManager,
   isCustomer,
+  isSalesManager,
+  isManager,
   getUserAvatar,
   getUserName,
-  getUserPhone
+  getUserPhone,
+  getUserCompany,
+  
+  // 装饰器
+  requirePermission,
+  requireLogin,
+  requireRole
 } 

@@ -1,331 +1,478 @@
-<view class="register-container">
-  <!-- 页面头部 -->
-  <view class="register-header">
-    <view class="header-title">企业注册</view>
-    <view class="header-subtitle">完善您的企业信息，享受专业服务</view>
-  </view>
-
-  <!-- 简化注册，隐藏步骤指示器 -->
-  <!--
+<view class="container">
+  <!-- 步骤指示器 -->
   <view class="step-indicator">
-    <view class="step-list">
-      <block wx:for="{{stepTitles}}" wx:key="index">
-        <view class="step-item {{currentStep >= index+1 ? 'active' : ''}} {{currentStep > index+1 ? 'completed' : ''}}">
-          <view class="step-number">
-            <text wx:if="{{currentStep > index+1}}" class="icon-check">✓</text>
-            <text wx:else>{{index+1}}</text>
-          </view>
-          <view class="step-title">{{item}}</view>
-        </view>
-        <view wx:if="{{index < stepTitles.length-1}}" class="step-line {{currentStep > index+1 ? 'completed' : ''}}"></view>
-      </block>
+    <view class="step-header">
+      <view class="step-title">客户注册</view>
+      <view class="step-desc">完成以下步骤即可开始使用</view>
     </view>
-  </view>
-  -->
-
-  <!-- 表单内容区域 -->
-  <view class="form-container">
-    <!-- 简化为单页注册表单 -->
-    <view class="step-content">
-      <view class="form-title">基本信息</view>
-      
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>姓名
-        </view>
-        <input 
-          class="form-input {{formErrors.name ? 'error' : ''}}"
-          type="text"
-          placeholder="请输入您的姓名"
-          value="{{formData.name}}"
-          data-field="name"
-          bindinput="onInputChange"
-          bindblur="validateInput"
-        />
-        <view wx:if="{{formErrors.name}}" class="error-msg">{{formErrors.name}}</view>
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>手机号
-        </view>
-        <input 
-          class="form-input {{formErrors.phone ? 'error' : ''}}"
-          type="number"
-          placeholder="请输入手机号"
-          value="{{formData.phone}}"
-          data-field="phone"
-          bindinput="onInputChange"
-          bindblur="validateInput"
-        />
-        <view wx:if="{{formErrors.phone}}" class="error-msg">{{formErrors.phone}}</view>
-      </view>
-
-      <!-- 验证码功能已隐藏 -->
-      <!--
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>验证码
-        </view>
-        <view class="code-input-group">
-          <input 
-            class="form-input code-input {{formErrors.code ? 'error' : ''}}"
-            type="number"
-            placeholder="请输入验证码"
-            value="{{formData.code}}"
-            data-field="code"
-            bindinput="onInputChange"
-            bindblur="validateInput"
-          />
-          <button 
-            class="code-button {{!canGetCode ? 'disabled' : ''}}"
-            disabled="{{!canGetCode}}"
-            bindtap="getVerifyCode"
-          >
-            {{countdown > 0 ? countdown + 's' : '获取验证码'}}
-          </button>
-        </view>
-        <view wx:if="{{formErrors.code}}" class="error-msg">{{formErrors.code}}</view>
-      </view>
-      -->
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>设置密码
-        </view>
-        <input 
-          class="form-input {{formErrors.password ? 'error' : ''}}"
-          type="password"
-          placeholder="请设置登录密码（6-20位）"
-          value="{{formData.password}}"
-          data-field="password"
-          bindinput="onInputChange"
-          bindblur="validateInput"
-        />
-        <view wx:if="{{formErrors.password}}" class="error-msg">{{formErrors.password}}</view>
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>企业名称
-        </view>
-        <view class="company-input-group">
-          <input 
-            class="form-input {{formErrors.companyName ? 'error' : ''}}"
-            type="text"
-            placeholder="请输入企业名称"
-            value="{{formData.companyName}}"
-            data-field="companyName"
-            bindinput="onInputChange"
-            bindblur="validateInput"
-          />
-          <!-- 企业搜索列表 -->
-          <view wx:if="{{showCompanyList && companyList.length > 0}}" class="company-list">
-            <block wx:for="{{companyList}}" wx:key="id">
-              <view class="company-item" data-index="{{index}}" bindtap="selectCompany">
-                <view class="company-name">{{item.company_name}}</view>
-                <view class="company-info">{{item.industry_type}} · {{item.region}}</view>
-              </view>
-            </block>
-          </view>
-        </view>
-        <view wx:if="{{formErrors.companyName}}" class="error-msg">{{formErrors.companyName}}</view>
-      </view>
-      <!-- 行业类型选择 -->
-      <view class="form-group">
-        <view class="form-label">行业类型</view>
-        <picker 
-          mode="selector" 
-          range="{{industryTypes}}" 
-          range-key="label"
-          value="{{industryIndex}}"
-          bindchange="onIndustryChange"
-        >
-          <view class="picker-view {{industryIndex === -1 ? 'placeholder' : ''}}">
-            {{industryIndex === -1 ? '请选择行业类型' : industryTypes[industryIndex].label}}
-          </view>
-        </picker>
-      </view>
-    </view>
-
-    <!-- 隐藏步骤2和步骤3 -->
-    <!--
-    <view wx:if="{{currentStep === 2}}" class="step-content">
-      <view class="form-title">用电信息</view>
-      
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>用电容量 (kW)
-        </view>
-        <input 
-          class="form-input"
-          type="digit"
-          placeholder="请输入用电容量"
-          value="{{powerInfo.capacity}}"
-          data-field="capacity"
-          bindinput="onPowerInfoChange"
-        />
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>月用电量 (kWh)
-        </view>
-        <input 
-          class="form-input"
-          type="digit"
-          placeholder="请输入月平均用电量"
-          value="{{powerInfo.monthlyUsage}}"
-          data-field="monthlyUsage"
-          bindinput="onPowerInfoChange"
-        />
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>当前电价 (元/kWh)
-        </view>
-        <input 
-          class="form-input"
-          type="digit"
-          placeholder="请输入当前电价"
-          value="{{powerInfo.currentPrice}}"
-          data-field="currentPrice"
-          bindinput="onPowerInfoChange"
-        />
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>行业类型
-        </view>
-        <picker 
-          mode="selector" 
-          range="{{industryTypes}}" 
-          range-key="label"
-          value="{{industryIndex}}"
-          bindchange="onIndustryChange"
-        >
-          <view class="picker-view {{industryIndex === -1 ? 'placeholder' : ''}}">
-            {{industryIndex === -1 ? '请选择行业类型' : industryTypes[industryIndex].label}}
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">用电模式</view>
-        <picker 
-          mode="selector" 
-          range="{{usagePatterns}}" 
-          range-key="label"
-          value="{{patternIndex}}"
-          bindchange="onPatternChange"
-        >
-          <view class="picker-view {{patternIndex === -1 ? 'placeholder' : ''}}">
-            {{patternIndex === -1 ? '请选择用电模式' : usagePatterns[patternIndex].label}}
-          </view>
-        </picker>
-      </view>
-    </view>
-
-    <!-- 步骤3：认证信息 -->
-    <view wx:if="{{currentStep === 3}}" class="step-content">
-      <view class="form-title">认证信息</view>
-      
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>营业执照
-        </view>
-        <view class="upload-section">
-          <view wx:if="{{!authInfo.businessLicense}}" class="upload-area" data-type="businessLicense" bindtap="uploadImage">
-            <view class="upload-icon">📷</view>
-            <view class="upload-text">点击上传营业执照</view>
-            <view class="upload-tip">支持JPG、PNG格式，不超过5MB</view>
-          </view>
-          <view wx:else class="uploaded-image">
-            <image src="{{authInfo.businessLicense}}" mode="aspectFit" data-url="{{authInfo.businessLicense}}" bindtap="previewImage"/>
-            <view class="image-actions">
-              <view class="action-btn" data-type="businessLicense" bindtap="uploadImage">重新上传</view>
-              <view class="action-btn delete" data-type="businessLicense" bindtap="deleteImage">删除</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>身份证正面
-        </view>
-        <view class="upload-section">
-          <view wx:if="{{!authInfo.idCardFront}}" class="upload-area" data-type="idCardFront" bindtap="uploadImage">
-            <view class="upload-icon">📷</view>
-            <view class="upload-text">点击上传身份证正面</view>
-            <view class="upload-tip">支持JPG、PNG格式，不超过5MB</view>
-          </view>
-          <view wx:else class="uploaded-image">
-            <image src="{{authInfo.idCardFront}}" mode="aspectFit" data-url="{{authInfo.idCardFront}}" bindtap="previewImage"/>
-            <view class="image-actions">
-              <view class="action-btn" data-type="idCardFront" bindtap="uploadImage">重新上传</view>
-              <view class="action-btn delete" data-type="idCardFront" bindtap="deleteImage">删除</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="form-group">
-        <view class="form-label">
-          <text class="required">*</text>身份证背面
-        </view>
-        <view class="upload-section">
-          <view wx:if="{{!authInfo.idCardBack}}" class="upload-area" data-type="idCardBack" bindtap="uploadImage">
-            <view class="upload-icon">📷</view>
-            <view class="upload-text">点击上传身份证背面</view>
-            <view class="upload-tip">支持JPG、PNG格式，不超过5MB</view>
-          </view>
-          <view wx:else class="uploaded-image">
-            <image src="{{authInfo.idCardBack}}" mode="aspectFit" data-url="{{authInfo.idCardBack}}" bindtap="previewImage"/>
-            <view class="image-actions">
-              <view class="action-btn" data-type="idCardBack" bindtap="uploadImage">重新上传</view>
-              <view class="action-btn delete" data-type="idCardBack" bindtap="deleteImage">删除</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="auth-notice">
-        <view class="notice-title">🔒 认证说明</view>
-        <view class="notice-content">
-          • 我们承诺严格保护您的隐私信息\n
-          • 证件仅用于企业身份验证\n
-          • 认证通过后即可享受完整服务
-        </view>
-      </view>
-    </view>
-    -->
-  </view>
-
-  <!-- 底部按钮区域 -->
-  <view class="bottom-actions">
-    <view class="action-buttons">
-      <button 
-        class="btn btn-primary full-width {{loading ? 'loading' : ''}}" 
-        disabled="{{loading}}"
-        bindtap="submitRegister"
+    
+    <view class="steps-progress">
+      <view 
+        class="step-item {{index <= currentStep ? 'active' : ''}}"
+        wx:for="{{steps}}"
+        wx:key="index"
       >
-        {{loading ? '提交中...' : '完成注册'}}
-      </button>
-    </view>
-
-    <view class="login-link">
-      已有账号？<text class="link-text" bindtap="goToLogin">立即登录</text>
+        <view class="step-number">
+          <text wx:if="{{index < currentStep}}">✓</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
+        <view class="step-info">
+          <text class="step-name">{{item.title}}</text>
+          <text class="step-description">{{item.desc}}</text>
+        </view>
+      </view>
     </view>
   </view>
-</view>
 
-<!-- 加载提示 -->
-<view wx:if="{{loading}}" class="loading-overlay">
-  <view class="loading-content">
-    <view class="loading-icon"></view>
-    <view class="loading-text">正在提交...</view>
+  <!-- 步骤内容 -->
+  <view class="step-content">
+    <!-- 步骤1：微信授权 -->
+    <view class="step-panel" wx:if="{{currentStep === 0}}">
+      <view class="auth-panel">
+        <view class="auth-icon">
+          <van-icon name="wechat" size="60px" color="#07c160" />
+        </view>
+        
+        <view class="auth-info" wx:if="{{!userInfo.wxNickname}}">
+          <view class="auth-title">微信授权登录</view>
+          <view class="auth-desc">
+            为了更好地为您提供服务，需要获取您的微信基本信息
+          </view>
+          <view class="auth-tips">
+            <text>• 获取您的昵称和头像</text>
+            <text>• 用于身份识别和个性化服务</text>
+            <text>• 我们承诺保护您的隐私安全</text>
+          </view>
+          
+          <van-button 
+            type="primary" 
+            size="large" 
+            loading="{{loading}}"
+            bindtap="startWxAuth"
+            custom-class="auth-button"
+          >
+            {{loading ? '授权中...' : '授权微信登录'}}
+          </van-button>
+        </view>
+
+        <view class="auth-success" wx:else>
+          <view class="user-avatar">
+            <image src="{{userInfo.wxAvatar}}" mode="aspectFill" />
+          </view>
+          <view class="user-info">
+            <text class="user-nickname">{{userInfo.wxNickname}}</text>
+            <text class="auth-status">✓ 微信授权成功</text>
+          </view>
+          
+          <van-button 
+            type="primary" 
+            size="large" 
+            bindtap="nextStep"
+            custom-class="next-button"
+          >
+            下一步
+          </van-button>
+        </view>
+
+        <!-- 授权失败重试 -->
+        <view class="auth-error" wx:if="{{errorMessage}}">
+          <text class="error-text">{{errorMessage}}</text>
+          <van-button type="default" size="small" bindtap="retryWxAuth">
+            重新授权
+          </van-button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 步骤2：手机验证 -->
+    <view class="step-panel" wx:if="{{currentStep === 1}}">
+      <view class="form-section">
+        <view class="section-title">
+          <van-icon name="phone-o" size="20px" color="#1989fa" />
+          <text>手机号验证</text>
+        </view>
+        
+        <view class="form-group">
+          <van-field
+            label="手机号码"
+            placeholder="请输入您的手机号码"
+            value="{{userInfo.phone}}"
+            data-field="phone"
+            bind:change="onInputChange"
+            type="number"
+            maxlength="11"
+            required
+          />
+          
+          <view class="verify-code-row">
+            <van-field
+              label="验证码"
+              placeholder="请输入验证码"
+              value="{{userInfo.verifyCode}}"
+              data-field="verifyCode"
+              bind:change="onInputChange"
+              type="number"
+              maxlength="6"
+              required
+            />
+            <van-button 
+              type="primary"
+              size="small"
+              loading="{{sendingCode}}"
+              disabled="{{countdown > 0}}"
+              bindtap="sendVerifyCode"
+              custom-class="code-button"
+            >
+              {{countdown > 0 ? countdown + 's' : '获取验证码'}}
+            </van-button>
+          </view>
+        </view>
+        
+        <view class="form-tips">
+          <text>• 验证码将发送到您的手机</text>
+          <text>• 请确保手机号码正确</text>
+        </view>
+      </view>
+      
+      <view class="step-actions">
+        <van-button type="default" size="large" bindtap="prevStep">
+          上一步
+        </van-button>
+        <van-button type="primary" size="large" bindtap="verifyPhoneCode">
+          验证并继续
+        </van-button>
+      </view>
+    </view>
+
+    <!-- 步骤3：基本信息 -->
+    <view class="step-panel" wx:if="{{currentStep === 2}}">
+      <scroll-view class="form-scroll" scroll-y enhanced>
+        <!-- 个人信息 -->
+        <view class="form-section">
+          <view class="section-title">
+            <van-icon name="contact" size="20px" color="#1989fa" />
+            <text>个人信息</text>
+          </view>
+          
+          <view class="form-group">
+            <van-field
+              label="真实姓名"
+              placeholder="请输入您的真实姓名"
+              value="{{userInfo.realName}}"
+              data-field="realName"
+              bind:change="onInputChange"
+              required
+            />
+            
+            <van-field
+              label="职位"
+              placeholder="请输入您的职位"
+              value="{{userInfo.position}}"
+              data-field="position"
+              bind:change="onInputChange"
+            />
+            
+            <van-field
+              label="邮箱地址"
+              placeholder="请输入邮箱地址"
+              value="{{userInfo.email}}"
+              data-field="email"
+              bind:change="onInputChange"
+              type="email"
+            />
+            
+            <van-field
+              label="联系电话"
+              placeholder="请输入联系电话（可与手机号不同）"
+              value="{{userInfo.contactPhone}}"
+              data-field="contactPhone"
+              bind:change="onInputChange"
+              type="number"
+            />
+          </view>
+        </view>
+
+        <!-- 企业信息 -->
+        <view class="form-section">
+          <view class="section-title">
+            <van-icon name="shop-o" size="20px" color="#1989fa" />
+            <text>企业信息</text>
+          </view>
+          
+          <view class="form-group">
+            <van-field
+              label="企业名称"
+              placeholder="请输入企业名称"
+              value="{{userInfo.companyName}}"
+              data-field="companyName"
+              bind:change="onInputChange"
+              required
+            />
+            
+            <!-- 企业名录匹配 -->
+            <view class="company-matcher" wx:if="{{showCompanyMatcher}}">
+              <view class="matcher-header">
+                <text class="matcher-title">找到以下匹配企业</text>
+                <text class="manual-input" bindtap="onManualInput">手动录入</text>
+              </view>
+              
+              <view class="company-list">
+                <view 
+                  class="company-item"
+                  wx:for="{{matchedCompanies}}"
+                  wx:key="id"
+                  data-company="{{item}}"
+                  bindtap="onCompanySelect"
+                >
+                  <view class="company-name">{{item.name}}</view>
+                  <view class="company-code">{{item.code}}</view>
+                  <view class="company-address">{{item.address}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 用电信息 -->
+        <view class="form-section">
+          <view class="section-title">
+            <van-icon name="lightning" size="20px" color="#1989fa" />
+            <text>用电信息</text>
+          </view>
+          
+          <view class="form-group">
+            <van-field
+              label="用电容量"
+              placeholder="请输入用电容量（kW）"
+              value="{{userInfo.powerCapacity}}"
+              data-field="powerCapacity"
+              bind:change="onInputChange"
+              type="digit"
+              required
+            />
+            
+            <van-field
+              label="月度用电量"
+              placeholder="请输入月度用电量（kWh）"
+              value="{{userInfo.monthlyUsage}}"
+              data-field="monthlyUsage"
+              bind:change="onInputChange"
+              type="digit"
+            />
+            
+            <van-field
+              label="当前电价"
+              placeholder="请输入当前电价（元/kWh）"
+              value="{{userInfo.currentPrice}}"
+              data-field="currentPrice"
+              bind:change="onInputChange"
+              type="digit"
+            />
+            
+            <!-- 电压等级选择 -->
+            <van-field
+              label="电压等级"
+              placeholder="请选择电压等级"
+              value="{{userInfo.voltageLevel}}"
+              readonly
+              is-link
+            >
+              <picker 
+                slot="input" 
+                mode="selector" 
+                range="{{voltageOptions}}" 
+                range-key="label"
+                bindchange="onVoltageChange"
+              >
+                <view class="picker-value">
+                  {{userInfo.voltageLevel ? (voltageOptions.find(item => item.value === userInfo.voltageLevel) || {}).label : '请选择电压等级'}}
+                </view>
+              </picker>
+            </van-field>
+          </view>
+        </view>
+
+        <!-- 地址信息 -->
+        <view class="form-section">
+          <view class="section-title">
+            <van-icon name="location-o" size="20px" color="#1989fa" />
+            <text>地址信息</text>
+          </view>
+          
+          <view class="form-group">
+            <van-field
+              label="所在地区"
+              placeholder="请选择所在地区"
+              value="{{userInfo.province + ' ' + userInfo.city + ' ' + userInfo.district}}"
+              readonly
+              is-link
+              bindtap="onRegionTap"
+            />
+            
+            <van-field
+              label="详细地址"
+              placeholder="请输入详细地址"
+              value="{{userInfo.detailAddress}}"
+              data-field="detailAddress"
+              bind:change="onInputChange"
+              type="textarea"
+              autosize
+            />
+          </view>
+        </view>
+      </scroll-view>
+      
+      <view class="step-actions">
+        <van-button type="default" size="large" bindtap="prevStep">
+          上一步
+        </van-button>
+        <van-button type="primary" size="large" bindtap="nextStep">
+          下一步
+        </van-button>
+      </view>
+    </view>
+
+    <!-- 步骤4：身份认证 -->
+    <view class="step-panel" wx:if="{{currentStep === 3}}">
+      <view class="form-section">
+        <view class="section-title">
+          <van-icon name="certificate" size="20px" color="#1989fa" />
+          <text>身份认证</text>
+        </view>
+        
+        <view class="upload-section">
+          <!-- 营业执照上传 -->
+          <view class="upload-item">
+            <view class="upload-label">
+              <text>营业执照 *</text>
+              <text class="upload-tips">支持OCR自动识别</text>
+            </view>
+            
+            <view class="upload-area" wx:if="{{!userInfo.businessLicense}}">
+              <van-icon name="plus" size="40px" color="#ddd" />
+              <text class="upload-text">点击上传营业执照</text>
+              <view class="upload-button" bindtap="uploadImage" data-type="businessLicense">
+                选择图片
+              </view>
+            </view>
+            
+            <view class="uploaded-image" wx:else>
+              <image src="{{userInfo.businessLicense}}" mode="aspectFit" />
+              <view class="image-actions">
+                <van-icon name="eye-o" bindtap="previewImage" data-url="{{userInfo.businessLicense}}" />
+                <van-icon name="delete" bindtap="deleteImage" data-type="businessLicense" />
+              </view>
+            </view>
+          </view>
+
+          <!-- 身份证正面上传 -->
+          <view class="upload-item">
+            <view class="upload-label">
+              <text>身份证正面 *</text>
+              <text class="upload-tips">请确保信息清晰可见</text>
+            </view>
+            
+            <view class="upload-area" wx:if="{{!userInfo.idCardFront}}">
+              <van-icon name="plus" size="40px" color="#ddd" />
+              <text class="upload-text">点击上传身份证正面</text>
+              <view class="upload-button" bindtap="uploadImage" data-type="idCardFront">
+                选择图片
+              </view>
+            </view>
+            
+            <view class="uploaded-image" wx:else>
+              <image src="{{userInfo.idCardFront}}" mode="aspectFit" />
+              <view class="image-actions">
+                <van-icon name="eye-o" bindtap="previewImage" data-url="{{userInfo.idCardFront}}" />
+                <van-icon name="delete" bindtap="deleteImage" data-type="idCardFront" />
+              </view>
+            </view>
+          </view>
+
+          <!-- 身份证反面上传 -->
+          <view class="upload-item">
+            <view class="upload-label">
+              <text>身份证反面 *</text>
+              <text class="upload-tips">请确保信息清晰可见</text>
+            </view>
+            
+            <view class="upload-area" wx:if="{{!userInfo.idCardBack}}">
+              <van-icon name="plus" size="40px" color="#ddd" />
+              <text class="upload-text">点击上传身份证反面</text>
+              <view class="upload-button" bindtap="uploadImage" data-type="idCardBack">
+                选择图片
+              </view>
+            </view>
+            
+            <view class="uploaded-image" wx:else>
+              <image src="{{userInfo.idCardBack}}" mode="aspectFit" />
+              <view class="image-actions">
+                <van-icon name="eye-o" bindtap="previewImage" data-url="{{userInfo.idCardBack}}" />
+                <van-icon name="delete" bindtap="deleteImage" data-type="idCardBack" />
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- OCR处理提示 -->
+        <view class="ocr-processing" wx:if="{{ocrProcessing}}">
+          <van-loading type="spinner" size="20px" />
+          <text>正在识别图片信息...</text>
+        </view>
+        
+        <view class="auth-notice">
+          <view class="notice-title">
+            <van-icon name="info-o" size="16px" color="#ff6b35" />
+            <text>认证说明</text>
+          </view>
+          <view class="notice-content">
+            <text>• 请确保上传的证件照片清晰、完整</text>
+            <text>• 系统将自动进行OCR识别，提高审核效率</text>
+            <text>• 认证信息仅用于身份验证，我们将严格保护您的隐私</text>
+            <text>• 审核时间：1-3个工作日</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="step-actions">
+        <van-button type="default" size="large" bindtap="prevStep">
+          上一步
+        </van-button>
+        <van-button 
+          type="primary" 
+          size="large" 
+          loading="{{submitting}}"
+          bindtap="submitRegistration"
+        >
+          {{submitting ? '提交中...' : '提交注册'}}
+        </van-button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地区选择器 -->
+  <van-popup 
+    show="{{showRegionPicker}}" 
+    position="bottom" 
+    bind:close="onRegionCancel"
+  >
+    <van-picker
+      columns="{{regionColumns}}"
+      value="{{regionIndex}}"
+      bind:confirm="onRegionConfirm"
+      bind:cancel="onRegionCancel"
+      show-toolbar
+      title="选择地区"
+    />
+  </van-popup>
+
+  <!-- 底部说明 -->
+  <view class="bottom-info">
+    <text class="info-text">
+      注册即表示您同意我们的
+      <text class="link-text">《用户协议》</text>
+      和
+      <text class="link-text">《隐私政策》</text>
+    </text>
   </view>
 </view> 

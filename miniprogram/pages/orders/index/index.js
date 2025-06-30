@@ -44,18 +44,75 @@ Page({
     // 操作
     showActionSheet: false,
     actionSheetActions: [],
-    selectedOrder: null
+    selectedOrder: null,
+    statusMap: {
+      'pending': '待确认',
+      'negotiating': '商务洽谈',
+      'confirmed': '已确认',
+      'rejected': '已拒绝',
+      'cancelled': '已取消'
+    },
+    statusColorMap: {
+      'pending': '#1989fa',
+      'negotiating': '#ff976a',
+      'confirmed': '#07c160',
+      'rejected': '#ee0a24',
+      'cancelled': '#969799'
+    },
+    isManager: false, // 是否为客户经理
+    
+    // 分页相关
+    pageNum: 1,
+    pageSize: 10,
+    hasMore: true,
+    
+    // 筛选相关
+    tabs: [
+      { key: 'all', name: '全部' },
+      { key: 'pending', name: '待确认' },
+      { key: 'negotiating', name: '商务洽谈' },
+      { key: 'confirmed', name: '已确认' },
+      { key: 'rejected', name: '已拒绝' },
+      { key: 'cancelled', name: '已取消' }
+    ]
   },
 
   onLoad(options) {
     console.log('订单列表页面加载', options);
+    
+    // 检查权限
+    if (!this.checkPermissions()) {
+      return
+    }
     
     // 从参数获取状态筛选
     if (options.status) {
       this.setData({ activeTab: options.status });
     }
     
+    this.checkUserRole();
     this.initPage();
+  },
+
+  // 检查权限
+  checkPermissions() {
+    if (!auth.checkLogin()) {
+      return false
+    }
+    
+    if (!auth.hasPermission(auth.PERMISSIONS.ORDER_VIEW)) {
+      wx.showModal({
+        title: '权限不足',
+        content: '您没有权限查看订单信息',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack()
+        }
+      })
+      return false
+    }
+    
+    return true
   },
 
   onShow() {
@@ -810,5 +867,91 @@ Page({
   // 关闭联系方式弹窗
   onCloseContactSheet() {
     this.setData({ showContactSheet: false });
+  },
+
+  // 检查用户角色
+  async checkUserRole() {
+    try {
+      const res = await app.request({
+        url: '/user/role'
+      })
+      
+      if (res.data) {
+        this.setData({
+          isManager: res.data.role === 'manager'
+        })
+      }
+    } catch (error) {
+      console.error('检查用户角色失败:', error)
+    }
+  },
+
+  // 加载订单列表
+  async loadOrders(refresh = false) {
+    if (refresh) {
+      this.setData({
+        pageNum: 1,
+        hasMore: true,
+        orderList: []
+      })
+    }
+
+    if (!this.data.hasMore) return
+
+    try {
+      this.setData({ loading: true })
+
+      const { pageNum, pageSize, activeTab } = this.data
+      const params = {
+        pageNum,
+        pageSize,
+        status: activeTab === 'all' ? '' : activeTab
+      }
+
+      const res = await app.request({
+        url: '/orders',
+        data: params
+      })
+
+      const { list = [], total = 0 } = res.data || {}
+      const hasMore = pageNum * pageSize < total
+
+      this.setData({
+        orderList: refresh ? list : this.data.orderList.concat(list),
+        hasMore,
+        pageNum: hasMore ? pageNum + 1 : pageNum,
+        loading: false
+      })
+
+    } catch (error) {
+      console.error('加载订单列表失败:', error)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+      this.setData({ loading: false })
+    }
+  },
+
+  // 查看订单详情
+  viewOrderDetail(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/orders/detail/detail?id=${id}`
+    })
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.loadOrders(true).then(() => {
+      wx.stopPullDownRefresh()
+    })
+  },
+
+  // 上拉加载更多
+  onReachBottom() {
+    if (!this.data.loading && this.data.hasMore) {
+      this.loadOrders()
+    }
   }
 }); 

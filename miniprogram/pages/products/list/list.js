@@ -1,4 +1,5 @@
 const app = getApp()
+const auth = require('../../../utils/auth')
 
 Page({
   data: {
@@ -27,6 +28,11 @@ Page({
   onLoad(options) {
     console.log('产品列表页面加载', options)
     
+    // 检查权限
+    if (!this.checkPermissions()) {
+      return
+    }
+    
     // 从参数获取分类ID
     if (options.categoryId) {
       this.setData({
@@ -35,6 +41,27 @@ Page({
     }
     
     this.loadProducts()
+  },
+
+  // 检查权限
+  checkPermissions() {
+    if (!auth.checkLogin()) {
+      return false
+    }
+    
+    if (!auth.hasPermission(auth.PERMISSIONS.PRODUCT_VIEW)) {
+      wx.showModal({
+        title: '权限不足',
+        content: '您没有权限查看产品信息',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack()
+        }
+      })
+      return false
+    }
+    
+    return true
   },
 
   onShow() {

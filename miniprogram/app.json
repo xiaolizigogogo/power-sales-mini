@@ -60,6 +60,7 @@
   "usingComponents": {
     "loading": "/components/loading/loading",
     "empty": "/components/empty/empty",
-    "navbar": "/components/navbar/navbar"
+    "navbar": "/components/navbar/navbar",
+    "role-guard": "/components/role-guard/index"
   }
 } 

@@ -1,163 +1,186 @@
-<view class="page-container">
-  <custom-navbar 
-    title="电费计算器" 
-    bgColor="#409EFF"
-  />
-  
-  <view class="container">
-    <view class="calculator-header">
-      <image src="/assets/images/calculator-banner.png" mode="aspectFill" class="calculator-banner" />
-      <view class="calculator-title">
-        <text class="title">电费计算器</text>
-        <text class="subtitle">快速估算您的用电成本</text>
-      </view>
-    </view>
+<view class="calculator-container">
+  <!-- 顶部说明 -->
+  <view class="calculator-header">
+    <view class="title">节电效益计算器</view>
+    <view class="description">输入您的用电信息，我们将为您计算最优惠的电力方案</view>
+  </view>
 
-    <view class="calculator-form">
-      <block wx:if="{{productInfo}}">
-        <view class="product-info" bindtap="goToDetail">
-          <image src="{{productInfo.image}}" mode="aspectFill" class="product-image" />
-          <view class="product-content">
-            <text class="product-name">{{productInfo.name}}</text>
-            <view class="product-price">
-              <text class="price-unit">¥</text>
-              <text class="price-value">{{productInfo.price}}</text>
-              <text class="price-unit">/度</text>
-            </view>
-          </view>
-          <view class="arrow-icon">→</view>
-        </view>
-      </block>
-
-      <view class="form-group">
-        <text class="form-label">电压等级</text>
-        <picker 
-          mode="selector" 
-          range="{{voltageOptions}}"
-          value="{{voltageOptions.indexOf(form.voltage)}}"
+  <!-- 表单区域 -->
+  <view class="form-section">
+    <!-- 电压等级 -->
+    <view class="form-item">
+      <view class="form-label">电压等级</view>
+      <van-dropdown-menu>
+        <van-dropdown-item
+          value="{{ form.voltage }}"
+          options="{{ voltageOptions }}"
+          bind:change="onInput"
           data-field="voltage"
-          bindchange="onPickerChange"
-        >
-          <view class="picker-view">
-            <text>{{form.voltage}}V</text>
-            <view class="picker-arrow">▼</view>
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-group">
-        <text class="form-label">相数</text>
-        <picker 
-          mode="selector" 
-          range="{{phaseOptions}}"
-          value="{{phaseOptions.indexOf(form.phase)}}"
-          data-field="phase"
-          bindchange="onPickerChange"
-        >
-          <view class="picker-view">
-            <text>{{form.phase}}</text>
-            <view class="picker-arrow">▼</view>
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-group">
-        <text class="form-label required">设备功率</text>
-        <view class="input-group">
-          <input 
-            class="form-input"
-            type="digit"
-            placeholder="请输入设备功率"
-            value="{{form.power}}"
-            data-field="power"
-            bindinput="onInput"
-          />
-          <text class="input-unit">W</text>
-        </view>
-      </view>
-
-      <view class="form-group">
-        <text class="form-label required">每日用电时长</text>
-        <view class="input-group">
-          <input 
-            class="form-input"
-            type="number"
-            placeholder="请输入每日用电时长"
-            value="{{form.hours}}"
-            data-field="hours"
-            bindinput="onInput"
-          />
-          <text class="input-unit">小时</text>
-        </view>
-      </view>
-
-      <view class="form-group">
-        <text class="form-label required">每月用电天数</text>
-        <view class="input-group">
-          <input 
-            class="form-input"
-            type="number"
-            placeholder="请输入每月用电天数"
-            value="{{form.days}}"
-            data-field="days"
-            bindinput="onInput"
-          />
-          <text class="input-unit">天</text>
-        </view>
-      </view>
-
-      <view class="form-buttons">
-        <button 
-          class="reset-button" 
-          bindtap="handleReset"
-        >重置</button>
-        <button 
-          class="calculate-button" 
-          bindtap="handleCalculate"
-        >开始计算</button>
-      </view>
+        />
+      </van-dropdown-menu>
+      <view class="error-text" wx:if="{{ errors.voltage }}">{{ errors.voltage }}</view>
     </view>
 
-    <view wx:if="{{result}}" class="result-card">
+    <!-- 月均用电量 -->
+    <view class="form-item">
+      <view class="form-label">月均用电量(kWh)</view>
+      <van-field
+        value="{{ form.monthlyUsage }}"
+        type="digit"
+        placeholder="请输入月均用电量"
+        border="{{ false }}"
+        bind:change="onInput"
+        data-field="monthlyUsage"
+      />
+      <view class="error-text" wx:if="{{ errors.monthlyUsage }}">{{ errors.monthlyUsage }}</view>
+    </view>
+
+    <!-- 峰谷时用电比例 -->
+    <view class="form-item">
+      <view class="form-label">峰时用电比例(%)</view>
+      <van-field
+        value="{{ form.peakUsage }}"
+        type="digit"
+        placeholder="请输入峰时用电比例"
+        border="{{ false }}"
+        bind:change="onInput"
+        data-field="peakUsage"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">谷时用电比例(%)</view>
+      <van-field
+        value="{{ form.valleyUsage }}"
+        type="digit"
+        placeholder="请输入谷时用电比例"
+        border="{{ false }}"
+        bind:change="onInput"
+        data-field="valleyUsage"
+      />
+    </view>
+
+    <!-- 当前电价 -->
+    <view class="form-item">
+      <view class="form-label">当前电价(元/kWh)</view>
+      <van-field
+        value="{{ form.currentPrice }}"
+        type="digit"
+        placeholder="请输入当前电价"
+        border="{{ false }}"
+        bind:change="onInput"
+        data-field="currentPrice"
+      />
+      <view class="error-text" wx:if="{{ errors.currentPrice }}">{{ errors.currentPrice }}</view>
+    </view>
+
+    <!-- 所属行业 -->
+    <view class="form-item">
+      <view class="form-label">所属行业</view>
+      <van-dropdown-menu>
+        <van-dropdown-item
+          value="{{ form.industry }}"
+          options="{{ industryOptions }}"
+          bind:change="onInput"
+          data-field="industry"
+        />
+      </van-dropdown-menu>
+    </view>
+
+    <!-- 需量容量 -->
+    <view class="form-item">
+      <view class="form-label">需量容量(kW)</view>
+      <van-field
+        value="{{ form.demandPower }}"
+        type="digit"
+        placeholder="请输入需量容量"
+        border="{{ false }}"
+        bind:change="onInput"
+        data-field="demandPower"
+      />
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="button-group">
+    <van-button 
+      type="primary" 
+      block 
+      loading="{{ calculating }}"
+      bind:click="calculateSavings"
+    >
+      开始计算
+    </van-button>
+    <van-button 
+      plain 
+      block 
+      bind:click="resetForm"
+      style="margin-top: 16rpx;"
+    >
+      重置
+    </van-button>
+  </view>
+
+  <!-- 计算结果 -->
+  <view class="result-section" wx:if="{{ showResult }}">
+    <view class="result-header">
       <view class="result-title">计算结果</view>
-      
-      <view class="result-group">
-        <view class="result-label">月用电量</view>
-        <view class="result-value">
-          <text class="value">{{result.monthlyUsage}}</text>
-          <text class="unit">度</text>
-        </view>
+      <view class="result-time">{{ calculationResult.calculatedAt }}</view>
+    </view>
+
+    <!-- 节省金额 -->
+    <view class="saving-card">
+      <view class="saving-title">预计每月节省</view>
+      <view class="saving-amount">
+        <text class="amount">{{ calculationResult.monthlySaving }}</text>
+        <text class="unit">元</text>
       </view>
+      <view class="saving-percent">较现有电价节省 {{ calculationResult.savingPercent }}%</view>
+    </view>
 
-      <view class="result-group">
-        <view class="result-label">月电费</view>
-        <view class="result-value">
-          <text class="unit">¥</text>
-          <text class="value highlight">{{result.monthlyFee}}</text>
-        </view>
+    <!-- 投资回报 -->
+    <view class="roi-card">
+      <view class="roi-item">
+        <view class="roi-label">预计年节省金额</view>
+        <view class="roi-value">{{ calculationResult.yearlySaving }}元</view>
       </view>
-
-      <view class="result-divider"></view>
-
-      <view class="result-group">
-        <view class="result-label">年用电量</view>
-        <view class="result-value">
-          <text class="value">{{result.yearlyUsage}}</text>
-          <text class="unit">度</text>
-        </view>
-      </view>
-
-      <view class="result-group">
-        <view class="result-label">年电费</view>
-        <view class="result-value">
-          <text class="unit">¥</text>
-          <text class="value highlight">{{result.yearlyFee}}</text>
-        </view>
-      </view>
-
-      <view class="result-tips">
-        * 以上结果仅供参考，实际费用以实际用电量为准
+      <view class="roi-item">
+        <view class="roi-label">投资回报周期</view>
+        <view class="roi-value">{{ calculationResult.roiPeriod }}个月</view>
       </view>
     </view>
+
+    <!-- 推荐产品 -->
+    <view class="recommended-products" wx:if="{{ recommendedProducts.length > 0 }}">
+      <view class="section-title">推荐产品</view>
+      <view class="product-list">
+        <view 
+          class="product-item" 
+          wx:for="{{ recommendedProducts }}" 
+          wx:key="id"
+          bind:tap="viewProductDetail"
+          data-id="{{ item.id }}"
+        >
+          <image class="product-image" src="{{ item.image }}" mode="aspectFill"/>
+          <view class="product-info">
+            <view class="product-name">{{ item.name }}</view>
+            <view class="product-price">{{ item.price }}元/kWh</view>
+            <view class="product-saving">预计月节省{{ item.estimatedSaving }}元</view>
+          </view>
+          <van-icon name="arrow" />
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <van-toast id="van-toast" />
+  
+  <!-- 分享按钮 -->
+  <view class="share-button" wx:if="{{ showResult }}">
+    <button open-type="share" class="share-btn">
+      <van-icon name="share" size="24px" />
+      分享结果
+    </button>
   </view>
 </view> 

@@ -176,291 +176,150 @@
 }
 
 /* 合同列表 */
-.contracts-list {
+.contract-list {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+}
+
+/* 合同卡片 */
+.contract-container {
+  padding: 20rpx;
+}
+
+.contract-card {
+  margin-bottom: 20rpx;
+  background-color: #fff;
+  border-radius: 12rpx;
   padding: 30rpx;
-}
-
-.contract-item {
-  background: white;
-  border-radius: 16rpx;
-  margin-bottom: 24rpx;
-  overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.contract-item:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 1rpx 8rpx rgba(0, 0, 0, 0.12);
-}
-
-/* 状态指示条 */
-.status-indicator {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 8rpx;
-  height: 100%;
-  border-radius: 0 4rpx 4rpx 0;
-}
-
-.status-indicator.status-pending {
-  background-color: #e6a23c;
-}
-
-.status-indicator.status-signed {
-  background-color: #409eff;
-}
-
-.status-indicator.status-executing {
-  background-color: #67c23a;
-}
-
-.status-indicator.status-completed {
-  background-color: #909399;
-}
-
-.status-indicator.status-expired {
-  background-color: #f56c6c;
 }
 
 /* 合同头部 */
 .contract-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 30rpx 30rpx 20rpx 50rpx;
+  align-items: center;
+  margin-bottom: 20rpx;
 }
 
-.contract-title-section {
-  flex: 1;
-  margin-right: 20rpx;
-}
-
-.contract-name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 8rpx;
-  line-height: 1.4;
-}
-
-.contract-number {
-  font-size: 24rpx;
-  color: #909399;
+.contract-no {
+  font-size: 28rpx;
+  color: #666;
 }
 
 .contract-status {
-  display: flex;
-  align-items: center;
-  padding: 8rpx 16rpx;
-  border-radius: 20rpx;
-  font-size: 22rpx;
+  font-size: 28rpx;
   font-weight: 500;
-  white-space: nowrap;
-  gap: 6rpx;
 }
 
-.contract-status.status-pending {
-  background-color: #fdf6ec;
-  color: #e6a23c;
+/* 订单信息 */
+.order-info {
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #f5f5f5;
 }
 
-.contract-status.status-signed {
-  background-color: #ecf5ff;
-  color: #409eff;
-}
-
-.contract-status.status-executing {
-  background-color: #f0f9ff;
-  color: #67c23a;
-}
-
-.contract-status.status-completed {
-  background-color: #f4f4f5;
-  color: #909399;
-}
-
-.contract-status.status-expired {
-  background-color: #fef0f0;
-  color: #f56c6c;
-}
-
-.status-icon {
-  font-size: 18rpx;
-}
-
-/* 合同详情 */
-.contract-details {
-  padding: 0 30rpx 0 50rpx;
-}
-
-.detail-row {
+.info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16rpx;
-  padding: 12rpx 0;
+  font-size: 28rpx;
 }
 
-.detail-row:last-child {
+.info-item:last-child {
   margin-bottom: 0;
 }
 
-.detail-label {
-  font-size: 26rpx;
-  color: #606266;
-  width: 200rpx;
-  flex-shrink: 0;
+.info-item .label {
+  color: #666;
 }
 
-.detail-value {
-  font-size: 26rpx;
-  color: #303133;
-  flex: 1;
-  text-align: right;
-  line-height: 1.4;
+.info-item .value {
+  color: #333;
 }
 
-.detail-value.amount {
-  color: #f56c6c;
-  font-weight: 600;
+.info-item .value.highlight {
+  color: #f44;
+  font-weight: bold;
 }
 
-/* 到期提醒 */
-.expiry-notice {
+/* 签署信息 */
+.sign-info {
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #f5f5f5;
+}
+
+.sign-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin: 20rpx 30rpx 0 50rpx;
-  padding: 16rpx 20rpx;
-  background-color: #fdf6ec;
-  border-radius: 8rpx;
-  gap: 12rpx;
-}
-
-.notice-icon {
-  font-size: 24rpx;
-}
-
-.notice-text {
-  font-size: 24rpx;
-  color: #e6a23c;
-  flex: 1;
-}
-
-/* 操作按钮 */
-.contract-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16rpx;
-  padding: 24rpx 30rpx 30rpx 50rpx;
-  border-top: 2rpx solid #f5f7fa;
-  margin-top: 20rpx;
-  flex-wrap: wrap;
-}
-
-.action-btn {
-  padding: 12rpx 24rpx;
-  border-radius: 20rpx;
-  font-size: 24rpx;
-  border: none;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6rpx;
-}
-
-.action-btn.primary {
-  background-color: #409eff;
-  color: white;
-}
-
-.action-btn.secondary {
-  background-color: #f5f7fa;
-  color: #606266;
-}
-
-.action-btn.danger {
-  background-color: #f56c6c;
-  color: white;
-}
-
-.action-btn:active {
-  transform: scale(0.95);
-  opacity: 0.8;
-}
-
-/* 加载状态 */
-.loading-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60rpx;
-  gap: 16rpx;
-}
-
-.loading-text {
+  margin-bottom: 16rpx;
   font-size: 28rpx;
-  color: #909399;
+}
+
+.sign-item:last-child {
+  margin-bottom: 0;
+}
+
+.sign-item .label {
+  color: #666;
+}
+
+.sign-item .value {
+  color: #333;
+}
+
+/* 合同底部 */
+.contract-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.customer-name {
+  color: #666;
 }
 
 /* 空状态 */
-.empty-section {
-  padding: 120rpx 60rpx;
-}
-
-.empty-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.empty-state {
+  padding: 120rpx 0;
   text-align: center;
 }
 
 .empty-icon {
-  font-size: 120rpx;
-  margin-bottom: 30rpx;
-  opacity: 0.5;
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 20rpx;
 }
 
-.empty-title {
-  font-size: 32rpx;
-  color: #606266;
-  margin-bottom: 16rpx;
-  font-weight: 500;
-}
-
-.empty-desc {
-  font-size: 26rpx;
-  color: #909399;
-  margin-bottom: 40rpx;
-  line-height: 1.5;
-}
-
-.empty-actions {
-  display: flex;
-  gap: 20rpx;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.empty-btn {
-  border: none;
-  padding: 20rpx 40rpx;
-  border-radius: 25rpx;
+.empty-text {
   font-size: 28rpx;
-  min-width: 160rpx;
+  color: #999;
 }
 
-.empty-btn.primary {
-  background-color: #409eff;
-  color: white;
+/* 加载状态 */
+.loading-more {
+  text-align: center;
+  padding: 30rpx 0;
 }
 
-.empty-btn.secondary {
-  background-color: #f5f7fa;
-  color: #606266;
-  border: 2rpx solid #dcdfe6;
+.load-all {
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 自定义van-tabs样式 */
+.van-tabs__line {
+  background-color: #1989fa !important;
+}
+
+.van-tab--active {
+  color: #1989fa !important;
+  font-weight: bold !important;
 }
 
 /* 筛选弹窗 */

@@ -775,4 +775,488 @@
   .form-textarea::placeholder {
     color: #a0aec0;
   }
+}
+
+/* 客户认证审核页面样式 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30rpx;
+  padding-bottom: 120rpx;
+}
+
+/* 状态卡片 */
+.status-card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 50rpx 40rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.status-icon {
+  margin-bottom: 30rpx;
+}
+
+.icon-pending,
+.icon-processing,
+.icon-approved,
+.icon-rejected {
+  display: inline-block;
+}
+
+.status-content {
+  margin-bottom: 30rpx;
+}
+
+.status-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.status-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+
+.status-time {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.reject-reason {
+  font-size: 26rpx;
+  color: #ee0a24;
+  background: #fff2f0;
+  border: 2rpx solid #ffccc7;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-top: 20rpx;
+  text-align: left;
+}
+
+.refresh-btn {
+  position: absolute;
+  top: 30rpx;
+  right: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 20rpx;
+  background: #f0f9ff;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #1989fa;
+}
+
+/* 信息卡片 */
+.info-card,
+.progress-card,
+.next-steps-card,
+.help-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.card-title text {
+  margin-left: 15rpx;
+}
+
+/* 信息列表 */
+.info-list {
+  margin-bottom: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.detail-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10rpx;
+  padding: 15rpx;
+  background: #f8f9fa;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 进度列表 */
+.progress-list {
+  position: relative;
+}
+
+.progress-item {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: 40rpx;
+}
+
+.progress-item:last-child {
+  padding-bottom: 0;
+}
+
+.progress-icon {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  position: relative;
+  z-index: 2;
+}
+
+.icon-completed {
+  width: 40rpx;
+  height: 40rpx;
+  background: #f6ffed;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-current {
+  width: 40rpx;
+  height: 40rpx;
+  background: #e6f7ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-pending .pending-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background: #d9d9d9;
+  border-radius: 50%;
+}
+
+.progress-content {
+  flex: 1;
+  padding-top: 5rpx;
+}
+
+.progress-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.progress-item.completed .progress-title {
+  color: #52c41a;
+}
+
+.progress-item.processing .progress-title {
+  color: #1989fa;
+}
+
+.progress-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 8rpx;
+}
+
+.progress-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.progress-line {
+  position: absolute;
+  left: 19rpx;
+  top: 40rpx;
+  bottom: -40rpx;
+  width: 2rpx;
+  background: #f0f0f0;
+  z-index: 1;
+}
+
+.progress-item.completed .progress-line {
+  background: #b7eb8f;
+}
+
+.progress-item.processing .progress-line {
+  background: #91d5ff;
+}
+
+/* 下一步操作 */
+.steps-list {
+  padding: 20rpx;
+  background: #f6ffed;
+  border-radius: 15rpx;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.step-item:last-child {
+  margin-bottom: 0;
+}
+
+.step-number {
+  width: 40rpx;
+  height: 40rpx;
+  background: #52c41a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: bold;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  position: fixed;
+  left: 30rpx;
+  right: 30rpx;
+  bottom: 30rpx;
+  z-index: 100;
+}
+
+.button-group {
+  display: flex;
+  gap: 20rpx;
+}
+
+.button-group .van-button {
+  flex: 1;
+}
+
+.contact-btn {
+  background: #f8f9fa !important;
+  color: #666 !important;
+  border: 2rpx solid #e5e5e5 !important;
+}
+
+.start-btn {
+  background: #52c41a !important;
+  border-color: #52c41a !important;
+}
+
+.resubmit-btn {
+  background: #1989fa !important;
+  border-color: #1989fa !important;
+}
+
+/* 帮助信息 */
+.help-title {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #fa8c16;
+  margin-bottom: 20rpx;
+}
+
+.help-title text {
+  margin-left: 10rpx;
+}
+
+.help-content {
+  background: #fff7e6;
+  padding: 25rpx;
+  border-radius: 15rpx;
+}
+
+.help-item {
+  display: block;
+  font-size: 24rpx;
+  color: #d46b08;
+  margin-bottom: 15rpx;
+  line-height: 1.5;
+}
+
+.help-item:last-child {
+  margin-bottom: 0;
+}
+
+/* 安全提示 */
+.security-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15rpx;
+  backdrop-filter: blur(10rpx);
+  margin-bottom: 30rpx;
+}
+
+.security-notice text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .container {
+    padding: 20rpx;
+  }
+  
+  .status-card {
+    padding: 40rpx 30rpx;
+  }
+  
+  .status-title {
+    font-size: 32rpx;
+  }
+  
+  .info-card,
+  .progress-card,
+  .next-steps-card,
+  .help-card {
+    padding: 25rpx;
+  }
+  
+  .card-title {
+    font-size: 28rpx;
+  }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
+  .status-card,
+  .info-card,
+  .progress-card,
+  .next-steps-card,
+  .help-card {
+    background: #1a1a1a;
+    border: 2rpx solid #333;
+  }
+  
+  .status-title,
+  .card-title,
+  .progress-title,
+  .info-value {
+    color: #fff;
+  }
+  
+  .status-desc,
+  .progress-desc,
+  .info-label {
+    color: #ccc;
+  }
+  
+  .detail-btn {
+    background: #2a2a2a;
+    border: 2rpx solid #333;
+    color: #ccc;
+  }
+  
+  .steps-list {
+    background: #2a2a2a;
+    border: 2rpx solid #333;
+  }
+  
+  .help-content {
+    background: #2a2a2a;
+    border: 2rpx solid #333;
+  }
+  
+  .security-notice {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2rpx solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-card,
+.info-card,
+.progress-card,
+.next-steps-card,
+.help-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.progress-item {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.progress-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.progress-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.progress-item:nth-child(4) {
+  animation-delay: 0.3s;
 } 

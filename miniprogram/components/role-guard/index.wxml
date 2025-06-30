@@ -1,0 +1,13 @@
+<view wx:if="{{loading}}" class="role-guard-loading">
+  <view class="loading-spinner"></view>
+  <text class="loading-text">权限验证中...</text>
+</view>
+
+<view wx:elif="{{hasAccess}}" class="role-guard-content">
+  <slot></slot>
+</view>
+
+<view wx:else class="role-guard-denied">
+  <view class="denied-icon">🚫</view>
+  <text class="denied-text">权限不足</text>
+</view> 

@@ -81,9 +81,15 @@
   <!-- 快速操作栏 -->
   <view class="quick-actions">
     <view class="action-btn primary" bindtap="showAddFollowDialog">
+      <van-icon name="plus" size="16px" />
       <text>添加跟进</text>
     </view>
+    <view class="action-btn secondary" bindtap="showAddFollowDialog" data-first-contact="true">
+      <van-icon name="phone-o" size="16px" />
+      <text>首次接触</text>
+    </view>
     <view class="action-btn" bindtap="toggleSelectMode">
+      <van-icon name="{{selectMode ? 'close' : 'setting-o'}}" size="16px" />
       <text>{{selectMode ? '取消选择' : '批量操作'}}</text>
     </view>
   </view>
@@ -173,90 +179,303 @@
 </view>
 
 <!-- 添加/编辑跟进弹窗 -->
-<van-popup show="{{showAddFollow}}" position="bottom" round bind:close="closeAddFollow">
-  <view class="modal-content">
-    <view class="modal-header">
-      <text class="modal-title">{{followForm.id ? '编辑跟进记录' : '添加跟进记录'}}</text>
-      <text class="iconfont icon-close" bindtap="closeAddFollow"></text>
+<van-popup
+  show="{{ showAddFollow }}"
+  position="bottom"
+  custom-style="min-height: 60%"
+  bind:close="closeAddFollow"
+>
+  <view class="add-follow-container">
+    <view class="popup-header">
+      <text class="popup-title">添加跟进记录</text>
+      <van-icon name="cross" bind:click="closeAddFollow" />
     </view>
-    
-    <view class="modal-body">
-      <!-- 客户选择 -->
-      <van-field 
-        wx:if="{{!followForm.id}}"
-        label="选择客户"
-        value="{{followForm.customerName}}"
-        placeholder="请选择客户"
-        readonly
-        is-link
-        bindtap="selectCustomer"
-      />
 
-      <!-- 跟进类型 -->
-      <van-field
-        label="跟进类型"
-        value="{{followForm.typeText}}"
-        placeholder="请选择跟进类型"
-        readonly
-        is-link
-        bindtap="selectFollowType"
-      />
-
-      <!-- 跟进内容 -->
-      <van-field
-        label="跟进内容"
-        type="textarea"
-        value="{{followForm.content}}"
-        placeholder="请输入跟进内容..."
-        maxlength="500"
-        show-word-limit
-        autosize
-        bind:change="onContentInput"
-      />
-
-      <!-- 跟进结果 -->
-      <van-field
-        label="跟进结果"
-        type="textarea"
-        value="{{followForm.result}}"
-        placeholder="请输入跟进结果..."
-        maxlength="300"
-        show-word-limit
-        autosize
-        bind:change="onResultInput"
-      />
-
-      <!-- 下次跟进时间 -->
-      <van-field
-        label="下次跟进"
-        value="{{followForm.nextFollowDate}}"
-        placeholder="请选择下次跟进时间"
-        readonly
-        is-link
-        bindtap="selectNextFollowDate"
-      />
-
-      <!-- 优先级 -->
-      <van-field label="优先级">
-        <van-radio-group value="{{followForm.priority}}" bind:change="onPriorityChange">
-          <van-radio name="low" icon-size="20rpx">低优先级</van-radio>
-          <van-radio name="medium" icon-size="20rpx">中优先级</van-radio>
-          <van-radio name="high" icon-size="20rpx">高优先级</van-radio>
-        </van-radio-group>
-      </van-field>
-
-      <!-- 提醒设置 -->
-      <van-field label="提醒设置">
-        <van-switch checked="{{followForm.reminder}}" bind:change="onReminderChange" />
-      </van-field>
+    <!-- 客户选择 -->
+    <view class="form-item">
+      <text class="form-label">跟进客户</text>
+      <view class="customer-selector" bind:tap="selectCustomer">
+        <text>{{ followForm.customerName || '请选择客户' }}</text>
+        <van-icon name="arrow" />
+      </view>
     </view>
-    
-    <view class="modal-footer">
-      <van-button plain size="large" bindtap="closeAddFollow">取消</van-button>
-      <van-button type="primary" size="large" loading="{{saving}}" bindtap="saveFollow">
-        {{saving ? '保存中...' : '保存'}}
+
+    <!-- 跟进方式 -->
+    <view class="form-item">
+      <text class="form-label">跟进方式</text>
+      <view class="follow-type-selector" bind:tap="selectFollowType">
+        <view class="type-info">
+          <van-icon name="{{ getFollowTypeIcon(followForm.type) }}" />
+          <text>{{ followForm.typeText }}</text>
+        </view>
+        <van-icon name="arrow" />
+      </view>
+    </view>
+
+    <!-- 需求分析按钮 -->
+    <view class="form-item">
+      <van-button 
+        type="info" 
+        block 
+        icon="records" 
+        bind:click="showNeedsAnalysisDialog"
+      >
+        进行需求分析
       </van-button>
     </view>
+
+    <!-- 产品推荐按钮 -->
+    <view class="form-item">
+      <van-button 
+        type="primary" 
+        block 
+        icon="gift" 
+        bind:click="showProductRecommendDialog"
+      >
+        推荐产品方案
+      </van-button>
+    </view>
+
+    <!-- 计算器按钮 -->
+    <view class="form-item">
+      <van-button 
+        type="warning" 
+        block 
+        icon="balance-list" 
+        bind:click="goToCalculator"
+      >
+        节电效益计算
+      </van-button>
+    </view>
+
+    <!-- 跟进内容 -->
+    <view class="form-item">
+      <text class="form-label">跟进内容</text>
+      <van-field
+        type="textarea"
+        value="{{ followForm.content }}"
+        placeholder="请输入跟进内容"
+        autosize
+        border="{{ false }}"
+        bind:change="onContentInput"
+      />
+    </view>
+
+    <!-- 跟进结果 -->
+    <view class="form-item">
+      <text class="form-label">跟进结果</text>
+      <van-field
+        type="textarea"
+        value="{{ followForm.result }}"
+        placeholder="请输入跟进结果"
+        autosize
+        border="{{ false }}"
+        bind:change="onResultInput"
+      />
+    </view>
+
+    <!-- 其他表单项... -->
+
+    <!-- 保存按钮 -->
+    <view class="form-actions">
+      <van-button 
+        type="primary" 
+        block 
+        loading="{{ saving }}"
+        bind:click="saveFollow"
+      >
+        保存
+      </van-button>
+    </view>
+  </view>
+</van-popup>
+
+<!-- 需求分析弹窗 -->
+<van-popup
+  show="{{ showNeedsAnalysis }}"
+  position="bottom"
+  custom-style="min-height: 70%"
+  bind:close="closeNeedsAnalysis"
+>
+  <view class="needs-analysis-container">
+    <view class="popup-header">
+      <text class="popup-title">需求分析</text>
+      <van-icon name="cross" bind:click="closeNeedsAnalysis" />
+    </view>
+
+    <!-- 用电信息 -->
+    <view class="form-section">
+      <view class="section-title">用电信息</view>
+      
+      <view class="form-item">
+        <text class="form-label">当前用电量(kWh/月)</text>
+        <van-field
+          value="{{ needsForm.currentUsage }}"
+          type="digit"
+          placeholder="请输入月均用电量"
+          border="{{ false }}"
+          bind:change="onNeedsFormInput"
+          data-field="currentUsage"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">电压等级</text>
+        <van-field
+          value="{{ needsForm.voltageLevel }}"
+          placeholder="请输入电压等级"
+          border="{{ false }}"
+          bind:change="onNeedsFormInput"
+          data-field="voltageLevel"
+        />
+      </view>
+    </view>
+
+    <!-- 企业信息 -->
+    <view class="form-section">
+      <view class="section-title">企业信息</view>
+      
+      <view class="form-item">
+        <text class="form-label">所属行业</text>
+        <van-field
+          value="{{ needsForm.industryType }}"
+          placeholder="请输入所属行业"
+          border="{{ false }}"
+          bind:change="onNeedsFormInput"
+          data-field="industryType"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">经营规模</text>
+        <van-field
+          value="{{ needsForm.businessScale }}"
+          placeholder="请输入经营规模"
+          border="{{ false }}"
+          bind:change="onNeedsFormInput"
+          data-field="businessScale"
+        />
+      </view>
+    </view>
+
+    <!-- 需求信息 -->
+    <view class="form-section">
+      <view class="section-title">需求信息</view>
+      
+      <view class="form-item">
+        <text class="form-label">主要痛点</text>
+        <van-checkbox-group value="{{ needsForm.painPoints }}" bind:change="onPainPointsChange">
+          <van-checkbox
+            wx:for="{{ painPointOptions }}"
+            wx:key="value"
+            name="{{ item.value }}"
+            shape="square"
+          >
+            {{ item.text }}
+          </van-checkbox>
+        </van-checkbox-group>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">预算范围</text>
+        <van-dropdown-menu>
+          <van-dropdown-item
+            value="{{ needsForm.budget }}"
+            options="{{ budgetOptions }}"
+            bind:change="onNeedsFormInput"
+            data-field="budget"
+          />
+        </van-dropdown-menu>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">期望收益</text>
+        <van-field
+          value="{{ needsForm.expectedReturn }}"
+          placeholder="请输入期望收益"
+          border="{{ false }}"
+          bind:change="onNeedsFormInput"
+          data-field="expectedReturn"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">决策周期</text>
+        <van-dropdown-menu>
+          <van-dropdown-item
+            value="{{ needsForm.decisionCycle }}"
+            options="{{ decisionCycleOptions }}"
+            bind:change="onNeedsFormInput"
+            data-field="decisionCycle"
+          />
+        </van-dropdown-menu>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">特殊需求</text>
+        <van-field
+          type="textarea"
+          value="{{ needsForm.specialNeeds }}"
+          placeholder="请输入特殊需求"
+          autosize
+          border="{{ false }}"
+          bind:change="onNeedsFormInput"
+          data-field="specialNeeds"
+        />
+      </view>
+    </view>
+
+    <!-- 保存按钮 -->
+    <view class="form-actions">
+      <van-button 
+        type="primary" 
+        block 
+        bind:click="saveNeedsAnalysis"
+      >
+        保存并推荐产品
+      </van-button>
+    </view>
+  </view>
+</van-popup>
+
+<!-- 产品推荐弹窗 -->
+<van-popup
+  show="{{ showProductRecommend }}"
+  position="bottom"
+  custom-style="min-height: 60%"
+  bind:close="closeProductRecommend"
+>
+  <view class="product-recommend-container">
+    <view class="popup-header">
+      <text class="popup-title">推荐产品</text>
+      <van-icon name="cross" bind:click="closeProductRecommend" />
+    </view>
+
+    <!-- 产品列表 -->
+    <view class="product-list">
+      <view 
+        class="product-item"
+        wx:for="{{ recommendProducts }}"
+        wx:key="id"
+        bind:tap="onSelectProduct"
+        data-product="{{ item }}"
+      >
+        <image class="product-image" src="{{ item.image }}" mode="aspectFill"/>
+        <view class="product-info">
+          <view class="product-name">{{ item.name }}</view>
+          <view class="product-price">{{ item.price }}元/kWh</view>
+          <view class="recommend-reason">{{ item.recommendReason }}</view>
+          <view class="estimated-saving">预计月节省{{ item.estimatedSaving }}元</view>
+        </view>
+        <van-icon name="arrow" />
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <van-empty 
+      wx:if="{{ recommendProducts.length === 0 }}"
+      description="暂无推荐产品"
+    />
   </view>
 </van-popup>
 
@@ -305,6 +524,15 @@
   actions="{{followTypeActions}}"
   bind:select="onFollowTypeSelect"
   bind:close="closeFollowTypeModal"
+/>
+
+<!-- 附件上传选择弹窗 -->
+<van-action-sheet 
+  show="{{showAttachmentModal}}" 
+  actions="{{attachmentTypes}}"
+  bind:select="onAttachmentTypeSelect"
+  bind:close="closeAttachmentModal"
+  title="选择附件类型"
 />
 
 <!-- 日期时间选择器 -->

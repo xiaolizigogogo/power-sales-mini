@@ -1,220 +1,352 @@
 <!--pages/manager/customer-add/customer-add.wxml-->
 <view class="container">
-  <form bindsubmit="onSubmit">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <view class="navbar-content">
+      <view class="navbar-left" bindtap="onBack">
+        <van-icon name="arrow-left" size="20px" color="#333" />
+      </view>
+      <view class="navbar-title">添加客户</view>
+      <view class="navbar-right">
+        <text class="reset-btn" bindtap="onReset">重置</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主要内容 -->
+  <scroll-view class="main-content" scroll-y enhanced>
+    <!-- 客户基础信息 -->
     <view class="form-section">
-      <view class="section-title">基本信息</view>
+      <view class="section-title">
+        <van-icon name="contact" size="16px" color="#1989fa" />
+        <text>客户基础信息</text>
+      </view>
       
-      <view class="form-item">
-        <view class="form-label required">客户姓名</view>
-        <input 
-          class="form-input" 
+      <view class="form-group">
+        <van-field
+          label="客户姓名"
           placeholder="请输入客户姓名"
-          value="{{form.name}}"
-          bindinput="onNameInput"
-          maxlength="20"
+          value="{{ customerForm.name }}"
+          data-field="name"
+          bind:change="onFormInput"
+          required
         />
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label required">企业名称</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入企业名称"
-          value="{{form.companyName}}"
-          bindinput="onCompanyNameInput"
-          maxlength="50"
-        />
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label required">联系电话</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入联系电话"
-          value="{{form.phone}}"
-          bindinput="onPhoneInput"
+        
+        <van-field
+          label="联系电话"
+          placeholder="请输入手机号码"
+          value="{{ customerForm.phone }}"
+          data-field="phone"
+          bind:change="onFormInput"
           type="number"
-          maxlength="11"
+          required
         />
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label required">邮箱地址</view>
-        <input 
-          class="form-input" 
+        
+        <van-field
+          label="邮箱地址"
           placeholder="请输入邮箱地址"
-          value="{{form.email}}"
-          bindinput="onEmailInput"
+          value="{{ customerForm.email }}"
+          data-field="email"
+          bind:change="onFormInput"
           type="email"
-          maxlength="50"
+        />
+        
+        <van-field
+          label="职位"
+          placeholder="请输入职位"
+          value="{{ customerForm.position }}"
+          data-field="position"
+          bind:change="onFormInput"
+        />
+        
+        <van-field
+          label="微信号"
+          placeholder="请输入微信号"
+          value="{{ customerForm.wechat }}"
+          data-field="wechat"
+          bind:change="onFormInput"
         />
       </view>
     </view>
 
+    <!-- 客户标签 -->
     <view class="form-section">
-      <view class="section-title">企业信息</view>
-      
-      <view class="form-item">
-        <view class="form-label">企业地址</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入企业地址"
-          value="{{form.companyAddress}}"
-          bindinput="onCompanyAddressInput"
-          maxlength="100"
-        />
+      <view class="section-title">
+        <van-icon name="label" size="16px" color="#1989fa" />
+        <text>客户标签</text>
       </view>
       
-      <view class="form-item">
-        <view class="form-label">营业执照号</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入营业执照号"
-          value="{{form.businessLicense}}"
-          bindinput="onBusinessLicenseInput"
-          maxlength="30"
-        />
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label">所属行业</view>
-        <picker 
-          bindchange="onIndustryChange" 
-          value="{{industryIndex}}" 
-          range="{{industryOptions}}"
-          range-key="label"
+      <view class="tags-container">
+        <view 
+          class="tag-item {{ tag.selected ? 'selected' : '' }}"
+          wx:for="{{ availableTags }}"
+          wx:key="id"
+          data-id="{{ item.id }}"
+          bindtap="onTagToggle"
+          style="border-color: {{ item.color }}; color: {{ item.selected ? '#fff' : item.color }}; background-color: {{ item.selected ? item.color : 'transparent' }}"
         >
-          <view class="form-input picker-input">
-            {{industryIndex >= 0 ? industryOptions[industryIndex].label : '请选择行业'}}
-            <text class="picker-arrow">▼</text>
-          </view>
-        </picker>
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label">电压等级</view>
-        <picker 
-          bindchange="onVoltageLevelChange" 
-          value="{{voltageLevelIndex}}" 
-          range="{{voltageLevelOptions}}"
-          range-key="label"
-        >
-          <view class="form-input picker-input">
-            {{voltageLevelIndex >= 0 ? voltageLevelOptions[voltageLevelIndex].label : '请选择电压等级'}}
-            <text class="picker-arrow">▼</text>
-          </view>
-        </picker>
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label">年用电量</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入年用电量(万千瓦时)"
-          value="{{form.annualConsumption}}"
-          bindinput="onAnnualConsumptionInput"
-          type="digit"
-        />
+          {{ item.name }}
+        </view>
       </view>
     </view>
 
+    <!-- 企业信息 -->
     <view class="form-section">
-      <view class="section-title">联系信息</view>
-      
-      <view class="form-item">
-        <view class="form-label">联系人</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入联系人姓名"
-          value="{{form.contactPerson}}"
-          bindinput="onContactPersonInput"
-          maxlength="20"
-        />
+      <view class="section-title">
+        <van-icon name="shop" size="16px" color="#1989fa" />
+        <text>企业信息</text>
       </view>
       
-      <view class="form-item">
-        <view class="form-label">联系人电话</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入联系人电话"
-          value="{{form.contactPhone}}"
-          bindinput="onContactPhoneInput"
-          type="number"
-          maxlength="11"
+      <view class="form-group">
+        <van-field
+          label="企业名称"
+          placeholder="请输入企业名称"
+          value="{{ customerForm.companyName }}"
+          data-field="companyName"
+          bind:change="onFormInput"
+          required
         />
-      </view>
-    </view>
-
-    <view class="form-section">
-      <view class="section-title">地址信息</view>
-      
-      <view class="form-row">
-        <view class="form-item half">
-          <view class="form-label">省份</view>
-          <input 
-            class="form-input" 
-            placeholder="省份"
-            value="{{form.province}}"
-            bindinput="onProvinceInput"
-            maxlength="10"
-          />
+        
+        <!-- 企业名录匹配 -->
+        <view class="company-matcher" wx:if="{{ showCompanyMatcher }}">
+          <view class="matcher-header">
+            <text class="matcher-title">找到以下匹配企业</text>
+            <text class="manual-input" bindtap="onManualInput">手动录入</text>
+          </view>
+          
+          <view class="company-list">
+            <view 
+              class="company-item"
+              wx:for="{{ matchedCompanies }}"
+              wx:key="id"
+              data-company="{{ item }}"
+              bindtap="onCompanySelect"
+            >
+              <view class="company-name">{{ item.name }}</view>
+              <view class="company-info">
+                <text class="company-code">{{ item.code }}</text>
+                <text class="company-industry">{{ item.industryText }}</text>
+              </view>
+              <view class="company-address">{{ item.address }}</view>
+            </view>
+          </view>
         </view>
         
-        <view class="form-item half">
-          <view class="form-label">城市</view>
-          <input 
-            class="form-input" 
-            placeholder="城市"
-            value="{{form.city}}"
-            bindinput="onCityInput"
-            maxlength="10"
-          />
-        </view>
-      </view>
-      
-      <view class="form-item">
-        <view class="form-label">区县</view>
-        <input 
-          class="form-input" 
-          placeholder="请输入区县"
-          value="{{form.district}}"
-          bindinput="onDistrictInput"
-          maxlength="20"
+        <van-field
+          label="统一社会信用代码"
+          placeholder="请输入统一社会信用代码"
+          value="{{ customerForm.companyCode }}"
+          data-field="companyCode"
+          bind:change="onFormInput"
+        />
+        
+        <van-field
+          label="企业地址"
+          placeholder="请输入企业地址"
+          value="{{ customerForm.companyAddress }}"
+          data-field="companyAddress"
+          bind:change="onFormInput"
+          type="textarea"
+          autosize
+        />
+        
+        <!-- 行业选择 -->
+        <van-field
+          label="行业类型"
+          placeholder="请选择行业类型"
+          value="{{ customerForm.industry }}"
+          readonly
+          is-link
+          required
+        >
+          <picker 
+            slot="input" 
+            mode="selector" 
+            range="{{ industryOptions }}" 
+            range-key="label"
+            bindchange="onIndustryChange"
+          >
+            <view class="picker-value">
+              {{ customerForm.industry ? (industryOptions.find(item => item.value === customerForm.industry) || {}).label : '请选择行业类型' }}
+            </view>
+          </picker>
+        </van-field>
+        
+        <!-- 企业规模选择 -->
+        <van-field
+          label="企业规模"
+          placeholder="请选择企业规模"
+          value="{{ customerForm.scale }}"
+          readonly
+          is-link
+        >
+          <picker 
+            slot="input" 
+            mode="selector" 
+            range="{{ scaleOptions }}" 
+            range-key="label"
+            bindchange="onScaleChange"
+          >
+            <view class="picker-value">
+              {{ customerForm.scale ? (scaleOptions.find(item => item.value === customerForm.scale) || {}).label : '请选择企业规模' }}
+            </view>
+          </picker>
+        </van-field>
+        
+        <van-field
+          label="注册资本"
+          placeholder="请输入注册资本"
+          value="{{ customerForm.registeredCapital }}"
+          data-field="registeredCapital"
+          bind:change="onFormInput"
+        />
+        
+        <!-- 成立日期选择 -->
+        <van-field
+          label="成立日期"
+          placeholder="请选择成立日期"
+          value="{{ customerForm.establishDate }}"
+          readonly
+          is-link
+          bindtap="onEstablishDateTap"
+        />
+        
+        <van-field
+          label="经营范围"
+          placeholder="请输入经营范围"
+          value="{{ customerForm.businessScope }}"
+          data-field="businessScope"
+          bind:change="onFormInput"
+          type="textarea"
+          autosize
         />
       </view>
     </view>
 
+    <!-- 联系信息 -->
     <view class="form-section">
-      <view class="section-title">备注信息</view>
+      <view class="section-title">
+        <van-icon name="phone" size="16px" color="#1989fa" />
+        <text>联系信息</text>
+      </view>
       
-      <view class="form-item">
-        <view class="form-label">备注</view>
-        <textarea 
-          class="form-textarea" 
-          placeholder="请输入备注信息（可选）"
-          value="{{form.remark}}"
-          bindinput="onRemarkInput"
-          maxlength="200"
-          auto-height
+      <view class="form-group">
+        <van-field
+          label="联系人"
+          placeholder="请输入联系人姓名"
+          value="{{ customerForm.contactPerson }}"
+          data-field="contactPerson"
+          bind:change="onFormInput"
+        />
+        
+        <van-field
+          label="联系电话"
+          placeholder="请输入联系电话"
+          value="{{ customerForm.contactPhone }}"
+          data-field="contactPhone"
+          bind:change="onFormInput"
+          type="number"
+        />
+        
+        <!-- 地区选择 -->
+        <van-field
+          label="所在地区"
+          placeholder="请选择所在地区"
+          value="{{ customerForm.province + ' ' + customerForm.city + ' ' + customerForm.district }}"
+          readonly
+          is-link
+          bindtap="onRegionTap"
+        />
+        
+        <van-field
+          label="详细地址"
+          placeholder="请输入详细地址"
+          value="{{ customerForm.detailAddress }}"
+          data-field="detailAddress"
+          bind:change="onFormInput"
+          type="textarea"
+          autosize
         />
       </view>
     </view>
 
-    <view class="form-actions">
-      <button 
-        class="btn btn-secondary" 
-        bindtap="onReset"
-        disabled="{{submitting}}"
-      >
-        重置
-      </button>
-      <button 
-        class="btn btn-primary" 
-        form-type="submit"
-        loading="{{submitting}}"
-      >
-        {{submitting ? '提交中...' : '提交'}}
-      </button>
+    <!-- 备注信息 -->
+    <view class="form-section">
+      <view class="section-title">
+        <van-icon name="edit" size="16px" color="#1989fa" />
+        <text>备注信息</text>
+      </view>
+      
+      <view class="form-group">
+        <van-field
+          label="备注"
+          placeholder="请输入备注信息"
+          value="{{ customerForm.remark }}"
+          data-field="remark"
+          bind:change="onFormInput"
+          type="textarea"
+          autosize
+          maxlength="500"
+          show-word-limit
+        />
+      </view>
     </view>
-  </form>
+
+    <!-- 底部操作区域 -->
+    <view class="bottom-actions">
+      <van-button 
+        type="primary" 
+        size="large" 
+        loading="{{ submitting }}"
+        loading-text="提交中..."
+        bindtap="onSubmit"
+        wx:if="{{ canCreate }}"
+      >
+        添加客户
+      </van-button>
+      
+      <view class="no-permission" wx:else>
+        <van-icon name="warning" size="20px" color="#ff6b6b" />
+        <text>您没有权限添加客户</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 地区选择器 -->
+  <van-popup 
+    show="{{ showRegionPicker }}" 
+    position="bottom" 
+    bind:close="onRegionCancel"
+  >
+    <van-picker
+      columns="{{ regionColumns }}"
+      value="{{ regionIndex }}"
+      bind:change="onRegionChange"
+      bind:confirm="onRegionConfirm"
+      bind:cancel="onRegionCancel"
+      show-toolbar
+      title="选择地区"
+    />
+  </van-popup>
+
+  <!-- 日期选择器 -->
+  <van-popup 
+    show="{{ showDatePicker }}" 
+    position="bottom" 
+    bind:close="onDateCancel"
+  >
+    <van-datetime-picker
+      type="date"
+      value="{{ maxDate }}"
+      min-date="{{ minDate }}"
+      max-date="{{ maxDate }}"
+      bind:confirm="onDateConfirm"
+      bind:cancel="onDateCancel"
+      show-toolbar
+      title="选择成立日期"
+    />
+  </van-popup>
+
+  <!-- 加载提示 -->
+  <van-loading wx:if="{{ loading }}" type="spinner" size="24px" />
 </view> 

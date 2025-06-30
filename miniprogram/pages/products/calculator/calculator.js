@@ -9,7 +9,13 @@ Page({
       phase: '单相',
       power: '',
       hours: '',
-      days: ''
+      days: '',
+      monthlyUsage: '',
+      peakUsage: '',
+      valleyUsage: '',
+      currentPrice: '',
+      industry: '',
+      demandPower: ''
     },
     result: null,
     productInfo: null,
@@ -27,8 +33,21 @@ Page({
       days: [
         { required: true, message: '请输入每月用电天数' },
         { custom: (value) => !isNaN(value) && Number(value) >= 1 && Number(value) <= 31 && Number(value) % 1 === 0, message: '每月用电天数必须是1-31之间的整数' }
+      ],
+      monthlyUsage: [
+        { required: true, message: '请输入月均用电量' },
+        { type: 'number', min: 1, message: '用电量必须大于0' }
+      ],
+      currentPrice: [
+        { required: true, message: '请输入当前电价' },
+        { type: 'number', min: 0.1, message: '电价必须大于0.1' }
       ]
-    }
+    },
+    calculationResult: null,
+    recommendedProducts: [],
+    calculating: false,
+    showResult: false,
+    error: null
   },
 
   onLoad(options) {
@@ -48,6 +67,11 @@ Page({
     } else {
       // 没有指定产品时，使用默认产品信息
       this.setDefaultProductInfo('default');
+    }
+
+    // 如果是客户经理代客户使用，预填充客户数据
+    if (options.customerId) {
+      this.loadCustomerInfo(options.customerId);
     }
   },
 
@@ -106,7 +130,8 @@ Page({
         this.setData({
           productInfo: res.data,
           'form.voltage': res.data.voltage || this.data.form.voltage,
-          'form.phase': res.data.phase || this.data.form.phase
+          'form.phase': res.data.phase || this.data.form.phase,
+          'form.industry': res.data.industry || ''
         });
         console.log('真实产品信息设置成功');
       }
@@ -120,11 +145,33 @@ Page({
     }
   },
 
+  // 加载客户信息
+  async loadCustomerInfo(customerId) {
+    try {
+      const res = await app.request({
+        url: `/customers/${customerId}`
+      });
+      if (res.data) {
+        // 预填充客户用电数据
+        this.setData({
+          'form.voltage': res.data.voltage || '',
+          'form.monthlyUsage': res.data.monthlyUsage || '',
+          'form.industry': res.data.industry || '',
+          'form.currentPrice': res.data.currentPrice || ''
+        });
+      }
+    } catch (error) {
+      console.error('加载客户信息失败:', error);
+    }
+  },
+
   // 输入框变化
   onInput(e) {
     const { field } = e.currentTarget.dataset;
+    const { value } = e.detail;
+    
     this.setData({
-      [`form.${field}`]: e.detail.value,
+      [`form.${field}`]: value,
       result: null
     });
   },
@@ -182,6 +229,17 @@ Page({
             break;
           }
         }
+
+        // 数字类型验证
+        if (rule.type === 'number') {
+          const num = parseFloat(value);
+          if (isNaN(num) || (rule.min !== undefined && num < rule.min)) {
+            isValid = false;
+            errorMessage = rule.message;
+            console.log(`数字验证失败: ${field}, 值:`, value);
+            break;
+          }
+        }
       }
 
       if (!isValid) break;
@@ -198,6 +256,7 @@ Page({
       console.log('表单验证通过');
     }
 
+    this.setData({ errors: !isValid ? { [Object.keys(rules).find(key => rules[key].some(r => r.required && !value))]: rules[Object.keys(rules).find(key => rules[key].some(r => r.required && !value))].find(r => r.required && !value).message } : {} });
     return isValid;
   },
 
@@ -276,7 +335,13 @@ Page({
         ...this.data.form,
         power: '',
         hours: '',
-        days: ''
+        days: '',
+        monthlyUsage: '',
+        peakUsage: '',
+        valleyUsage: '',
+        currentPrice: '',
+        industry: '',
+        demandPower: ''
       },
       result: null
     });
@@ -289,5 +354,80 @@ Page({
     wx.navigateTo({
       url: `/pages/products/detail/detail?id=${this.data.form.productId}`
     });
+  },
+
+  // 计算节电效益
+  async calculateSavings() {
+    if (!this.validateForm()) {
+      return;
+    }
+    
+    this.setData({
+      calculating: true,
+      error: null
+    });
+    
+    try {
+      // 调用计算接口
+      const res = await app.request({
+        url: '/calculator/savings',
+        method: 'POST',
+        data: this.data.form
+      });
+      
+      // 处理计算结果
+      this.setData({
+        calculationResult: res.data.result,
+        recommendedProducts: res.data.recommendations,
+        showResult: true
+      });
+      
+      // 记录计算历史
+      this.saveCalculationHistory(res.data);
+      
+    } catch (error) {
+      console.error('计算失败:', error);
+      this.setData({
+        error: '计算失败，请稍后重试'
+      });
+    } finally {
+      this.setData({
+        calculating: false
+      });
+    }
+  },
+
+  // 保存计算历史
+  async saveCalculationHistory(data) {
+    try {
+      await app.request({
+        url: '/calculator/history',
+        method: 'POST',
+        data: {
+          input: this.data.form,
+          result: data.result,
+          recommendations: data.recommendations
+        }
+      });
+    } catch (error) {
+      console.error('保存计算历史失败:', error);
+    }
+  },
+
+  // 查看推荐产品详情
+  viewProductDetail(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/products/detail/detail?id=${id}`
+    });
+  },
+
+  // 分享计算结果
+  onShareAppMessage() {
+    return {
+      title: '为您推荐最优惠的电力套餐',
+      path: '/pages/products/calculator/calculator',
+      imageUrl: '/assets/images/share-calculator.png'
+    };
   }
 }); 

@@ -71,101 +71,103 @@
   </view>
 
   <!-- 合同列表 -->
-  <view class="contracts-list">
-    <view
-      wx:for="{{filteredContracts}}"
-      wx:key="id"
-      class="contract-item"
-      bindtap="onContractTap"
-      data-id="{{item.id}}"
+  <view class="contract-list">
+    <!-- 标签页 -->
+    <van-tabs 
+      active="{{ activeTab }}" 
+      bind:change="onTabChange"
+      sticky
+      swipeable
     >
-      <!-- 合同状态指示条 -->
-      <view class="status-indicator status-{{item.status}}"></view>
-      
-      <!-- 合同基本信息 -->
-      <view class="contract-header">
-        <view class="contract-title-section">
-          <view class="contract-name">{{item.contractName}}</view>
-          <view class="contract-number">{{item.contractNumber}}</view>
-        </view>
-        <view class="contract-status status-{{item.status}}">
-          <text class="status-icon">{{getStatusIcon(item.status)}}</text>
-          <text class="status-text">{{getStatusText(item.status)}}</text>
-        </view>
-      </view>
+      <van-tab 
+        wx:for="{{ tabs }}" 
+        wx:key="key"
+        name="{{ item.key }}"
+        title="{{ item.name }}"
+      >
+        <!-- 合同列表 -->
+        <view class="contract-container">
+          <block wx:if="{{ contracts.length > 0 }}">
+            <view 
+              class="contract-card"
+              wx:for="{{ contracts }}"
+              wx:key="id"
+              data-id="{{ item.id }}"
+              bind:tap="viewContractDetail"
+            >
+              <!-- 合同头部 -->
+              <view class="contract-header">
+                <view class="contract-no">合同编号：{{ item.contractNo }}</view>
+                <view 
+                  class="contract-status"
+                  style="color: {{ statusColorMap[item.status] }}"
+                >{{ statusMap[item.status] }}</view>
+              </view>
 
-      <!-- 合同详情 -->
-      <view class="contract-details">
-        <view class="detail-row">
-          <text class="detail-label">📅 签署日期</text>
-          <text class="detail-value">{{item.signedDate ? formatDate(item.signedDate) : '未签署'}}</text>
-        </view>
-        <view class="detail-row">
-          <text class="detail-label">⏰ 服务期限</text>
-          <text class="detail-value">
-            {{formatDate(item.startDate)}} - {{formatDate(item.endDate)}}
-          </text>
-        </view>
-        <view class="detail-row">
-          <text class="detail-label">💰 合同金额</text>
-          <text class="detail-value amount">{{formatAmount(item.amount)}}</text>
-        </view>
-        <view wx:if="{{item.productName}}" class="detail-row">
-          <text class="detail-label">🔧 服务产品</text>
-          <text class="detail-value">{{item.productName}}</text>
-        </view>
-      </view>
+              <!-- 订单信息 -->
+              <view class="order-info">
+                <view class="info-item">
+                  <text class="label">订单编号</text>
+                  <text class="value">{{ item.orderNo }}</text>
+                </view>
+                <view class="info-item">
+                  <text class="label">产品名称</text>
+                  <text class="value">{{ item.productName }}</text>
+                </view>
+                <view class="info-item">
+                  <text class="label">服务期限</text>
+                  <text class="value">{{ item.servicePeriod }}个月</text>
+                </view>
+                <view class="info-item">
+                  <text class="label">合同金额</text>
+                  <text class="value highlight">{{ item.amount }} 元</text>
+                </view>
+              </view>
 
-      <!-- 到期提醒 -->
-      <view wx:if="{{isNearExpiry(item.endDate)}}" class="expiry-notice">
-        <text class="notice-icon">⚠️</text>
-        <text class="notice-text">合同即将到期，请及时续签</text>
-      </view>
+              <!-- 签署信息 -->
+              <view class="sign-info" wx:if="{{ item.status !== 'pending' }}">
+                <block wx:if="{{ item.customerSignTime }}">
+                  <view class="sign-item">
+                    <text class="label">客户签署时间</text>
+                    <text class="value">{{ item.customerSignTime }}</text>
+                  </view>
+                </block>
+                <block wx:if="{{ item.companySignTime }}">
+                  <view class="sign-item">
+                    <text class="label">企业签署时间</text>
+                    <text class="value">{{ item.companySignTime }}</text>
+                  </view>
+                </block>
+              </view>
 
-      <!-- 操作按钮 -->
-      <view class="contract-actions">
-        <button
-          wx:if="{{item.status === 'pending'}}"
-          class="action-btn primary"
-          catchtap="signContract"
-          data-id="{{item.id}}"
-        >
-          ✍️ 立即签署
-        </button>
-        
-        <button
-          wx:if="{{item.status === 'signed' || item.status === 'executing'}}"
-          class="action-btn secondary"
-          catchtap="renewContract"
-          data-id="{{item.id}}"
-        >
-          🔄 申请续签
-        </button>
-        
-        <button
-          class="action-btn secondary"
-          catchtap="previewContract"
-          data-id="{{item.id}}"
-        >
-          👁️ 预览
-        </button>
-        
-        <button
-          wx:if="{{item.status !== 'pending'}}"
-          class="action-btn secondary"
-          catchtap="downloadContract"
-          data-id="{{item.id}}"
-        >
-          📥 下载
-        </button>
-      </view>
+              <!-- 合同时间 -->
+              <view class="contract-footer">
+                <text class="time">{{ item.createTime }}</text>
+                <block wx:if="{{ isManager }}">
+                  <text class="customer-name">客户：{{ item.customerName }}</text>
+                </block>
+              </view>
+            </view>
+          </block>
+
+          <!-- 空状态 -->
+          <view class="empty-state" wx:elif="{{ !loading }}">
+            <image class="empty-icon" src="/assets/images/icons/empty-contract.png" />
+            <text class="empty-text">暂无合同</text>
+          </view>
+        </view>
+      </van-tab>
+    </van-tabs>
+
+    <!-- 加载状态 -->
+    <view class="loading-more" wx:if="{{ loading }}">
+      <van-loading size="24px">加载中...</van-loading>
     </view>
-  </view>
 
-  <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading-section">
-    <text class="loading-icon">⏳</text>
-    <text class="loading-text">加载中...</text>
+    <!-- 加载完成 -->
+    <view class="load-all" wx:if="{{ !hasMore && contracts.length > 0 }}">
+      没有更多合同了
+    </view>
   </view>
 
   <!-- 空状态提示 -->

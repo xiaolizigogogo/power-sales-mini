@@ -1,5 +1,6 @@
 const api = require('../../../utils/api');
 const util = require('../../../utils/common');
+const app = getApp();
 
 Page({
   data: {
@@ -58,7 +59,28 @@ Page({
 
     // 合同预览
     showContractPreview: false,
-    contractUrl: ''
+    contractUrl: '',
+
+    statusMap: {
+      'pending': '待确认',
+      'negotiating': '商务洽谈',
+      'confirmed': '已确认',
+      'rejected': '已拒绝',
+      'cancelled': '已取消'
+    },
+    statusColorMap: {
+      'pending': '#1989fa',
+      'negotiating': '#ff976a',
+      'confirmed': '#07c160',
+      'rejected': '#ee0a24',
+      'cancelled': '#969799'
+    },
+    isManager: false, // 是否为客户经理
+    showNegotiationPopup: false,
+    negotiationForm: {
+      content: '',
+      files: []
+    }
   },
 
   onLoad(options) {
@@ -66,6 +88,7 @@ Page({
     if (options.id) {
       this.setData({ orderId: options.id });
       this.loadOrderDetail();
+      this.checkUserRole();
     } else {
       this.showError('订单ID不能为空');
     }
@@ -490,5 +513,195 @@ Page({
     setTimeout(() => {
       wx.navigateBack();
     }, 2000);
+  },
+
+  // 检查用户角色
+  async checkUserRole() {
+    try {
+      const res = await app.request({
+        url: '/user/role'
+      })
+      
+      if (res.data) {
+        this.setData({
+          isManager: res.data.role === 'manager'
+        })
+      }
+    } catch (error) {
+      console.error('检查用户角色失败:', error)
+    }
+  },
+
+  // 显示商务洽谈弹窗
+  showNegotiation() {
+    this.setData({
+      showNegotiationPopup: true
+    })
+  },
+
+  // 关闭商务洽谈弹窗
+  closeNegotiation() {
+    this.setData({
+      showNegotiationPopup: false,
+      'negotiationForm.content': '',
+      'negotiationForm.files': []
+    })
+  },
+
+  // 输入洽谈内容
+  onNegotiationInput(e) {
+    this.setData({
+      'negotiationForm.content': e.detail
+    })
+  },
+
+  // 上传文件
+  async uploadFile() {
+    try {
+      const res = await wx.chooseMessageFile({
+        count: 5,
+        type: 'file',
+        extension: ['doc', 'docx', 'pdf', 'xls', 'xlsx']
+      })
+
+      const files = this.data.negotiationForm.files.concat(res.tempFiles)
+      this.setData({
+        'negotiationForm.files': files
+      })
+    } catch (error) {
+      console.error('选择文件失败:', error)
+    }
+  },
+
+  // 删除文件
+  removeFile(e) {
+    const { index } = e.currentTarget.dataset
+    const files = this.data.negotiationForm.files
+    files.splice(index, 1)
+    this.setData({
+      'negotiationForm.files': files
+    })
+  },
+
+  // 提交商务洽谈记录
+  async submitNegotiation() {
+    const { content, files } = this.data.negotiationForm
+    if (!content.trim()) {
+      wx.showToast({
+        title: '请输入洽谈内容',
+        icon: 'none'
+      })
+      return
+    }
+
+    this.setData({ submitting: true })
+
+    try {
+      // 先上传文件
+      const uploadedFiles = []
+      for (const file of files) {
+        const res = await app.uploadFile({
+          filePath: file.path,
+          name: 'file'
+        })
+        uploadedFiles.push(res.data)
+      }
+
+      // 提交洽谈记录
+      await app.request({
+        url: `/orders/${this.data.orderInfo.id}/negotiations`,
+        method: 'POST',
+        data: {
+          content,
+          files: uploadedFiles
+        }
+      })
+
+      wx.showToast({
+        title: '提交成功',
+        icon: 'success'
+      })
+
+      // 重新加载订单详情
+      this.loadOrderDetail()
+      this.closeNegotiation()
+
+    } catch (error) {
+      console.error('提交洽谈记录失败:', error)
+      wx.showToast({
+        title: '提交失败',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ submitting: false })
+    }
+  },
+
+  // 更新订单状态
+  async updateOrderStatus(e) {
+    const { status } = e.currentTarget.dataset
+    
+    try {
+      await app.request({
+        url: `/orders/${this.data.orderInfo.id}/status`,
+        method: 'PUT',
+        data: { status }
+      })
+
+      wx.showToast({
+        title: '更新成功',
+        icon: 'success'
+      })
+
+      // 重新加载订单详情
+      this.loadOrderDetail()
+
+    } catch (error) {
+      console.error('更新订单状态失败:', error)
+      wx.showToast({
+        title: '更新失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 联系客户/客户经理
+  makePhoneCall() {
+    const { orderInfo } = this.data
+    const phone = this.data.isManager ? orderInfo.customerPhone : orderInfo.managerInfo.phone
+    
+    wx.makePhoneCall({
+      phoneNumber: phone,
+      fail(error) {
+        console.error('拨打电话失败:', error)
+      }
+    })
+  },
+
+  // 预览文件
+  previewFile(e) {
+    const { url } = e.currentTarget.dataset
+    wx.downloadFile({
+      url,
+      success(res) {
+        wx.openDocument({
+          filePath: res.tempFilePath,
+          fail(error) {
+            console.error('打开文件失败:', error)
+            wx.showToast({
+              title: '打开文件失败',
+              icon: 'none'
+            })
+          }
+        })
+      },
+      fail(error) {
+        console.error('下载文件失败:', error)
+        wx.showToast({
+          title: '下载文件失败',
+          icon: 'none'
+        })
+      }
+    })
   }
 }); 
