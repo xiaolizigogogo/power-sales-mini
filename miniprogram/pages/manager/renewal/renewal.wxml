@@ -1,0 +1,394 @@
+<view class="renewal-page">
+  <!-- 顶部统计卡片 -->
+  <view class="stats-section">
+    <view class="stats-grid">
+      <view class="stat-card">
+        <view class="stat-icon">⏰</view>
+        <view class="stat-number">{{statistics.expiringSoon}}</view>
+        <view class="stat-label">即将到期</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">📋</view>
+        <view class="stat-number">{{statistics.pendingRenewal}}</view>
+        <view class="stat-label">待续约</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">✅</view>
+        <view class="stat-number">{{statistics.renewedThisMonth}}</view>
+        <view class="stat-label">本月续约</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">📈</view>
+        <view class="stat-number">{{statistics.renewalRate}}%</view>
+        <view class="stat-label">续约率</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-section">
+    <view class="filter-tabs">
+      <view 
+        wx:for="{{filterTabs}}" 
+        wx:key="key"
+        class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
+        bind:tap="onFilterChange"
+        data-filter="{{item.key}}"
+      >
+        <text class="tab-text">{{item.name}}</text>
+        <view class="tab-count">{{item.count}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-section">
+    <van-search
+      value="{{ searchKeyword }}"
+      placeholder="搜索客户名称或合同编号"
+      bind:search="onSearch"
+      bind:clear="onSearchClear"
+      bind:change="onSearchInput"
+    />
+  </view>
+
+  <!-- 续约列表 -->
+  <view class="renewal-list">
+    <view class="list-header">
+      <text class="list-title">续约管理</text>
+      <view class="sort-options">
+        <van-dropdown-menu>
+          <van-dropdown-item 
+            value="{{ sortBy }}" 
+            options="{{ sortOptions }}"
+            bind:change="onSortChange"
+          />
+        </van-dropdown-menu>
+      </view>
+    </view>
+
+    <view class="contracts-container">
+      <block wx:if="{{contractList.length > 0}}">
+        <view 
+          wx:for="{{contractList}}" 
+          wx:key="id"
+          class="contract-card"
+          bind:tap="onContractTap"
+          data-contract="{{item}}"
+        >
+          <!-- 合同基本信息 -->
+          <view class="contract-header">
+            <view class="contract-info">
+              <view class="customer-name">{{item.customerName}}</view>
+              <view class="contract-number">合同号：{{item.contractNumber}}</view>
+            </view>
+            <view class="contract-status">
+              <view 
+                class="status-badge status-{{item.status}}"
+                style="background-color: {{getRenewalStatusColor(item.status)}}"
+              >
+                {{getRenewalStatusText(item.status)}}
+              </view>
+            </view>
+          </view>
+
+          <!-- 合同详情 -->
+          <view class="contract-details">
+            <view class="detail-row">
+              <view class="detail-item">
+                <text class="detail-label">签约时间</text>
+                <text class="detail-value">{{item.signDate}}</text>
+              </view>
+              <view class="detail-item">
+                <text class="detail-label">到期时间</text>
+                <text class="detail-value expire-date">{{item.expireDate}}</text>
+              </view>
+            </view>
+            <view class="detail-row">
+              <view class="detail-item">
+                <text class="detail-label">合同金额</text>
+                <text class="detail-value amount">¥{{formatAmount(item.amount)}}</text>
+              </view>
+              <view class="detail-item">
+                <text class="detail-label">剩余天数</text>
+                <text class="detail-value {{item.daysLeft <= 30 ? 'urgent' : ''}}">
+                  {{item.daysLeft}}天
+                </text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 续约进度 -->
+          <view class="renewal-progress" wx:if="{{item.renewalProgress}}">
+            <view class="progress-header">
+              <text class="progress-title">续约进度</text>
+              <text class="progress-percent">{{item.renewalProgress.completedSteps}}/{{item.renewalProgress.totalSteps}}</text>
+            </view>
+            <view class="progress-bar">
+              <view 
+                class="progress-fill" 
+                style="width: {{(item.renewalProgress.completedSteps / item.renewalProgress.totalSteps) * 100}}%"
+              ></view>
+            </view>
+            <view class="progress-desc">{{item.renewalProgress.currentStep}}</view>
+          </view>
+
+          <!-- 操作按钮 -->
+          <view class="contract-actions">
+            <view 
+              class="action-btn secondary"
+              bind:tap="onCallCustomer"
+              data-contract="{{item}}"
+            >
+              <van-icon name="phone-o" />
+              <text>联系客户</text>
+            </view>
+            
+            <view 
+              class="action-btn primary"
+              bind:tap="onRenewalAction"
+              data-contract="{{item}}"
+            >
+              <van-icon name="edit" />
+              <text>{{getRenewalActionText(item.status)}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 空状态 -->
+      <view class="empty-contracts" wx:if="{{contractList.length === 0 && !loading}}">
+        <van-empty description="暂无续约合同">
+          <van-button 
+            type="primary" 
+            size="small"
+            bind:click="refreshData"
+          >刷新数据</van-button>
+        </van-empty>
+      </view>
+    </view>
+  </view>
+
+  <!-- 续约跟进弹窗 -->
+  <van-dialog
+    use-slot
+    title="续约跟进"
+    show="{{ showRenewalDialog }}"
+    bind:close="closeRenewalDialog"
+    confirmButtonText="保存跟进"
+    bind:confirm="confirmRenewalFollow"
+  >
+    <view class="renewal-dialog">
+      <view class="dialog-section">
+        <view class="section-title">客户信息</view>
+        <view class="customer-summary">
+          <view class="summary-item">
+            <text class="label">客户名称：</text>
+            <text class="value">{{selectedContract.customerName}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="label">合同到期：</text>
+            <text class="value">{{selectedContract.expireDate}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="label">剩余天数：</text>
+            <text class="value {{selectedContract.daysLeft <= 30 ? 'urgent' : ''}}">
+              {{selectedContract.daysLeft}}天
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <view class="dialog-section">
+        <view class="section-title">续约意向评估</view>
+        <view class="intention-assessment">
+          <van-field
+            label="意向等级"
+            value="{{ renewalForm.intentionLevel }}"
+            placeholder="选择客户续约意向"
+            readonly
+            is-link
+            bind:click="selectIntentionLevel"
+          />
+          <van-field
+            label="客户反馈"
+            value="{{ renewalForm.customerFeedback }}"
+            type="textarea"
+            placeholder="记录客户对续约的反馈"
+            autosize
+            bind:change="onRenewalFormInput"
+            data-field="customerFeedback"
+          />
+        </view>
+      </view>
+
+      <view class="dialog-section">
+        <view class="section-title">续约方案</view>
+        <view class="renewal-plan">
+          <van-field
+            label="优惠政策"
+            value="{{ renewalForm.discountPolicy }}"
+            placeholder="输入优惠政策"
+            bind:change="onRenewalFormInput"
+            data-field="discountPolicy"
+          />
+          <van-field
+            label="价格方案"
+            value="{{ renewalForm.priceScheme }}"
+            placeholder="输入价格方案"
+            bind:change="onRenewalFormInput"
+            data-field="priceScheme"
+          />
+          <van-field
+            label="服务期限"
+            value="{{ renewalForm.servicePeriod }}"
+            placeholder="选择服务期限"
+            readonly
+            is-link
+            bind:click="selectServicePeriod"
+          />
+        </view>
+      </view>
+
+      <view class="dialog-section">
+        <view class="section-title">跟进记录</view>
+        <view class="follow-record">
+          <van-field
+            label="跟进内容"
+            value="{{ renewalForm.followContent }}"
+            type="textarea"
+            placeholder="详细记录本次跟进的内容"
+            autosize
+            maxlength="500"
+            show-word-limit
+            bind:change="onRenewalFormInput"
+            data-field="followContent"
+          />
+          <van-field
+            label="下次跟进"
+            value="{{ renewalForm.nextFollowDate }}"
+            placeholder="选择下次跟进时间"
+            readonly
+            is-link
+            bind:click="selectNextFollowDate"
+          />
+        </view>
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 续约提醒设置弹窗 -->
+  <van-dialog
+    use-slot
+    title="续约提醒设置"
+    show="{{ showReminderDialog }}"
+    bind:close="closeReminderDialog"
+    confirmButtonText="设置提醒"
+    bind:confirm="confirmReminderSetting"
+  >
+    <view class="reminder-dialog">
+      <view class="reminder-options">
+        <view class="option-item">
+          <van-checkbox 
+            value="{{ reminderForm.emailReminder }}"
+            bind:change="onReminderFormChange"
+            data-field="emailReminder"
+          >
+            邮件提醒
+          </van-checkbox>
+        </view>
+        <view class="option-item">
+          <van-checkbox 
+            value="{{ reminderForm.smsReminder }}"
+            bind:change="onReminderFormChange"
+            data-field="smsReminder"
+          >
+            短信提醒
+          </van-checkbox>
+        </view>
+        <view class="option-item">
+          <van-checkbox 
+            value="{{ reminderForm.wechatReminder }}"
+            bind:change="onReminderFormChange"
+            data-field="wechatReminder"
+          >
+            微信提醒
+          </van-checkbox>
+        </view>
+      </view>
+      
+      <view class="reminder-timing">
+        <van-field
+          label="提醒时间"
+          value="{{ reminderForm.reminderDays }}"
+          placeholder="选择提前提醒天数"
+          readonly
+          is-link
+          bind:click="selectReminderDays"
+        />
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 选择器 -->
+  <van-action-sheet
+    show="{{ showIntentionPicker }}"
+    actions="{{ intentionOptions }}"
+    bind:close="closeIntentionPicker"
+    bind:select="onIntentionSelect"
+    cancel-text="取消"
+  />
+
+  <van-action-sheet
+    show="{{ showServicePeriodPicker }}"
+    actions="{{ servicePeriodOptions }}"
+    bind:close="closeServicePeriodPicker"
+    bind:select="onServicePeriodSelect"
+    cancel-text="取消"
+  />
+
+  <van-action-sheet
+    show="{{ showReminderDaysPicker }}"
+    actions="{{ reminderDaysOptions }}"
+    bind:close="closeReminderDaysPicker"
+    bind:select="onReminderDaysSelect"
+    cancel-text="取消"
+  />
+
+  <!-- 日期选择器 -->
+  <van-datetime-picker
+    show="{{ showDatePicker }}"
+    type="date"
+    value="{{ pickerDate }}"
+    min-date="{{ minDate }}"
+    bind:confirm="onDateConfirm"
+    bind:cancel="closeDatePicker"
+  />
+
+  <!-- 快速操作 -->
+  <view class="quick-actions">
+    <view class="action-row">
+      <view class="quick-btn" bind:tap="showExpiringContracts">
+        <van-icon name="clock-o" />
+        <text>即将到期</text>
+      </view>
+      <view class="quick-btn" bind:tap="showRenewalReminders">
+        <van-icon name="bell-o" />
+        <text>续约提醒</text>
+      </view>
+      <view class="quick-btn" bind:tap="exportRenewalReport">
+        <van-icon name="description" />
+        <text>续约报告</text>
+      </view>
+      <view class="quick-btn" bind:tap="openRenewalSettings">
+        <van-icon name="setting-o" />
+        <text>提醒设置</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <van-loading size="24px">加载中...</van-loading>
+  </view>
+</view> 

@@ -1,154 +1,98 @@
-<view class="page-container">
-  <custom-navbar 
-    title="产品详情" 
-    bgColor="#409EFF"
-  />
-  
-  <block wx:if="{{!loading && detail}}">
-    <scroll-view 
-      class="detail-scroll" 
-      scroll-y 
-      enhanced 
-      show-scrollbar="{{false}}"
-    >
-      <swiper 
-        class="banner" 
-        indicator-dots 
-        circular 
-        autoplay
-      >
-        <swiper-item 
-          wx:for="{{detail.images}}" 
-          wx:key="*this"
-          bindtap="previewImage"
-          data-current="{{item}}"
-        >
-          <image src="{{item}}" mode="aspectFill" class="banner-image" />
-        </swiper-item>
-      </swiper>
+<view class="container">
+  <!-- 产品图片轮播 -->
+  <swiper class="product-swiper" indicator-dots circular>
+    <swiper-item wx:for="{{ product.images }}" wx:key="*this">
+      <image src="{{ item }}" mode="aspectFill" class="product-image" />
+    </swiper-item>
+  </swiper>
 
-      <view class="info-card">
-        <view class="product-title">
-          <text class="product-name">{{detail.name}}</text>
-          <view class="share-button" bindtap="showSharePanel">
-            <image src="/assets/icons/share.png" class="share-icon" />
-            <text>分享</text>
-          </view>
-        </view>
-
-        <view class="product-price">
-          <text class="price-unit">¥</text>
-          <text class="price-value">{{detail.price}}</text>
-          <text class="price-unit">/度</text>
-        </view>
-
-        <view class="product-tags">
-          <view class="tag">{{detail.categoryName}}</view>
-          <view class="tag">{{detail.voltage}}V</view>
-          <view class="tag">{{detail.phase}}相</view>
-        </view>
+  <!-- 产品基本信息 -->
+  <view class="product-info">
+    <view class="product-header">
+      <view class="product-name">{{ product.name }}</view>
+      <view class="product-price">
+        <text class="price-label">电价：</text>
+        <text class="price-value">¥{{ product.price }}/度</text>
       </view>
+    </view>
+    <view class="product-tags">
+      <view class="tag" wx:for="{{ product.tags }}" wx:key="*this">{{ item }}</view>
+    </view>
+    <view class="product-desc">{{ product.description }}</view>
+  </view>
 
-      <view class="detail-card">
-        <view class="card-title">产品说明</view>
-        <view class="product-desc">{{detail.description}}</view>
-      </view>
-
-      <view class="detail-card">
-        <view class="card-title">适用范围</view>
-        <view class="scope-list">
-          <view 
-            wx:for="{{detail.scopes}}" 
-            wx:key="*this"
-            class="scope-item"
-          >
-            <image src="/assets/icons/check.png" class="check-icon" />
-            <text>{{item}}</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="detail-card">
-        <view class="card-title">优惠政策</view>
-        <view class="policy-list">
-          <view 
-            wx:for="{{detail.policies}}" 
-            wx:key="*this"
-            class="policy-item"
-          >
-            <image src="/assets/icons/policy.png" class="policy-icon" />
-            <text>{{item}}</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="detail-card">
-        <view class="card-title">办理流程</view>
-        <view class="process-list">
-          <view 
-            wx:for="{{detail.process}}" 
-            wx:key="step"
-            class="process-item"
-          >
-            <view class="process-step">{{item.step}}</view>
-            <view class="process-content">
-              <view class="process-title">{{item.title}}</view>
-              <view class="process-desc">{{item.description}}</view>
+  <!-- 产品详细信息 -->
+  <view class="product-details">
+    <van-tabs active="{{ activeTab }}" bind:change="onTabChange">
+      <!-- 套餐详情 -->
+      <van-tab title="套餐详情">
+        <view class="detail-section">
+          <view class="section-title">套餐包含</view>
+          <view class="feature-list">
+            <view class="feature-item" wx:for="{{ product.features }}" wx:key="*this">
+              <van-icon name="success" color="#409EFF" />
+              <text>{{ item }}</text>
             </view>
           </view>
         </view>
-      </view>
-
-      <view class="safe-bottom"></view>
-    </scroll-view>
-
-    <view class="action-bar">
-      <view class="action-left">
-        <view class="action-button" bindtap="contactService">
-          <view class="action-icon">📞</view>
-          <text>客服</text>
-        </view>
-        <view class="action-button" bindtap="goToCalculator">
-          <view class="action-icon">🧮</view>
-          <text>计算器</text>
-        </view>
-      </view>
-      <button class="buy-button" bindtap="handleBuy">立即购买</button>
-    </view>
-
-    <view class="share-panel {{showShare ? 'show' : ''}}">
-      <view class="share-mask" bindtap="hideSharePanel"></view>
-      <view class="share-content">
-        <view class="share-title">分享方式</view>
-        <view class="share-options">
-          <button 
-            class="share-item" 
-            open-type="share"
-          >
-            <image src="/assets/icons/wechat.png" class="share-item-icon" />
-            <text>微信好友</text>
-          </button>
-          <view 
-            class="share-item"
-            bindtap="generatePoster"
-          >
-            <image src="/assets/icons/moments.png" class="share-item-icon" />
-            <text>生成海报</text>
-          </view>
-          <view 
-            class="share-item"
-            bindtap="copyLink"
-          >
-            <image src="/assets/icons/link.png" class="share-item-icon" />
-            <text>复制链接</text>
+        <view class="detail-section">
+          <view class="section-title">使用说明</view>
+          <view class="instruction-list">
+            <view class="instruction-item" wx:for="{{ product.instructions }}" wx:key="*this">
+              {{ index + 1 }}. {{ item }}
+            </view>
           </view>
         </view>
-        <view class="share-cancel" bindtap="hideSharePanel">取消</view>
-      </view>
-    </view>
-  </block>
+      </van-tab>
 
-  <view wx:if="{{loading}}" class="loading-container">
-    <custom-loading />
+      <!-- 价格说明 -->
+      <van-tab title="价格说明">
+        <view class="detail-section">
+          <view class="price-table">
+            <view class="table-row header">
+              <view class="cell">用电量</view>
+              <view class="cell">单价（元/度）</view>
+              <view class="cell">说明</view>
+            </view>
+            <view class="table-row" wx:for="{{ product.priceTiers }}" wx:key="tier">
+              <view class="cell">{{ item.range }}</view>
+              <view class="cell">{{ item.price }}</view>
+              <view class="cell">{{ item.note }}</view>
+            </view>
+          </view>
+        </view>
+      </van-tab>
+
+      <!-- 常见问题 -->
+      <van-tab title="常见问题">
+        <view class="detail-section">
+          <van-collapse value="{{ activeCollapse }}" bind:change="onCollapseChange">
+            <van-collapse-item 
+              wx:for="{{ product.faqs }}" 
+              wx:key="question"
+              title="{{ item.question }}"
+              name="{{ index }}"
+            >
+              {{ item.answer }}
+            </van-collapse-item>
+          </van-collapse>
+        </view>
+      </van-tab>
+    </van-tabs>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="action-buttons">
+      <button class="btn calculator" bindtap="goToCalculator">
+        <van-icon name="balance-list-o" />
+        <text>电费计算</text>
+      </button>
+      <button class="btn contact" bindtap="contactService">
+        <van-icon name="service-o" />
+        <text>在线咨询</text>
+      </button>
+    </view>
+    <button class="btn primary" bindtap="createOrder">立即购买</button>
   </view>
 </view> 

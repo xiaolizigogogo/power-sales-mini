@@ -408,6 +408,69 @@ const orderAPI = {
   // 查看退款详情
   getRefundDetail: (id) => {
     return apiService.get(`/orders/${id}/refund`)
+  },
+
+  // 获取服务数据
+  getServiceData: (orderId) => {
+    return apiService.get(`/orders/${orderId}/service-data`)
+  }
+}
+
+// 客户维护相关 API
+const maintenanceAPI = {
+  // 获取维护统计
+  getStatistics: () => {
+    return apiService.get('/maintenance/statistics')
+  },
+
+  // 获取今日任务
+  getTodayTasks: () => {
+    return apiService.get('/maintenance/today-tasks')
+  },
+
+  // 获取最近回访记录
+  getRecentVisits: (params) => {
+    return apiService.get('/maintenance/recent-visits', params)
+  },
+
+  // 快速回访
+  quickVisit: (data) => {
+    return apiService.post('/maintenance/quick-visit', data)
+  },
+
+  // 安排回访
+  scheduleVisit: (data) => {
+    return apiService.post('/maintenance/schedule-visit', data)
+  },
+
+  // 推广服务
+  promoteService: (data) => {
+    return apiService.post('/maintenance/promote-service', data)
+  },
+
+  // 完成任务
+  completeTask: (taskId) => {
+    return apiService.post(`/maintenance/tasks/${taskId}/complete`)
+  },
+
+  // 获取回访计划
+  getVisitPlan: (params) => {
+    return apiService.get('/maintenance/visit-plan', params)
+  },
+
+  // 创建回访计划
+  createVisitPlan: (data) => {
+    return apiService.post('/maintenance/visit-plan', data)
+  },
+
+  // 获取问题跟踪
+  getIssueTracking: (params) => {
+    return apiService.get('/maintenance/issue-tracking', params)
+  },
+
+  // 上报问题
+  reportIssue: (data) => {
+    return apiService.post('/maintenance/report-issue', data)
   }
 }
 
@@ -415,40 +478,55 @@ const orderAPI = {
 const customerAPI = {
   // 获取我的客户列表
   getMyCustomers: (params) => {
-    return apiService.get('/customers/my-customers', params)
+    return apiService.get('/manager/customers/my', params)
+  },
+
+  // 获取客户统计数据
+  getStatistics: () => {
+    return apiService.get('/manager/customers/statistics')
+  },
+
+  // 导出客户数据
+  exportCustomers: (params) => {
+    return apiService.post('/manager/customers/export', params)
   },
 
   // 获取客户详情
   getCustomerDetail: (id) => {
-    return apiService.get(`/customers/${id}`)
+    return apiService.get(`/manager/customers/${id}`)
   },
 
-  // 添加跟进记录
-  addFollowRecord: (customerId, recordData) => {
-    return apiService.post(`/customers/${customerId}/follow`, recordData)
+  // 更新客户信息
+  updateCustomer: (id, data) => {
+    return apiService.put(`/manager/customers/${id}`, data)
   },
 
-  // 获取跟进记录
-  getFollowRecords: (customerId, params) => {
-    return apiService.get(`/customers/${customerId}/follow`, params)
+  // 添加客户
+  addCustomer: (data) => {
+    return apiService.post('/manager/customers', data)
   },
 
-  // 更新客户状态
-  updateCustomerStatus: (customerId, status) => {
-    return apiService.put(`/customers/${customerId}/status`, { status })
+  // 删除客户
+  deleteCustomer: (id) => {
+    return apiService.delete(`/manager/customers/${id}`)
+  },
+
+  // 批量操作客户
+  batchOperation: (data) => {
+    return apiService.post('/manager/customers/batch', data)
   }
 }
 
 // 跟进管理相关 API
 const followAPI = {
-  // 获取跟进列表
-  getFollowList: (params) => {
-    return apiService.get('/manager/follow', params)
+  // 获取跟进统计数据
+  getStatistics: () => {
+    return apiService.get('/manager/follow/statistics')
   },
 
-  // 获取跟进统计
-  getFollowStatistics: () => {
-    return apiService.get('/manager/follow/statistics')
+  // 获取跟进列表
+  getFollowList: (params) => {
+    return apiService.get('/manager/follow/list', params)
   },
 
   // 获取跟进详情
@@ -457,46 +535,123 @@ const followAPI = {
   },
 
   // 添加跟进记录
-  addFollowRecord: (followData) => {
-    return apiService.post('/manager/follow', followData)
+  addFollow: (data) => {
+    return apiService.post('/manager/follow', data)
+  },
+
+  // 更新跟进记录
+  updateFollow: (id, data) => {
+    return apiService.put(`/manager/follow/${id}`, data)
   },
 
   // 完成跟进
-  completeFollow: (id, result) => {
-    return apiService.post(`/manager/follow/${id}/complete`, { result })
+  completeFollow: (data) => {
+    return apiService.post('/manager/follow/complete', data)
   },
 
-  // 重新安排跟进
-  rescheduleFollow: (id, newDate) => {
-    return apiService.post(`/manager/follow/${id}/reschedule`, { newDate })
+  // 延期跟进
+  postponeFollow: (data) => {
+    return apiService.post('/manager/follow/postpone', data)
   },
 
-  // 批量操作跟进
-  batchFollow: (action, followIds, data = {}) => {
-    return apiService.post('/manager/follow/batch', { action, followIds, ...data })
+  // 删除跟进记录
+  deleteFollow: (id) => {
+    return apiService.delete(`/manager/follow/${id}`)
+  },
+
+  // 批量完成跟进
+  batchCompleteFollow: (data) => {
+    return apiService.post('/manager/follow/batch/complete', data)
+  },
+
+  // 批量删除跟进
+  batchDeleteFollow: (data) => {
+    return apiService.post('/manager/follow/batch/delete', data)
+  },
+
+  // 上传跟进附件
+  uploadAttachment: (filePath) => {
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: `${config.baseURL}/manager/follow/attachment`,
+        filePath,
+        name: 'file',
+        header: {
+          'Authorization': wx.getStorageSync('token')
+        },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data)
+            if (data.code === 200) {
+              resolve(data)
+            } else {
+              reject(data)
+            }
+          } catch (error) {
+            reject(error)
+          }
+        },
+        fail: reject
+      })
+    })
+  },
+
+  // 设置跟进提醒
+  setReminder: (data) => {
+    return apiService.post('/manager/follow/reminder', data)
   }
 }
 
 // 业绩统计相关 API
 const performanceAPI = {
-  // 获取个人业绩统计
-  getPersonalPerformance: (params) => {
-    return apiService.get('/performance/personal', params)
+  // 获取业绩数据
+  getPerformanceData: (params) => {
+    return apiService.get('/manager/performance/data', params)
   },
 
-  // 获取团队业绩统计
-  getTeamPerformance: (params) => {
-    return apiService.get('/performance/team', params)
+  // 获取目标数据
+  getTargetData: () => {
+    return apiService.get('/manager/performance/target')
   },
 
-  // 获取业绩排行榜
-  getRanking: (params) => {
-    return apiService.get('/performance/ranking', params)
+  // 获取图表数据
+  getChartData: (params) => {
+    return apiService.get('/manager/performance/chart', params)
   },
 
-  // 设置业绩目标
-  setTarget: (targetData) => {
-    return apiService.post('/performance/target', targetData)
+  // 获取排行榜数据
+  getRankingData: (params) => {
+    return apiService.get('/manager/performance/ranking', params)
+  },
+
+  // 获取业绩明细
+  getPerformanceDetail: (params) => {
+    return apiService.get('/manager/performance/detail', params)
+  },
+
+  // 设置目标
+  setTarget: (data) => {
+    return apiService.post('/manager/performance/target', data)
+  },
+
+  // 导出业绩报告
+  exportReport: (params) => {
+    return apiService.post('/manager/performance/export', params)
+  },
+
+  // 获取业绩趋势
+  getTrend: (params) => {
+    return apiService.get('/manager/performance/trend', params)
+  },
+
+  // 获取客户转化数据
+  getConversionData: (params) => {
+    return apiService.get('/manager/performance/conversion', params)
+  },
+
+  // 获取收入明细
+  getRevenueDetail: (params) => {
+    return apiService.get('/manager/performance/revenue', params)
   }
 }
 
@@ -534,18 +689,19 @@ module.exports = {
   productAPI,
   orderAPI,
   customerAPI,
+  maintenanceAPI,
   followAPI,
   performanceAPI,
   uploadAPI,
   
   // 跟进相关方法的直接导出（为了与follow.js兼容）
   getFollowList: followAPI.getFollowList,
-  getFollowStatistics: followAPI.getFollowStatistics,
+  getFollowStatistics: followAPI.getStatistics,
   getFollowDetail: followAPI.getFollowDetail,
-  addFollowRecord: followAPI.addFollowRecord,
+  addFollowRecord: followAPI.addFollow,
   completeFollow: followAPI.completeFollow,
-  rescheduleFollow: followAPI.rescheduleFollow,
-  batchFollow: followAPI.batchFollow,
+  rescheduleFollow: followAPI.postponeFollow,
+  batchFollow: followAPI.batchCompleteFollow,
 
   // 产品相关方法的直接导出
   getProducts: productAPI.getProducts,
@@ -554,4 +710,45 @@ module.exports = {
 
   // 用户相关方法的直接导出
   getUserPowerInfo: authAPI.getUserPowerInfo
-} 
+}
+
+// 合同续约相关 API
+const renewalAPI = {
+  // 获取续约统计数据（客户经理端）
+  getStatistics: () => {
+    return apiService.get('/renewal/statistics')
+  },
+
+  // 获取续约合同列表（客户经理端）
+  getContracts: (params) => {
+    return apiService.get('/renewal/contracts', params)
+  },
+
+  // 续约跟进记录
+  followRenewal: (data) => {
+    return apiService.post('/renewal/follow', data)
+  },
+
+  // 设置续约提醒
+  setReminderSettings: (data) => {
+    return apiService.post('/renewal/reminder-settings', data)
+  },
+
+  // 导出续约报告
+  exportReport: () => {
+    return apiService.post('/renewal/export-report')
+  },
+
+  // 获取客户端续约合同列表
+  getCustomerContracts: (params) => {
+    return apiService.get('/renewal/customer-contracts', params)
+  },
+
+  // 客户续约决策
+  customerDecision: (data) => {
+    return apiService.post('/renewal/customer-decision', data)
+  }
+}
+
+// 添加到导出对象
+module.exports.renewalAPI = renewalAPI 

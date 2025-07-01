@@ -1,3 +1,183 @@
+.container {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 20rpx;
+}
+
+.product-info {
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.product-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.price-value {
+  font-size: 36rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.calculator-form {
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.slider-box {
+  margin-bottom: 20rpx;
+}
+
+.slider-box:last-child {
+  margin-bottom: 0;
+}
+
+.slider-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.form-actions {
+  margin-top: 40rpx;
+}
+
+.result-section {
+  background: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.result-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.result-card {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.compare-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.result-content {
+  background: #f8f9fa;
+  border-radius: 8rpx;
+  padding: 20rpx;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+}
+
+.item-label {
+  color: #666;
+}
+
+.item-value {
+  color: #333;
+  font-weight: bold;
+}
+
+.result-item.highlight .item-value {
+  color: #409eff;
+}
+
+.result-item.savings {
+  margin-top: 10rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx dashed #eee;
+}
+
+.result-item.savings .item-value {
+  color: #ff6b6b;
+}
+
+.annual-savings {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.savings-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.savings-label {
+  display: block;
+  font-size: 26rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.savings-tips {
+  text-align: center;
+  padding: 20rpx 0;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.result-actions {
+  padding: 30rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+
 .calculator-container {
   min-height: 100vh;
   background-color: #f7f8fa;
@@ -30,21 +210,6 @@
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
 }
 
-.form-item {
-  margin-bottom: 32rpx;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.form-label {
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 16rpx;
-  font-weight: 500;
-}
-
 .error-text {
   font-size: 24rpx;
   color: #ee0a24;
@@ -61,19 +226,6 @@
   padding: 32rpx;
   margin-bottom: 32rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-}
-
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32rpx;
-}
-
-.result-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
 }
 
 .result-time {
@@ -176,23 +328,6 @@
   height: 120rpx;
   border-radius: 8rpx;
   margin-right: 24rpx;
-}
-
-.product-info {
-  flex: 1;
-}
-
-.product-name {
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 8rpx;
-}
-
-.product-price {
-  font-size: 32rpx;
-  color: #ee0a24;
-  font-weight: 500;
-  margin-bottom: 8rpx;
 }
 
 .product-saving {

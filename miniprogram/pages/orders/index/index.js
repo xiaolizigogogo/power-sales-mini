@@ -1,6 +1,8 @@
 const app = getApp();
 const auth = require('../../../utils/auth');
 const { formatDate, formatMoney } = require('../../../utils/common');
+const { checkRoleAccess } = require('../../../utils/auth');
+const { request } = require('../../../utils/api');
 
 Page({
   data: {
@@ -12,7 +14,7 @@ Page({
     isEmpty: false,
     
     // 筛选状态
-    activeTab: 'all',
+    activeTab: 0,
     tabList: [
       { key: 'all', name: '全部', count: 0 },
       { key: 'pending', name: '待确认', count: 0 },
@@ -46,11 +48,11 @@ Page({
     actionSheetActions: [],
     selectedOrder: null,
     statusMap: {
-      'pending': '待确认',
-      'negotiating': '商务洽谈',
-      'confirmed': '已确认',
-      'rejected': '已拒绝',
-      'cancelled': '已取消'
+      0: { text: '全部', value: '' },
+      1: { text: '待付款', value: 'pending' },
+      2: { text: '处理中', value: 'processing' },
+      3: { text: '已完成', value: 'completed' },
+      4: { text: '已取消', value: 'cancelled' }
     },
     statusColorMap: {
       'pending': '#1989fa',
@@ -74,7 +76,9 @@ Page({
       { key: 'confirmed', name: '已确认' },
       { key: 'rejected', name: '已拒绝' },
       { key: 'cancelled', name: '已取消' }
-    ]
+    ],
+    searchValue: '',
+    orders: []
   },
 
   onLoad(options) {
@@ -121,11 +125,12 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.refreshOrderList();
+    this.loadOrders(true);
+    wx.stopPullDownRefresh();
   },
 
   onReachBottom() {
-    this.loadMoreOrders();
+    this.loadOrders();
   },
 
   onShareAppMessage() {
@@ -195,328 +200,182 @@ Page({
   },
 
   // 加载订单列表
-  async loadOrderList(reset = false) {
-    if (this.data.loading && !reset) return;
+  async loadOrders(refresh = false) {
+    if (refresh) {
+      this.setData({
+        page: 1,
+        orders: [],
+        hasMore: true
+      });
+    }
 
-    const page = reset ? 1 : this.data.page;
-    
-    this.setData({
-      loading: reset || this.data.orderList.length === 0,
-      refreshing: reset
-    });
+    if (!this.data.hasMore || this.data.loading) return;
+
+    this.setData({ loading: true });
 
     try {
+      const { searchValue, page, pageSize, statusMap, activeTab } = this.data;
       const params = {
-        page: page - 1,
-        size: this.data.pageSize,
-        status: this.data.activeTab === 'all' ? '' : this.data.activeTab,
-        keyword: this.data.searchKeyword
+        page,
+        pageSize,
+        keyword: searchValue,
+        status: statusMap[activeTab].value
       };
 
-      console.log('加载订单列表，参数:', params);
+      const res = await request('GET', '/api/orders', params);
+      
+      const { list, total } = res.data;
+      const processedOrders = list.map(order => ({
+        ...order,
+        statusText: this.getStatusText(order.status),
+        createTime: this.formatTime(order.createTime)
+      }));
 
-      const response = await app.request({
-        url: '/user/orders',
-        method: 'GET',
-        data: params
+      const hasMore = page * pageSize < total;
+      
+      this.setData({
+        orders: [...this.data.orders, ...processedOrders],
+        page: hasMore ? page + 1 : page,
+        hasMore,
+        loading: false
       });
-
-      console.log('订单列表响应:', response);
-
-      if (response.data) {
-        let items = [];
-        let hasMore = false;
-        let totalElements = 0;
-        
-        // 解析后端返回的数据结构
-        if (Array.isArray(response.data)) {
-          // 直接返回数组
-          items = response.data;
-          hasMore = items.length >= this.data.pageSize;
-        } else if (response.data.content) {
-          // 标准分页响应
-          items = response.data.content;
-          hasMore = !response.data.last;
-          totalElements = response.data.totalElements || 0;
-        } else if (response.data.list) {
-          // 自定义list字段
-          items = response.data.list;
-          hasMore = response.data.hasMore || false;
-          totalElements = response.data.total || 0;
-        }
-        
-        console.log('解析到的订单数据:', items.length, '条');
-        console.log('是否有更多数据:', hasMore);
-        console.log('总数据量:', totalElements);
-        
-        // 处理订单数据
-        const processedOrders = items.map(order => this.processOrderData(order));
-        
-        this.setData({
-          orderList: reset ? processedOrders : this.data.orderList.concat(processedOrders),
-          hasMore: hasMore,
-          page: page + 1,
-          total: totalElements,
-          isEmpty: reset && processedOrders.length === 0
-        });
-        
-        console.log('订单列表更新完成，当前订单数:', this.data.orderList.length);
-      }
     } catch (error) {
       console.error('加载订单列表失败:', error);
-      // 使用模拟数据
-      if (reset || this.data.orderList.length === 0) {
-        this.loadMockOrders();
-      } else {
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      });
+      this.setData({ loading: false });
+    }
+  },
+
+  // 搜索相关
+  onSearchChange(e) {
+    this.setData({
+      searchValue: e.detail
+    });
+  },
+
+  onSearch() {
+    this.loadOrders(true);
+  },
+
+  // 标签页切换
+  onTabChange(e) {
+    this.setData({
+      activeTab: e.detail.index
+    });
+    this.loadOrders(true);
+  },
+
+  // 订单操作
+  async payOrder(e) {
+    const { id } = e.currentTarget.dataset;
+    // 调用支付接口
+    try {
+      const res = await request('POST', `/api/orders/${id}/pay`);
+      wx.requestPayment({
+        ...res.data,
+        success: () => {
+          wx.showToast({
+            title: '支付成功'
+          });
+          this.loadOrders(true);
+        },
+        fail: () => {
+          wx.showToast({
+            title: '支付失败',
+            icon: 'none'
+          });
+        }
+      });
+    } catch (error) {
+      console.error('发起支付失败:', error);
+      wx.showToast({
+        title: '发起支付失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  async cancelOrder(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.showModal({
+      title: '取消订单',
+      content: '确定要取消该订单吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            await request('POST', `/api/orders/${id}/cancel`);
+            wx.showToast({
+              title: '订单已取消'
+            });
+            this.loadOrders(true);
+          } catch (error) {
+            console.error('取消订单失败:', error);
+            wx.showToast({
+              title: '取消失败，请重试',
+              icon: 'none'
+            });
+          }
+        }
+      }
+    });
+  },
+
+  contactService() {
+    wx.makePhoneCall({
+      phoneNumber: '400-123-4567',
+      fail() {
         wx.showToast({
-          title: '加载失败',
+          title: '拨打失败，请稍后重试',
           icon: 'none'
         });
       }
-    } finally {
-      this.setData({
-        loading: false,
-        refreshing: false,
-        loadingMore: false
-      });
-      
-      if (this.data.refreshing) {
-        wx.stopPullDownRefresh();
-      }
-    }
-  },
-
-  // 加载模拟订单数据
-  loadMockOrders() {
-    const mockOrders = [
-      {
-        id: 1,
-        orderNo: 'PO202412270001',
-        productName: '工商业基础用电套餐',
-        productPrice: '0.65',
-        amount: 12500.00,
-        status: 'pending',
-        customerName: '张三',
-        companyName: '北京科技有限公司',
-        created_at: '2024-12-27 10:30:00',
-        updated_at: '2024-12-27 10:30:00',
-        serviceStartDate: '2025-01-01',
-        serviceEndDate: '2025-12-31'
-      },
-      {
-        id: 2,
-        orderNo: 'PO202412270002',
-        productName: '工商业标准用电套餐',
-        productPrice: '0.62',
-        amount: 25800.00,
-        status: 'confirmed',
-        customerName: '李四',
-        companyName: '上海制造有限公司',
-        created_at: '2024-12-26 14:20:00',
-        updated_at: '2024-12-27 09:15:00',
-        serviceStartDate: '2025-01-01',
-        serviceEndDate: '2025-12-31'
-      },
-      {
-        id: 3,
-        orderNo: 'PO202412270003',
-        productName: '居民生活用电套餐',
-        productPrice: '0.56',
-        amount: 3600.00,
-        status: 'active',
-        customerName: '王五',
-        companyName: '广州贸易有限公司',
-        created_at: '2024-12-25 16:45:00',
-        updated_at: '2024-12-26 11:30:00',
-        serviceStartDate: '2024-12-26',
-        serviceEndDate: '2025-12-25'
-      },
-      {
-        id: 4,
-        orderNo: 'PO202412270004',
-        productName: '农业生产用电套餐',
-        productPrice: '0.45',
-        amount: 8900.00,
-        status: 'completed',
-        customerName: '赵六',
-        companyName: '农业合作社',
-        created_at: '2024-12-20 09:00:00',
-        updated_at: '2024-12-25 17:00:00',
-        serviceStartDate: '2024-12-21',
-        serviceEndDate: '2025-12-20'
-      }
-    ];
-
-    // 根据当前标签筛选
-    let filteredOrders = mockOrders;
-    if (this.data.activeTab !== 'all') {
-      filteredOrders = mockOrders.filter(order => order.status === this.data.activeTab);
-    }
-
-    // 根据搜索关键词筛选
-    if (this.data.searchKeyword) {
-      const keyword = this.data.searchKeyword.toLowerCase();
-      filteredOrders = filteredOrders.filter(order => 
-        order.orderNo.toLowerCase().includes(keyword) ||
-        order.productName.toLowerCase().includes(keyword) ||
-        order.customerName.toLowerCase().includes(keyword) ||
-        order.companyName.toLowerCase().includes(keyword)
-      );
-    }
-
-    // 处理订单数据
-    const processedOrders = filteredOrders.map(order => this.processOrderData(order));
-
-    this.setData({
-      orderList: processedOrders,
-      hasMore: false,
-      isEmpty: processedOrders.length === 0
     });
   },
 
-  // 处理订单数据
-  processOrderData(order) {
-    console.log('处理订单数据:', order);
-    
-    return {
-      ...order,
-      // 基本信息
-      orderNumber: order.orderNo || order.order_no || `PO${order.id}`,
-      createdAt: formatDate(order.createdAt || order.created_at, 'MM-DD HH:mm'),
-      updatedAt: formatDate(order.updatedAt || order.updated_at, 'MM-DD HH:mm'),
-      
-      // 状态相关
-      statusText: order.statusText || this.getStatusText(order.status),
-      statusClass: this.getStatusClass(order.status),
-      
-      // 产品信息
-      productImage: order.productImage || '/assets/images/default-product.png',
-      productDesc: order.productName ? `产品：${order.productName}` : `单价：¥${order.productPrice || '0.60'}/度`,
-      capacity: order.capacity || '标准容量',
-      servicePeriod: this.getServicePeriod(order),
-      amount: formatMoney(order.amount),
-      
-      // 服务信息
-      assignedEmployee: order.assignedEmployee || null,
-      
-      // 进度信息
-      showProgress: ['confirmed', 'contract', 'active'].includes(order.status),
-      currentStep: this.getCurrentStep(order.status),
-      progressSteps: this.getProgressSteps(),
-      progressPercent: this.getProgressPercent(order.status),
-      
-      // 操作权限（后端可能已经返回了这些字段）
-      canCancel: order.canCancel !== undefined ? order.canCancel : ['pending'].includes(order.status),
-      canModify: order.canModify !== undefined ? order.canModify : ['pending'].includes(order.status),
-      canPay: order.canPay !== undefined ? order.canPay : order.status === 'confirmed',
-      canViewContract: order.canViewContract !== undefined ? order.canViewContract : ['contract', 'active', 'completed'].includes(order.status),
-      canConfirm: order.canConfirm !== undefined ? order.canConfirm : order.status === 'active'
-    };
+  renewOrder(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/orders/renew/renew?orderId=${id}`
+    });
   },
 
-  // 获取状态文本
+  viewContract(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/contracts/detail/detail?orderId=${id}`
+    });
+  },
+
+  viewDetail(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/orders/detail/detail?id=${id}`
+    });
+  },
+
+  // 工具方法
   getStatusText(status) {
-    const statusMap = {
-      pending: '待确认',
-      confirmed: '已确认',
-      contract: '待签约',
-      active: '服务中',
-      completed: '已完成',
-      cancelled: '已取消'
+    const statusTextMap = {
+      'pending': '待付款',
+      'processing': '处理中',
+      'completed': '已完成',
+      'cancelled': '已取消'
     };
-    return statusMap[status] || '未知状态';
+    return statusTextMap[status] || status;
   },
 
-  // 获取状态颜色
-  getStatusColor(status) {
-    const colorMap = {
-      pending: '#ff9500',
-      confirmed: '#007aff',
-      contract: '#5856d6',
-      active: '#34c759',
-      completed: '#8e8e93',
-      cancelled: '#ff3b30'
-    };
-    return colorMap[status] || '#8e8e93';
-  },
-
-  // 获取订单进度
-  getOrderProgress(status) {
-    const progressMap = {
-      pending: 20,
-      confirmed: 40,
-      contract: 60,
-      active: 80,
-      completed: 100,
-      cancelled: 0
-    };
-    return progressMap[status] || 0;
-  },
-
-  // 获取状态样式类
-  getStatusClass(status) {
-    const classMap = {
-      pending: 'status-warning',
-      confirmed: 'status-info',
-      contract: 'status-primary',
-      active: 'status-success',
-      completed: 'status-success',
-      cancelled: 'status-error'
-    };
-    return classMap[status] || 'status-default';
-  },
-
-  // 获取服务期限描述
-  getServicePeriod(order) {
-    if (order.serviceStartDate && order.serviceEndDate) {
-      const start = formatDate(order.serviceStartDate, 'YYYY-MM-DD');
-      const end = formatDate(order.serviceEndDate, 'YYYY-MM-DD');
-      return `${start} 至 ${end}`;
-    }
-    return '1年';
-  },
-
-  // 获取当前步骤
-  getCurrentStep(status) {
-    const stepMap = {
-      pending: 0,
-      confirmed: 1,
-      contract: 2,
-      active: 3,
-      completed: 4,
-      cancelled: 0
-    };
-    return stepMap[status] || 0;
-  },
-
-  // 获取进度步骤
-  getProgressSteps() {
-    return [
-      { id: 0, name: '待确认' },
-      { id: 1, name: '已确认' },
-      { id: 2, name: '签约中' },
-      { id: 3, name: '服务中' },
-      { id: 4, name: '已完成' }
-    ];
-  },
-
-  // 获取进度百分比
-  getProgressPercent(status) {
-    const percentMap = {
-      pending: 20,
-      confirmed: 40,
-      contract: 60,
-      active: 80,
-      completed: 100,
-      cancelled: 0
-    };
-    return percentMap[status] || 0;
+  formatTime(timestamp) {
+    const date = new Date(timestamp);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
   },
 
   // 刷新订单列表
   refreshOrderList() {
     this.setData({ page: 1 });
-    this.loadOrderList(true);
+    this.loadOrders(true);
   },
 
   // 加载更多订单
@@ -524,20 +383,7 @@ Page({
     if (this.data.loadingMore || !this.data.hasMore) return;
     
     this.setData({ loadingMore: true });
-    this.loadOrderList();
-  },
-
-  // 切换标签
-  onTabChange(e) {
-    const { key } = e.currentTarget.dataset;
-    if (key === this.data.activeTab) return;
-
-    this.setData({
-      activeTab: key,
-      page: 1
-    });
-    
-    this.loadOrderList(true);
+    this.loadOrders();
   },
 
   // 搜索功能
@@ -625,58 +471,6 @@ Page({
     }
   },
 
-  // 取消订单
-  cancelOrder(order) {
-    wx.showModal({
-      title: '取消订单',
-      content: '确认要取消这个订单吗？',
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            wx.showLoading({ title: '处理中...' });
-            
-            const response = await app.request({
-              url: `/orders/${order.id}/cancel`,
-              method: 'POST'
-            });
-
-            if (response.success) {
-              wx.showToast({
-                title: '订单已取消',
-                icon: 'success'
-              });
-              this.refreshOrderList();
-            } else {
-              throw new Error(response.message);
-            }
-          } catch (error) {
-            console.error('取消订单失败:', error);
-            wx.showToast({
-              title: error.message || '取消失败',
-              icon: 'none'
-            });
-          } finally {
-            wx.hideLoading();
-          }
-        }
-      }
-    });
-  },
-
-  // 支付订单
-  payOrder(order) {
-    wx.navigateTo({
-      url: `/pages/orders/pay/pay?id=${order.id}`
-    });
-  },
-
-  // 查看合同
-  viewContract(order) {
-    wx.navigateTo({
-      url: `/pages/contract/detail/detail?orderId=${order.id}`
-    });
-  },
-
   // 显示更多操作
   showMoreActions(order) {
     const actions = [];
@@ -719,19 +513,6 @@ Page({
     }
   },
 
-  // 联系客服
-  contactService(order) {
-    wx.makePhoneCall({
-      phoneNumber: '400-888-8888',
-      fail: () => {
-        wx.showToast({
-          title: '拨号失败',
-          icon: 'none'
-        });
-      }
-    });
-  },
-
   // 分享订单
   shareOrder(order) {
     wx.showShareMenu({
@@ -746,7 +527,7 @@ Page({
       loading: true,
       isEmpty: false
     });
-    this.loadOrderList(true);
+    this.loadOrders(true);
   },
 
   // 创建新订单
@@ -886,53 +667,6 @@ Page({
     }
   },
 
-  // 加载订单列表
-  async loadOrders(refresh = false) {
-    if (refresh) {
-      this.setData({
-        pageNum: 1,
-        hasMore: true,
-        orderList: []
-      })
-    }
-
-    if (!this.data.hasMore) return
-
-    try {
-      this.setData({ loading: true })
-
-      const { pageNum, pageSize, activeTab } = this.data
-      const params = {
-        pageNum,
-        pageSize,
-        status: activeTab === 'all' ? '' : activeTab
-      }
-
-      const res = await app.request({
-        url: '/orders',
-        data: params
-      })
-
-      const { list = [], total = 0 } = res.data || {}
-      const hasMore = pageNum * pageSize < total
-
-      this.setData({
-        orderList: refresh ? list : this.data.orderList.concat(list),
-        hasMore,
-        pageNum: hasMore ? pageNum + 1 : pageNum,
-        loading: false
-      })
-
-    } catch (error) {
-      console.error('加载订单列表失败:', error)
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      })
-      this.setData({ loading: false })
-    }
-  },
-
   // 查看订单详情
   viewOrderDetail(e) {
     const { id } = e.currentTarget.dataset
@@ -940,18 +674,4 @@ Page({
       url: `/pages/orders/detail/detail?id=${id}`
     })
   },
-
-  // 下拉刷新
-  onPullDownRefresh() {
-    this.loadOrders(true).then(() => {
-      wx.stopPullDownRefresh()
-    })
-  },
-
-  // 上拉加载更多
-  onReachBottom() {
-    if (!this.data.loading && this.data.hasMore) {
-      this.loadOrders()
-    }
-  }
 }); 

@@ -1,186 +1,125 @@
-<view class="calculator-container">
-  <!-- 顶部说明 -->
-  <view class="calculator-header">
-    <view class="title">节电效益计算器</view>
-    <view class="description">输入您的用电信息，我们将为您计算最优惠的电力方案</view>
+<view class="container">
+  <!-- 产品信息 -->
+  <view class="product-info" wx:if="{{ product }}">
+    <view class="product-name">{{ product.name }}</view>
+    <view class="product-price">
+      <text class="price-label">电价：</text>
+      <text class="price-value">¥{{ product.price }}/度</text>
+    </view>
   </view>
 
-  <!-- 表单区域 -->
-  <view class="form-section">
-    <!-- 电压等级 -->
+  <!-- 计算表单 -->
+  <view class="calculator-form">
+    <!-- 用电类型 -->
     <view class="form-item">
-      <view class="form-label">电压等级</view>
-      <van-dropdown-menu>
-        <van-dropdown-item
-          value="{{ form.voltage }}"
-          options="{{ voltageOptions }}"
-          bind:change="onInput"
-          data-field="voltage"
-        />
-      </van-dropdown-menu>
-      <view class="error-text" wx:if="{{ errors.voltage }}">{{ errors.voltage }}</view>
+      <view class="form-label">用电类型</view>
+      <van-radio-group value="{{ type }}" bind:change="onTypeChange">
+        <van-radio name="commercial">工商业用电</van-radio>
+        <van-radio name="residential">居民用电</van-radio>
+      </van-radio-group>
     </view>
 
-    <!-- 月均用电量 -->
+    <!-- 用电量输入 -->
     <view class="form-item">
-      <view class="form-label">月均用电量(kWh)</view>
+      <view class="form-label">月均用电量（度）</view>
       <van-field
-        value="{{ form.monthlyUsage }}"
+        value="{{ consumption }}"
         type="digit"
         placeholder="请输入月均用电量"
         border="{{ false }}"
-        bind:change="onInput"
-        data-field="monthlyUsage"
-      />
-      <view class="error-text" wx:if="{{ errors.monthlyUsage }}">{{ errors.monthlyUsage }}</view>
-    </view>
-
-    <!-- 峰谷时用电比例 -->
-    <view class="form-item">
-      <view class="form-label">峰时用电比例(%)</view>
-      <van-field
-        value="{{ form.peakUsage }}"
-        type="digit"
-        placeholder="请输入峰时用电比例"
-        border="{{ false }}"
-        bind:change="onInput"
-        data-field="peakUsage"
+        bind:change="onConsumptionChange"
       />
     </view>
 
+    <!-- 峰谷时段 -->
     <view class="form-item">
-      <view class="form-label">谷时用电比例(%)</view>
-      <van-field
-        value="{{ form.valleyUsage }}"
-        type="digit"
-        placeholder="请输入谷时用电比例"
-        border="{{ false }}"
-        bind:change="onInput"
-        data-field="valleyUsage"
-      />
-    </view>
-
-    <!-- 当前电价 -->
-    <view class="form-item">
-      <view class="form-label">当前电价(元/kWh)</view>
-      <van-field
-        value="{{ form.currentPrice }}"
-        type="digit"
-        placeholder="请输入当前电价"
-        border="{{ false }}"
-        bind:change="onInput"
-        data-field="currentPrice"
-      />
-      <view class="error-text" wx:if="{{ errors.currentPrice }}">{{ errors.currentPrice }}</view>
-    </view>
-
-    <!-- 所属行业 -->
-    <view class="form-item">
-      <view class="form-label">所属行业</view>
-      <van-dropdown-menu>
-        <van-dropdown-item
-          value="{{ form.industry }}"
-          options="{{ industryOptions }}"
-          bind:change="onInput"
-          data-field="industry"
+      <view class="form-label">峰谷时段用电比例</view>
+      <view class="slider-box">
+        <view class="slider-label">峰时段：{{ peakPercent }}%</view>
+        <van-slider
+          value="{{ peakPercent }}"
+          min="0"
+          max="100"
+          step="5"
+          bind:change="onPeakChange"
         />
-      </van-dropdown-menu>
+      </view>
+      <view class="slider-box">
+        <view class="slider-label">谷时段：{{ 100 - peakPercent }}%</view>
+        <van-slider
+          value="{{ 100 - peakPercent }}"
+          min="0"
+          max="100"
+          step="5"
+          disabled
+        />
+      </view>
     </view>
 
-    <!-- 需量容量 -->
-    <view class="form-item">
-      <view class="form-label">需量容量(kW)</view>
-      <van-field
-        value="{{ form.demandPower }}"
-        type="digit"
-        placeholder="请输入需量容量"
-        border="{{ false }}"
-        bind:change="onInput"
-        data-field="demandPower"
-      />
+    <!-- 计算按钮 -->
+    <view class="form-actions">
+      <van-button 
+        type="primary" 
+        block 
+        color="#409EFF"
+        bind:click="calculate"
+      >开始计算</van-button>
     </view>
-  </view>
-
-  <!-- 操作按钮 -->
-  <view class="button-group">
-    <van-button 
-      type="primary" 
-      block 
-      loading="{{ calculating }}"
-      bind:click="calculateSavings"
-    >
-      开始计算
-    </van-button>
-    <van-button 
-      plain 
-      block 
-      bind:click="resetForm"
-      style="margin-top: 16rpx;"
-    >
-      重置
-    </van-button>
   </view>
 
   <!-- 计算结果 -->
   <view class="result-section" wx:if="{{ showResult }}">
-    <view class="result-header">
-      <view class="result-title">计算结果</view>
-      <view class="result-time">{{ calculationResult.calculatedAt }}</view>
-    </view>
-
-    <!-- 节省金额 -->
-    <view class="saving-card">
-      <view class="saving-title">预计每月节省</view>
-      <view class="saving-amount">
-        <text class="amount">{{ calculationResult.monthlySaving }}</text>
-        <text class="unit">元</text>
+    <view class="result-title">计算结果</view>
+    
+    <!-- 月度电费 -->
+    <view class="result-card">
+      <view class="result-header">
+        <text>月度电费</text>
+        <text class="compare-text">对比</text>
       </view>
-      <view class="saving-percent">较现有电价节省 {{ calculationResult.savingPercent }}%</view>
-    </view>
-
-    <!-- 投资回报 -->
-    <view class="roi-card">
-      <view class="roi-item">
-        <view class="roi-label">预计年节省金额</view>
-        <view class="roi-value">{{ calculationResult.yearlySaving }}元</view>
-      </view>
-      <view class="roi-item">
-        <view class="roi-label">投资回报周期</view>
-        <view class="roi-value">{{ calculationResult.roiPeriod }}个月</view>
-      </view>
-    </view>
-
-    <!-- 推荐产品 -->
-    <view class="recommended-products" wx:if="{{ recommendedProducts.length > 0 }}">
-      <view class="section-title">推荐产品</view>
-      <view class="product-list">
-        <view 
-          class="product-item" 
-          wx:for="{{ recommendedProducts }}" 
-          wx:key="id"
-          bind:tap="viewProductDetail"
-          data-id="{{ item.id }}"
-        >
-          <image class="product-image" src="{{ item.image }}" mode="aspectFill"/>
-          <view class="product-info">
-            <view class="product-name">{{ item.name }}</view>
-            <view class="product-price">{{ item.price }}元/kWh</view>
-            <view class="product-saving">预计月节省{{ item.estimatedSaving }}元</view>
-          </view>
-          <van-icon name="arrow" />
+      <view class="result-content">
+        <view class="result-item">
+          <text class="item-label">现有电价</text>
+          <text class="item-value">¥{{ results.currentBill }}</text>
+        </view>
+        <view class="result-item highlight">
+          <text class="item-label">优惠电价</text>
+          <text class="item-value">¥{{ results.newBill }}</text>
+        </view>
+        <view class="result-item savings">
+          <text class="item-label">月度节省</text>
+          <text class="item-value">¥{{ results.monthlySavings }}</text>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 错误提示 -->
-  <van-toast id="van-toast" />
-  
-  <!-- 分享按钮 -->
-  <view class="share-button" wx:if="{{ showResult }}">
-    <button open-type="share" class="share-btn">
-      <van-icon name="share" size="24px" />
-      分享结果
-    </button>
+    <!-- 年度节省 -->
+    <view class="result-card">
+      <view class="result-header">
+        <text>年度节省</text>
+      </view>
+      <view class="annual-savings">
+        <text class="savings-value">¥{{ results.annualSavings }}</text>
+        <text class="savings-label">预计年度节省金额</text>
+      </view>
+      <view class="savings-tips">
+        <text class="tip-text">* 实际节省金额可能因用电情况变化而有所不同</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="result-actions">
+      <van-button 
+        type="default" 
+        block 
+        bind:click="recalculate"
+      >重新计算</van-button>
+      <van-button 
+        type="primary" 
+        block 
+        color="#409EFF"
+        bind:click="createOrder"
+      >立即购买</van-button>
+    </view>
   </view>
 </view> 

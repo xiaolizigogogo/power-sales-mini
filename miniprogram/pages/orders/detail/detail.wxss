@@ -176,6 +176,78 @@
   color: #1989fa;
 }
 
+/* 服务状态 */
+.service-status {
+  margin-top: 20rpx;
+}
+
+.service-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  border-bottom: 2rpx solid #f5f5f5;
+}
+
+.service-item:last-child {
+  border-bottom: none;
+}
+
+.service-item .label {
+  color: #666666;
+}
+
+.service-item .value {
+  color: #333333;
+  font-weight: 500;
+}
+
+.service-item .value.status-active {
+  color: #52c41a;
+}
+
+.service-item .value.highlight {
+  color: #1989fa;
+  font-weight: 600;
+}
+
+/* 服务进度 */
+.service-progress {
+  margin-top: 30rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.progress-title {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 8rpx;
+  background: #e5e5e5;
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1989fa, #52c41a);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 24rpx;
+  color: #666666;
+  text-align: right;
+}
+
 /* 联系信息 */
 .contact-info {
   display: flex;
@@ -254,7 +326,7 @@
 
 .container {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background: #f5f7fa;
   padding-bottom: 120rpx;
 }
 
@@ -699,4 +771,157 @@
   background-color: var(--primary-color);
   border-radius: 2rpx;
   transition: width 0.3s ease;
+}
+
+.status-section {
+  background: #409eff;
+  padding: 40rpx 30rpx;
+  color: #fff;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.status-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.status-desc {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+.status-text.pending {
+  color: #fff;
+}
+
+.status-text.processing {
+  color: #fff;
+}
+
+.status-text.completed {
+  color: #fff;
+}
+
+.status-text.cancelled {
+  color: #fff;
+}
+
+.info-card {
+  background: #fff;
+  margin: 20rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.card-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.product-info {
+  padding: 20rpx 30rpx;
+  display: flex;
+}
+
+.product-name {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.price-value {
+  font-size: 32rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.info-list {
+  padding: 0 30rpx;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item .label {
+  color: #666;
+}
+
+.info-item .value {
+  color: #333;
+}
+
+.info-item .value.price {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.remark-text {
+  padding: 20rpx 30rpx;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.action-btn {
+  min-width: 160rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  border-radius: 36rpx;
+  font-size: 26rpx;
+  background: #f5f7fa;
+  color: #666;
+  border: none;
+}
+
+.action-btn::after {
+  display: none;
+}
+
+.action-btn.primary {
+  background: #409eff;
+  color: #fff;
+  box-shadow: 0 4rpx 16rpx rgba(64, 158, 255, 0.4);
 } 

@@ -1,15 +1,15 @@
 {
   "navigationBarTitleText": "我的订单",
-  "navigationBarBackgroundColor": "#ffffff",
-  "navigationBarTextStyle": "black",
-  "backgroundColor": "#f8f9fa",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f7f8fa",
   "backgroundTextStyle": "dark",
   "enablePullDownRefresh": true,
-  "onReachBottomDistance": 100,
+  "onReachBottomDistance": 50,
   "usingComponents": {
-    "van-loading": "@vant/weapp/lib/loading/index",
-    "van-popup": "@vant/weapp/lib/popup/index",
-    "van-dialog": "@vant/weapp/lib/dialog/index",
-    "van-action-sheet": "@vant/weapp/lib/action-sheet/index"
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/lib/popup/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index",
+    "van-action-sheet": "/miniprogram_npm/@vant/weapp/lib/action-sheet/index"
   }
 } 

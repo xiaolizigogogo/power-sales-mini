@@ -1,197 +1,311 @@
 <!--pages/manager/customers/customers.wxml-->
-<view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <view class="search-input-wrapper">
-      <text class="search-icon">🔍</text>
-      <input 
-        class="search-input"
-        placeholder="搜索客户名称、公司名称"
-        value="{{searchKeyword}}"
-        bindinput="onSearchInput"
-        bindconfirm="onSearchSubmit"
-      />
-      <view class="search-clear {{searchKeyword ? 'show' : ''}}" bindtap="onSearchClear">
-        <text>✕</text>
+<view class="customers-page">
+  <!-- 顶部搜索栏 -->
+  <view class="search-section">
+    <van-search
+      value="{{ searchKeyword }}"
+      placeholder="搜索客户名称、公司或电话"
+      bind:search="onSearch"
+      bind:clear="onSearchClear"
+      bind:change="onSearchInput"
+      use-action-slot
+    >
+      <view slot="action" bind:tap="showFilter">
+        <van-icon name="filter-o" />
       </view>
-    </view>
-    <view class="filter-btn" bindtap="onFilterTap">
-      <text>⚙️</text>
+    </van-search>
+  </view>
+
+  <!-- 状态筛选标签 -->
+  <view class="filter-section">
+    <view class="filter-tabs">
+      <view 
+        wx:for="{{statusTabs}}" 
+        wx:key="key"
+        class="filter-tab {{currentStatus === item.key ? 'active' : ''}}"
+        bind:tap="onStatusChange"
+        data-status="{{item.key}}"
+      >
+        <text class="tab-text">{{item.name}}</text>
+        <view class="tab-count">{{item.count}}</view>
+      </view>
     </view>
   </view>
 
-  <!-- 状态标签栏 -->
-  <scroll-view class="tab-bar" scroll-x="true">
-    <view class="tab-list">
-      <view 
-        class="tab-item {{currentTab === item.key ? 'active' : ''}}"
-        wx:for="{{tabs}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onTabChange"
-      >
-        <text class="tab-name">{{item.name}}</text>
-        <text class="tab-count" wx:if="{{item.count > 0}}">({{item.count}})</text>
+  <!-- 快速统计 -->
+  <view class="stats-section">
+    <view class="stats-grid">
+      <view class="stat-item" bind:tap="onStatTap" data-type="total">
+        <view class="stat-number">{{statistics.totalCustomers}}</view>
+        <view class="stat-label">总客户</view>
+      </view>
+      <view class="stat-item" bind:tap="onStatTap" data-type="active">
+        <view class="stat-number">{{statistics.activeCustomers}}</view>
+        <view class="stat-label">活跃客户</view>
+      </view>
+      <view class="stat-item" bind:tap="onStatTap" data-type="potential">
+        <view class="stat-number">{{statistics.potentialCustomers}}</view>
+        <view class="stat-label">潜在客户</view>
+      </view>
+      <view class="stat-item" bind:tap="onStatTap" data-type="follow">
+        <view class="stat-number">{{statistics.needFollowUp}}</view>
+        <view class="stat-label">待跟进</view>
       </view>
     </view>
-  </scroll-view>
+  </view>
 
   <!-- 客户列表 -->
-  <view class="customer-list-container">
-    <!-- 加载状态 -->
-    <view class="loading-wrapper" wx:if="{{loading && customers.length === 0}}">
-      <text class="loading-text">加载中...</text>
-    </view>
-
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && customers.length === 0}}">
-      <text class="empty-icon">👥</text>
-      <text class="empty-text">暂无客户</text>
-      <text class="empty-desc">还没有客户数据，快去添加吧~</text>
-      <button class="empty-btn" bindtap="onAddCustomerTap">添加客户</button>
-    </view>
-
-    <!-- 客户列表 -->
-    <view class="customer-list" wx:if="{{customers.length > 0}}">
+  <view class="customers-list">
+    <block wx:if="{{customerList.length > 0}}">
       <view 
-        class="customer-item"
-        wx:for="{{customers}}"
+        wx:for="{{customerList}}" 
         wx:key="id"
+        class="customer-card"
+        bind:tap="onCustomerTap"
         data-customer="{{item}}"
-        bindtap="onCustomerTap"
-        bindlongpress="onCustomerLongPress"
       >
-        <!-- 客户头像和基本信息 -->
+        <!-- 客户头部信息 -->
         <view class="customer-header">
-          <view class="avatar-wrapper">
-            <view class="customer-avatar" wx:if="{{!item.avatar_url}}">👤</view>
-            <image class="customer-avatar" wx:else src="{{item.avatar_url}}" mode="aspectFill"></image>
+          <view class="customer-avatar">
+            <image 
+              src="{{item.avatar || '/assets/images/default-avatar.png'}}" 
+              mode="aspectFill"
+            />
+            <view class="online-status {{item.isOnline ? 'online' : 'offline'}}"></view>
           </view>
           <view class="customer-info">
-            <view class="info-main">
-              <view class="customer-name">{{item.name}}</view>
-              <view class="customer-status">
-                <text class="status-tag" style="background-color: {{item.status_config.color}};">
-                  {{item.status_config.text}}
-                </text>
-              </view>
+            <view class="customer-name">{{item.name}}</view>
+            <view class="customer-company">{{item.companyName}}</view>
+            <view class="customer-phone">{{item.phone}}</view>
+          </view>
+          <view class="customer-status">
+            <view 
+              class="status-badge status-{{item.status}}"
+              style="background-color: {{getStatusColor(item.status)}}"
+            >
+              {{getStatusText(item.status)}}
             </view>
-            <view class="company-name">{{item.company_name}}</view>
-            <view class="customer-meta">
-              <text class="meta-item">{{item.phone}}</text>
-              <text class="meta-separator">|</text>
-              <text class="meta-item">{{item.industry || '未知行业'}}</text>
+            <view class="priority-level" wx:if="{{item.priority}}">
+              <van-tag 
+                type="{{getPriorityType(item.priority)}}" 
+                size="small"
+              >
+                {{getPriorityText(item.priority)}}
+              </van-tag>
             </view>
           </view>
         </view>
 
-        <!-- 客户统计信息 -->
-        <view class="customer-stats">
-          <view class="stat-item">
-            <text class="stat-label">最后联系</text>
-            <text class="stat-value">{{item.last_contact_time_text}}</text>
+        <!-- 客户详情信息 -->
+        <view class="customer-details">
+          <view class="detail-row">
+            <view class="detail-item">
+              <text class="detail-label">行业</text>
+              <text class="detail-value">{{item.industry || '未填写'}}</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">规模</text>
+              <text class="detail-value">{{item.scale || '未知'}}</text>
+            </view>
           </view>
-          <view class="stat-item">
-            <text class="stat-label">联系次数</text>
-            <text class="stat-value">{{item.contact_count_text}}</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-label">订单金额</text>
-            <text class="stat-value money">{{item.total_amount_text}}</text>
+          <view class="detail-row">
+            <view class="detail-item">
+              <text class="detail-label">上次跟进</text>
+              <text class="detail-value">{{item.lastFollowTime || '未跟进'}}</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">下次跟进</text>
+              <text class="detail-value {{item.nextFollowTime && isOverdue(item.nextFollowTime) ? 'overdue' : ''}}">
+                {{item.nextFollowTime || '未安排'}}
+              </text>
+            </view>
           </view>
         </view>
 
-        <!-- 快捷操作 -->
+        <!-- 业务数据 -->
+        <view class="business-data" wx:if="{{item.businessData}}">
+          <view class="data-row">
+            <view class="data-item">
+              <text class="data-label">订单数</text>
+              <text class="data-value">{{item.businessData.orderCount || 0}}</text>
+            </view>
+            <view class="data-item">
+              <text class="data-label">合同金额</text>
+              <text class="data-value amount">¥{{formatAmount(item.businessData.totalAmount)}}</text>
+            </view>
+            <view class="data-item">
+              <text class="data-label">跟进次数</text>
+              <text class="data-value">{{item.businessData.followCount || 0}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 最近跟进记录 -->
+        <view class="recent-follow" wx:if="{{item.recentFollow}}">
+          <view class="follow-header">
+            <text class="follow-title">最近跟进</text>
+            <text class="follow-time">{{item.recentFollow.time}}</text>
+          </view>
+          <view class="follow-content">{{item.recentFollow.content}}</view>
+        </view>
+
+        <!-- 操作按钮 -->
         <view class="customer-actions">
-          <button 
+          <view 
+            class="action-btn secondary"
+            bind:tap="onCallCustomer"
+            data-customer="{{item}}"
+          >
+            <van-icon name="phone-o" />
+            <text>拨打</text>
+          </view>
+          <view 
+            class="action-btn secondary"
+            bind:tap="onMessageCustomer"
+            data-customer="{{item}}"
+          >
+            <van-icon name="chat-o" />
+            <text>短信</text>
+          </view>
+          <view 
             class="action-btn primary"
-            catchtap="onCallTap"
-            data-phone="{{item.phone}}"
+            bind:tap="onAddFollow"
+            data-customer="{{item}}"
           >
-            📞 拨打
-          </button>
-          <button 
-            class="action-btn secondary"
-            catchtap="onWechatTap"
-            data-customer-id="{{item.id}}"
-          >
-            💬 微信
-          </button>
-          <button 
-            class="action-btn secondary"
-            catchtap="onQuickFollowTap"
-            data-customer-id="{{item.id}}"
-          >
-            📝 跟进
-          </button>
+            <van-icon name="add-o" />
+            <text>跟进</text>
+          </view>
         </view>
       </view>
-    </view>
+    </block>
 
-    <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasMore && customers.length > 0}}">
-      <text class="load-more-text" wx:if="{{loadingMore}}">加载中...</text>
-      <text class="load-more-text" wx:else>上拉加载更多</text>
-    </view>
-
-    <!-- 没有更多数据 -->
-    <view class="no-more" wx:if="{{!hasMore && customers.length > 0}}">
-      <text>已显示全部客户</text>
+    <!-- 空状态 -->
+    <view class="empty-customers" wx:if="{{customerList.length === 0 && !loading}}">
+      <van-empty description="暂无客户数据">
+        <van-button 
+          type="primary" 
+          size="small"
+          bind:click="refreshData"
+        >刷新数据</van-button>
+      </van-empty>
     </view>
   </view>
 
-  <!-- 筛选面板 -->
-  <view class="filter-panel {{showFilterPanel ? 'show' : ''}}" catchtap="onFilterPanelClose">
-    <view class="filter-content" catchtap="">
+  <!-- 筛选弹窗 -->
+  <van-popup
+    show="{{ showFilterPopup }}"
+    position="right"
+    custom-style="height: 100%; width: 80%;"
+    bind:close="closeFilter"
+  >
+    <view class="filter-popup">
       <view class="filter-header">
         <text class="filter-title">筛选条件</text>
-        <text class="filter-reset" bindtap="onFilterReset">重置</text>
+        <van-icon name="cross" bind:tap="closeFilter" />
       </view>
+      
+      <view class="filter-content">
+        <!-- 客户状态筛选 -->
+        <view class="filter-group">
+          <view class="group-title">客户状态</view>
+          <van-checkbox-group value="{{ filterForm.status }}" bind:change="onFilterStatusChange">
+            <view wx:for="{{statusOptions}}" wx:key="value" class="checkbox-item">
+              <van-checkbox name="{{item.value}}">{{item.label}}</van-checkbox>
+            </view>
+          </van-checkbox-group>
+        </view>
 
-      <!-- 行业筛选 -->
-      <view class="filter-section">
-        <text class="filter-section-title">行业类型</text>
-        <view class="filter-options">
-          <view 
-            class="filter-option {{selectedIndustry === item.value ? 'selected' : ''}}"
-            wx:for="{{filterOptions.industries}}"
-            wx:key="value"
-            data-value="{{item.value}}"
-            bindtap="onIndustryChange"
-          >
-            <text>{{item.label}}</text>
-          </view>
+        <!-- 行业筛选 -->
+        <view class="filter-group">
+          <view class="group-title">行业分类</view>
+          <van-checkbox-group value="{{ filterForm.industry }}" bind:change="onFilterIndustryChange">
+            <view wx:for="{{industryOptions}}" wx:key="value" class="checkbox-item">
+              <van-checkbox name="{{item.value}}">{{item.label}}</van-checkbox>
+            </view>
+          </van-checkbox-group>
+        </view>
+
+        <!-- 企业规模筛选 -->
+        <view class="filter-group">
+          <view class="group-title">企业规模</view>
+          <van-checkbox-group value="{{ filterForm.scale }}" bind:change="onFilterScaleChange">
+            <view wx:for="{{scaleOptions}}" wx:key="value" class="checkbox-item">
+              <van-checkbox name="{{item.value}}">{{item.label}}</van-checkbox>
+            </view>
+          </van-checkbox-group>
+        </view>
+
+        <!-- 跟进状态筛选 -->
+        <view class="filter-group">
+          <view class="group-title">跟进状态</view>
+          <van-checkbox-group value="{{ filterForm.followStatus }}" bind:change="onFilterFollowStatusChange">
+            <view wx:for="{{followStatusOptions}}" wx:key="value" class="checkbox-item">
+              <van-checkbox name="{{item.value}}">{{item.label}}</van-checkbox>
+            </view>
+          </van-checkbox-group>
+        </view>
+
+        <!-- 时间范围筛选 -->
+        <view class="filter-group">
+          <view class="group-title">创建时间</view>
+          <van-field
+            label="开始时间"
+            value="{{ filterForm.startDate }}"
+            placeholder="选择开始时间"
+            readonly
+            is-link
+            bind:click="selectStartDate"
+          />
+          <van-field
+            label="结束时间"
+            value="{{ filterForm.endDate }}"
+            placeholder="选择结束时间"
+            readonly
+            is-link
+            bind:click="selectEndDate"
+          />
         </view>
       </view>
 
-      <!-- 企业规模筛选 -->
-      <view class="filter-section">
-        <text class="filter-section-title">企业规模</text>
-        <view class="filter-options">
-          <view 
-            class="filter-option {{selectedScale === item.value ? 'selected' : ''}}"
-            wx:for="{{filterOptions.scales}}"
-            wx:key="value"
-            data-value="{{item.value}}"
-            bindtap="onScaleChange"
-          >
-            <text>{{item.label}}</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- 筛选按钮 -->
       <view class="filter-actions">
-        <button class="filter-cancel" bindtap="onFilterPanelClose">取消</button>
-        <button class="filter-apply" bindtap="onFilterApply">确定</button>
+        <van-button block type="default" bind:click="resetFilter">重置</van-button>
+        <van-button block type="primary" bind:click="applyFilter">确定</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 日期选择器 -->
+  <van-datetime-picker
+    show="{{ showDatePicker }}"
+    type="date"
+    value="{{ pickerDate }}"
+    bind:confirm="onDateConfirm"
+    bind:cancel="closeDatePicker"
+  />
+
+  <!-- 快速操作浮动按钮 -->
+  <view class="fab-container">
+    <view class="fab-main" bind:tap="toggleFab">
+      <van-icon name="{{fabExpanded ? 'cross' : 'plus'}}" />
+    </view>
+    <view class="fab-menu {{fabExpanded ? 'expanded' : ''}}">
+      <view class="fab-item" bind:tap="addCustomer">
+        <van-icon name="user-o" />
+        <text>添加客户</text>
+      </view>
+      <view class="fab-item" bind:tap="batchImport">
+        <van-icon name="upgrade" />
+        <text>批量导入</text>
+      </view>
+      <view class="fab-item" bind:tap="exportData">
+        <van-icon name="down" />
+        <text>导出数据</text>
       </view>
     </view>
   </view>
 
-  <!-- 浮动操作按钮 -->
-  <view class="fab-container">
-    <view class="fab-btn" bindtap="onAddCustomerTap">
-      <text class="fab-icon">➕</text>
-    </view>
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <van-loading size="24px">加载中...</van-loading>
   </view>
 </view>

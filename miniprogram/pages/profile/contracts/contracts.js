@@ -52,16 +52,18 @@ Page({
     loading: true,
     refreshing: false,
     statusMap: {
-      'pending': '待签署',
-      'customer_signed': '客户已签署',
+      'pending': '待客户签署',
+      'customer_signed': '待企业签署',
       'completed': '签署完成',
-      'cancelled': '已取消'
+      'cancelled': '已取消',
+      'expired': '已过期'
     },
     statusColorMap: {
       'pending': '#1989fa',
       'customer_signed': '#ff976a',
       'completed': '#07c160',
-      'cancelled': '#969799'
+      'cancelled': '#969799',
+      'expired': '#ee0a24'
     },
     isManager: false,
     

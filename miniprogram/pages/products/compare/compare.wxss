@@ -1,0 +1,148 @@
+.container {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding-bottom: 120rpx;
+}
+
+.compare-table {
+  width: 100%;
+  background: #fff;
+  white-space: nowrap;
+}
+
+.table-header {
+  display: flex;
+  border-bottom: 1rpx solid #eee;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.header-cell {
+  min-width: 300rpx;
+  padding: 30rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+.feature-cell {
+  min-width: 200rpx;
+  padding: 30rpx;
+  font-size: 28rpx;
+  color: #666;
+  background: #f8f9fa;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.table-section {
+  border-bottom: 1rpx solid #eee;
+}
+
+.section-title {
+  padding: 20rpx 30rpx;
+  font-size: 26rpx;
+  color: #999;
+  background: #f8f9fa;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1rpx solid #eee;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.content-cell {
+  min-width: 300rpx;
+  padding: 30rpx;
+  font-size: 28rpx;
+  color: #333;
+  text-align: center;
+}
+
+.price-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.discount-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  font-size: 26rpx;
+}
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  text-align: left;
+}
+
+.service-list view {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.included {
+  color: #333;
+}
+
+.excluded {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 40rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+.btn.calculator {
+  background: #f5f7fa;
+  color: #666;
+}
+
+.btn.contact {
+  background: #f5f7fa;
+  color: #666;
+}
+
+.btn.primary {
+  background: #409eff;
+  color: #fff;
+  flex: 1;
+  margin-left: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(64, 158, 255, 0.4);
+} 

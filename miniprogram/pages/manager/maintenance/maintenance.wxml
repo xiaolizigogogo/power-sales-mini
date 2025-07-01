@@ -1,0 +1,439 @@
+<view class="maintenance-page">
+  <!-- 顶部统计卡片 -->
+  <view class="stats-section">
+    <view class="stats-grid">
+      <view class="stat-card">
+        <view class="stat-icon">📞</view>
+        <view class="stat-number">{{statistics.todayVisits}}</view>
+        <view class="stat-label">今日回访</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">⏰</view>
+        <view class="stat-number">{{statistics.pendingVisits}}</view>
+        <view class="stat-label">待回访</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">🎯</view>
+        <view class="stat-number">{{statistics.monthlyTarget}}%</view>
+        <view class="stat-label">月度完成率</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">😊</view>
+        <view class="stat-number">{{statistics.satisfaction}}</view>
+        <view class="stat-label">满意度</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能导航 -->
+  <view class="nav-section">
+    <view class="nav-grid">
+      <view class="nav-item" bind:tap="goToVisitPlan">
+        <view class="nav-icon">📅</view>
+        <view class="nav-title">回访计划</view>
+        <view class="nav-desc">设置定期回访</view>
+      </view>
+      <view class="nav-item" bind:tap="goToValueServices">
+        <view class="nav-icon">💎</view>
+        <view class="nav-title">增值服务</view>
+        <view class="nav-desc">推广新产品</view>
+      </view>
+      <view class="nav-item" bind:tap="goToIssueTracking">
+        <view class="nav-icon">🔧</view>
+        <view class="nav-title">问题处理</view>
+        <view class="nav-desc">客户问题跟踪</view>
+      </view>
+      <view class="nav-item" bind:tap="goToAnalytics">
+        <view class="nav-icon">📊</view>
+        <view class="nav-title">维护分析</view>
+        <view class="nav-desc">维护效果分析</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日任务 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">今日任务</view>
+      <view class="section-more" bind:tap="viewAllTasks">查看全部</view>
+    </view>
+    <view class="task-list">
+      <block wx:if="{{todayTasks.length > 0}}">
+        <view 
+          wx:for="{{todayTasks}}" 
+          wx:key="id"
+          class="task-card"
+          bind:tap="onTaskTap"
+          data-task="{{item}}"
+        >
+          <view class="task-header">
+            <view class="task-type">
+              <view class="type-icon" style="background-color: {{getTaskTypeColor(item.type)}}">
+                {{getTaskTypeIcon(item.type)}}
+              </view>
+              <view class="type-text">{{getTaskTypeText(item.type)}}</view>
+            </view>
+            <view class="task-time">{{item.scheduledTime}}</view>
+          </view>
+          <view class="task-content">
+            <view class="customer-info">
+              <view class="customer-name">{{item.customerName}}</view>
+              <view class="customer-company">{{item.companyName}}</view>
+            </view>
+            <view class="task-desc">{{item.description}}</view>
+          </view>
+          <view class="task-actions">
+            <view 
+              class="action-btn secondary"
+              bind:tap="onTaskCall"
+              data-task="{{item}}"
+            >
+              <van-icon name="phone-o" />
+              <text>联系</text>
+            </view>
+            <view 
+              class="action-btn primary"
+              bind:tap="onTaskComplete"
+              data-task="{{item}}"
+            >
+              <van-icon name="success" />
+              <text>完成</text>
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <!-- 空状态 -->
+      <view class="empty-tasks" wx:if="{{todayTasks.length === 0}}">
+        <van-empty description="今日暂无维护任务">
+          <van-button 
+            type="primary" 
+            size="small"
+            bind:click="createNewTask"
+          >创建任务</van-button>
+        </van-empty>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近回访记录 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">最近回访</view>
+      <view class="section-more" bind:tap="viewAllVisits">查看全部</view>
+    </view>
+    <view class="visit-list">
+      <block wx:if="{{recentVisits.length > 0}}">
+        <view 
+          wx:for="{{recentVisits}}" 
+          wx:key="id"
+          class="visit-card"
+          bind:tap="onVisitTap"
+          data-visit="{{item}}"
+        >
+          <view class="visit-header">
+            <view class="customer-info">
+              <view class="customer-avatar">
+                <image src="{{item.customerAvatar || '/assets/images/default-avatar.png'}}" mode="aspectFill" />
+              </view>
+              <view class="customer-detail">
+                <view class="customer-name">{{item.customerName}}</view>
+                <view class="visit-time">{{item.visitTime}}</view>
+              </view>
+            </view>
+            <view class="visit-status">
+              <view 
+                class="status-badge"
+                style="background-color: {{getVisitStatusColor(item.status)}}"
+              >{{getVisitStatusText(item.status)}}</view>
+            </view>
+          </view>
+          <view class="visit-content">
+            <view class="visit-type">{{getVisitTypeText(item.type)}}</view>
+            <view class="visit-summary">{{item.summary}}</view>
+          </view>
+          <view class="visit-result" wx:if="{{item.satisfactionScore}}">
+            <view class="satisfaction">
+              <text class="label">满意度：</text>
+              <van-rate 
+                value="{{item.satisfactionScore}}" 
+                size="16" 
+                readonly
+                color="#ffd21e"
+              />
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <!-- 空状态 -->
+      <view class="empty-visits" wx:if="{{recentVisits.length === 0}}">
+        <van-empty description="暂无回访记录" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速操作 -->
+  <view class="quick-actions">
+    <view class="action-row">
+      <view class="quick-btn" bind:tap="quickVisit">
+        <van-icon name="phone-circle-o" />
+        <text>快速回访</text>
+      </view>
+      <view class="quick-btn" bind:tap="scheduleVisit">
+        <van-icon name="calendar-o" />
+        <text>安排回访</text>
+      </view>
+      <view class="quick-btn" bind:tap="promoteService">
+        <van-icon name="gift-o" />
+        <text>推广服务</text>
+      </view>
+      <view class="quick-btn" bind:tap="reportIssue">
+        <van-icon name="warning-o" />
+        <text>问题上报</text>
+      </view>
+    </view>
+    <view class="action-row">
+      <view class="quick-btn" bind:tap="openRenewalManagement">
+        <van-icon name="bookmark-o" />
+        <text>续约管理</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速回访弹窗 -->
+  <van-dialog
+    use-slot
+    title="快速回访"
+    show="{{ showQuickVisitDialog }}"
+    bind:close="closeQuickVisitDialog"
+    confirmButtonText="完成回访"
+    bind:confirm="confirmQuickVisit"
+  >
+    <view class="quick-visit-dialog">
+      <view class="form-item">
+        <text class="form-label">选择客户</text>
+        <van-field
+          value="{{ quickVisitForm.customerName }}"
+          placeholder="请选择客户"
+          readonly
+          is-link
+          bind:click="selectCustomer"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">回访方式</text>
+        <van-field
+          value="{{ quickVisitForm.typeText }}"
+          placeholder="选择回访方式"
+          readonly
+          is-link
+          bind:click="selectVisitType"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">回访内容</text>
+        <van-field
+          value="{{ quickVisitForm.content }}"
+          type="textarea"
+          placeholder="请输入回访内容"
+          autosize
+          bind:change="onQuickVisitInput"
+          data-field="content"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">客户满意度</text>
+        <view class="satisfaction-input">
+          <van-rate
+            value="{{ quickVisitForm.satisfaction }}"
+            size="24"
+            bind:change="onSatisfactionChange"
+          />
+          <text class="satisfaction-text">{{getSatisfactionText(quickVisitForm.satisfaction)}}</text>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">问题反馈</text>
+        <van-field
+          value="{{ quickVisitForm.issues }}"
+          type="textarea"
+          placeholder="记录客户反馈的问题（可选）"
+          autosize
+          bind:change="onQuickVisitInput"
+          data-field="issues"
+        />
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 安排回访弹窗 -->
+  <van-dialog
+    use-slot
+    title="安排回访"
+    show="{{ showScheduleVisitDialog }}"
+    bind:close="closeScheduleVisitDialog"
+    confirmButtonText="确认安排"
+    bind:confirm="confirmScheduleVisit"
+  >
+    <view class="schedule-visit-dialog">
+      <view class="form-item">
+        <text class="form-label">选择客户</text>
+        <van-field
+          value="{{ scheduleVisitForm.customerName }}"
+          placeholder="请选择客户"
+          readonly
+          is-link
+          bind:click="selectCustomerForSchedule"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">回访时间</text>
+        <van-field
+          value="{{ scheduleVisitForm.visitTime }}"
+          placeholder="选择回访时间"
+          readonly
+          is-link
+          bind:click="selectVisitTime"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">回访类型</text>
+        <van-field
+          value="{{ scheduleVisitForm.typeText }}"
+          placeholder="选择回访类型"
+          readonly
+          is-link
+          bind:click="selectScheduleVisitType"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">回访目的</text>
+        <van-field
+          value="{{ scheduleVisitForm.purpose }}"
+          type="textarea"
+          placeholder="请输入回访目的"
+          autosize
+          bind:change="onScheduleVisitInput"
+          data-field="purpose"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="checkbox-item">
+          <van-checkbox 
+            value="{{ scheduleVisitForm.reminder }}"
+            bind:change="onReminderChange"
+          >
+            提前提醒
+          </van-checkbox>
+        </view>
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 增值服务推广弹窗 -->
+  <van-dialog
+    use-slot
+    title="增值服务推广"
+    show="{{ showPromoteServiceDialog }}"
+    bind:close="closePromoteServiceDialog"
+    confirmButtonText="发送推广"
+    bind:confirm="confirmPromoteService"
+  >
+    <view class="promote-service-dialog">
+      <view class="form-item">
+        <text class="form-label">选择客户</text>
+        <van-field
+          value="{{ promoteServiceForm.customerName }}"
+          placeholder="请选择客户"
+          readonly
+          is-link
+          bind:click="selectCustomerForPromotion"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">推广产品</text>
+        <van-field
+          value="{{ promoteServiceForm.productName }}"
+          placeholder="选择推广产品"
+          readonly
+          is-link
+          bind:click="selectPromotionProduct"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">推广内容</text>
+        <van-field
+          value="{{ promoteServiceForm.content }}"
+          type="textarea"
+          placeholder="请输入推广内容"
+          autosize
+          bind:change="onPromoteServiceInput"
+          data-field="content"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">优惠信息</text>
+        <van-field
+          value="{{ promoteServiceForm.discount }}"
+          placeholder="输入优惠信息（可选）"
+          bind:change="onPromoteServiceInput"
+          data-field="discount"
+        />
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 客户选择器 -->
+  <van-action-sheet
+    show="{{ showCustomerPicker }}"
+    actions="{{ customerOptions }}"
+    bind:close="closeCustomerPicker"
+    bind:select="onCustomerSelect"
+    cancel-text="取消"
+  />
+
+  <!-- 回访方式选择器 -->
+  <van-action-sheet
+    show="{{ showVisitTypePicker }}"
+    actions="{{ visitTypeOptions }}"
+    bind:close="closeVisitTypePicker"
+    bind:select="onVisitTypeSelect"
+    cancel-text="取消"
+  />
+
+  <!-- 产品选择器 -->
+  <van-action-sheet
+    show="{{ showProductPicker }}"
+    actions="{{ productOptions }}"
+    bind:close="closeProductPicker"
+    bind:select="onProductSelect"
+    cancel-text="取消"
+  />
+
+  <!-- 日期时间选择器 -->
+  <van-datetime-picker
+    show="{{ showDateTimePicker }}"
+    type="datetime"
+    value="{{ pickerDateTime }}"
+    min-date="{{ minDateTime }}"
+    bind:confirm="onDateTimeConfirm"
+    bind:cancel="closeDateTimePicker"
+  />
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <van-loading size="24px">加载中...</van-loading>
+  </view>
+</view> 

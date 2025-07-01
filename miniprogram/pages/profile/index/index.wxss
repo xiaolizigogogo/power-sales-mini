@@ -1,10 +1,184 @@
 /* pages/profile/index/index.wxss */
 @import '../../../styles/common.wxss';
 
-.profile-container {
+.container {
   min-height: 100vh;
-  background-color: var(--bg-color-light);
-  padding-bottom: 40rpx;
+  background: #f5f7fa;
+}
+
+.user-section {
+  background: linear-gradient(135deg, #409eff 0%, #36cfc9 100%);
+  padding: 40rpx 30rpx;
+  color: #fff;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.info-right {
+  margin-left: 20rpx;
+}
+
+.name {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.company {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+.user-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-item .value {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.stat-item .label {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+.power-section {
+  margin: 20rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.section-header .title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.section-header .more {
+  font-size: 24rpx;
+  color: #409eff;
+}
+
+.power-stats {
+  display: flex;
+  padding: 30rpx;
+}
+
+.power-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.item-value {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10rpx;
+}
+
+.item-value .number {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.item-value .unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 4rpx;
+}
+
+.item-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.menu-section {
+  margin: 20rpx;
+}
+
+.menu-group {
+  background: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+
+.menu-group:last-child {
+  margin-bottom: 0;
+}
+
+.menu-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.menu-list {
+  padding: 0 30rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item .icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
+.menu-item .text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.menu-item .van-icon {
+  color: #999;
+  font-size: 28rpx;
 }
 
 /* 用户信息区域 */

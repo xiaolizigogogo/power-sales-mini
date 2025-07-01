@@ -1,0 +1,446 @@
+/* 客户维护管理页面样式 */
+.maintenance-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding-bottom: 20rpx;
+}
+
+/* 统计卡片区域 */
+.stats-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40rpx 30rpx 60rpx;
+  margin-bottom: 20rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30rpx;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10rpx);
+  border-radius: 20rpx;
+  padding: 30rpx 20rpx;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-icon {
+  font-size: 48rpx;
+  margin-bottom: 15rpx;
+}
+
+.stat-number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 功能导航区域 */
+.nav-section {
+  background: #ffffff;
+  margin: 20rpx 30rpx;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30rpx;
+}
+
+.nav-item {
+  text-align: center;
+  padding: 30rpx 20rpx;
+  border-radius: 16rpx;
+  background: #f8f9ff;
+  border: 1px solid #e8ebf7;
+  transition: all 0.3s ease;
+}
+
+.nav-item:active {
+  transform: scale(0.95);
+  background: #e8ebf7;
+}
+
+.nav-icon {
+  font-size: 48rpx;
+  margin-bottom: 15rpx;
+}
+
+.nav-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.nav-desc {
+  font-size: 22rpx;
+  color: #666666;
+}
+
+/* 通用区域样式 */
+.section {
+  background: #ffffff;
+  margin: 20rpx 30rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.section-more {
+  font-size: 24rpx;
+  color: #1989fa;
+}
+
+/* 任务列表样式 */
+.task-list {
+  padding: 0 30rpx 20rpx;
+}
+
+.task-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.task-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.12);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.task-type {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.type-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
+.type-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.task-time {
+  font-size: 24rpx;
+  color: #666666;
+  background: #f5f5f5;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.task-content {
+  margin-bottom: 25rpx;
+}
+
+.customer-info {
+  margin-bottom: 15rpx;
+}
+
+.customer-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 5rpx;
+}
+
+.customer-company {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.task-desc {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.5;
+}
+
+.task-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  transition: all 0.3s ease;
+}
+
+.action-btn.primary {
+  background: #1989fa;
+  color: #ffffff;
+}
+
+.action-btn.secondary {
+  background: #f0f0f0;
+  color: #666666;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* 回访记录样式 */
+.visit-list {
+  padding: 0 30rpx 20rpx;
+}
+
+.visit-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.visit-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.12);
+}
+
+.visit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.customer-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.customer-avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.customer-detail {
+  flex: 1;
+}
+
+.visit-time {
+  font-size: 22rpx;
+  color: #666666;
+  margin-top: 5rpx;
+}
+
+.visit-status {
+  text-align: right;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: #ffffff;
+}
+
+.visit-content {
+  margin-bottom: 20rpx;
+}
+
+.visit-type {
+  font-size: 24rpx;
+  color: #1989fa;
+  margin-bottom: 10rpx;
+}
+
+.visit-summary {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.5;
+}
+
+.visit-result {
+  padding-top: 20rpx;
+  border-top: 1px solid #f0f0f0;
+}
+
+.satisfaction {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.satisfaction .label {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 快速操作区域 */
+.quick-actions {
+  position: fixed;
+  bottom: 30rpx;
+  left: 30rpx;
+  right: 30rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.action-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.quick-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 25rpx 15rpx;
+  border-radius: 16rpx;
+  background: #f8f9ff;
+  border: 1px solid #e8ebf7;
+  transition: all 0.3s ease;
+}
+
+.quick-btn:active {
+  transform: scale(0.95);
+  background: #e8ebf7;
+}
+
+.quick-btn text {
+  font-size: 22rpx;
+  color: #333333;
+}
+
+/* 弹窗样式 */
+.quick-visit-dialog,
+.schedule-visit-dialog,
+.promote-service-dialog {
+  padding: 30rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 15rpx;
+  font-weight: 600;
+}
+
+.satisfaction-input {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx 0;
+}
+
+.satisfaction-text {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.checkbox-item {
+  padding: 20rpx 0;
+}
+
+/* 空状态样式 */
+.empty-tasks,
+.empty-visits {
+  padding: 80rpx 30rpx;
+  text-align: center;
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 响应式适配 */
+@media (max-width: 750rpx) {
+  .stats-grid,
+  .nav-grid {
+    grid-template-columns: 1fr;
+    gap: 20rpx;
+  }
+  
+  .action-row {
+    flex-wrap: wrap;
+  }
+  
+  .quick-btn {
+    min-width: calc(50% - 10rpx);
+  }
+} 

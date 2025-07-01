@@ -1,0 +1,395 @@
+<view class="service-management">
+  <!-- 顶部统计卡片 -->
+  <view class="stats-section">
+    <view class="stats-grid">
+      <view class="stat-card">
+        <view class="stat-icon">🚀</view>
+        <view class="stat-number">{{statistics.pendingService}}</view>
+        <view class="stat-label">待开通</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">⚡</view>
+        <view class="stat-number">{{statistics.activeService}}</view>
+        <view class="stat-label">服务中</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">📊</view>
+        <view class="stat-number">{{statistics.todayActivated}}</view>
+        <view class="stat-label">今日开通</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon">💯</view>
+        <view class="stat-number">{{statistics.satisfaction}}%</view>
+        <view class="stat-label">满意度</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索和筛选 -->
+  <view class="search-filter-section">
+    <view class="search-bar">
+      <van-search
+        value="{{ searchKeyword }}"
+        placeholder="搜索客户名称、订单号"
+        use-action-slot
+        bind:change="onSearchInput"
+        bind:search="onSearchConfirm"
+      >
+        <view slot="action" bind:tap="onSearchConfirm">搜索</view>
+      </van-search>
+    </view>
+    
+    <view class="filter-tabs">
+      <view 
+        wx:for="{{filterTabs}}" 
+        wx:key="value"
+        class="filter-tab {{currentFilter === item.value ? 'active' : ''}}"
+        bind:tap="onFilterTabTap"
+        data-filter="{{item.value}}"
+      >
+        <view class="tab-icon">{{item.icon}}</view>
+        <view class="tab-text">{{item.label}}</view>
+        <view wx:if="{{item.count > 0}}" class="tab-badge">{{item.count}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务列表 -->
+  <view class="service-list">
+    <block wx:if="{{serviceList.length > 0}}">
+      <view 
+        wx:for="{{serviceList}}" 
+        wx:key="id"
+        class="service-card"
+        bind:tap="onServiceTap"
+        data-service="{{item}}"
+      >
+        <!-- 服务头部 -->
+        <view class="service-header">
+          <view class="service-info">
+            <view class="service-title">{{item.customerName}}</view>
+            <view class="service-subtitle">{{item.productName}}</view>
+          </view>
+          <view class="service-status">
+            <view 
+              class="status-badge"
+              style="background-color: {{getStatusColor(item.serviceStatus)}}"
+            >{{getStatusText(item.serviceStatus)}}</view>
+          </view>
+        </view>
+
+        <!-- 订单信息 -->
+        <view class="order-info">
+          <view class="info-row">
+            <view class="info-item">
+              <text class="label">订单号</text>
+              <text class="value">{{item.orderNo}}</text>
+            </view>
+            <view class="info-item">
+              <text class="label">合同金额</text>
+              <text class="value highlight">¥{{formatAmount(item.amount)}}</text>
+            </view>
+          </view>
+          <view class="info-row">
+            <view class="info-item">
+              <text class="label">服务期限</text>
+              <text class="value">{{item.servicePeriod}}个月</text>
+            </view>
+            <view class="info-item">
+              <text class="label">开通时间</text>
+              <text class="value">{{item.activationDate || '待开通'}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 进度信息 -->
+        <view class="progress-section" wx:if="{{item.serviceStatus === 'activating'}}">
+          <view class="progress-title">开通进度</view>
+          <view class="progress-bar">
+            <view 
+              class="progress-fill" 
+              style="width: {{item.progressPercent}}%"
+            ></view>
+          </view>
+          <view class="progress-text">{{item.progressText}}</view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="action-buttons">
+          <view 
+            class="action-btn secondary"
+            bind:tap="onContactCustomer"
+            data-customer="{{item}}"
+          >
+            <van-icon name="phone-o" />
+            <text>联系客户</text>
+          </view>
+          
+          <view 
+            class="action-btn secondary"
+            bind:tap="onViewProgress"
+            data-service="{{item}}"
+          >
+            <van-icon name="info-o" />
+            <text>查看进度</text>
+          </view>
+          
+          <view 
+            wx:if="{{item.serviceStatus === 'pending'}}"
+            class="action-btn primary"
+            bind:tap="onStartActivation"
+            data-service="{{item}}"
+          >
+            <van-icon name="play-circle-o" />
+            <text>开始开通</text>
+          </view>
+          
+          <view 
+            wx:if="{{item.serviceStatus === 'activating'}}"
+            class="action-btn primary"
+            bind:tap="onUpdateProgress"
+            data-service="{{item}}"
+          >
+            <van-icon name="edit" />
+            <text>更新进度</text>
+          </view>
+          
+          <view 
+            wx:if="{{item.serviceStatus === 'completed'}}"
+            class="action-btn success"
+            bind:tap="onServiceMonitor"
+            data-service="{{item}}"
+          >
+            <van-icon name="eye-o" />
+            <text>服务监控</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && serviceList.length === 0}}">
+      <van-empty description="暂无服务记录">
+        <van-button 
+          type="primary" 
+          size="small"
+          bind:click="refreshData"
+        >刷新数据</van-button>
+      </van-empty>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-more" wx:if="{{loading}}">
+    <van-loading size="24px">加载中...</van-loading>
+  </view>
+
+  <!-- 服务开通弹窗 -->
+  <van-dialog
+    use-slot
+    title="开始服务开通"
+    show="{{ showActivationDialog }}"
+    bind:close="closeActivationDialog"
+    confirmButtonText="确认开通"
+    bind:confirm="confirmActivation"
+  >
+    <view class="activation-dialog">
+      <view class="service-summary">
+        <view class="summary-title">服务信息确认</view>
+        <view class="summary-item">
+          <text class="label">客户名称：</text>
+          <text class="value">{{selectedService.customerName}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="label">产品服务：</text>
+          <text class="value">{{selectedService.productName}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="label">服务期限：</text>
+          <text class="value">{{selectedService.servicePeriod}}个月</text>
+        </view>
+      </view>
+
+      <view class="activation-form">
+        <view class="form-item">
+          <text class="form-label">预计开通时间</text>
+          <van-field
+            value="{{ activationForm.estimatedDate }}"
+            placeholder="选择预计开通日期"
+            readonly
+            is-link
+            bind:click="selectEstimatedDate"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">负责部门</text>
+          <van-field
+            value="{{ activationForm.department }}"
+            placeholder="选择负责部门"
+            readonly
+            is-link
+            bind:click="selectDepartment"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">开通说明</text>
+          <van-field
+            value="{{ activationForm.remark }}"
+            type="textarea"
+            placeholder="请输入开通说明或特殊要求"
+            autosize
+            bind:change="onActivationFormInput"
+            data-field="remark"
+          />
+        </view>
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 进度更新弹窗 -->
+  <van-dialog
+    use-slot
+    title="更新开通进度"
+    show="{{ showProgressDialog }}"
+    bind:close="closeProgressDialog"
+    confirmButtonText="更新进度"
+    bind:confirm="confirmProgressUpdate"
+  >
+    <view class="progress-dialog">
+      <view class="progress-steps">
+        <view 
+          wx:for="{{progressSteps}}" 
+          wx:key="value"
+          class="progress-step {{item.value <= progressForm.currentStep ? 'completed' : ''}}"
+          bind:tap="onProgressStepTap"
+          data-step="{{item.value}}"
+        >
+          <view class="step-icon">
+            <van-icon name="{{item.value <= progressForm.currentStep ? 'success' : 'circle'}}" />
+          </view>
+          <view class="step-text">{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="progress-form">
+        <view class="form-item">
+          <text class="form-label">当前进度</text>
+          <van-field
+            value="{{ progressForm.stepText }}"
+            placeholder="进度描述"
+            readonly
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">进度说明</text>
+          <van-field
+            value="{{ progressForm.remark }}"
+            type="textarea"
+            placeholder="请描述当前进度详情"
+            autosize
+            bind:change="onProgressFormInput"
+            data-field="remark"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">预计完成时间</text>
+          <van-field
+            value="{{ progressForm.expectedDate }}"
+            placeholder="选择预计完成时间"
+            readonly
+            is-link
+            bind:click="selectExpectedDate"
+          />
+        </view>
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 服务监控弹窗 -->
+  <van-dialog
+    use-slot
+    title="服务监控"
+    show="{{ showMonitorDialog }}"
+    bind:close="closeMonitorDialog"
+    confirmButtonText="保存记录"
+    bind:confirm="confirmMonitorUpdate"
+  >
+    <view class="monitor-dialog">
+      <view class="monitor-stats">
+        <view class="stats-title">服务数据监控</view>
+        <view class="stats-grid">
+          <view class="stat-item">
+            <text class="stat-value">{{monitorData.powerConsumption}}</text>
+            <text class="stat-label">月用电量(kWh)</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">¥{{monitorData.monthlySavings}}</text>
+            <text class="stat-label">月节省金额</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{monitorData.satisfactionScore}}</text>
+            <text class="stat-label">客户满意度</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="monitor-form">
+        <view class="form-item">
+          <text class="form-label">客户满意度评分</text>
+          <van-rate
+            value="{{ monitorForm.satisfaction }}"
+            size="20"
+            bind:change="onSatisfactionChange"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">服务问题记录</text>
+          <van-field
+            value="{{ monitorForm.issues }}"
+            type="textarea"
+            placeholder="记录客户反馈的问题或建议"
+            autosize
+            bind:change="onMonitorFormInput"
+            data-field="issues"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">处理措施</text>
+          <van-field
+            value="{{ monitorForm.solutions }}"
+            type="textarea"
+            placeholder="记录采取的处理措施"
+            autosize
+            bind:change="onMonitorFormInput"
+            data-field="solutions"
+          />
+        </view>
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 部门选择器 -->
+  <van-action-sheet
+    show="{{ showDepartmentPicker }}"
+    actions="{{ departmentOptions }}"
+    bind:close="closeDepartmentPicker"
+    bind:select="onDepartmentSelect"
+    cancel-text="取消"
+  />
+
+  <!-- 日期选择器 -->
+  <van-datetime-picker
+    show="{{ showDatePicker }}"
+    type="date"
+    value="{{ pickerDate }}"
+    min-date="{{ minDate }}"
+    bind:confirm="onDateConfirm"
+    bind:cancel="closeDatePicker"
+  />
+</view> 

@@ -1,0 +1,292 @@
+<view class="renewal-notice-page">
+  <!-- 头部提醒卡片 -->
+  <view class="notice-header">
+    <view class="header-card">
+      <view class="header-icon">⏰</view>
+      <view class="header-content">
+        <view class="header-title">合同续约提醒</view>
+        <view class="header-desc">您有 {{expiredCount}} 个合同即将到期，请及时处理</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-section">
+    <view class="filter-tabs">
+      <view 
+        wx:for="{{filterTabs}}" 
+        wx:key="key"
+        class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
+        bind:tap="onFilterChange"
+        data-filter="{{item.key}}"
+      >
+        <text class="tab-text">{{item.name}}</text>
+        <view class="tab-count">{{item.count}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 合同列表 -->
+  <view class="contracts-list">
+    <block wx:if="{{contractList.length > 0}}">
+      <view 
+        wx:for="{{contractList}}" 
+        wx:key="id"
+        class="contract-item"
+        bind:tap="onContractTap"
+        data-contract="{{item}}"
+      >
+        <!-- 紧急标识 -->
+        <view class="urgent-badge" wx:if="{{item.daysLeft <= 7}}">
+          <text>紧急</text>
+        </view>
+
+        <!-- 合同信息 -->
+        <view class="contract-info">
+          <view class="info-header">
+            <view class="contract-number">{{item.contractNumber}}</view>
+            <view class="days-left {{item.daysLeft <= 30 ? 'urgent' : ''}}">
+              还有{{item.daysLeft}}天到期
+            </view>
+          </view>
+
+          <view class="info-details">
+            <view class="detail-row">
+              <view class="detail-item">
+                <text class="label">服务类型</text>
+                <text class="value">{{item.serviceType}}</text>
+              </view>
+              <view class="detail-item">
+                <text class="label">合同金额</text>
+                <text class="value amount">¥{{formatAmount(item.amount)}}</text>
+              </view>
+            </view>
+            <view class="detail-row">
+              <view class="detail-item">
+                <text class="label">签约时间</text>
+                <text class="value">{{item.signDate}}</text>
+              </view>
+              <view class="detail-item">
+                <text class="label">到期时间</text>
+                <text class="value expire-date">{{item.expireDate}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 服务效果评价 -->
+          <view class="service-evaluation" wx:if="{{item.serviceEvaluation}}">
+            <view class="eval-title">服务效果</view>
+            <view class="eval-content">
+              <view class="eval-item">
+                <text class="eval-label">节费金额</text>
+                <text class="eval-value savings">¥{{item.serviceEvaluation.savings}}</text>
+              </view>
+              <view class="eval-item">
+                <text class="eval-label">满意度</text>
+                <view class="eval-stars">
+                  <van-rate 
+                    value="{{item.serviceEvaluation.satisfaction}}" 
+                    readonly 
+                    size="16"
+                    color="#ffd21e"
+                    void-color="#c8c9cc"
+                  />
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 续约状态 -->
+          <view class="renewal-status">
+            <view class="status-info">
+              <text class="status-label">续约状态：</text>
+              <text 
+                class="status-value status-{{item.renewalStatus}}"
+                style="color: {{getRenewalStatusColor(item.renewalStatus)}}"
+              >
+                {{getRenewalStatusText(item.renewalStatus)}}
+              </text>
+            </view>
+            <view class="status-desc" wx:if="{{item.renewalNote}}">
+              {{item.renewalNote}}
+            </view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="contract-actions">
+          <view 
+            class="action-btn secondary"
+            bind:tap="onContactManager"
+            data-contract="{{item}}"
+          >
+            <van-icon name="phone-o" />
+            <text>联系客户经理</text>
+          </view>
+          
+          <view 
+            class="action-btn primary"
+            bind:tap="onRenewalDecision"
+            data-contract="{{item}}"
+          >
+            <van-icon name="edit" />
+            <text>{{getRenewalActionText(item.renewalStatus)}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-contracts" wx:if="{{contractList.length === 0 && !loading}}">
+      <van-empty description="暂无续约提醒">
+        <van-button 
+          type="primary" 
+          size="small"
+          bind:click="refreshData"
+        >刷新数据</van-button>
+      </van-empty>
+    </view>
+  </view>
+
+  <!-- 续约决策弹窗 -->
+  <van-dialog
+    use-slot
+    title="续约决策"
+    show="{{ showDecisionDialog }}"
+    bind:close="closeDecisionDialog"
+    confirmButtonText="确认决策"
+    bind:confirm="confirmRenewalDecision"
+  >
+    <view class="decision-dialog">
+      <view class="dialog-section">
+        <view class="section-title">合同信息</view>
+        <view class="contract-summary">
+          <view class="summary-item">
+            <text class="label">合同编号：</text>
+            <text class="value">{{selectedContract.contractNumber}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="label">到期时间：</text>
+            <text class="value">{{selectedContract.expireDate}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="label">服务期间节费：</text>
+            <text class="value savings">¥{{selectedContract.serviceEvaluation?.savings || 0}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="dialog-section">
+        <view class="section-title">续约决策</view>
+        <view class="decision-options">
+          <van-radio-group value="{{ decisionForm.decision }}" bind:change="onDecisionChange">
+            <van-radio name="renew" icon-size="16px">
+              <text>同意续约</text>
+            </van-radio>
+            <van-radio name="negotiate" icon-size="16px">
+              <text>需要协商</text>
+            </van-radio>
+            <van-radio name="decline" icon-size="16px">
+              <text>不续约</text>
+            </van-radio>
+          </van-radio-group>
+        </view>
+      </view>
+
+      <view class="dialog-section" wx:if="{{decisionForm.decision === 'renew'}}">
+        <view class="section-title">续约期限</view>
+        <view class="renewal-period">
+          <van-field
+            label="服务期限"
+            value="{{ decisionForm.servicePeriod }}"
+            placeholder="选择续约期限"
+            readonly
+            is-link
+            bind:click="selectServicePeriod"
+          />
+        </view>
+      </view>
+
+      <view class="dialog-section" wx:if="{{decisionForm.decision === 'negotiate'}}">
+        <view class="section-title">协商要求</view>
+        <view class="negotiation-requirements">
+          <van-field
+            label="价格要求"
+            value="{{ decisionForm.priceRequirement }}"
+            placeholder="输入期望的价格"
+            bind:change="onDecisionFormInput"
+            data-field="priceRequirement"
+          />
+          <van-field
+            label="服务要求"
+            value="{{ decisionForm.serviceRequirement }}"
+            type="textarea"
+            placeholder="输入对服务的特殊要求"
+            autosize
+            bind:change="onDecisionFormInput"
+            data-field="serviceRequirement"
+          />
+        </view>
+      </view>
+
+      <view class="dialog-section" wx:if="{{decisionForm.decision === 'decline'}}">
+        <view class="section-title">不续约原因</view>
+        <view class="decline-reasons">
+          <van-field
+            label="主要原因"
+            value="{{ decisionForm.declineReason }}"
+            placeholder="选择不续约的主要原因"
+            readonly
+            is-link
+            bind:click="selectDeclineReason"
+          />
+          <van-field
+            label="详细说明"
+            value="{{ decisionForm.declineDetail }}"
+            type="textarea"
+            placeholder="详细说明不续约的原因"
+            autosize
+            bind:change="onDecisionFormInput"
+            data-field="declineDetail"
+          />
+        </view>
+      </view>
+
+      <view class="dialog-section">
+        <view class="section-title">备注信息</view>
+        <van-field
+          value="{{ decisionForm.remarks }}"
+          type="textarea"
+          placeholder="其他需要说明的信息"
+          autosize
+          maxlength="300"
+          show-word-limit
+          bind:change="onDecisionFormInput"
+          data-field="remarks"
+        />
+      </view>
+    </view>
+  </van-dialog>
+
+  <!-- 选择器 -->
+  <van-action-sheet
+    show="{{ showServicePeriodPicker }}"
+    actions="{{ servicePeriodOptions }}"
+    bind:close="closeServicePeriodPicker"
+    bind:select="onServicePeriodSelect"
+    cancel-text="取消"
+  />
+
+  <van-action-sheet
+    show="{{ showDeclineReasonPicker }}"
+    actions="{{ declineReasonOptions }}"
+    bind:close="closeDeclineReasonPicker"
+    bind:select="onDeclineReasonSelect"
+    cancel-text="取消"
+  />
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <van-loading size="24px">加载中...</van-loading>
+  </view>
+</view> 

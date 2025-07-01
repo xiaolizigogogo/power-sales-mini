@@ -1,22 +1,22 @@
 {
-  "navigationBarTitleText": "业绩统计",
+  "navigationBarTitleText": "业绩管理",
   "navigationBarBackgroundColor": "#667eea",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#f5f7fa",
+  "backgroundColor": "#f7f8fa",
   "enablePullDownRefresh": true,
   "onReachBottomDistance": 50,
   "backgroundTextStyle": "dark",
   "usingComponents": {
-    "van-tabs": "@vant/weapp/lib/tabs/index",
-    "van-tab": "@vant/weapp/lib/tab/index",
-    "van-picker": "@vant/weapp/lib/picker/index",
-    "van-popup": "@vant/weapp/lib/popup/index",
-    "van-loading": "@vant/weapp/lib/loading/index",
-    "van-empty": "@vant/weapp/lib/empty/index",
-    "van-button": "@vant/weapp/lib/button/index",
-    "van-field": "@vant/weapp/lib/field/index",
-    "van-cell": "@vant/weapp/lib/cell/index",
-    "van-cell-group": "@vant/weapp/lib/cell-group/index",
-    "van-toast": "@vant/weapp/lib/toast/index"
+    "van-tabs": "/miniprogram_npm/@vant/weapp/lib/tabs/index",
+    "van-tab": "/miniprogram_npm/@vant/weapp/lib/tab/index",
+    "van-picker": "/miniprogram_npm/@vant/weapp/lib/picker/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/lib/popup/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
+    "van-cell": "/miniprogram_npm/@vant/weapp/lib/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/lib/cell-group/index",
+    "van-toast": "/miniprogram_npm/@vant/weapp/lib/toast/index"
   }
 } 

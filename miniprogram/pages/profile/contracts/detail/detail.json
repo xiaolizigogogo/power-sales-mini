@@ -1,9 +1,17 @@
 {
+  "navigationBarTitleText": "合同详情",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f7f8fa",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
   "usingComponents": {
-    "van-button": "@vant/weapp/button/index",
-    "van-dialog": "@vant/weapp/dialog/index",
-    "van-icon": "@vant/weapp/icon/index",
-    "van-loading": "@vant/weapp/loading/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/lib/icon/index",
+    "van-checkbox": "/miniprogram_npm/@vant/weapp/lib/checkbox/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
     "signature-pad": "/components/signature-pad/index"
   }
 } 

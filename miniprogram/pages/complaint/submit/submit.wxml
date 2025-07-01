@@ -1,0 +1,81 @@
+<view class="container">
+  <form bindsubmit="onSubmit">
+    <!-- 投诉类型 -->
+    <view class="form-group">
+      <view class="form-label">投诉类型</view>
+      <view class="type-selector">
+        <view 
+          wx:for="{{complaintTypes}}" 
+          wx:key="id"
+          class="type-item {{selectedType === item.id ? 'selected' : ''}}"
+          data-type="{{item.id}}"
+          bindtap="onTypeChange"
+        >
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 投诉内容 -->
+    <view class="form-group">
+      <view class="form-label">投诉内容</view>
+      <textarea 
+        class="complaint-content"
+        placeholder="请详细描述您遇到的问题（至少10个字）"
+        maxlength="500"
+        bindinput="onContentInput"
+        value="{{content}}"
+      ></textarea>
+      <view class="word-count">{{content.length}}/500</view>
+    </view>
+
+    <!-- 图片上传 -->
+    <view class="form-group">
+      <view class="form-label">相关图片（选填，最多3张）</view>
+      <view class="image-uploader">
+        <view class="image-list">
+          <view 
+            class="image-item" 
+            wx:for="{{images}}" 
+            wx:key="*this"
+          >
+            <image src="{{item}}" mode="aspectFill"></image>
+            <view 
+              class="delete-btn"
+              data-index="{{index}}"
+              catchtap="onDeleteImage"
+            >×</view>
+          </view>
+          <view 
+            class="upload-btn"
+            wx:if="{{images.length < 3}}"
+            bindtap="onUploadImage"
+          >
+            <text class="icon">+</text>
+            <text class="text">上传图片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="form-group">
+      <button 
+        class="submit-btn"
+        type="primary"
+        loading="{{submitting}}"
+        form-type="submit"
+      >提交投诉</button>
+    </view>
+
+    <!-- 温馨提示 -->
+    <view class="tips">
+      <view class="tips-title">温馨提示：</view>
+      <view class="tips-content">
+        <text>1. 我们将在24小时内响应您的投诉</text>
+        <text>2. 请保持电话畅通，以便客服与您联系</text>
+        <text>3. 处理结果将通过微信消息通知您</text>
+      </view>
+    </view>
+  </form>
+</view> 

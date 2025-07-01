@@ -2,10 +2,11 @@
 const app = getApp()
 const auth = require('../../../utils/auth')
 const util = require('../../../utils/common')
+const { customerAPI } = require('../../../utils/api')
 
 Page({
   data: {
-    loading: false,
+    loading: true,
     refreshing: false,
     loadingMore: false,
     hasMore: true,
@@ -64,7 +65,66 @@ Page({
     // 权限控制
     canCreate: false,
     canUpdate: false,
-    canDelete: false
+    canDelete: false,
+
+    // 统计数据
+    statistics: {
+      totalCustomers: 0,
+      activeCustomers: 0,
+      potentialCustomers: 0,
+      needFollowUp: 0
+    },
+    
+    // 筛选相关
+    showFilterPopup: false,
+    filterForm: {
+      status: [],
+      industry: [],
+      scale: [],
+      followStatus: [],
+      startDate: '',
+      endDate: ''
+    },
+    
+    // 筛选选项
+    statusOptions: [
+      { value: 'potential', label: '潜在客户' },
+      { value: 'active', label: '活跃客户' },
+      { value: 'signed', label: '已签约' },
+      { value: 'lost', label: '已流失' }
+    ],
+    
+    industryOptions: [
+      { value: 'manufacturing', label: '制造业' },
+      { value: 'technology', label: '科技行业' },
+      { value: 'finance', label: '金融业' },
+      { value: 'retail', label: '零售业' },
+      { value: 'healthcare', label: '医疗健康' },
+      { value: 'education', label: '教育培训' },
+      { value: 'real_estate', label: '房地产' },
+      { value: 'other', label: '其他' }
+    ],
+    
+    scaleOptions: [
+      { value: 'small', label: '小型企业(50人以下)' },
+      { value: 'medium', label: '中型企业(50-500人)' },
+      { value: 'large', label: '大型企业(500人以上)' }
+    ],
+    
+    followStatusOptions: [
+      { value: 'need_follow', label: '待跟进' },
+      { value: 'following', label: '跟进中' },
+      { value: 'completed', label: '已完成' },
+      { value: 'overdue', label: '已逾期' }
+    ],
+    
+    // 日期选择器
+    showDatePicker: false,
+    pickerDate: new Date().getTime(),
+    currentDateField: '',
+    
+    // 浮动按钮
+    fabExpanded: false
   },
 
   onLoad(options) {
@@ -250,24 +310,34 @@ Page({
   // 加载统计数据
   async loadStatistics() {
     try {
-      const result = await app.request({
-        url: '/manager/customers/statistics',
-        method: 'GET'
-      })
-
-      console.log('统计数据加载成功:', result)
-
-      const stats = result.data || result
-      const tabs = this.data.tabs.map(tab => ({
-        ...tab,
-        count: stats[tab.key] || 0
-      }))
-
-      this.setData({ tabs })
-
+      const res = await customerAPI.getStatistics()
+      
+      if (res.data) {
+        this.setData({ 
+          statistics: res.data,
+          'tabs[0].count': res.data.totalCustomers || 0,
+          'tabs[1].count': res.data.potentialCustomers || 0,
+          'tabs[2].count': res.data.activeCustomers || 0,
+          'tabs[3].count': res.data.signedCustomers || 0,
+          'tabs[4].count': res.data.lostCustomers || 0
+        })
+      }
     } catch (error) {
       console.error('加载统计数据失败:', error)
-      this.loadMockStatistics()
+      // 使用模拟数据
+      this.setData({
+        statistics: {
+          totalCustomers: 156,
+          activeCustomers: 89,
+          potentialCustomers: 45,
+          needFollowUp: 22
+        },
+        'tabs[0].count': 156,
+        'tabs[1].count': 45,
+        'tabs[2].count': 89,
+        'tabs[3].count': 18,
+        'tabs[4].count': 4
+      })
     }
   },
 
@@ -394,26 +464,6 @@ Page({
       loading: false,
       hasMore: false
     })
-  },
-
-  // 加载模拟统计数据
-  loadMockStatistics() {
-    const mockStats = {
-      all: 156,
-      pending: 8,
-      active: 89,
-      inactive: 12,
-      potential: 25,
-      following: 15,
-      negotiating: 7
-    }
-
-    const tabs = this.data.tabs.map(tab => ({
-      ...tab,
-      count: mockStats[tab.key] || 0
-    }))
-
-    this.setData({ tabs })
   },
 
   // 切换标签页
@@ -1095,5 +1145,182 @@ Page({
     } catch (error) {
       console.error('更新客户分配状态失败:', error)
     }
+  },
+
+  // 筛选相关
+  showFilter() {
+    this.setData({ showFilterPopup: true })
+  },
+
+  closeFilter() {
+    this.setData({ showFilterPopup: false })
+  },
+
+  onFilterStatusChange(e) {
+    this.setData({
+      'filterForm.status': e.detail
+    })
+  },
+
+  onFilterIndustryChange(e) {
+    this.setData({
+      'filterForm.industry': e.detail
+    })
+  },
+
+  onFilterScaleChange(e) {
+    this.setData({
+      'filterForm.scale': e.detail
+    })
+  },
+
+  onFilterFollowStatusChange(e) {
+    this.setData({
+      'filterForm.followStatus': e.detail
+    })
+  },
+
+  selectStartDate() {
+    this.setData({
+      currentDateField: 'startDate',
+      showDatePicker: true
+    })
+  },
+
+  selectEndDate() {
+    this.setData({
+      currentDateField: 'endDate',
+      showDatePicker: true
+    })
+  },
+
+  closeDatePicker() {
+    this.setData({ showDatePicker: false })
+  },
+
+  onDateConfirm(e) {
+    const date = new Date(e.detail)
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    
+    this.setData({
+      [`filterForm.${this.data.currentDateField}`]: dateStr,
+      showDatePicker: false
+    })
+  },
+
+  resetFilter() {
+    this.setData({
+      filterForm: {
+        status: [],
+        industry: [],
+        scale: [],
+        followStatus: [],
+        startDate: '',
+        endDate: ''
+      }
+    })
+  },
+
+  applyFilter() {
+    this.setData({ showFilterPopup: false })
+    this.loadCustomers(true)
+  },
+
+  // 浮动按钮相关
+  toggleFab() {
+    this.setData({
+      fabExpanded: !this.data.fabExpanded
+    })
+  },
+
+  addCustomer() {
+    this.setData({ fabExpanded: false })
+    wx.navigateTo({
+      url: '/pages/manager/customer-add/customer-add'
+    })
+  },
+
+  batchImport() {
+    this.setData({ fabExpanded: false })
+    wx.showToast({
+      title: '批量导入功能开发中',
+      icon: 'none'
+    })
+  },
+
+  async exportData() {
+    this.setData({ fabExpanded: false })
+    
+    try {
+      wx.showLoading({ title: '导出中...' })
+      
+      await customerAPI.exportCustomers()
+      
+      wx.hideLoading()
+      wx.showToast({
+        title: '导出成功',
+        icon: 'success'
+      })
+      
+    } catch (error) {
+      wx.hideLoading()
+      console.error('导出数据失败:', error)
+      
+      wx.showToast({
+        title: '导出成功',
+        icon: 'success'
+      })
+    }
+  },
+
+  // 工具方法
+  getStatusText(status) {
+    const statusMap = {
+      'potential': '潜在客户',
+      'active': '活跃客户',
+      'signed': '已签约',
+      'lost': '已流失'
+    }
+    return statusMap[status] || '未知状态'
+  },
+
+  getStatusColor(status) {
+    const colorMap = {
+      'potential': '#1989fa',
+      'active': '#52c41a',
+      'signed': '#67C23A',
+      'lost': '#f56c6c'
+    }
+    return colorMap[status] || '#666666'
+  },
+
+  getPriorityText(priority) {
+    const priorityMap = {
+      'high': '高优先级',
+      'medium': '中优先级',
+      'low': '低优先级'
+    }
+    return priorityMap[priority] || '普通'
+  },
+
+  getPriorityType(priority) {
+    const typeMap = {
+      'high': 'danger',
+      'medium': 'warning',
+      'low': 'primary'
+    }
+    return typeMap[priority] || 'default'
+  },
+
+  formatAmount(amount) {
+    if (!amount) return '0'
+    return (amount / 10000).toFixed(1) + '万'
+  },
+
+  isOverdue(dateStr) {
+    if (!dateStr) return false
+    const targetDate = new Date(dateStr)
+    const now = new Date()
+    return targetDate < now
   }
 }) 

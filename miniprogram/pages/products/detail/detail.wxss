@@ -1,3 +1,196 @@
+.container {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding-bottom: 120rpx;
+}
+
+.product-swiper {
+  width: 100%;
+  height: 500rpx;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+}
+
+.product-info {
+  background: #fff;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.product-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.price-value {
+  font-size: 40rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.tag {
+  font-size: 24rpx;
+  color: #409eff;
+  background: rgba(64, 158, 255, 0.1);
+  padding: 6rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+.product-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.product-details {
+  background: #fff;
+}
+
+.detail-section {
+  padding: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.feature-item van-icon {
+  margin-right: 10rpx;
+}
+
+.instruction-list {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.instruction-item {
+  margin-bottom: 16rpx;
+}
+
+.price-table {
+  border: 1rpx solid #eee;
+  border-radius: 12rpx;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 3fr;
+  border-bottom: 1rpx solid #eee;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row.header {
+  background: #f5f7fa;
+  font-weight: bold;
+}
+
+.cell {
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 40rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+.btn van-icon {
+  margin-right: 8rpx;
+}
+
+.btn.calculator {
+  background: #f5f7fa;
+  color: #666;
+}
+
+.btn.contact {
+  background: #f5f7fa;
+  color: #666;
+}
+
+.btn.primary {
+  background: #409eff;
+  color: #fff;
+  flex: 1;
+  margin-left: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(64, 158, 255, 0.4);
+}
+
 .detail-scroll {
   height: calc(100vh - 180rpx);
 }
@@ -27,14 +220,6 @@
   margin-bottom: 20rpx;
 }
 
-.product-name {
-  flex: 1;
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #1f2937;
-  margin-right: 20rpx;
-}
-
 .share-button {
   display: flex;
   flex-direction: column;
@@ -60,12 +245,6 @@
   margin-bottom: 20rpx;
 }
 
-.price-value {
-  font-size: 48rpx;
-  font-weight: 600;
-  color: #ef4444;
-}
-
 .price-unit {
   font-size: 28rpx;
   color: #ef4444;
@@ -75,15 +254,6 @@
   display: flex;
   flex-wrap: wrap;
   margin: -6rpx;
-}
-
-.tag {
-  padding: 8rpx 20rpx;
-  font-size: 24rpx;
-  color: #409EFF;
-  background: rgba(64, 158, 255, 0.1);
-  border-radius: 6rpx;
-  margin: 6rpx;
 }
 
 .detail-card {
@@ -99,12 +269,6 @@
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 20rpx;
-}
-
-.product-desc {
-  font-size: 28rpx;
-  color: #4b5563;
-  line-height: 1.6;
 }
 
 .scope-list {

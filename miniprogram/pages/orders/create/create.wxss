@@ -2,7 +2,7 @@
 
 .order-create {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: var(--bg-color);
   padding-bottom: 120rpx;
 }
 
@@ -11,24 +11,25 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 1000;
 }
 
 /* 产品卡片 */
 .product-card {
+  background-color: var(--bg-white);
   margin: 20rpx;
-  background-color: #fff;
-  border-radius: 12rpx;
-  padding: 20rpx;
+  border-radius: var(--border-radius-lg);
+  padding: 30rpx;
   display: flex;
-  align-items: center;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .product-image {
   width: 160rpx;
-  height: 160rpx;
-  border-radius: 8rpx;
-  margin-right: 20rpx;
+  height: 120rpx;
+  border-radius: var(--border-radius-base);
+  margin-right: 24rpx;
+  flex-shrink: 0;
 }
 
 .product-info {
@@ -36,39 +37,126 @@
 }
 
 .product-name {
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+}
+
+.product-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
   margin-bottom: 12rpx;
+  line-height: 1.4;
 }
 
 .product-price {
   display: flex;
   align-items: baseline;
+  margin-bottom: 12rpx;
 }
 
-.product-price .price {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #f44;
+.price {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--primary-color);
 }
 
-.product-price .unit {
-  font-size: 24rpx;
-  color: #999;
+.unit {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
   margin-left: 4rpx;
 }
 
-/* 表单部分 */
-.form-section {
+.product-tags {
+  display: flex;
+  gap: 8rpx;
+}
+
+.tag {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-size: var(--font-size-xs);
+  padding: 4rpx 12rpx;
+  border-radius: var(--border-radius-sm);
+}
+
+/* 客户信息确认 */
+.customer-section {
+  background-color: var(--bg-white);
   margin: 20rpx;
-  padding: 30rpx 20rpx;
-  background-color: #fff;
-  border-radius: 12rpx;
+  border-radius: var(--border-radius-lg);
+  padding: 30rpx;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.title-text {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.edit-btn {
+  font-size: var(--font-size-sm);
+  color: var(--primary-color);
+  padding: 8rpx 16rpx;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.calc-btn {
+  font-size: var(--font-size-sm);
+  color: var(--primary-color);
+  padding: 8rpx 16rpx;
+  background-color: var(--primary-light);
+  border-radius: var(--border-radius-sm);
+}
+
+.customer-info {
+  space-y: 16rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  width: 160rpx;
+  flex-shrink: 0;
+}
+
+.value {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* 产品配置和需求说明 */
+.config-section,
+.requirements-section {
+  background-color: var(--bg-white);
+  margin: 20rpx;
+  border-radius: var(--border-radius-lg);
+  padding: 30rpx;
 }
 
 .form-item {
-  margin-bottom: 30rpx;
+  margin-bottom: 32rpx;
 }
 
 .form-item:last-child {
@@ -76,53 +164,127 @@
 }
 
 .form-label {
-  font-size: 28rpx;
-  color: #333;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
   margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
 }
 
-.period-radio {
-  margin-right: 30rpx;
+.required {
+  color: var(--error-color);
+  margin-left: 4rpx;
 }
 
 .date-picker {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20rpx 0;
-  border-bottom: 2rpx solid #eee;
-  font-size: 28rpx;
-  color: #333;
+  padding: 24rpx 20rpx;
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--border-color);
+}
+
+.date-picker .placeholder {
+  color: var(--text-muted);
+}
+
+.usage-tips {
+  margin-top: 12rpx;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  padding: 12rpx 16rpx;
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius-sm);
 }
 
 .error-text {
-  font-size: 24rpx;
-  color: #f44;
+  color: var(--error-color);
+  font-size: var(--font-size-xs);
   margin-top: 8rpx;
 }
 
-/* 费用部分 */
-.fee-section {
-  margin: 20rpx;
-  padding: 30rpx 20rpx;
-  background-color: #fff;
-  border-radius: 12rpx;
+/* 文件上传 */
+.upload-section {
+  margin-top: 16rpx;
 }
 
-.section-title {
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
+.upload-list {
+  margin-bottom: 16rpx;
+}
+
+.upload-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius-base);
+  margin-bottom: 12rpx;
+}
+
+.file-name {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  margin: 0 16rpx;
+}
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  border: 2rpx dashed var(--border-color);
+  border-radius: var(--border-radius-base);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.upload-btn text {
+  margin-left: 8rpx;
+}
+
+.upload-tips {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 12rpx;
+  line-height: 1.4;
+}
+
+/* 费用预估 */
+.fee-section {
+  background-color: var(--bg-white);
+  margin: 20rpx;
+  border-radius: var(--border-radius-lg);
+  padding: 30rpx;
+}
+
+.fee-breakdown {
   margin-bottom: 24rpx;
 }
 
 .fee-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 20rpx 0;
-  font-size: 28rpx;
-  color: #333;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.fee-item:last-child {
+  border-bottom: none;
+}
+
+.fee-item.total {
+  padding-top: 24rpx;
+  border-top: 2rpx solid var(--border-color);
+  margin-top: 16rpx;
+}
+
+.fee-label {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
 }
 
 .fee-value {
@@ -130,403 +292,139 @@
   align-items: baseline;
 }
 
-.fee-value.highlight .amount {
-  color: #f44;
-  font-size: 36rpx;
-  font-weight: bold;
+.fee-value .amount {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-.fee-value .amount {
-  font-size: 32rpx;
-  font-weight: 500;
+.fee-value.highlight .amount {
+  font-size: var(--font-size-xl);
+  color: var(--primary-color);
 }
 
 .fee-value .unit {
-  font-size: 24rpx;
-  color: #999;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-left: 4rpx;
+}
+
+/* 节省信息 */
+.savings-info {
+  background: linear-gradient(135deg, var(--success-light), var(--success-color));
+  border-radius: var(--border-radius-base);
+  padding: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.savings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.savings-label {
+  font-size: var(--font-size-base);
+  color: white;
+  font-weight: 500;
+}
+
+.savings-value {
+  display: flex;
+  align-items: baseline;
+}
+
+.savings-value .amount {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: white;
+}
+
+.savings-value .unit {
+  font-size: var(--font-size-sm);
+  color: white;
+  opacity: 0.9;
   margin-left: 4rpx;
 }
 
 .fee-tips {
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 16rpx;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
-/* 提交按钮 */
-.submit-section {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20rpx;
-  background-color: #fff;
-  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
-}
-
-/* 自定义van-field样式 */
-.van-field {
-  padding: 10rpx 0 !important;
-}
-
-.van-field__input {
-  min-height: 40rpx !important;
-}
-
-.van-radio {
-  margin-bottom: 16rpx;
-}
-
-/* 产品信息卡片 */
-.product-card {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
-}
-
-.product-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.product-type {
-  font-size: 24rpx;
-  color: #1890ff;
-  background-color: rgba(24,144,255,0.1);
-  padding: 4rpx 12rpx;
-  border-radius: 4rpx;
-}
-
-.product-desc {
-  font-size: 26rpx;
-  color: #999999;
-  line-height: 1.5;
-}
-
-/* 表单区域 */
-.form-section {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24rpx;
-}
-
-.title-text {
-  font-size: 30rpx;
-  color: #333333;
-  font-weight: 500;
-}
-
-.required-mark {
-  color: #ff4d4f;
-  margin-left: 8rpx;
-}
-
-.optional-mark {
-  color: #999999;
-  font-size: 24rpx;
-  margin-left: 8rpx;
-}
-
-.form-item {
-  margin-bottom: 24rpx;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.label {
+.fee-tips text {
   display: block;
-  font-size: 28rpx;
-  color: #333333;
-  margin-bottom: 12rpx;
+  margin-bottom: 8rpx;
 }
 
-.input {
-  width: 100%;
-  height: 88rpx;
-  background-color: #f5f7fa;
-  border-radius: 8rpx;
-  padding: 0 24rpx;
-  font-size: 28rpx;
-  color: #333333;
-  box-sizing: border-box;
-}
-
-.input.error {
-  border: 2rpx solid #ff4d4f;
-}
-
-.picker {
-  width: 100%;
-  height: 88rpx;
-  background-color: #f5f7fa;
-  border-radius: 8rpx;
-  padding: 0 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
-
-.picker.error {
-  border: 2rpx solid #ff4d4f;
-}
-
-.picker-text {
-  font-size: 28rpx;
-  color: #333333;
-}
-
-.picker-arrow {
-  font-size: 24rpx;
-  color: #999999;
-  transform: rotate(90deg);
-}
-
-.readonly-field {
-  width: 100%;
-  height: 88rpx;
-  background-color: #f5f7fa;
-  border-radius: 8rpx;
-  padding: 0 24rpx;
-  font-size: 28rpx;
-  color: #999999;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.textarea {
-  width: 100%;
-  height: 200rpx;
-  background-color: #f5f7fa;
-  border-radius: 8rpx;
-  padding: 24rpx;
-  font-size: 28rpx;
-  color: #333333;
-  box-sizing: border-box;
-}
-
-.char-count {
-  text-align: right;
-  font-size: 24rpx;
-  color: #999999;
-  margin-top: 8rpx;
-}
-
-/* 费用信息 */
-.cost-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-  padding: 16rpx 0;
-  border-bottom: 2rpx solid #f0f0f0;
-}
-
-.cost-item:last-child {
+.fee-tips text:last-child {
   margin-bottom: 0;
-  border-bottom: none;
 }
 
-.cost-item.total {
-  margin-top: 16rpx;
-  padding-top: 24rpx;
-  border-top: 2rpx solid #f0f0f0;
+/* 服务条款 */
+.terms-section {
+  background-color: var(--bg-white);
+  margin: 20rpx;
+  border-radius: var(--border-radius-lg);
+  padding: 30rpx;
 }
 
-.cost-label {
-  font-size: 28rpx;
-  color: #666666;
-}
-
-.cost-value {
-  font-size: 32rpx;
-  color: #ff4d4f;
-  font-weight: 500;
-}
-
-/* 协议确认 */
-.agreement-section {
-  margin: 32rpx 0;
-}
-
-.agreement-item {
+.terms-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.checkbox {
-  width: 40rpx;
-  height: 40rpx;
-  border: 2rpx solid #d9d9d9;
-  border-radius: 4rpx;
-  margin-right: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+.terms-checkbox {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
-.checkbox.checked {
-  background-color: #1890ff;
-  border-color: #1890ff;
-}
-
-.checkbox-icon {
-  color: #ffffff;
-  font-size: 24rpx;
-}
-
-.agreement-text {
-  font-size: 26rpx;
-  color: #666666;
-}
-
-.link {
-  color: #1890ff;
+.terms-link {
+  color: var(--primary-color);
+  text-decoration: underline;
 }
 
 /* 提交按钮 */
 .submit-section {
-  margin: 48rpx 0;
-  padding: 0 24rpx;
-}
-
-.submit-btn {
-  width: 100%;
-  height: 88rpx;
-  border-radius: 44rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: #ffffff;
-  background-color: #1890ff;
-  transition: all 0.3s ease;
-}
-
-.submit-btn.disabled {
-  background-color: #d9d9d9;
-  color: #ffffff;
-}
-
-.submit-btn:active {
-  opacity: 0.8;
-}
-
-.tips {
-  margin-top: 24rpx;
-  text-align: center;
-}
-
-.tips-text {
-  font-size: 24rpx;
-  color: #999999;
-}
-
-/* 模态框样式 */
-.modal-mask {
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background-color: rgba(0,0,0,0.6);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: var(--bg-white);
+  padding: 20rpx;
+  border-top: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
 }
 
-.modal-content {
-  width: 600rpx;
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  overflow: hidden;
-}
-
-.modal-header {
-  padding: 24rpx;
+.submit-tips {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
   text-align: center;
-  border-bottom: 2rpx solid #f0f0f0;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
 }
 
-.modal-title {
-  font-size: 32rpx;
-  color: #333333;
-  font-weight: 500;
-}
-
-.modal-body {
-  padding: 32rpx 24rpx;
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.modal-footer {
-  display: flex;
-  border-top: 2rpx solid #f0f0f0;
-}
-
-.modal-btn {
-  flex: 1;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30rpx;
-  background-color: #ffffff;
-}
-
-.modal-btn.confirm {
-  color: #1890ff;
-  border-left: 2rpx solid #f0f0f0;
-}
-
-.modal-btn.cancel {
-  color: #999999;
+/* 单选框自定义样式 */
+.period-radio,
+.usage-radio {
+  margin-bottom: 16rpx !important;
 }
 
 /* 响应式适配 */
-@media screen and (max-width: 375px) {
-  .page-content {
-    padding: 16rpx;
-  }
-  
-  .product-name {
-    font-size: 28rpx;
-  }
-  
-  .price-value {
-    font-size: 32rpx;
-  }
-  
-  .form-section {
+@media (max-width: 375px) {
+  .product-card {
+    margin: 10rpx;
     padding: 20rpx;
   }
   
-  .input,
-  .picker,
-  .readonly-field {
-    height: 80rpx;
-  }
-  
-  .submit-btn {
-    height: 80rpx;
-    font-size: 30rpx;
+  .config-section,
+  .requirements-section,
+  .customer-section,
+  .fee-section,
+  .terms-section {
+    margin: 10rpx;
+    padding: 20rpx;
   }
 } 

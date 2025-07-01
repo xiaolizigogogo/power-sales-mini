@@ -1,124 +1,123 @@
 <!--pages/profile/index/index.wxml-->
-<view class="profile-container">
-  <!-- 加载状态 -->
-  <loading wx:if="{{loading}}" text="加载中..." />
-  
-  <!-- 用户信息区域 -->
-  <view class="user-section" wx:if="{{!loading}}">
-    <view class="user-header">
-      <view class="user-info" bindtap="onAvatarTap">
-        <view class="avatar-container">
-          <image 
-            class="user-avatar" 
-            src="{{userInfo ? userInfo.avatar_url : '/images/default-avatar.png'}}" 
-            mode="aspectFill"
-          />
-          <view class="edit-icon">
-            <text class="iconfont icon-edit"></text>
-          </view>
-        </view>
-        <view class="user-details">
-          <view class="user-name">
-            {{userInfo ? userInfo.name : '未登录'}}
-          </view>
-          <view class="user-company" wx:if="{{userInfo && userInfo.company_name}}">
-            {{userInfo.company_name}}
-          </view>
-          <view class="login-tip" wx:else>
-            点击登录，享受更多服务
-          </view>
-        </view>
-      </view>
-      
-      <!-- 认证状态 -->
-      <view class="auth-status" wx:if="{{userInfo}}">
-        <view class="status-item {{userInfo.auth_status === 'verified' ? 'verified' : 'pending'}}">
-          <text class="iconfont {{userInfo.auth_status === 'verified' ? 'icon-check-circle' : 'icon-time-circle'}}"></text>
-          <text class="status-text">
-            {{userInfo.auth_status === 'verified' ? '已认证' : '待认证'}}
-          </text>
-        </view>
+<view class="container">
+  <!-- 用户信息 -->
+  <view class="user-section">
+    <view class="user-info">
+      <image class="avatar" src="{{ userInfo.avatar || '/assets/images/default-avatar.png' }}" mode="aspectFill"/>
+      <view class="info-right">
+        <view class="name">{{ userInfo.name || '未登录' }}</view>
+        <view class="company" wx:if="{{ userInfo.company }}">{{ userInfo.company }}</view>
       </view>
     </view>
-    
-    <!-- 数据统计 -->
-    <view class="stats-section" wx:if="{{userInfo}}">
-      <view class="stats-grid">
-        <view class="stats-item" data-type="orders" bindtap="onStatsTap">
-          <view class="stats-number">{{formatNumber(stats.totalOrders)}}</view>
-          <view class="stats-label">订单数量</view>
+    <view class="user-stats">
+      <view class="stat-item">
+        <text class="value">{{ stats.orderCount }}</text>
+        <text class="label">订单数</text>
+      </view>
+      <view class="stat-item">
+        <text class="value">{{ stats.contractCount }}</text>
+        <text class="label">合同数</text>
+      </view>
+      <view class="stat-item">
+        <text class="value">{{ stats.powerPoints }}</text>
+        <text class="label">用电户号</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 用电数据 -->
+  <view class="power-section">
+    <view class="section-header">
+      <text class="title">用电数据</text>
+      <text class="more" bindtap="viewPowerData">查看更多</text>
+    </view>
+    <view class="power-stats">
+      <view class="power-item">
+        <view class="item-value">
+          <text class="number">{{ powerData.monthlyConsumption }}</text>
+          <text class="unit">度</text>
         </view>
-        <view class="stats-item" data-type="amount" bindtap="onStatsTap">
-          <view class="stats-number">{{formatAmount(stats.totalAmount)}}</view>
-          <view class="stats-label">累计金额</view>
+        <text class="item-label">本月用电量</text>
+      </view>
+      <view class="power-item">
+        <view class="item-value">
+          <text class="number">{{ powerData.monthlyBill }}</text>
+          <text class="unit">元</text>
         </view>
-        <view class="stats-item" data-type="savings" bindtap="onStatsTap">
-          <view class="stats-number">{{formatAmount(stats.totalSavings)}}</view>
-          <view class="stats-label">节省金额</view>
+        <text class="item-label">本月电费</text>
+      </view>
+      <view class="power-item">
+        <view class="item-value">
+          <text class="number">{{ powerData.savingRate }}</text>
+          <text class="unit">%</text>
         </view>
-        <view class="stats-item" data-type="carbon" bindtap="onStatsTap">
-          <view class="stats-number">{{formatNumber(stats.carbonReduction)}}</view>
-          <view class="stats-label">碳减排(吨)</view>
-        </view>
+        <text class="item-label">节省比例</text>
       </view>
     </view>
   </view>
 
   <!-- 功能菜单 -->
-  <view class="menu-section" wx:if="{{!loading}}">
-    <view class="menu-group" wx:for="{{menuItems}}" wx:key="id">
-      <view class="menu-item" data-item="{{item}}" bindtap="onMenuTap">
-        <view class="menu-icon">
-          <text class="iconfont {{item.icon}}"></text>
+  <view class="menu-section">
+    <view class="menu-group">
+      <view class="menu-title">我的服务</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/orders/index/index">
+          <image class="icon" src="/assets/icons/order.png"/>
+          <text class="text">我的订单</text>
+          <van-icon name="arrow" />
         </view>
-        <view class="menu-content">
-          <view class="menu-title">{{item.title}}</view>
-          <view class="menu-subtitle">{{item.subtitle}}</view>
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/contracts/index/index">
+          <image class="icon" src="/assets/icons/contract.png"/>
+          <text class="text">我的合同</text>
+          <van-icon name="arrow" />
         </view>
-        <view class="menu-right">
-          <view class="menu-badge" wx:if="{{item.badge > 0}}">{{item.badge}}</view>
-          <text class="iconfont icon-arrow-right"></text>
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/power/points/points">
+          <image class="icon" src="/assets/icons/power.png"/>
+          <text class="text">用电户号</text>
+          <van-icon name="arrow" />
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 快捷操作 -->
-  <view class="quick-actions" wx:if="{{!loading}}">
-    <view 
-      class="quick-action-item"
-      wx:for="{{quickActions}}"
-      wx:key="id"
-      data-action="{{item}}"
-      bindtap="onQuickActionTap"
-      style="background-color: {{item.color}}10"
-    >
-      <view class="action-icon" style="color: {{item.color}}">
-        <text class="iconfont {{item.icon}}"></text>
+    <view class="menu-group">
+      <view class="menu-title">账户管理</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/info/info">
+          <image class="icon" src="/assets/icons/profile.png"/>
+          <text class="text">个人信息</text>
+          <van-icon name="arrow" />
+        </view>
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/company/company">
+          <image class="icon" src="/assets/icons/company.png"/>
+          <text class="text">企业信息</text>
+          <van-icon name="arrow" />
+        </view>
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/address/address">
+          <image class="icon" src="/assets/icons/address.png"/>
+          <text class="text">用电地址</text>
+          <van-icon name="arrow" />
+        </view>
       </view>
-      <view class="action-title" style="color: {{item.color}}">{{item.title}}</view>
     </view>
-  </view>
 
-  <!-- 退出登录按钮 -->
-  <view class="logout-section" wx:if="{{userInfo && !loading}}">
-    <button class="logout-btn" bindtap="onLogout">退出登录</button>
-  </view>
-
-  <!-- 版本信息 -->
-  <view class="version-info">
-    <text class="version-text">版本号：{{version}}</text>
-  </view>
-
-  <!-- 登录提示对话框 -->
-  <view class="auth-dialog" wx:if="{{showAuthDialog}}">
-    <view class="auth-dialog-mask" bindtap="onAuthCancel"></view>
-    <view class="auth-dialog-content">
-      <view class="auth-dialog-title">登录提示</view>
-      <view class="auth-dialog-message">登录后可查看更多信息</view>
-      <view class="auth-dialog-buttons">
-        <button class="auth-btn-cancel" bindtap="onAuthCancel">取消</button>
-        <button class="auth-btn-confirm" bindtap="onAuthConfirm">去登录</button>
+    <view class="menu-group">
+      <view class="menu-title">帮助与支持</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="contactService">
+          <image class="icon" src="/assets/icons/service.png"/>
+          <text class="text">联系客服</text>
+          <van-icon name="arrow" />
+        </view>
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/help/help">
+          <image class="icon" src="/assets/icons/help.png"/>
+          <text class="text">帮助中心</text>
+          <van-icon name="arrow" />
+        </view>
+        <view class="menu-item" bindtap="navigateTo" data-url="/pages/feedback/feedback">
+          <image class="icon" src="/assets/icons/feedback.png"/>
+          <text class="text">意见反馈</text>
+          <van-icon name="arrow" />
+        </view>
       </view>
     </view>
   </view>

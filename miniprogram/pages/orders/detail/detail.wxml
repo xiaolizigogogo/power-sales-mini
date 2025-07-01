@@ -94,6 +94,46 @@
       </view>
     </view>
 
+    <!-- 服务状态 -->
+    <view class="info-card" wx:if="{{ order.status === 'active' || order.status === 'completed' }}">
+      <view class="card-title">服务状态</view>
+      <view class="service-status">
+        <view class="service-item">
+          <text class="label">服务状态</text>
+          <text class="value status-active">{{ getServiceStatusText(order.serviceStatus) }}</text>
+        </view>
+        <view class="service-item">
+          <text class="label">开通时间</text>
+          <text class="value">{{ order.activationDate || '待开通' }}</text>
+        </view>
+        <view class="service-item">
+          <text class="label">有效期至</text>
+          <text class="value">{{ order.serviceEndDate }}</text>
+        </view>
+        <view class="service-item" wx:if="{{ order.serviceStatus === 'active' }}">
+          <text class="label">本月用电量</text>
+          <text class="value">{{ serviceData.monthlyUsage || 0 }} kWh</text>
+        </view>
+        <view class="service-item" wx:if="{{ order.serviceStatus === 'active' }}">
+          <text class="label">本月节省金额</text>
+          <text class="value highlight">¥{{ serviceData.monthlySavings || 0 }}</text>
+        </view>
+        <view class="service-item" wx:if="{{ order.serviceStatus === 'active' }}">
+          <text class="label">累计节省金额</text>
+          <text class="value highlight">¥{{ serviceData.totalSavings || 0 }}</text>
+        </view>
+      </view>
+      
+      <!-- 服务进度 -->
+      <view class="service-progress" wx:if="{{ order.serviceStatus === 'activating' }}">
+        <view class="progress-title">开通进度</view>
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{ order.progressPercent || 0 }}%"></view>
+        </view>
+        <view class="progress-text">{{ order.progressText || '准备开通中' }}</view>
+      </view>
+    </view>
+
     <!-- 联系信息 -->
     <view class="info-card">
       <view class="card-title">联系方式</view>

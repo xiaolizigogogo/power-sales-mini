@@ -1,4 +1,6 @@
 const app = getApp();
+const { checkRoleAccess } = require('../../../utils/auth');
+const { request } = require('../../../utils/api');
 
 Page({
   data: {
@@ -47,11 +49,49 @@ Page({
     recommendedProducts: [],
     calculating: false,
     showResult: false,
-    error: null
+    error: null,
+    product: null,
+    type: 'commercial',
+    consumption: '',
+    peakPercent: 60,
+    results: {
+      currentBill: 0,
+      newBill: 0,
+      monthlySavings: 0,
+      annualSavings: 0
+    },
+    // 基准电价（元/度）
+    baseRates: {
+      commercial: {
+        current: 0.8,
+        peak: 1.2,
+        valley: 0.4
+      },
+      residential: {
+        current: 0.6,
+        peak: 0.8,
+        valley: 0.3
+      }
+    }
   },
 
   onLoad(options) {
-    const { id } = options;
+    // 检查角色权限
+    if (!checkRoleAccess('products')) {
+      return;
+    }
+
+    const { id, name, price } = options;
+    if (id && name && price) {
+      this.setData({
+        product: {
+          id,
+          name,
+          price: parseFloat(price)
+        }
+      });
+    }
+
     console.log('计算器页面加载，产品ID:', id);
     
     if (id) {
@@ -429,5 +469,88 @@ Page({
       path: '/pages/products/calculator/calculator',
       imageUrl: '/assets/images/share-calculator.png'
     };
+  },
+
+  // 用电类型切换
+  onTypeChange(e) {
+    this.setData({
+      type: e.detail,
+      showResult: false
+    });
+  },
+
+  // 用电量输入
+  onConsumptionChange(e) {
+    this.setData({
+      consumption: e.detail,
+      showResult: false
+    });
+  },
+
+  // 峰时比例变化
+  onPeakChange(e) {
+    this.setData({
+      peakPercent: e.detail,
+      showResult: false
+    });
+  },
+
+  // 计算电费
+  calculate() {
+    const { type, consumption, peakPercent, baseRates, product } = this.data;
+
+    // 验证输入
+    if (!consumption || isNaN(consumption) || consumption <= 0) {
+      wx.showToast({
+        title: '请输入有效的用电量',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 获取基准费率
+    const rates = baseRates[type];
+    const monthlyConsumption = parseFloat(consumption);
+    const peakRatio = peakPercent / 100;
+    const valleyRatio = 1 - peakRatio;
+
+    // 计算当前电费
+    const currentPeakCost = monthlyConsumption * peakRatio * rates.peak;
+    const currentValleyCost = monthlyConsumption * valleyRatio * rates.valley;
+    const currentBill = currentPeakCost + currentValleyCost;
+
+    // 计算新电费（使用产品电价）
+    const newBill = monthlyConsumption * product.price;
+
+    // 计算节省金额
+    const monthlySavings = Math.max(0, currentBill - newBill).toFixed(2);
+    const annualSavings = (monthlySavings * 12).toFixed(2);
+
+    this.setData({
+      showResult: true,
+      results: {
+        currentBill: currentBill.toFixed(2),
+        newBill: newBill.toFixed(2),
+        monthlySavings,
+        annualSavings
+      }
+    });
+  },
+
+  // 重新计算
+  recalculate() {
+    this.setData({
+      showResult: false,
+      consumption: '',
+      peakPercent: 60
+    });
+  },
+
+  // 创建订单
+  createOrder() {
+    const { id } = this.data.product;
+    wx.navigateTo({
+      url: `/pages/orders/create/create?productId=${id}`
+    });
   }
 }); 

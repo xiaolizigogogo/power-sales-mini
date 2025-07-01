@@ -1,6 +1,8 @@
 const app = getApp()
 const { authAPI } = require('../../../utils/api')
 const auth = require('../../../utils/auth')
+const { checkRoleAccess } = require('../../../utils/auth')
+const { request } = require('../../../utils/api')
 
 Page({
   data: {
@@ -9,7 +11,15 @@ Page({
       totalOrders: 0,
       totalAmount: 0,
       totalSavings: 0,
-      carbonReduction: 0
+      carbonReduction: 0,
+      orderCount: 0,
+      contractCount: 0,
+      powerPoints: 0
+    },
+    powerData: {
+      monthlyConsumption: 0,
+      monthlyBill: 0,
+      savingRate: 0
     },
     menuItems: [
       {
@@ -26,6 +36,14 @@ Page({
         title: '我的合同',
         subtitle: '合同管理',
         url: '/pages/profile/contracts/contracts',
+        badge: 0
+      },
+      {
+        id: 'renewal-notice',
+        icon: 'icon-time',
+        title: '续约提醒',
+        subtitle: '合同续约管理',
+        url: '/pages/profile/renewal-notice/renewal-notice',
         badge: 0
       },
       {
@@ -90,6 +108,10 @@ Page({
   },
 
   onLoad() {
+    // 检查角色权限
+    if (!checkRoleAccess('profile')) {
+      return
+    }
     this.checkAuth()
   },
 
@@ -99,12 +121,17 @@ Page({
       this.loadUserData()
       this.loadStats()
       this.loadNotificationCount()
+      this.loadPowerData()
     }
   },
 
   onPullDownRefresh() {
     this.setData({ refreshing: true })
-    this.loadUserData().finally(() => {
+    Promise.all([
+      this.loadUserData(),
+      this.loadStats(),
+      this.loadPowerData()
+    ]).finally(() => {
       this.setData({ refreshing: false })
       wx.stopPullDownRefresh()
     })
@@ -118,6 +145,7 @@ Page({
         await this.loadUserData()
         await this.loadStats()
         await this.loadNotificationCount()
+        await this.loadPowerData()
       } else {
         this.setData({ 
           showAuthDialog: true,
@@ -196,8 +224,10 @@ Page({
   // 加载统计数据
   async loadStats() {
     try {
-      const stats = await authAPI.getUserStats()
-      this.setData({ stats })
+      const res = await request('GET', '/api/user/stats')
+      this.setData({
+        stats: res.data
+      })
     } catch (error) {
       console.error('加载统计数据失败:', error)
       // 使用模拟统计数据
@@ -232,6 +262,18 @@ Page({
         return item
       })
       this.setData({ menuItems })
+    }
+  },
+
+  // 加载用电数据
+  async loadPowerData() {
+    try {
+      const res = await request('GET', '/api/user/power-data')
+      this.setData({
+        powerData: res.data
+      })
+    } catch (error) {
+      console.error('加载用电数据失败:', error)
     }
   },
 
@@ -494,6 +536,11 @@ Page({
           totalAmount: 0,
           totalSavings: 0,
           carbonReduction: 0
+        },
+        powerData: {
+          monthlyConsumption: 0,
+          monthlyBill: 0,
+          savingRate: 0
         }
       })
 
@@ -520,5 +567,31 @@ Page({
         icon: 'error'
       })
     }
+  },
+
+  // 查看用电数据详情
+  viewPowerData() {
+    wx.navigateTo({
+      url: '/pages/power/statistics/statistics'
+    })
+  },
+
+  // 页面跳转
+  navigateTo(e) {
+    const { url } = e.currentTarget.dataset
+    wx.navigateTo({ url })
+  },
+
+  // 联系客服
+  contactService() {
+    wx.makePhoneCall({
+      phoneNumber: '400-123-4567',
+      fail() {
+        wx.showToast({
+          title: '拨打失败，请稍后重试',
+          icon: 'none'
+        })
+      }
+    })
   }
 }) 

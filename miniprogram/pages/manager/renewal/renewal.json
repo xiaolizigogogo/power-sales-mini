@@ -1,0 +1,20 @@
+{
+  "navigationBarTitleText": "续约管理",
+  "backgroundColor": "#f7f8fa",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "van-search": "/miniprogram_npm/@vant/weapp/lib/search/index",
+    "van-dropdown-menu": "/miniprogram_npm/@vant/weapp/lib/dropdown-menu/index",
+    "van-dropdown-item": "/miniprogram_npm/@vant/weapp/lib/dropdown-item/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
+    "van-checkbox": "/miniprogram_npm/@vant/weapp/lib/checkbox/index",
+    "van-action-sheet": "/miniprogram_npm/@vant/weapp/lib/action-sheet/index",
+    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/lib/datetime-picker/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/lib/icon/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index"
+  }
+} 

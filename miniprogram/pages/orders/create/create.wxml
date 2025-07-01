@@ -1,148 +1,183 @@
-<view class="order-create">
+<view class="container">
   <!-- 加载状态 -->
   <van-loading wx:if="{{ loading }}" custom-class="page-loading" />
 
   <block wx:else>
     <!-- 产品信息 -->
-    <view class="product-card">
-      <image class="product-image" src="{{ product.image }}" mode="aspectFill" />
-      <view class="product-info">
+    <view class="product-info">
+      <image class="product-image" src="{{ product.image }}" mode="aspectFill"/>
+      <view class="product-detail">
         <view class="product-name">{{ product.name }}</view>
         <view class="product-price">
-          <text class="price">{{ product.price }}</text>
-          <text class="unit">元/kWh</text>
+          <text class="price-label">电价：</text>
+          <text class="price-value">¥{{ product.price }}/度</text>
         </view>
       </view>
     </view>
 
-    <!-- 订单表单 -->
+    <!-- 表单区域 -->
     <view class="form-section">
-      <!-- 服务期限 -->
-      <view class="form-item">
-        <view class="form-label">服务期限</view>
-        <van-radio-group value="{{ orderForm.servicePeriod }}" bind:change="onPeriodChange">
-          <van-radio
-            wx:for="{{ periodOptions }}"
-            wx:key="value"
-            name="{{ item.value }}"
-            custom-class="period-radio"
-          >
-            {{ item.text }}
-          </van-radio>
-        </van-radio-group>
-        <view class="error-text" wx:if="{{ errors.servicePeriod }}">
-          {{ errors.servicePeriod }}
-        </view>
-      </view>
-
-      <!-- 服务开始时间 -->
-      <view class="form-item">
-        <view class="form-label">服务开始时间</view>
-        <view class="date-picker" bind:tap="showDatePicker">
-          <text>{{ orderForm.startDate || '请选择开始时间' }}</text>
-          <van-icon name="arrow" />
-        </view>
-        <view class="error-text" wx:if="{{ errors.startDate }}">
-          {{ errors.startDate }}
-        </view>
-      </view>
-
-      <!-- 预估用电量 -->
-      <view class="form-item">
-        <view class="form-label">预估月用电量(kWh)</view>
+      <van-cell-group>
+        <!-- 用电地址 -->
         <van-field
-          value="{{ orderForm.estimatedUsage }}"
+          value="{{ form.address }}"
+          required
+          clearable
+          label="用电地址"
+          placeholder="请输入用电地址"
+          bind:change="onInput"
+          data-field="address"
+        />
+
+        <!-- 联系人 -->
+        <van-field
+          value="{{ form.contactName }}"
+          required
+          clearable
+          label="联系人"
+          placeholder="请输入联系人姓名"
+          bind:change="onInput"
+          data-field="contactName"
+        />
+
+        <!-- 联系电话 -->
+        <van-field
+          value="{{ form.contactPhone }}"
+          required
+          clearable
+          type="number"
+          label="联系电话"
+          placeholder="请输入联系电话"
+          bind:change="onInput"
+          data-field="contactPhone"
+        />
+
+        <!-- 用电容量 -->
+        <van-field
+          value="{{ form.capacity }}"
+          required
+          clearable
           type="digit"
-          placeholder="请输入预估月用电量"
-          border="{{ false }}"
+          label="用电容量"
+          placeholder="请输入用电容量(kW)"
           bind:change="onInput"
-          data-field="estimatedUsage"
-        />
-        <view class="error-text" wx:if="{{ errors.estimatedUsage }}">
-          {{ errors.estimatedUsage }}
-        </view>
-      </view>
+          data-field="capacity"
+        >
+          <text slot="right-icon">kW</text>
+        </van-field>
 
-      <!-- 特殊需求 -->
-      <view class="form-item">
-        <view class="form-label">特殊需求（选填）</view>
+        <!-- 电压等级 -->
         <van-field
-          value="{{ orderForm.specialRequirements }}"
-          type="textarea"
-          placeholder="请输入特殊需求"
-          autosize
-          border="{{ false }}"
-          bind:change="onInput"
-          data-field="specialRequirements"
+          value="{{ form.voltage }}"
+          required
+          readonly
+          label="电压等级"
+          placeholder="请选择电压等级"
+          bindtap="showVoltagePopup"
         />
-      </view>
 
-      <!-- 备注 -->
-      <view class="form-item">
-        <view class="form-label">备注（选填）</view>
+        <!-- 用电类型 -->
         <van-field
-          value="{{ orderForm.remarks }}"
-          type="textarea"
-          placeholder="请输入备注信息"
-          autosize
-          border="{{ false }}"
-          bind:change="onInput"
-          data-field="remarks"
+          value="{{ form.type }}"
+          required
+          readonly
+          label="用电类型"
+          placeholder="请选择用电类型"
+          bindtap="showTypePopup"
         />
-      </view>
+
+        <!-- 服务期限 -->
+        <van-field
+          value="{{ form.period }}"
+          required
+          readonly
+          label="服务期限"
+          placeholder="请选择服务期限"
+          bindtap="showPeriodPopup"
+        />
+      </van-cell-group>
+
+      <!-- 备注信息 -->
+      <van-field
+        value="{{ form.remark }}"
+        type="textarea"
+        autosize
+        label="备注信息"
+        placeholder="请输入备注信息（选填）"
+        bind:change="onInput"
+        data-field="remark"
+      />
     </view>
 
-    <!-- 费用预估 -->
-    <view class="fee-section">
-      <view class="section-title">费用预估</view>
-      
-      <view class="fee-item">
-        <text>月均费用</text>
-        <view class="fee-value">
-          <text class="amount">{{ orderForm.monthlyFee }}</text>
-          <text class="unit">元</text>
-        </view>
-      </view>
-
-      <view class="fee-item">
-        <text>服务期总费用</text>
-        <view class="fee-value highlight">
-          <text class="amount">{{ orderForm.totalAmount }}</text>
-          <text class="unit">元</text>
-        </view>
-      </view>
-
-      <view class="fee-tips">
-        * 实际费用以实际用电量为准
-      </view>
-    </view>
-
-    <!-- 提交按钮 -->
-    <view class="submit-section">
-      <van-button 
-        type="primary" 
-        block 
-        loading="{{ submitting }}"
-        bind:click="submitOrder"
+    <!-- 协议确认 -->
+    <view class="agreement-section">
+      <van-checkbox 
+        value="{{ agreed }}" 
+        bind:change="onAgreementChange"
+        icon-size="32rpx"
+        checked-color="#409EFF"
       >
-        提交订单
-      </van-button>
+        我已阅读并同意
+      </van-checkbox>
+      <text class="agreement-link" bindtap="viewAgreement">《用电服务协议》</text>
     </view>
-  </block>
 
-  <!-- 日期选择器 -->
-  <van-popup
-    show="{{ showDatePicker }}"
-    position="bottom"
-    bind:close="closeDatePicker"
-  >
-    <van-datetime-picker
-      type="date"
-      value="{{ currentDate }}"
-      min-date="{{ minDate }}"
-      max-date="{{ maxDate }}"
-      bind:confirm="onDateConfirm"
-      bind:cancel="closeDatePicker"
-    />
-  </van-popup>
+    <!-- 底部操作栏 -->
+    <view class="bottom-bar">
+      <view class="price-info">
+        <text class="label">预计每月电费</text>
+        <text class="value">¥{{ estimatedBill }}</text>
+      </view>
+      <button 
+        class="submit-btn {{ agreed ? 'active' : '' }}" 
+        disabled="{{ !agreed }}"
+        bindtap="submitOrder"
+      >提交订单</button>
+    </view>
+
+    <!-- 电压等级选择器 -->
+    <van-popup 
+      show="{{ showVoltagePopup }}" 
+      position="bottom"
+      bind:close="closeVoltagePopup"
+    >
+      <van-picker
+        show-toolbar
+        title="选择电压等级"
+        columns="{{ voltageOptions }}"
+        bind:cancel="closeVoltagePopup"
+        bind:confirm="onVoltageConfirm"
+      />
+    </van-popup>
+
+    <!-- 用电类型选择器 -->
+    <van-popup 
+      show="{{ showTypePopup }}" 
+      position="bottom"
+      bind:close="closeTypePopup"
+    >
+      <van-picker
+        show-toolbar
+        title="选择用电类型"
+        columns="{{ typeOptions }}"
+        bind:cancel="closeTypePopup"
+        bind:confirm="onTypeConfirm"
+      />
+    </van-popup>
+
+    <!-- 服务期限选择器 -->
+    <van-popup 
+      show="{{ showPeriodPopup }}" 
+      position="bottom"
+      bind:close="closePeriodPopup"
+    >
+      <van-picker
+        show-toolbar
+        title="选择服务期限"
+        columns="{{ periodOptions }}"
+        bind:cancel="closePeriodPopup"
+        bind:confirm="onPeriodConfirm"
+      />
+    </van-popup>
+  </block>
 </view> 

@@ -1,37 +1,35 @@
 {
   "pages": [
-    "pages/auth/login/login",
     "pages/index/index",
     "pages/products/list/list",
-    "pages/orders/index/index",
-    "pages/manager/index/index",
-    "pages/user/profile/profile",
-    "pages/auth/register/register",
-    "pages/auth/verify/verify",
     "pages/products/detail/detail",
     "pages/products/calculator/calculator",
-    "pages/orders/create/create",
+    "pages/products/compare/compare",
+    "pages/orders/index/index",
     "pages/orders/detail/detail",
-    "pages/manager/customers/customers",
-    "pages/manager/customers/detail/detail",
-    "pages/manager/customer-add/customer-add",
-    "pages/manager/follow/follow",
-    "pages/manager/performance/performance",
-    "pages/profile/edit/edit",
+    "pages/orders/create/create",
+    "pages/profile/index/index",
+    "pages/profile/info/info",
     "pages/profile/contracts/contracts",
-    "pages/user/settings/settings"
+    "pages/profile/contracts/detail/detail",
+    "pages/profile/consumption/consumption",
+    "pages/profile/savings/savings",
+    "pages/profile/service/service",
+    "pages/complaint/submit/submit",
+    "pages/complaint/list/list",
+    "pages/complaint/detail/detail"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#409EFF",
-    "navigationBarTitleText": "电力销售平台",
+    "navigationBarTitleText": "电力销售小程序",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
-    "color": "#7A7E83",
+    "custom": true,
+    "color": "#999999",
     "selectedColor": "#409EFF",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -46,11 +44,7 @@
         "text": "订单"
       },
       {
-        "pagePath": "pages/manager/index/index",
-        "text": "客户"
-      },
-      {
-        "pagePath": "pages/user/profile/profile",
+        "pagePath": "pages/profile/index/index",
         "text": "我的"
       }
     ]
@@ -58,9 +52,20 @@
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
-    "loading": "/components/loading/loading",
-    "empty": "/components/empty/empty",
-    "navbar": "/components/navbar/navbar",
-    "role-guard": "/components/role-guard/index"
+    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
+    "van-cell": "/miniprogram_npm/@vant/weapp/lib/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/lib/cell-group/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/lib/icon/index",
+    "van-tab": "/miniprogram_npm/@vant/weapp/lib/tab/index",
+    "van-tabs": "/miniprogram_npm/@vant/weapp/lib/tabs/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/lib/tag/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/lib/popup/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index",
+    "van-toast": "/miniprogram_npm/@vant/weapp/lib/toast/index",
+    "van-steps": "/miniprogram_npm/@vant/weapp/lib/steps/index",
+    "van-uploader": "/miniprogram_npm/@vant/weapp/lib/uploader/index"
   }
 } 

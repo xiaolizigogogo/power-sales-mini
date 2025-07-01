@@ -1,90 +1,51 @@
-<view class="page-container">
-  <custom-navbar 
-    title="产品列表" 
-    bgColor="#409EFF"
-  />
-  
+<view class="container">
+  <!-- 搜索栏 -->
   <view class="search-bar">
-    <view class="search-input-wrap">
-      <image src="/assets/icons/search.png" class="search-icon" />
-      <input 
-        class="search-input"
-        placeholder="搜索产品名称或关键词"
-        value="{{searchValue}}"
-        confirm-type="search"
-        bindconfirm="handleSearch"
-      />
-      <image 
-        wx:if="{{searchValue}}"
-        src="/assets/icons/close.png" 
-        class="clear-icon"
-        bindtap="handleSearchClear"
-      />
-    </view>
-    <view class="calculator-button" bindtap="goToCalculator">
-      <image src="/assets/icons/calculator.png" class="calculator-icon" />
-      <text>电费计算器</text>
-    </view>
+    <van-search
+      value="{{ searchValue }}"
+      placeholder="搜索产品名称"
+      bind:change="onSearchChange"
+      bind:search="onSearch"
+    />
   </view>
 
-  <scroll-view 
-    class="category-scroll" 
-    scroll-x 
-    enhanced 
-    show-scrollbar="{{false}}"
-  >
-    <view class="category-list">
-      <view 
-        wx:for="{{categories}}" 
-        wx:key="id"
-        class="category-item {{currentCategory === item.id ? 'active' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="handleCategoryChange"
-      >
-        {{item.name}}
-      </view>
-    </view>
-  </scroll-view>
+  <!-- 分类标签 -->
+  <view class="category-tabs">
+    <van-tabs active="{{ activeTab }}" bind:change="onTabChange">
+      <van-tab title="全部"></van-tab>
+      <van-tab title="工业用电"></van-tab>
+      <van-tab title="商业用电"></van-tab>
+      <van-tab title="居民用电"></van-tab>
+    </van-tabs>
+  </view>
 
-  <view class="product-list {{loading ? 'loading' : ''}}">
-    <block wx:if="{{!loading && list.length > 0}}">
-      <view 
-        wx:for="{{list}}" 
-        wx:key="id"
-        class="product-card"
-        data-id="{{item.id}}"
-        bindtap="goToDetail"
-      >
-        <image src="{{item.image}}" mode="aspectFill" class="product-image" />
+  <!-- 产品列表 -->
+  <view class="product-list">
+    <block wx:for="{{ products }}" wx:key="id">
+      <view class="product-card" bindtap="onProductTap" data-id="{{ item.id }}">
+        <image class="product-image" src="{{ item.image }}" mode="aspectFill"/>
         <view class="product-info">
-          <view class="product-name">{{item.name}}</view>
-          <view class="product-desc">{{item.description}}</view>
-          <view class="product-footer">
+          <view class="product-name">{{ item.name }}</view>
+          <view class="product-desc">{{ item.description }}</view>
+          <view class="product-meta">
             <view class="product-price">
-              <text class="price-unit">¥</text>
-              <text class="price-value">{{item.price}}</text>
-              <text class="price-unit">/度</text>
+              <text class="price-label">电价：</text>
+              <text class="price-value">¥{{ item.price }}/度</text>
             </view>
-            <view class="product-tag">{{item.categoryName}}</view>
+            <view class="product-tag" wx:if="{{ item.tag }}">{{ item.tag }}</view>
           </view>
         </view>
       </view>
     </block>
+  </view>
 
-    <view wx:if="{{!loading && list.length === 0}}" class="empty-container">
-      <custom-empty description="暂无相关产品" />
-    </view>
+  <!-- 加载更多 -->
+  <van-loading wx:if="{{ loading }}" />
+  <view wx:if="{{ !hasMore }}" class="no-more">没有更多了</view>
 
-    <view wx:if="{{loading}}" class="loading-container">
-      <custom-loading />
-    </view>
-
-    <view wx:if="{{loadingMore}}" class="loading-more">
-      <custom-loading size="small" text="加载更多..." />
-    </view>
-
-    <view wx:if="{{!hasMore && list.length > 0}}" class="no-more">
-      - 没有更多了 -
-    </view>
+  <!-- 对比悬浮按钮 -->
+  <view class="compare-btn" wx:if="{{ compareList.length > 0 }}" bindtap="showCompare">
+    <text>对比</text>
+    <view class="compare-count">{{ compareList.length }}</view>
   </view>
 </view> 

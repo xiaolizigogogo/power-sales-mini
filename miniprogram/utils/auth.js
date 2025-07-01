@@ -86,6 +86,12 @@ const ROLE_PERMISSIONS = {
   ]
 }
 
+// 用户角色枚举
+const USER_ROLES = {
+  CUSTOMER: 'customer',    // 普通客户
+  MANAGER: 'manager'       // 客户经理
+};
+
 // 获取用户信息
 function getUserInfo() {
   try {
@@ -419,6 +425,38 @@ function requireRole(roles, showTip = true) {
   }
 }
 
+// 角色权限路由守卫
+const checkRoleAccess = (pageType) => {
+  const role = getUserRole();
+  if (!role) {
+    wx.redirectTo({
+      url: '/pages/auth/login/login'
+    });
+    return false;
+  }
+
+  const managerPages = ['customers', 'follow', 'performance', 'maintenance'];
+  const customerPages = ['products', 'orders', 'profile'];
+
+  if (role === USER_ROLES.MANAGER && customerPages.includes(pageType)) {
+    wx.showToast({
+      title: '无访问权限',
+      icon: 'none'
+    });
+    return false;
+  }
+
+  if (role === USER_ROLES.CUSTOMER && managerPages.includes(pageType)) {
+    wx.showToast({
+      title: '无访问权限',
+      icon: 'none'
+    });
+    return false;
+  }
+
+  return true;
+};
+
 module.exports = {
   // 常量
   ROLES,
@@ -456,5 +494,9 @@ module.exports = {
   // 装饰器
   requirePermission,
   requireLogin,
-  requireRole
+  requireRole,
+  
+  // 用户角色枚举
+  USER_ROLES,
+  checkRoleAccess
 } 

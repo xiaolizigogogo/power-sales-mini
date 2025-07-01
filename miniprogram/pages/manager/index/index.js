@@ -44,6 +44,14 @@ Page({
         permission: auth.PERMISSIONS.FOLLOW_VIEW
       },
       {
+        icon: 'maintenance',
+        title: '客户维护',
+        subtitle: '回访续约',
+        url: '/pages/manager/maintenance/maintenance',
+        color: '#f56c6c',
+        permission: auth.PERMISSIONS.CUSTOMER_VIEW
+      },
+      {
         icon: 'performance',
         title: '业绩统计',
         subtitle: '我的业绩',

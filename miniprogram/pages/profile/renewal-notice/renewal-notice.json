@@ -1,0 +1,18 @@
+{
+  "navigationBarTitleText": "续费提醒",
+  "backgroundColor": "#f7f8fa",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
+    "van-radio": "/miniprogram_npm/@vant/weapp/lib/radio/index",
+    "van-radio-group": "/miniprogram_npm/@vant/weapp/lib/radio-group/index",
+    "van-action-sheet": "/miniprogram_npm/@vant/weapp/lib/action-sheet/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/lib/icon/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
+    "van-rate": "/miniprogram_npm/@vant/weapp/lib/rate/index"
+  }
+} 

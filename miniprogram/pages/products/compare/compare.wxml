@@ -1,0 +1,123 @@
+<view class="container">
+  <!-- 产品对比表格 -->
+  <scroll-view class="compare-table" scroll-x>
+    <!-- 表头 -->
+    <view class="table-header">
+      <view class="header-cell feature-cell">对比项目</view>
+      <view class="header-cell" wx:for="{{ products }}" wx:key="id">
+        {{ item.name }}
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="table-section">
+      <view class="section-title">基本信息</view>
+      
+      <!-- 电价 -->
+      <view class="table-row">
+        <view class="feature-cell">电价（元/度）</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          {{ item.price }}
+        </view>
+      </view>
+
+      <!-- 适用电压 -->
+      <view class="table-row">
+        <view class="feature-cell">适用电压</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          {{ item.voltage }}V
+        </view>
+      </view>
+
+      <!-- 用电类型 -->
+      <view class="table-row">
+        <view class="feature-cell">用电类型</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          {{ item.type }}
+        </view>
+      </view>
+    </view>
+
+    <!-- 优惠政策 -->
+    <view class="table-section">
+      <view class="section-title">优惠政策</view>
+      
+      <!-- 峰谷电价 -->
+      <view class="table-row">
+        <view class="feature-cell">峰谷电价</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          <view class="price-detail">
+            <view>峰时：{{ item.peakPrice }}元/度</view>
+            <view>谷时：{{ item.valleyPrice }}元/度</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 优惠方式 -->
+      <view class="table-row">
+        <view class="feature-cell">优惠方式</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          <view class="discount-list">
+            <view wx:for="{{ item.discounts }}" wx:for-item="discount" wx:key="*this">
+              {{ discount }}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 服务内容 -->
+    <view class="table-section">
+      <view class="section-title">服务内容</view>
+      
+      <!-- 服务项目 -->
+      <view class="table-row">
+        <view class="feature-cell">服务项目</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          <view class="service-list">
+            <view wx:for="{{ item.services }}" wx:for-item="service" wx:key="*this">
+              <van-icon name="success" color="{{ service.included ? '#409EFF' : '#999' }}" />
+              <text class="{{ service.included ? 'included' : 'excluded' }}">{{ service.name }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 服务时间 -->
+      <view class="table-row">
+        <view class="feature-cell">服务时间</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          {{ item.serviceTime }}
+        </view>
+      </view>
+
+      <!-- 响应时间 -->
+      <view class="table-row">
+        <view class="feature-cell">响应时间</view>
+        <view class="content-cell" wx:for="{{ products }}" wx:key="id">
+          {{ item.responseTime }}
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="action-buttons">
+      <button 
+        class="btn calculator" 
+        bindtap="goToCalculator" 
+        data-id="{{ products[0].id }}"
+      >电费计算</button>
+      <button 
+        class="btn contact" 
+        bindtap="contactService"
+      >在线咨询</button>
+    </view>
+    <button 
+      class="btn primary" 
+      bindtap="createOrder" 
+      data-id="{{ products[0].id }}"
+    >立即购买</button>
+  </view>
+</view> 

@@ -588,4 +588,394 @@
 <van-toast id="van-toast" />
 
 <!-- 加载中 -->
-<van-loading type="spinner" wx:if="{{loading}}" /> 
+<van-loading type="spinner" wx:if="{{loading}}" />
+
+<view class="follow-page">
+  <!-- 顶部统计卡片 -->
+  <view class="stats-header">
+    <view class="stats-card">
+      <view class="card-row">
+        <view class="stat-item" bind:tap="onStatTap" data-type="today">
+          <view class="stat-number">{{statistics.todayFollow}}</view>
+          <view class="stat-label">今日跟进</view>
+        </view>
+        <view class="stat-item" bind:tap="onStatTap" data-type="pending">
+          <view class="stat-number">{{statistics.pendingFollow}}</view>
+          <view class="stat-label">待跟进</view>
+        </view>
+      </view>
+      <view class="card-row">
+        <view class="stat-item" bind:tap="onStatTap" data-type="overdue">
+          <view class="stat-number overdue">{{statistics.overdueFollow}}</view>
+          <view class="stat-label">已逾期</view>
+        </view>
+        <view class="stat-item" bind:tap="onStatTap" data-type="week">
+          <view class="stat-number">{{statistics.weekFollow}}</view>
+          <view class="stat-label">本周跟进</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-tabs">
+    <scroll-view class="tabs-scroll" scroll-x="true">
+      <view class="tab-list">
+        <view 
+          wx:for="{{followTabs}}" 
+          wx:key="key"
+          class="tab-item {{currentTab === item.key ? 'active' : ''}}"
+          bind:tap="onTabChange"
+          data-tab="{{item.key}}"
+        >
+          <text class="tab-text">{{item.name}}</text>
+          <view class="tab-badge" wx:if="{{item.count > 0}}">{{item.count}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 搜索和筛选 -->
+  <view class="search-filter-bar">
+    <van-search
+      value="{{ searchKeyword }}"
+      placeholder="搜索客户名称或跟进内容"
+      bind:search="onSearch"
+      bind:clear="onSearchClear"
+      bind:change="onSearchInput"
+      use-action-slot
+    >
+      <view slot="action" bind:tap="showDateFilter">
+        <van-icon name="calendar-o" />
+      </view>
+    </van-search>
+  </view>
+
+  <!-- 跟进列表 -->
+  <view class="follow-list">
+    <block wx:if="{{followList.length > 0}}">
+      <view 
+        wx:for="{{followList}}" 
+        wx:key="id"
+        class="follow-item {{item.status}}"
+        bind:tap="onFollowTap"
+        data-follow="{{item}}"
+      >
+        <!-- 跟进头部 -->
+        <view class="follow-header">
+          <view class="customer-info">
+            <view class="customer-avatar">
+              <image 
+                src="{{item.customer.avatar || '/assets/images/default-avatar.png'}}" 
+                mode="aspectFill"
+              />
+            </view>
+            <view class="customer-details">
+              <view class="customer-name">{{item.customer.name}}</view>
+              <view class="customer-company">{{item.customer.companyName}}</view>
+            </view>
+          </view>
+          <view class="follow-status">
+            <view 
+              class="status-tag status-{{item.status}}"
+              style="background-color: {{getStatusColor(item.status)}}"
+            >
+              {{getStatusText(item.status)}}
+            </view>
+            <view class="priority-tag" wx:if="{{item.priority}}">
+              <van-tag 
+                type="{{getPriorityType(item.priority)}}" 
+                size="small"
+              >
+                {{getPriorityText(item.priority)}}
+              </van-tag>
+            </view>
+          </view>
+        </view>
+
+        <!-- 跟进时间信息 -->
+        <view class="time-info">
+          <view class="time-item">
+            <van-icon name="clock-o" />
+            <text class="time-label">计划时间：</text>
+            <text class="time-value {{isOverdue(item.planTime) ? 'overdue' : ''}}">
+              {{formatTime(item.planTime)}}
+            </text>
+          </view>
+          <view class="time-item" wx:if="{{item.actualTime}}">
+            <van-icon name="passed" />
+            <text class="time-label">完成时间：</text>
+            <text class="time-value">{{formatTime(item.actualTime)}}</text>
+          </view>
+        </view>
+
+        <!-- 跟进内容 -->
+        <view class="follow-content">
+          <view class="content-title">跟进内容</view>
+          <view class="content-text">{{item.content || '暂无内容'}}</view>
+        </view>
+
+        <!-- 跟进结果（如果已完成） -->
+        <view class="follow-result" wx:if="{{item.result && item.status === 'completed'}}">
+          <view class="result-title">跟进结果</view>
+          <view class="result-text">{{item.result}}</view>
+          <view class="result-rating" wx:if="{{item.rating}}">
+            <text class="rating-label">客户满意度：</text>
+            <van-rate 
+              value="{{ item.rating }}" 
+              count="5" 
+              size="16"
+              readonly
+              color="#ffd21e"
+              void-color="#eee"
+            />
+          </view>
+        </view>
+
+        <!-- 附件信息 -->
+        <view class="attachments" wx:if="{{item.attachments && item.attachments.length > 0}}">
+          <view class="attachments-title">
+            <van-icon name="paperclip" />
+            <text>附件 ({{item.attachments.length}})</text>
+          </view>
+          <view class="attachments-list">
+            <view 
+              wx:for="{{item.attachments}}" 
+              wx:key="id"
+              wx:for-item="attachment"
+              class="attachment-item"
+              bind:tap="previewAttachment"
+              data-attachment="{{attachment}}"
+            >
+              <van-icon name="{{getAttachmentIcon(attachment.type)}}" />
+              <text class="attachment-name">{{attachment.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="follow-actions">
+          <view 
+            class="action-btn secondary"
+            bind:tap="callCustomer"
+            data-follow="{{item}}"
+          >
+            <van-icon name="phone-o" />
+            <text>拨打</text>
+          </view>
+          <view 
+            class="action-btn secondary"
+            bind:tap="editFollow"
+            data-follow="{{item}}"
+            wx:if="{{item.status !== 'completed'}}"
+          >
+            <van-icon name="edit" />
+            <text>编辑</text>
+          </view>
+          <view 
+            class="action-btn primary"
+            bind:tap="completeFollow"
+            data-follow="{{item}}"
+            wx:if="{{item.status === 'pending'}}"
+          >
+            <van-icon name="success" />
+            <text>完成</text>
+          </view>
+          <view 
+            class="action-btn warning"
+            bind:tap="postponeFollow"
+            data-follow="{{item}}"
+            wx:if="{{item.status === 'pending'}}"
+          >
+            <van-icon name="clock-o" />
+            <text>延期</text>
+          </view>
+        </view>
+
+        <!-- 下次跟进提醒 -->
+        <view class="next-follow" wx:if="{{item.nextFollowTime}}">
+          <view class="next-follow-info">
+            <van-icon name="bell-o" />
+            <text>下次跟进：{{formatTime(item.nextFollowTime)}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-follow" wx:if="{{followList.length === 0 && !loading}}">
+      <van-empty description="暂无跟进记录">
+        <van-button 
+          type="primary" 
+          size="small"
+          bind:click="addFollow"
+        >添加跟进</van-button>
+      </van-empty>
+    </view>
+  </view>
+
+  <!-- 日期筛选弹窗 -->
+  <van-popup
+    show="{{ showDateFilter }}"
+    position="bottom"
+    round
+    bind:close="closeDateFilter"
+  >
+    <view class="date-filter-popup">
+      <view class="popup-header">
+        <text class="popup-title">选择日期范围</text>
+        <van-icon name="cross" bind:tap="closeDateFilter" />
+      </view>
+      
+      <van-calendar
+        show="{{ showCalendar }}"
+        type="range"
+        bind:confirm="onDateRangeConfirm"
+        bind:close="closeCalendar"
+      />
+      
+      <view class="date-quick-select">
+        <view class="quick-title">快速选择</view>
+        <view class="quick-options">
+          <view 
+            class="quick-option"
+            bind:tap="selectQuickDate"
+            data-type="today"
+          >今天</view>
+          <view 
+            class="quick-option"
+            bind:tap="selectQuickDate"
+            data-type="week"
+          >本周</view>
+          <view 
+            class="quick-option"
+            bind:tap="selectQuickDate"
+            data-type="month"
+          >本月</view>
+          <view 
+            class="quick-option"
+            bind:tap="selectQuickDate"
+            data-type="all"
+          >全部</view>
+        </view>
+      </view>
+      
+      <view class="popup-actions">
+        <van-button block bind:click="showCalendar">选择日期范围</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 完成跟进弹窗 -->
+  <van-popup
+    show="{{ showCompletePopup }}"
+    position="bottom"
+    round
+    bind:close="closeCompletePopup"
+  >
+    <view class="complete-popup">
+      <view class="popup-header">
+        <text class="popup-title">完成跟进</text>
+        <van-icon name="cross" bind:tap="closeCompletePopup" />
+      </view>
+      
+      <view class="complete-form">
+        <van-field
+          label="跟进结果"
+          type="textarea"
+          placeholder="请输入跟进结果和客户反馈"
+          value="{{ completeForm.result }}"
+          bind:change="onCompleteResultChange"
+          autosize
+          maxlength="500"
+          show-word-limit
+        />
+        
+        <van-field label="客户满意度">
+          <van-rate 
+            slot="input"
+            value="{{ completeForm.rating }}" 
+            count="5" 
+            size="20"
+            bind:change="onRatingChange"
+            color="#ffd21e"
+            void-color="#eee"
+          />
+        </van-field>
+        
+        <van-field
+          label="下次跟进时间"
+          value="{{ completeForm.nextFollowTime }}"
+          placeholder="选择下次跟进时间"
+          readonly
+          is-link
+          bind:click="selectNextFollowTime"
+        />
+      </view>
+      
+      <view class="popup-actions">
+        <van-button block type="primary" bind:click="submitComplete">确认完成</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 延期跟进弹窗 -->
+  <van-popup
+    show="{{ showPostponePopup }}"
+    position="bottom"
+    round
+    bind:close="closePostponePopup"
+  >
+    <view class="postpone-popup">
+      <view class="popup-header">
+        <text class="popup-title">延期跟进</text>
+        <van-icon name="cross" bind:tap="closePostponePopup" />
+      </view>
+      
+      <view class="postpone-form">
+        <van-field
+          label="延期至"
+          value="{{ postponeForm.newTime }}"
+          placeholder="选择新的跟进时间"
+          readonly
+          is-link
+          bind:click="selectPostponeTime"
+        />
+        
+        <van-field
+          label="延期原因"
+          type="textarea"
+          placeholder="请输入延期原因"
+          value="{{ postponeForm.reason }}"
+          bind:change="onPostponeReasonChange"
+          autosize
+          maxlength="200"
+          show-word-limit
+        />
+      </view>
+      
+      <view class="popup-actions">
+        <van-button block type="warning" bind:click="submitPostpone">确认延期</van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 日期时间选择器 -->
+  <van-datetime-picker
+    show="{{ showDateTimePicker }}"
+    type="datetime"
+    value="{{ pickerDateTime }}"
+    bind:confirm="onDateTimeConfirm"
+    bind:cancel="closeDateTimePicker"
+  />
+
+  <!-- 浮动添加按钮 -->
+  <view class="fab-add" bind:tap="addFollow">
+    <van-icon name="plus" />
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <van-loading size="24px">加载中...</van-loading>
+  </view>
+</view> 

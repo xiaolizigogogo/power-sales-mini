@@ -284,13 +284,13 @@ Page({
   // 跳转到电费计算器
   navigateToCalculator() {
     wx.navigateTo({
-      url: '/pages/calculator/index/index'
+      url: '/pages/products/calculator/calculator'
     })
   },
 
   // 跳转到我的订单
   navigateToOrders() {
-    wx.switchTab({
+    wx.navigateTo({
       url: '/pages/orders/index/index'
     })
   },
@@ -342,5 +342,96 @@ Page({
     this.initPageData().finally(() => {
       wx.stopPullDownRefresh()
     })
-  }
+  },
+
+  // 快捷功能点击
+  onQuickActionTap(e) {
+    const { action } = e.currentTarget.dataset
+    
+    switch (action) {
+      case 'calculator':
+        wx.navigateTo({
+          url: '/pages/calculator/index/index'
+        })
+        break
+      case 'orders':
+        wx.navigateTo({
+          url: '/pages/orders/index/index'
+        })
+        break
+      case 'customers':
+        wx.navigateTo({
+          url: '/pages/manager/customers/customers'
+        })
+        break
+      case 'performance':
+        wx.navigateTo({
+          url: '/pages/manager/performance/performance'
+        })
+        break
+      case 'contracts':
+        // 测试合同签署功能
+        wx.navigateTo({
+          url: '/pages/profile/contracts/contracts'
+        })
+        break
+      case 'contract-detail':
+        // 测试合同详情页面
+        wx.navigateTo({
+          url: '/pages/profile/contracts/detail/detail?id=1'
+        })
+        break
+      case 'products':
+        wx.navigateTo({
+          url: '/pages/products/index/index'
+        })
+        break
+      case 'support':
+        wx.makePhoneCall({
+          phoneNumber: '400-123-4567'
+        })
+        break
+      default:
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        })
+    }
+  },
+
+  navigateToComparison() {
+    wx.navigateTo({
+      url: '/pages/products/compare/compare'
+    })
+  },
+
+  navigateToComplaint() {
+    wx.navigateTo({
+      url: '/pages/complaint/submit/submit'
+    })
+  },
+
+  navigateToContract() {
+    wx.navigateTo({
+      url: '/pages/profile/contracts/contracts'
+    })
+  },
+
+  navigateToConsumption() {
+    wx.navigateTo({
+      url: '/pages/profile/consumption/consumption'
+    })
+  },
+
+  navigateToSavings() {
+    wx.navigateTo({
+      url: '/pages/profile/savings/savings'
+    })
+  },
+
+  navigateToService() {
+    wx.navigateTo({
+      url: '/pages/profile/service/service'
+    })
+  },
 }) 

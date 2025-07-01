@@ -1,7 +1,17 @@
 {
   "navigationBarTitleText": "创建订单",
+  "enablePullDownRefresh": false,
   "usingComponents": {
-    "loading": "/components/loading/index",
-    "modal": "/components/modal/index"
+    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
+    "van-radio": "/miniprogram_npm/@vant/weapp/lib/radio/index",
+    "van-radio-group": "/miniprogram_npm/@vant/weapp/lib/radio-group/index",
+    "van-checkbox": "/miniprogram_npm/@vant/weapp/lib/checkbox/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/lib/icon/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/lib/popup/index",
+    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/lib/datetime-picker/index",
+    "van-picker": "/miniprogram_npm/@vant/weapp/lib/picker/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index"
   }
 } 

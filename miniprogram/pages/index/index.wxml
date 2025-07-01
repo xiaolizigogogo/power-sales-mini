@@ -80,47 +80,52 @@
         <text class="action-name">我的订单</text>
         <text class="action-desc">查看订单状态</text>
       </view>
-      <view class="action-item" bindtap="navigateToCustomers">
+      <view class="action-item" bindtap="navigateToComparison">
         <view class="action-icon-wrapper">
-          <text class="action-icon">👥</text>
+          <text class="action-icon">⚖️</text>
         </view>
-        <text class="action-name">客户管理</text>
-        <text class="action-desc">客户信息管理</text>
+        <text class="action-name">产品对比</text>
+        <text class="action-desc">方案优劣对比</text>
       </view>
-      <view class="action-item" bindtap="navigateToContracts">
+      <view class="action-item" bindtap="navigateToComplaint">
         <view class="action-icon-wrapper">
-          <text class="action-icon">📄</text>
+          <text class="action-icon">📢</text>
         </view>
-        <text class="action-name">我的合同</text>
-        <text class="action-desc">合同文档查看</text>
+        <text class="action-name">投诉建议</text>
+        <text class="action-desc">问题反馈</text>
       </view>
-      <view class="action-item" bindtap="navigateToReports">
-        <view class="action-icon-wrapper">
-          <text class="action-icon">📊</text>
+    </view>
+  </view>
+
+  <!-- 我的服务 -->
+  <view class="my-services">
+    <view class="section-header">
+      <text class="section-title">我的服务</text>
+    </view>
+    <view class="service-grid">
+      <view class="service-item" bindtap="navigateToContract">
+        <view class="service-icon-wrapper">
+          <text class="service-icon">📄</text>
         </view>
-        <text class="action-name">数据报表</text>
-        <text class="action-desc">业绩分析报告</text>
+        <text class="service-name">我的合同</text>
       </view>
-      <view class="action-item" bindtap="navigateToNews">
-        <view class="action-icon-wrapper">
-          <text class="action-icon">📰</text>
+      <view class="service-item" bindtap="navigateToConsumption">
+        <view class="service-icon-wrapper">
+          <text class="service-icon">📊</text>
         </view>
-        <text class="action-name">行业资讯</text>
-        <text class="action-desc">最新政策动态</text>
+        <text class="service-name">用电分析</text>
       </view>
-      <view class="action-item" bindtap="navigateToSupport">
-        <view class="action-icon-wrapper">
-          <text class="action-icon">🎧</text>
+      <view class="service-item" bindtap="navigateToSavings">
+        <view class="service-icon-wrapper">
+          <text class="service-icon">💰</text>
         </view>
-        <text class="action-name">客服支持</text>
-        <text class="action-desc">在线客服帮助</text>
+        <text class="service-name">节费记录</text>
       </view>
-      <view class="action-item" bindtap="navigateToSettings">
-        <view class="action-icon-wrapper">
-          <text class="action-icon">⚙️</text>
+      <view class="service-item" bindtap="navigateToService">
+        <view class="service-icon-wrapper">
+          <text class="service-icon">👨‍💼</text>
         </view>
-        <text class="action-name">系统设置</text>
-        <text class="action-desc">个人偏好设置</text>
+        <text class="service-name">专属客服</text>
       </view>
     </view>
   </view>

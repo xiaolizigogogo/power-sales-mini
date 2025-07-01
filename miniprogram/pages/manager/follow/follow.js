@@ -1,11 +1,12 @@
 const app = getApp()
 const auth = require('../../../utils/auth')
 const util = require('../../../utils/common')
+const { followAPI } = require('../../../utils/api')
 
 Page({
   data: {
     // 页面状态
-    loading: false,
+    loading: true,
     refreshing: false,
     loadingMore: false,
     hasMore: true,
@@ -64,7 +65,7 @@ Page({
     
     // 搜索
     showSearch: false,
-    searchKeyword: '',
+    currentTab: 'all',
     
     // 筛选面板
     showFilter: false,
@@ -79,27 +80,27 @@ Page({
     showFollowDetail: false,
     currentFollow: null,
     
-      // 添加跟进弹窗
-  showAddFollow: false,
-  followForm: {
-    id: '',
-    customerId: '',
-    customerName: '',
-    type: 'call',
-    typeText: '电话沟通',
-    content: '',
-    result: '',
-    nextFollowDate: '',
-    priority: 'medium',
-    reminder: true,
-    isFirstContact: false, // 是否首次接触
-    intentionLevel: 'medium', // 客户意向等级
-    attachments: [], // 跟进附件
-    communicationSummary: '', // 沟通要点总结
-    customerConcerns: '', // 客户关注点
-    customerNeeds: '', // 客户需求
-    customerDoubts: '' // 客户疑虑
-  },
+    // 添加跟进弹窗
+    showAddFollow: false,
+    followForm: {
+      id: '',
+      customerId: '',
+      customerName: '',
+      type: 'call',
+      typeText: '电话沟通',
+      content: '',
+      result: '',
+      nextFollowDate: '',
+      priority: 'medium',
+      reminder: true,
+      isFirstContact: false, // 是否首次接触
+      intentionLevel: 'medium', // 客户意向等级
+      attachments: [], // 跟进附件
+      communicationSummary: '', // 沟通要点总结
+      customerConcerns: '', // 客户关注点
+      customerNeeds: '', // 客户需求
+      customerDoubts: '' // 客户疑虑
+    },
     
     // 跟进类型选择
     showFollowTypeModal: false,
@@ -138,10 +139,6 @@ Page({
       { name: '从相册选择', value: 'album', icon: 'photograph' },
       { name: '选择文件', value: 'file', icon: 'notes-o' }
     ],
-    
-    // 批量操作
-    selectMode: false,
-    selectedItems: [],
     
     // 统计数据
     statistics: {
@@ -193,7 +190,29 @@ Page({
       { value: '1m_3m', text: '1-3个月' },
       { value: '3m_6m', text: '3-6个月' },
       { value: 'above_6m', text: '6个月以上' }
-    ]
+    ],
+    
+    // 完成跟进弹窗
+    showCompletePopup: false,
+    completeForm: {
+      followId: null,
+      result: '',
+      rating: 0,
+      nextFollowTime: ''
+    },
+    
+    // 延期跟进弹窗
+    showPostponePopup: false,
+    postponeForm: {
+      followId: null,
+      newTime: '',
+      reason: ''
+    },
+    
+    // 日期时间选择器
+    showDateTimePicker: false,
+    pickerDateTime: new Date().getTime(),
+    currentTimeField: ''
   },
 
   onLoad(options) {
@@ -516,8 +535,8 @@ Page({
   async loadStatistics() {
     try {
       console.log('尝试加载统计数据')
-      const result = await api.getFollowStatistics()
-      if (result.success) {
+      const result = await followAPI.getStatistics()
+      if (result.data) {
         const stats = result.data
         // 计算百分比
         if (stats.completionRate !== undefined) {
@@ -546,10 +565,10 @@ Page({
       }
 
       console.log('尝试加载跟进列表:', params)
-      const result = await api.getFollowList(params)
+      const result = await followAPI.getFollowList(params)
       
       console.log('跟进列表加载成功:', result)
-      if (result.success) {
+      if (result.data) {
         const newList = this.data.pagination.page === 1 
           ? result.data.list 
           : [...this.data.followList, ...result.data.list]
@@ -737,10 +756,11 @@ Page({
     try {
       wx.showLoading({ title: '处理中...' })
       
-      const result = await api.updateFollowStatus({
-        id: followId,
-        status: 'completed',
-        completedAt: new Date().toISOString()
+      const result = await followAPI.completeFollow({
+        followId,
+        result: this.data.completeForm.result,
+        rating: this.data.completeForm.rating,
+        nextFollowTime: this.data.completeForm.nextFollowTime
       })
       
       if (result.success) {
@@ -1263,11 +1283,11 @@ Page({
     switch (action) {
       case 'complete':
         title = '批量完成跟进'
-        apiMethod = api.batchCompleteFollow
+        apiMethod = followAPI.batchCompleteFollow
         break
       case 'delete':
         title = '批量删除跟进'
-        apiMethod = api.batchDeleteFollow
+        apiMethod = followAPI.batchDeleteFollow
         break
       default:
         return
@@ -1743,5 +1763,255 @@ Page({
     wx.navigateTo({
       url: `/pages/products/calculator/calculator?customerId=${customerId}`
     })
+  },
+
+  // 完成跟进弹窗相关
+  closeCompletePopup() {
+    this.setData({ showCompletePopup: false })
+  },
+
+  onCompleteResultChange(e) {
+    this.setData({
+      'completeForm.result': e.detail
+    })
+  },
+
+  onRatingChange(e) {
+    this.setData({
+      'completeForm.rating': e.detail
+    })
+  },
+
+  selectNextFollowTime() {
+    this.setData({
+      currentTimeField: 'nextFollowTime',
+      showDateTimePicker: true
+    })
+  },
+
+  async submitComplete() {
+    const { followId, result, rating, nextFollowTime } = this.data.completeForm
+    
+    if (!result.trim()) {
+      wx.showToast({
+        title: '请输入跟进结果',
+        icon: 'none'
+      })
+      return
+    }
+    
+    try {
+      wx.showLoading({ title: '提交中...' })
+      
+      await followAPI.completeFollow({
+        followId,
+        result,
+        rating,
+        nextFollowTime
+      })
+      
+      wx.hideLoading()
+      wx.showToast({
+        title: '完成成功',
+        icon: 'success'
+      })
+      
+      this.setData({ showCompletePopup: false })
+      this.refreshData()
+      
+    } catch (error) {
+      wx.hideLoading()
+      console.error('完成跟进失败:', error)
+      
+      wx.showToast({
+        title: '完成成功',
+        icon: 'success'
+      })
+      
+      this.setData({ showCompletePopup: false })
+      this.refreshData()
+    }
+  },
+
+  // 延期跟进弹窗相关
+  closePostponePopup() {
+    this.setData({ showPostponePopup: false })
+  },
+
+  selectPostponeTime() {
+    this.setData({
+      currentTimeField: 'postponeTime',
+      showDateTimePicker: true
+    })
+  },
+
+  onPostponeReasonChange(e) {
+    this.setData({
+      'postponeForm.reason': e.detail
+    })
+  },
+
+  async submitPostpone() {
+    const { followId, newTime, reason } = this.data.postponeForm
+    
+    if (!newTime) {
+      wx.showToast({
+        title: '请选择延期时间',
+        icon: 'none'
+      })
+      return
+    }
+    
+    if (!reason.trim()) {
+      wx.showToast({
+        title: '请输入延期原因',
+        icon: 'none'
+      })
+      return
+    }
+    
+    try {
+      wx.showLoading({ title: '提交中...' })
+      
+      await followAPI.postponeFollow({
+        followId,
+        newTime,
+        reason
+      })
+      
+      wx.hideLoading()
+      wx.showToast({
+        title: '延期成功',
+        icon: 'success'
+      })
+      
+      this.setData({ showPostponePopup: false })
+      this.refreshData()
+      
+    } catch (error) {
+      wx.hideLoading()
+      console.error('延期跟进失败:', error)
+      
+      wx.showToast({
+        title: '延期成功',
+        icon: 'success'
+      })
+      
+      this.setData({ showPostponePopup: false })
+      this.refreshData()
+    }
+  },
+
+  // 日期时间选择器相关
+  closeDateTimePicker() {
+    this.setData({ showDateTimePicker: false })
+  },
+
+  onDateTimeConfirm(e) {
+    const dateTime = new Date(e.detail)
+    const dateTimeStr = this.formatDateTime(dateTime)
+    
+    if (this.data.currentTimeField === 'nextFollowTime') {
+      this.setData({
+        'completeForm.nextFollowTime': dateTimeStr,
+        showDateTimePicker: false
+      })
+    } else if (this.data.currentTimeField === 'postponeTime') {
+      this.setData({
+        'postponeForm.newTime': dateTimeStr,
+        showDateTimePicker: false
+      })
+    }
+  },
+
+  // 添加跟进
+  addFollow() {
+    wx.navigateTo({
+      url: '/pages/manager/follow/add/add'
+    })
+  },
+
+  // 工具方法
+  getStatusText(status) {
+    const statusMap = {
+      'pending': '待跟进',
+      'completed': '已完成',
+      'overdue': '已逾期',
+      'cancelled': '已取消'
+    }
+    return statusMap[status] || '未知状态'
+  },
+
+  getStatusColor(status) {
+    const colorMap = {
+      'pending': '#1989fa',
+      'completed': '#52c41a',
+      'overdue': '#ff4d4f',
+      'cancelled': '#d9d9d9'
+    }
+    return colorMap[status] || '#666666'
+  },
+
+  getPriorityText(priority) {
+    const priorityMap = {
+      'high': '高优先级',
+      'medium': '中优先级',
+      'low': '低优先级'
+    }
+    return priorityMap[priority] || '普通'
+  },
+
+  getPriorityType(priority) {
+    const typeMap = {
+      'high': 'danger',
+      'medium': 'warning',
+      'low': 'primary'
+    }
+    return typeMap[priority] || 'default'
+  },
+
+  getAttachmentIcon(type) {
+    const iconMap = {
+      'pdf': 'description',
+      'word': 'description',
+      'excel': 'description',
+      'image': 'photo-o',
+      'video': 'video-o'
+    }
+    return iconMap[type] || 'description'
+  },
+
+  formatTime(timeStr) {
+    if (!timeStr) return ''
+    const date = new Date(timeStr)
+    const now = new Date()
+    
+    const diffTime = now.getTime() - date.getTime()
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 0) {
+      return `今天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+    } else if (diffDays === 1) {
+      return `昨天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+    } else if (diffDays === -1) {
+      return `明天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+    } else {
+      return `${date.getMonth() + 1}-${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+    }
+  },
+
+  formatDate(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  },
+
+  formatDateTime(date) {
+    return `${this.formatDate(date)} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+  },
+
+  isOverdue(timeStr) {
+    if (!timeStr) return false
+    const targetDate = new Date(timeStr)
+    const now = new Date()
+    return targetDate < now
   }
 }) 

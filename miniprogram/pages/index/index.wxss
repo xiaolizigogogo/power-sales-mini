@@ -228,62 +228,113 @@
 
 /* 快捷功能 */
 .quick-actions {
-  background-color: var(--bg-white);
+  margin: 20rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20rpx;
-  padding: 30rpx 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
 }
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30rpx;
-  margin-top: 20rpx;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
 }
 
 .action-item {
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
+  padding: 30rpx;
+  border-radius: 12rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx 10rpx;
-  border-radius: var(--border-radius-base);
-  transition: var(--transition-base);
+  transition: all 0.3s;
 }
 
 .action-item:active {
-  background-color: var(--bg-light);
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 .action-icon-wrapper {
   width: 80rpx;
   height: 80rpx;
+  background: #fff;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  border-radius: 50%;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .action-icon {
-  font-size: 36rpx;
-  line-height: 1;
-  color: white;
+  font-size: 40rpx;
 }
 
 .action-name {
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  text-align: center;
-  margin-bottom: 4rpx;
+  font-size: 28rpx;
+  color: #333;
   font-weight: 500;
+  margin-bottom: 8rpx;
 }
 
 .action-desc {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  text-align: center;
-  line-height: 1.2;
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 我的服务 */
+.my-services {
+  margin: 20rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.service-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.service-icon-wrapper {
+  width: 88rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, #e6f3ff 0%, #f0f9ff 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.service-icon {
+  font-size: 44rpx;
+}
+
+.service-name {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
 }
 
 /* 最新公告 */
