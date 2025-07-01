@@ -1,4 +1,8 @@
 {
+  "navigationBarTitleText": "电力销售平台",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f5f5",
+  "backgroundTextStyle": "dark",
   "usingComponents": {
     "navbar": "/components/navbar/navbar",
     "loading": "/components/loading/loading",

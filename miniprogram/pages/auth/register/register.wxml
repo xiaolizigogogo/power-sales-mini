@@ -285,7 +285,7 @@
                 bindchange="onVoltageChange"
               >
                 <view class="picker-value">
-                  {{userInfo.voltageLevel ? (voltageOptions.find(item => item.value === userInfo.voltageLevel) || {}).label : '请选择电压等级'}}
+                  {{userInfo.voltageLevel ? (voltageOptions[voltageIndex].label || '请选择电压等级') : '请选择电压等级'}}
                 </view>
               </picker>
             </van-field>

@@ -38,179 +38,132 @@
     </view>
   </scroll-view>
 
+  <!-- 加载状态 -->
+  <van-loading size="24px" vertical wx:if="{{loading && orderList.length === 0}}">加载中...</van-loading>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && isEmpty}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">暂无订单</text>
+    <text class="empty-desc">您还没有任何订单，快去选购产品吧~</text>
+    <button class="empty-btn" bindtap="onGoShopping">去选购</button>
+  </view>
+
   <!-- 订单列表 -->
-  <view class="order-list">
-    <!-- 标签页 -->
-    <van-tabs 
-      active="{{ activeTab }}" 
-      bind:change="onTabChange"
-      sticky
-      swipeable
+  <view class="order-list" wx:if="{{orderList.length > 0}}">
+    <view 
+      class="order-item"
+      wx:for="{{orderList}}"
+      wx:key="id"
+      data-order="{{item}}"
+      bindtap="onOrderItemTap"
     >
-      <van-tab 
-        wx:for="{{ tabs }}" 
-        wx:key="key"
-        name="{{ item.key }}"
-        title="{{ item.name }}"
-      >
-        <!-- 订单列表 -->
-        <view class="order-container">
-          <block wx:if="{{ orders.length > 0 }}">
-            <view 
-              class="order-card"
-              wx:for="{{ orders }}"
-              wx:key="id"
-              data-id="{{ item.id }}"
-              bind:tap="viewOrderDetail"
-            >
-              <!-- 订单头部 -->
-              <view class="order-header">
-                <view class="order-no">订单号：{{ item.orderNo }}</view>
-                <view 
-                  class="order-status"
-                  style="color: {{ statusColorMap[item.status] }}"
-                >{{ statusMap[item.status] }}</view>
-              </view>
-
-              <!-- 产品信息 -->
-              <view class="product-info">
-                <image 
-                  class="product-image" 
-                  src="{{ item.product.image }}" 
-  <view class="order-list-container">
-    <!-- 加载状态 -->
-    <van-loading size="24px" vertical wx:if="{{loading && orderList.length === 0}}">加载中...</van-loading>
-
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && isEmpty}}">
-      <text class="empty-icon">📋</text>
-      <text class="empty-text">暂无订单</text>
-      <text class="empty-desc">您还没有任何订单，快去选购产品吧~</text>
-      <button class="empty-btn" bindtap="onGoShopping">去选购</button>
-    </view>
-
-    <!-- 订单列表 -->
-    <view class="order-list" wx:if="{{orderList.length > 0}}">
-      <view 
-        class="order-item"
-        wx:for="{{orderList}}"
-        wx:key="id"
-        data-order="{{item}}"
-        bindtap="onOrderItemTap"
-      >
-        <!-- 订单头部 -->
-        <view class="order-header">
-          <view class="order-info">
-            <text class="order-number">订单号：{{item.orderNumber}}</text>
-            <text class="order-date">{{item.createdAt}}</text>
-          </view>
-          <view class="order-status {{item.statusClass}}">
-            <text>{{item.statusText}}</text>
-          </view>
+      <!-- 订单头部 -->
+      <view class="order-header">
+        <view class="order-info">
+          <text class="order-number">订单号：{{item.orderNumber}}</text>
+          <text class="order-date">{{item.createdAt}}</text>
         </view>
-
-        <!-- 产品信息 -->
-        <view class="product-info">
-          <image class="product-image" src="{{item.productImage}}" mode="aspectFill"></image>
-          <view class="product-details">
-            <text class="product-name">{{item.productName}}</text>
-            <text class="product-desc">{{item.productDesc}}</text>
-            <view class="product-specs">
-              <text class="spec-item">容量：{{item.capacity}}</text>
-              <text class="spec-item">期限：{{item.servicePeriod}}</text>
-            </view>
-          </view>
-          <view class="product-price">
-            <text class="price-symbol">¥</text>
-            <text class="price-amount">{{item.amount}}</text>
-          </view>
-        </view>
-
-        <!-- 服务信息 -->
-        <view class="service-info" wx:if="{{item.assignedEmployee}}">
-          <view class="service-item">
-            <text class="service-icon">👨‍💼</text>
-            <text class="service-text">服务经理：{{item.assignedEmployee.name}}</text>
-            <text class="service-phone" catchtap="onCallService" data-phone="{{item.assignedEmployee.phone}}">
-              {{item.assignedEmployee.phone}}
-            </text>
-          </view>
-        </view>
-
-        <!-- 进度条 -->
-        <view class="progress-bar" wx:if="{{item.showProgress}}">
-          <view class="progress-steps">
-            <view 
-              class="step-item {{index <= item.currentStep ? 'completed' : ''}}"
-              wx:for="{{item.progressSteps}}"
-              wx:key="id"
-              wx:for-index="index"
-            >
-              <view class="step-dot"></view>
-              <text class="step-text">{{item.name}}</text>
-            </view>
-          </view>
-          <view class="progress-line">
-            <view class="progress-fill" style="width: {{item.progressPercent}}%"></view>
-          </view>
-        </view>
-
-        <!-- 操作按钮 -->
-        <view class="order-actions">
-          <button 
-            class="action-btn secondary"
-            wx:if="{{item.canCancel}}"
-            catchtap="onCancelOrder"
-            data-order-id="{{item.id}}"
-          >
-            取消订单
-          </button>
-          <button 
-            class="action-btn secondary"
-            wx:if="{{item.canModify}}"
-            catchtap="onModifyOrder"
-            data-order-id="{{item.id}}"
-          >
-            修改订单
-          </button>
-          <button 
-            class="action-btn primary"
-            wx:if="{{item.canPay}}"
-            catchtap="onPayOrder"
-            data-order-id="{{item.id}}"
-          >
-            立即支付
-          </button>
-          <button 
-            class="action-btn secondary"
-            wx:if="{{item.canViewContract}}"
-            catchtap="onViewContract"
-            data-order-id="{{item.id}}"
-          >
-            查看合同
-          </button>
-          <button 
-            class="action-btn primary"
-            wx:if="{{item.canConfirm}}"
-            catchtap="onConfirmOrder"
-            data-order-id="{{item.id}}"
-          >
-            确认收货
-          </button>
+        <view class="order-status {{item.statusClass}}">
+          <text>{{item.statusText}}</text>
         </view>
       </view>
-    </view>
 
-    <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasMore && orderList.length > 0}}">
-      <van-loading size="16px" wx:if="{{loadingMore}}">加载中...</van-loading>
-      <text wx:else>上拉加载更多</text>
-    </view>
+      <!-- 产品信息 -->
+      <view class="product-info">
+        <image 
+          class="product-image" 
+          src="{{item.productImage}}" 
+          mode="aspectFill"
+        ></image>
+        <view class="product-details">
+          <text class="product-name">{{item.productName}}</text>
+          <text class="product-desc">{{item.productDesc}}</text>
+          <view class="product-specs">
+            <text class="spec-item">容量：{{item.capacity}}</text>
+            <text class="spec-item">期限：{{item.servicePeriod}}</text>
+          </view>
+        </view>
+        <view class="product-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-amount">{{item.amount}}</text>
+        </view>
+      </view>
 
-    <!-- 没有更多数据 -->
-    <view class="no-more" wx:if="{{!hasMore && orderList.length > 0}}">
-      <text>已显示全部订单</text>
+      <!-- 服务信息 -->
+      <view class="service-info" wx:if="{{item.assignedEmployee}}">
+        <view class="service-item">
+          <text class="service-icon">👨‍💼</text>
+          <text class="service-text">服务经理：{{item.assignedEmployee.name}}</text>
+          <text class="service-phone" catchtap="onCallService" data-phone="{{item.assignedEmployee.phone}}">
+            {{item.assignedEmployee.phone}}
+          </text>
+        </view>
+      </view>
+
+      <!-- 进度条 -->
+      <view class="progress-bar" wx:if="{{item.showProgress}}">
+        <view class="progress-steps">
+          <view 
+            class="step-item {{index <= item.currentStep ? 'completed' : ''}}"
+            wx:for="{{item.progressSteps}}"
+            wx:key="id"
+            wx:for-index="index"
+          >
+            <view class="step-dot"></view>
+            <text class="step-text">{{item.name}}</text>
+          </view>
+        </view>
+        <view class="progress-line">
+          <view class="progress-fill" style="width: {{item.progressPercent}}%"></view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="order-actions">
+        <button 
+          class="action-btn secondary"
+          wx:if="{{item.canCancel}}"
+          catchtap="onCancelOrder"
+          data-order-id="{{item.id}}"
+        >取消订单</button>
+        <button 
+          class="action-btn secondary"
+          wx:if="{{item.canModify}}"
+          catchtap="onModifyOrder"
+          data-order-id="{{item.id}}"
+        >修改订单</button>
+        <button 
+          class="action-btn primary"
+          wx:if="{{item.canPay}}"
+          catchtap="onPayOrder"
+          data-order-id="{{item.id}}"
+        >立即支付</button>
+        <button 
+          class="action-btn secondary"
+          wx:if="{{item.canViewContract}}"
+          catchtap="onViewContract"
+          data-order-id="{{item.id}}"
+        >查看合同</button>
+        <button 
+          class="action-btn primary"
+          wx:if="{{item.canConfirm}}"
+          catchtap="onConfirmOrder"
+          data-order-id="{{item.id}}"
+        >确认收货</button>
+      </view>
     </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && orderList.length > 0}}">
+    <van-loading size="16px" wx:if="{{loadingMore}}">加载中...</van-loading>
+    <text wx:else>上拉加载更多</text>
+  </view>
+
+  <!-- 没有更多数据 -->
+  <view class="no-more" wx:if="{{!hasMore && orderList.length > 0}}">
+    <text>已显示全部订单</text>
   </view>
 
   <!-- 筛选弹窗 -->
@@ -226,86 +179,9 @@
         <text class="filter-title">筛选条件</text>
         <text class="filter-reset" bindtap="onResetFilter">重置</text>
       </view>
-      
       <view class="filter-content">
-        <!-- 订单状态筛选 -->
-        <view class="filter-section">
-          <view class="filter-section-title">订单状态</view>
-          <view class="filter-options">
-            <view 
-              class="filter-option {{item.checked ? 'checked' : ''}}"
-              wx:for="{{filterOptions.status}}"
-              wx:key="value"
-              data-type="status"
-              data-value="{{item.value}}"
-              bindtap="onFilterOptionTap"
-            >
-              <text>{{item.label}}</text>
-              <text class="check-icon">✓</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- 时间范围筛选 -->
-        <view class="filter-section">
-          <view class="filter-section-title">下单时间</view>
-          <view class="filter-options">
-            <view 
-              class="filter-option {{item.checked ? 'checked' : ''}}"
-              wx:for="{{filterOptions.dateRange}}"
-              wx:key="value"
-              data-type="dateRange"
-              data-value="{{item.value}}"
-              bindtap="onFilterOptionTap"
-            >
-              <text>{{item.label}}</text>
-              <text class="check-icon">✓</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- 金额范围筛选 -->
-        <view class="filter-section">
-          <view class="filter-section-title">订单金额</view>
-          <view class="filter-options">
-            <view 
-              class="filter-option {{item.checked ? 'checked' : ''}}"
-              wx:for="{{filterOptions.amountRange}}"
-              wx:key="value"
-              data-type="amountRange"
-              data-value="{{item.value}}"
-              bindtap="onFilterOptionTap"
-            >
-              <text>{{item.label}}</text>
-              <text class="check-icon">✓</text>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="filter-footer">
-        <button class="filter-cancel" bindtap="onCloseFilter">取消</button>
-        <button class="filter-confirm" bindtap="onConfirmFilter">确定</button>
+        <!-- 筛选内容 -->
       </view>
     </view>
   </van-popup>
-
-  <!-- 操作确认弹窗 -->
-  <van-dialog
-    show="{{showConfirmDialog}}"
-    title="{{confirmDialog.title}}"
-    message="{{confirmDialog.message}}"
-    show-cancel-button
-    bind:confirm="onConfirmAction"
-    bind:cancel="onCancelAction"
-  />
-
-  <!-- 客服联系弹窗 -->
-  <van-action-sheet
-    show="{{showContactSheet}}"
-    actions="{{contactActions}}"
-    cancel-text="取消"
-    bind:select="onContactSelect"
-    bind:close="onCloseContactSheet"
-  />
 </view> 

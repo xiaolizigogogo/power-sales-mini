@@ -167,7 +167,7 @@
             bindchange="onIndustryChange"
           >
             <view class="picker-value">
-              {{ customerForm.industry ? (industryOptions.find(item => item.value === customerForm.industry) || {}).label : '请选择行业类型' }}
+              {{ customerForm.industry ? (industryOptions[industryIndex].label || '请选择行业类型') : '请选择行业类型' }}
             </view>
           </picker>
         </van-field>
@@ -188,7 +188,7 @@
             bindchange="onScaleChange"
           >
             <view class="picker-value">
-              {{ customerForm.scale ? (scaleOptions.find(item => item.value === customerForm.scale) || {}).label : '请选择企业规模' }}
+              {{ customerForm.scale ? (scaleOptions[scaleIndex].label || '请选择企业规模') : '请选择企业规模' }}
             </view>
           </picker>
         </van-field>
