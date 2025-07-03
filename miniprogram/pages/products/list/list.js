@@ -24,19 +24,40 @@ Page({
   onLoad(options) {
     console.log('产品列表页面加载', options)
     
-    // 检查角色权限
-    if (!checkRoleAccess('products')) {
-      return
-    }
-    
     // 从参数获取分类ID
     if (options.categoryId) {
       this.setData({
         activeTab: parseInt(options.categoryId)
       })
     }
+  },
+
+  onShow() {
+    // 检查登录状态
+    if (!app.globalData.isLoggedIn) {
+      wx.redirectTo({
+        url: '/pages/auth/login/login'
+      });
+      return;
+    }
+
+    // 检查角色权限
+    if (!checkRoleAccess('products')) {
+      wx.showModal({
+        title: '权限不足',
+        content: '您没有权限访问此页面',
+        showCancel: false,
+        success: () => {
+          wx.switchTab({
+            url: '/pages/index/index'
+          });
+        }
+      });
+      return;
+    }
     
-    this.loadProducts()
+    // 页面显示时刷新数据
+    this.loadProducts(true);
   },
 
   // 加载产品列表
@@ -155,32 +176,6 @@ Page({
 
   onReachBottom() {
     this.loadProducts()
-  },
-
-  // 检查权限
-  checkPermissions() {
-    if (!auth.checkLogin()) {
-      return false
-    }
-    
-    if (!auth.hasPermission(auth.PERMISSIONS.PRODUCT_VIEW)) {
-      wx.showModal({
-        title: '权限不足',
-        content: '您没有权限查看产品信息',
-        showCancel: false,
-        success: () => {
-          wx.navigateBack()
-        }
-      })
-      return false
-    }
-    
-    return true
-  },
-
-  onShow() {
-    // 页面显示时刷新数据
-    this.refreshProducts()
   },
 
   // 刷新产品列表

@@ -4,7 +4,7 @@ App({
     userInfo: null,
     token: null,
     baseUrl: 'https://your-api-domain.com/power/mini',
-    isLogin: false,
+    isLoggedIn: false, // 统一使用 isLoggedIn
     userRole: '', // customer: 普通客户, manager: 客户经理
     companyInfo: null,
     systemConfig: {
@@ -93,47 +93,91 @@ App({
 
   // 初始化配置
   initConfig() {
-    // 获取存储的配置信息
-    const token = wx.getStorageSync('token');
-    const userInfo = wx.getStorageSync('userInfo');
-    const userRole = wx.getStorageSync('userRole');
-    
-    if (token) {
-      this.globalData.token = token;
-      this.globalData.isLogin = true;
-    }
-    
-    if (userInfo) {
-      this.globalData.userInfo = userInfo;
-    }
-    
-    if (userRole) {
-      this.globalData.userRole = userRole;
+    try {
+      // 获取存储的配置信息
+      const token = wx.getStorageSync('token');
+      const userInfo = wx.getStorageSync('userInfo');
+      const userRole = wx.getStorageSync('userRole');
+      const companyInfo = wx.getStorageSync('companyInfo');
+      const refreshToken = wx.getStorageSync('refreshToken');
+      
+      if (token && userInfo) {
+        this.globalData.token = token;
+        this.globalData.userInfo = userInfo;
+        this.globalData.isLoggedIn = true;
+        this.globalData.userRole = userRole || '';
+        this.globalData.companyInfo = companyInfo || null;
+        this.globalData.refreshToken = refreshToken;
+      } else {
+        this.clearLoginInfo(); // 数据不完整时清除
+      }
+    } catch (error) {
+      console.error('初始化配置失败:', error);
+      this.clearLoginInfo();
     }
   },
 
   // 检查登录状态
-  checkLoginStatus() {
+  async checkLoginStatus() {
     if (!this.globalData.token) {
       return false;
     }
     
-    // 验证token有效性
-    wx.request({
-      url: this.globalData.baseUrl + '/auth/verify',
-      method: 'POST',
-      header: {
-        'Authorization': 'Bearer ' + this.globalData.token
-      },
-      success: (res) => {
-        if (res.statusCode !== 200 || !res.data.success) {
-          this.logout();
+    try {
+      // 验证token有效性
+      const res = await wx.request({
+        url: this.globalData.baseUrl + '/mini/auth/verify-token',
+        method: 'POST',
+        header: {
+          'Authorization': 'Bearer ' + this.globalData.token
         }
-      },
-      fail: () => {
-        console.log('token验证失败');
+      });
+
+      if (res.statusCode !== 200 || !res.data.success) {
+        // token无效，尝试使用refreshToken
+        await this.refreshUserToken();
       }
-    });
+      
+      return true;
+    } catch (error) {
+      console.error('token验证失败:', error);
+      this.clearLoginInfo();
+      return false;
+    }
+  },
+
+  // 刷新用户Token
+  async refreshUserToken() {
+    try {
+      const refreshToken = wx.getStorageSync('refreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const res = await wx.request({
+        url: this.globalData.baseUrl + '/mini/auth/refresh-token',
+        method: 'POST',
+        data: {
+          refreshToken: refreshToken
+        }
+      });
+
+      if (res.statusCode === 200 && res.data.success) {
+        // 更新token信息
+        this.globalData.token = res.data.data.token;
+        wx.setStorageSync('token', res.data.data.token);
+        if (res.data.data.refreshToken) {
+          wx.setStorageSync('refreshToken', res.data.data.refreshToken);
+        }
+        return true;
+      } else {
+        throw new Error('Failed to refresh token');
+      }
+    } catch (error) {
+      console.error('刷新token失败:', error);
+      this.clearLoginInfo();
+      return false;
+    }
   },
 
   // 获取系统信息
@@ -172,38 +216,60 @@ App({
 
   // 用户登录
   login(userInfo, token, userRole, refreshToken) {
+    // 更新全局数据
     this.globalData.userInfo = userInfo;
     this.globalData.token = token;
-    this.globalData.isLogin = true;
-    this.globalData.userRole = userRole;
+    this.globalData.isLoggedIn = true;
+    this.globalData.userRole = userRole || '';
     
     // 存储到本地
-    wx.setStorageSync('userInfo', userInfo);
-    wx.setStorageSync('token', token);
-    wx.setStorageSync('userRole', userRole);
-    
-    // 存储刷新令牌
-    if (refreshToken) {
-      wx.setStorageSync('refreshToken', refreshToken);
+    try {
+      wx.setStorageSync('userInfo', userInfo);
+      wx.setStorageSync('token', token);
+      wx.setStorageSync('userRole', userRole);
+      
+      // 存储刷新令牌
+      if (refreshToken) {
+        wx.setStorageSync('refreshToken', refreshToken);
+        this.globalData.refreshToken = refreshToken;
+      }
+
+      // 存储公司信息（如果有）
+      if (userInfo.company) {
+        wx.setStorageSync('companyInfo', userInfo.company);
+        this.globalData.companyInfo = userInfo.company;
+      }
+
+      console.log('用户登录信息保存成功');
+    } catch (error) {
+      console.error('保存登录信息失败:', error);
+      wx.showToast({
+        title: '登录信息保存失败',
+        icon: 'none'
+      });
     }
   },
 
-  // 用户登出
-  logout() {
+  // 清除登录信息
+  clearLoginInfo() {
+    // 清除全局数据
     this.globalData.userInfo = null;
     this.globalData.token = null;
-    this.globalData.isLogin = false;
+    this.globalData.isLoggedIn = false;
     this.globalData.userRole = '';
+    this.globalData.companyInfo = null;
+    this.globalData.refreshToken = null;
     
-    // 清除本地存储
-    wx.removeStorageSync('userInfo');
-    wx.removeStorageSync('token');
-    wx.removeStorageSync('userRole');
-    
-    // 跳转到登录页
-    wx.reLaunch({
-      url: '/pages/auth/login/login'
-    });
+    try {
+      // 清除本地存储
+      wx.removeStorageSync('userInfo');
+      wx.removeStorageSync('token');
+      wx.removeStorageSync('userRole');
+      wx.removeStorageSync('refreshToken');
+      wx.removeStorageSync('companyInfo');
+    } catch (error) {
+      console.error('清除登录信息失败:', error);
+    }
   },
 
   // 网络请求封装

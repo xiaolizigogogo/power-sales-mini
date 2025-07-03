@@ -6,6 +6,7 @@
   "usingComponents": {
     "navbar": "/components/navbar/navbar",
     "loading": "/components/loading/loading",
-    "empty": "/components/empty/empty"
+    "empty": "/components/empty/empty",
+    "auth-guard": "/components/auth-guard/index"
   }
 } 

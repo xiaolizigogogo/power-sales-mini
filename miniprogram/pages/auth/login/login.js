@@ -1,4 +1,5 @@
 const app = getApp();
+const { authAPI } = require('../../../utils/api');
 
 Page({
   data: {
@@ -9,18 +10,112 @@ Page({
 
   onLoad() {
     // 检查是否已经登录
-    const app = getApp()
-    console.log('登录页面加载，当前登录状态:', app.globalData.isLogin)
+    console.log('登录页面加载，当前登录状态:', app.globalData.isLoggedIn)
     
-    // 延迟检查，确保app.js的checkLogin已经执行完成
-    setTimeout(() => {
-      if (app.globalData.isLogin) {
-        console.log('用户已登录，跳转到首页')
-        wx.reLaunch({
-          url: '/pages/index/index'
-        })
+    if (app.globalData.isLoggedIn) {
+      console.log('用户已登录，跳转到首页')
+      wx.reLaunch({
+        url: '/pages/index/index'
+      });
+    }
+  },
+
+  // 处理微信登录
+  handleWechatLogin() {
+    this.setData({ loading: true });
+
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: (res) => {
+        // 获取用户信息成功
+        const userInfo = res.userInfo;
+        console.log('获取用户信息成功:', userInfo);
+        
+        // 获取登录凭证
+        wx.login({
+          success: async (loginRes) => {
+            try {
+              if (!loginRes.code) {
+                throw new Error('获取登录凭证失败');
+              }
+              console.log('获取登录凭证成功:', loginRes.code);
+
+              // 调用后端登录接口
+              const response = await authAPI.wechatLogin(loginRes.code, {
+                ...userInfo,
+                ...res
+              });
+              console.log('微信登录接口返回:', response);
+
+              if (!response || !response.token) {
+                throw new Error('登录返回数据格式错误');
+              }
+
+              // 保存token
+              wx.setStorageSync('token', response.token);
+              if (response.refreshToken) {
+                wx.setStorageSync('refreshToken', response.refreshToken);
+              }
+
+              // 保存用户信息
+              wx.setStorageSync('userInfo', response.userInfo);
+              if (response.userInfo && response.userInfo.role) {
+                wx.setStorageSync('userRole', response.userInfo.role);
+              }
+
+              // 更新全局状态
+              app.globalData.isLoggedIn = true;
+              app.globalData.userInfo = response.userInfo;
+
+              console.log('微信登录成功，用户信息：', response.userInfo);
+
+              wx.showToast({
+                title: '登录成功',
+                icon: 'success'
+              });
+
+              // 登录成功后跳转到首页
+              setTimeout(() => {
+                wx.reLaunch({
+                  url: '/pages/index/index'
+                });
+              }, 1500);
+
+            } catch (error) {
+              console.error('微信登录失败:', error);
+              wx.showToast({
+                title: error.message || '登录失败',
+                icon: 'none'
+              });
+            }
+          },
+          fail: (err) => {
+            console.error('获取登录凭证失败:', err);
+            wx.showToast({
+              title: '获取登录凭证失败',
+              icon: 'none'
+            });
+          }
+        });
+      },
+      fail: (err) => {
+        console.error('获取用户信息失败:', err);
+        if (err.errMsg.includes('auth deny')) {
+          wx.showToast({
+            title: '您已拒绝授权',
+            icon: 'none'
+          });
+        } else {
+          wx.showToast({
+            title: '获取用户信息失败',
+            icon: 'none'
+          });
+        }
+      },
+      complete: () => {
+        this.setData({ loading: false });
       }
-    }, 100)
+    });
   },
 
   // 输入手机号
@@ -46,17 +141,31 @@ Page({
     this.setData({ loading: true });
 
     try {
-      const res = await app.request({
-        url: '/auth/login',
-        method: 'POST',
-        data: {
-          phone: this.data.phone,
-          password: this.data.password
-        }
-      });
+      // 使用authAPI进行登录
+      const response = await authAPI.userLogin(this.data.phone, this.data.password);
+      console.log('手机号登录接口返回:', response);
 
-      // 登录成功，保存令牌和用户信息
-      app.login(res.data.userInfo, res.data.accessToken, res.data.userRole, res.data.refreshToken);
+      if (!response || !response.token) {
+        throw new Error('登录返回数据格式错误');
+      }
+
+      // 保存token
+      wx.setStorageSync('token', response.token);
+      if (response.refreshToken) {
+        wx.setStorageSync('refreshToken', response.refreshToken);
+      }
+
+      // 保存用户信息
+      wx.setStorageSync('userInfo', response.userInfo);
+      if (response.userInfo && response.userInfo.role) {
+        wx.setStorageSync('userRole', response.userInfo.role);
+      }
+
+      // 更新全局状态
+      app.globalData.isLoggedIn = true;
+      app.globalData.userInfo = response.userInfo;
+
+      console.log('手机号登录成功，用户信息：', response.userInfo);
       
       wx.showToast({
         title: '登录成功',
@@ -71,6 +180,7 @@ Page({
       }, 1500);
 
     } catch (error) {
+      console.error('登录失败:', error);
       wx.showToast({
         title: error.message || '登录失败',
         icon: 'none'

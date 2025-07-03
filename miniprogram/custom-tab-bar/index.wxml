@@ -6,6 +6,6 @@
       color="{{selected === index ? selectedColor : color}}"
       size="22px"
     />
-    <view style="color: {{selected === index ? selectedColor : color}}">{{item.text}}</view>
+    <view class="tab-bar-text" style="color: {{selected === index ? selectedColor : color}}">{{item.text}}</view>
   </view>
 </view> 

@@ -5,6 +5,21 @@
     <text class="subtitle">专业的电力销售管理工具</text>
   </view>
 
+  <!-- 微信授权登录按钮 -->
+  <view class="wechat-login">
+    <button 
+      class="button button-wechat"
+      bindtap="handleWechatLogin"
+    >
+      <image class="wechat-icon" src="/assets/images/icons/wechat.png" />
+      <text>微信一键登录</text>
+    </button>
+  </view>
+
+  <view class="divider">
+    <text>其他登录方式</text>
+  </view>
+
   <view class="login-form">
     <view class="form-item">
       <text class="label">手机号</text>

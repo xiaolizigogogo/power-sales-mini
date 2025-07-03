@@ -11,7 +11,7 @@ Component({
         selectedIcon: "home"
       },
       {
-        pagePath: "/pages/products/list/list",
+        pagePath: "/pages/products/index/index",
         text: "产品",
         icon: "shop-o",
         selectedIcon: "shop"
@@ -32,14 +32,28 @@ Component({
   },
   methods: {
     switchTab(e) {
-      const data = e.currentTarget.dataset
-      const url = data.path
-      wx.switchTab({
-        url
-      })
-      this.setData({
-        selected: data.index
-      })
+      const data = e.currentTarget.dataset;
+      const url = data.path;
+      
+      // 检查登录状态
+      const app = getApp();
+      console.log('登录状态:', app.globalData.isLoggedIn)
+      if (!app.globalData.isLoggedIn) {
+        wx.redirectTo({
+          url: '/pages/auth/login/login'
+        });
+        return;
+      }
+
+      // 使用reLaunch而不是switchTab，因为是自定义tabBar
+      wx.reLaunch({
+        url,
+        success: () => {
+          this.setData({
+            selected: data.index
+          });
+        }
+      });
     }
   }
 }) 

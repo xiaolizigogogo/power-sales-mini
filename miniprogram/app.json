@@ -1,6 +1,9 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/auth/login/login",
+    "pages/auth/register/register",
+    "pages/auth/verify/verify",
     "pages/products/list/list",
     "pages/products/detail/detail",
     "pages/products/calculator/calculator",

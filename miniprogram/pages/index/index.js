@@ -1,3 +1,5 @@
+const { authAPI } = require('../../utils/api')
+
 Page({
   data: {
     // 轮播图数据
@@ -48,7 +50,10 @@ Page({
     hotProducts: [],
     
     // 加载状态
-    loading: true
+    loading: true,
+
+    // 用户信息
+    userInfo: null
   },
 
   onLoad() {
@@ -57,15 +62,25 @@ Page({
   },
 
   onShow() {
-    // 每次显示页面时只刷新统计数据（使用模拟数据）
+    const app = getApp();
+    if (!app.globalData.isLoggedIn) {
+      wx.redirectTo({
+        url: '/pages/auth/login/login'
+      });
+      return;
+    }
+    
+    // 每次显示页面时刷新用户信息和统计数据
+    this.refreshUserInfo()
     this.loadStatistics()
   },
 
   // 初始化页面数据
   async initPageData() {
     try {
-      // 并行加载数据，但统计数据和公告使用模拟数据
+      // 并行加载数据
       await Promise.all([
+        this.refreshUserInfo(),
         this.loadStatistics(),
         this.loadNotices(),
         this.loadHotProducts()
@@ -79,30 +94,60 @@ Page({
     }
   },
 
+  // 刷新用户信息
+  async refreshUserInfo() {
+    try {
+      const userInfo = await authAPI.getUserInfo()
+      console.log('获取用户信息成功:', userInfo)
+      
+      if (userInfo) {
+        this.setData({ userInfo })
+        
+        // 更新全局状态
+        const app = getApp()
+        app.globalData.userInfo = userInfo
+      }
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+      
+      // 如果是未登录错误，跳转到登录页面
+      if (error.message === '未登录' || error.message === '登录已失效') {
+        wx.redirectTo({
+          url: '/pages/auth/login/login'
+        })
+      }
+    }
+  },
+
   // 加载统计数据
   async loadStatistics() {
     try {
-      // 暂时使用模拟数据，避免API不存在的错误
-      console.log('加载统计数据 - 使用模拟数据')
+      // 获取用户统计数据
+      const stats = await authAPI.getUserStats();
+      console.log('用户统计数据:', stats);
+
+      // 更新页面数据
       this.setData({
         statistics: {
-          totalOrders: 1268,
-          totalCustomers: 356,
-          totalSavings: 2580,
-          totalCapacity: 145
+          totalOrders: stats.totalOrders || 0,
+          totalAmount: stats.totalAmount || 0,
+          totalSavings: stats.totalSavings || 0,
+          pendingOrders: stats.pendingOrders || 0,
+          completedOrders: stats.completedOrders || 0
         }
-      })
+      });
     } catch (error) {
-      console.error('加载统计数据失败:', error)
+      console.error('加载统计数据失败:', error);
       // 设置默认数据
       this.setData({
         statistics: {
-          totalOrders: 1268,
-          totalCustomers: 356,
-          totalSavings: 2580,
-          totalCapacity: 145
+          totalOrders: 0,
+          totalAmount: 0,
+          totalSavings: 0,
+          pendingOrders: 0,
+          completedOrders: 0
         }
-      })
+      });
     }
   },
 
@@ -159,7 +204,7 @@ Page({
   async loadHotProducts() {
     try {
       const app = getApp()
-      console.log('开始加载热门产品，登录状态:', app.globalData.isLogin)
+      console.log('开始加载热门产品，登录状态:', app.globalData.isLoggedIn)
       
       const res = await app.request({
         url: '/products/hot',

@@ -21,7 +21,6 @@ const PERMISSIONS = {
   CUSTOMER_DELETE: 'customer:delete',
   
   // 订单管理权限
-  ORDER_VIEW: 'order:view',
   ORDER_CREATE: 'order:create',
   ORDER_UPDATE: 'order:update',
   ORDER_CANCEL: 'order:cancel',
@@ -50,7 +49,6 @@ const PERMISSIONS = {
 const ROLE_PERMISSIONS = {
   [ROLES.CUSTOMER]: [
     PERMISSIONS.PRODUCT_VIEW,
-    PERMISSIONS.ORDER_VIEW,
     PERMISSIONS.ORDER_CREATE,
     PERMISSIONS.ORDER_CANCEL,
     PERMISSIONS.CONTRACT_VIEW
@@ -59,7 +57,6 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.CUSTOMER_VIEW,
     PERMISSIONS.CUSTOMER_CREATE,
     PERMISSIONS.CUSTOMER_UPDATE,
-    PERMISSIONS.ORDER_VIEW,
     PERMISSIONS.ORDER_CREATE,
     PERMISSIONS.ORDER_UPDATE,
     PERMISSIONS.FOLLOW_VIEW,
@@ -74,7 +71,6 @@ const ROLE_PERMISSIONS = {
   [ROLES.SALES_MANAGER]: [
     PERMISSIONS.CUSTOMER_VIEW,
     PERMISSIONS.CUSTOMER_UPDATE,
-    PERMISSIONS.ORDER_VIEW,
     PERMISSIONS.ORDER_APPROVE,
     PERMISSIONS.FOLLOW_VIEW,
     PERMISSIONS.PERFORMANCE_VIEW,
@@ -155,23 +151,29 @@ function setRefreshToken(refreshToken) {
   }
 }
 
-// 检查是否已登录
+// 获取用户角色
+function getUserRole() {
+  try {
+    return wx.getStorageSync('userRole') || null
+  } catch (error) {
+    console.error('获取用户角色失败:', error)
+    return null
+  }
+}
+
+// 检查登录状态
 function isLoggedIn() {
-  const token = getToken()
-  const userInfo = getUserInfo()
+  const token = wx.getStorageSync('token')
+  const userInfo = wx.getStorageSync('userInfo')
   return !!(token && userInfo)
 }
 
-// 检查登录状态并处理
-function checkLogin(showTip = true) {
+// 检查登录并跳转
+function checkLogin() {
   if (!isLoggedIn()) {
-    if (showTip) {
-      showToast('请先登录')
-    }
-    // 跳转到登录页面
-    setTimeout(() => {
-      navigateTo('/pages/auth/login/login')
-    }, 1500)
+    wx.redirectTo({
+      url: '/pages/auth/login/login'
+    })
     return false
   }
   return true
@@ -300,19 +302,13 @@ function isTokenExpired() {
   return (now - loginTime) > expireTime
 }
 
-// 获取用户角色
-function getUserRole() {
-  const userInfo = getUserInfo()
-  return userInfo ? userInfo.role : null
-}
-
-// 检查用户权限
+// 检查权限
 function hasPermission(permission) {
-  const userRole = getUserRole()
-  if (!userRole) return false
+  const role = getUserRole()
+  if (!role) return false
   
-  const rolePermissions = ROLE_PERMISSIONS[userRole] || []
-  return rolePermissions.includes(permission)
+  const permissions = ROLE_PERMISSIONS[role]
+  return permissions ? permissions.includes(permission) : false
 }
 
 // 检查是否为客户经理
@@ -393,7 +389,7 @@ function requireLogin(showTip = true) {
     const originalMethod = descriptor.value
     
     descriptor.value = function(...args) {
-      if (!checkLogin(showTip)) {
+      if (!checkLogin()) {
         return Promise.reject(new Error('未登录'))
       }
       return originalMethod.apply(this, args)
@@ -427,16 +423,22 @@ function requireRole(roles, showTip = true) {
 
 // 角色权限路由守卫
 const checkRoleAccess = (pageType) => {
-  const role = getUserRole();
-  if (!role) {
+  // 先检查登录状态
+  if (!isLoggedIn()) {
     wx.redirectTo({
       url: '/pages/auth/login/login'
     });
     return false;
   }
 
+  const role = getUserRole();
+  if (!role) {
+    console.error('用户角色未定义');
+    return true; // 如果已登录但没有角色，暂时允许访问
+  }
+
   const managerPages = ['customers', 'follow', 'performance', 'maintenance'];
-  const customerPages = ['products', 'orders', 'profile'];
+  const customerPages = ['products', 'profile'];
 
   if (role === USER_ROLES.MANAGER && customerPages.includes(pageType)) {
     wx.showToast({

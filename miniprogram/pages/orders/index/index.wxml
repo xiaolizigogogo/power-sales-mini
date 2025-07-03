@@ -26,14 +26,14 @@
   <scroll-view class="tab-bar" scroll-x="true">
     <view class="tab-list">
       <view 
-        class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+        class="tab-item {{activeTab === index ? 'active' : ''}}"
         wx:for="{{tabList}}"
         wx:key="key"
-        data-key="{{item.key}}"
+        data-index="{{index}}"
         bindtap="onTabChange"
       >
         <text class="tab-name">{{item.name}}</text>
-        <text class="tab-count" wx:if="{{item.count > 0}}">({{item.count}})</text>
+        <text class="tab-count">({{item.count}})</text>
       </view>
     </view>
   </scroll-view>
