@@ -31,129 +31,182 @@ Page({
     
     // 搜索
     searchKeyword: '',
-    showSearch: false,
     
-    // 筛选
+    // 筛选弹窗
     showFilter: false,
     filterData: {
-      dateRange: '',
+      status: '',
       amountRange: '',
-      productType: ''
+      dateRange: ''
     },
     
-    // 操作
+    // 筛选选项
+    statusOptions: [
+      { text: '全部', value: '' },
+      { text: '待确认', value: 'pending' },
+      { text: '已确认', value: 'confirmed' },
+      { text: '待签约', value: 'contract' },
+      { text: '服务中', value: 'active' },
+      { text: '已完成', value: 'completed' },
+      { text: '已取消', value: 'cancelled' }
+    ],
+    
+    amountRangeOptions: [
+      { text: '不限', value: '' },
+      { text: '5万以下', value: '0-50000' },
+      { text: '5-10万', value: '50000-100000' },
+      { text: '10-20万', value: '100000-200000' },
+      { text: '20万以上', value: '200000-999999' }
+    ],
+    
+    // 操作菜单
     showActionSheet: false,
     actionSheetActions: [],
     selectedOrder: null,
+    
+    // 状态映射
     statusMap: {
-      0: { text: '全部', value: '' },
-      1: { text: '待付款', value: 'pending' },
-      2: { text: '处理中', value: 'processing' },
-      3: { text: '已完成', value: 'completed' },
-      4: { text: '已取消', value: 'cancelled' }
-    },
-    statusColorMap: {
-      'pending': '#1989fa',
-      'negotiating': '#ff976a',
-      'confirmed': '#07c160',
-      'rejected': '#ee0a24',
-      'cancelled': '#969799'
-    },
-    
-    // 分页相关
-    pageNum: 1,
-    pageSize: 10,
-    hasMore: true,
-    
-    // 筛选相关
-    tabs: [
-      { key: 'all', name: '全部' },
-      { key: 'pending', name: '待确认' },
-      { key: 'negotiating', name: '商务洽谈' },
-      { key: 'confirmed', name: '已确认' },
-      { key: 'rejected', name: '已拒绝' },
-      { key: 'cancelled', name: '已取消' }
-    ],
-    searchValue: '',
-    orders: []
+      'pending': { text: '待确认', color: '#fa8c16' },
+      'confirmed': { text: '已确认', color: '#52c41a' },
+      'contract': { text: '待签约', color: '#1890ff' },
+      'active': { text: '服务中', color: '#1890ff' },
+      'completed': { text: '已完成', color: '#52c41a' },
+      'cancelled': { text: '已取消', color: '#ff4d4f' }
+    }
   },
 
   onLoad(options) {
-    console.log('订单列表页面加载', options);
+    console.log('🚀 onLoad 方法被调用，参数:', options);
     
     // 检查登录状态
-    const app = getApp();
-    if (!app.globalData.isLoggedIn) {
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      });
+    if (!this.checkLoginStatus()) {
+      console.log('❌ onLoad: 登录状态检查失败');
       return;
     }
-
-    // 检查token是否存在
-    const token = wx.getStorageSync('token');
-    if (!token) {
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      });
-      return;
-    }
+    
+    console.log('✅ onLoad: 登录状态检查通过');
     
     // 从参数获取状态筛选
     if (options.status) {
-      this.setData({ activeTab: options.status });
+      const tabIndex = this.data.tabList.findIndex(tab => tab.key === options.status);
+      if (tabIndex !== -1) {
+        console.log('📋 从参数设置活动标签:', options.status, '索引:', tabIndex);
+        this.setData({ activeTab: tabIndex });
+      }
     }
     
+    console.log('🔧 开始初始化页面...');
     this.initPage();
   },
 
   onShow() {
-    const app = getApp();
-    if (!app.globalData.isLoggedIn) {
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      });
-      return;
-    }
-
-    // 检查token是否存在
-    const token = wx.getStorageSync('token');
-    if (!token) {
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      });
+    console.log('👁️ onShow 方法被调用');
+    // 检查登录状态
+    if (!this.checkLoginStatus()) {
+      console.log('❌ 登录状态检查失败，跳转登录页');
       return;
     }
     
-    // 每次显示时只刷新订单列表，不刷新统计
-    this.loadOrderList(true);
+    console.log('✅ 登录状态检查通过，开始刷新订单列表');
+    // 每次显示时刷新订单列表
+    this.refreshOrderList();
+  },
+
+  onPullDownRefresh() {
+    this.refreshOrderList().then(() => {
+      wx.stopPullDownRefresh();
+    });
+  },
+
+  onReachBottom() {
+    if (this.data.hasMore && !this.data.loadingMore) {
+      this.loadMoreOrders();
+    }
+  },
+
+  // 检查登录状态
+  checkLoginStatus() {
+    const app = getApp();
+    const token = wx.getStorageSync('token');
+    
+    if (!app.globalData.isLoggedIn || !token) {
+      wx.redirectTo({
+        url: '/pages/auth/login/login'
+      });
+      return false;
+    }
+    return true;
   },
 
   // 初始化页面
   async initPage() {
+    console.log('🚀 开始初始化订单列表页面');
+    console.log('🔧 环境信息:', {
+      开发模式: this.isDevelopmentMode(),
+      当前token: wx.getStorageSync('token') ? '已设置' : '未设置',
+      用户信息: wx.getStorageSync('userInfo') ? '已设置' : '未设置'
+    });
+
+    // 独立调用两个接口，避免一个失败影响另一个
     try {
-      await Promise.all([
-        this.loadOrderList(),
-        this.loadOrderStats()
-      ]);
+      console.log('📋 开始加载订单列表...');
+      await this.loadOrderList();
+      console.log('✅ 订单列表加载完成');
     } catch (error) {
-      console.error('初始化页面失败:', error);
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      });
+      console.error('❌ 订单列表加载失败:', error);
     }
+
+    try {
+      console.log('📊 开始加载订单统计...');
+      await this.loadOrderStats();
+      console.log('✅ 订单统计加载完成');
+    } catch (error) {
+      console.error('❌ 加载订单统计失败:', error);
+      
+      // 设置默认统计值
+      const defaultTabList = this.data.tabList.map(tab => ({
+        ...tab,
+        count: 0
+      }));
+      
+      this.setData({ tabList: defaultTabList });
+    }
+
+    console.log('✅ 页面初始化完成');
   },
 
   // 加载订单列表
   async loadOrderList(refresh = false) {
+    console.log('🔍 loadOrderList 方法被调用，参数:', { refresh });
+    console.log('📊 当前页面状态:', {
+      loading: this.data.loading,
+      loadingMore: this.data.loadingMore,
+      page: this.data.page,
+      orderListLength: this.data.orderList.length
+    });
+
     if (refresh) {
-      this.setData({ page: 1 });
+      console.log('🔄 刷新模式：重置页面状态');
+      this.setData({ 
+        page: 1,
+        orderList: [],
+        hasMore: true,
+        loading: false,
+        loadingMore: false
+      });
     }
 
-    if (this.data.loading || (this.data.loadingMore && !refresh)) return;
-
+    // 修正逻辑：先确定页面信息，再检查和设置状态
     const isFirstPage = this.data.page === 1;
+    console.log('📄 页面信息:', { isFirstPage, currentPage: this.data.page });
+
+    // 检查是否正在加载（排除刷新情况）
+    if (!refresh && (this.data.loading || this.data.loadingMore)) {
+      console.log('⏸️ 方法提前返回：loading=' + this.data.loading + ', loadingMore=' + this.data.loadingMore);
+      return;
+    }
+
+    console.log('⏳ 设置加载状态...');
     this.setData({
       loading: isFirstPage,
       loadingMore: !isFirstPage
@@ -164,165 +217,387 @@ Page({
         page: this.data.page - 1,
         size: this.data.pageSize,
         status: this.data.tabList[this.data.activeTab].key === 'all' ? '' : this.data.tabList[this.data.activeTab].key,
-        keyword: this.data.searchKeyword,
-        ...this.data.filterData
+        keyword: this.data.searchKeyword
       };
 
-      console.log('请求订单列表参数:', params);
+      // 添加筛选参数
+      if (this.data.filterData.status) {
+        params.status = this.data.filterData.status;
+      }
+      if (this.data.filterData.amountRange) {
+        const [minAmount, maxAmount] = this.data.filterData.amountRange.split('-');
+        params.minAmount = minAmount;
+        params.maxAmount = maxAmount;
+      }
+
+      console.log('📋 请求订单列表参数:', params);
+      console.log('🔑 当前token:', wx.getStorageSync('token') ? '已设置' : '未设置');
+
+      console.log('🌐 开始调用API...');
       const response = await orderAPI.getMyOrders(params);
-      console.log('订单列表响应:', response);
+      console.log('✅ 订单列表响应:', response);
 
       if (response && response.code === 200) {
         let content = [];
         let totalElements = 0;
 
-        // 处理不同的响应数据结构
-        if (response.data && Array.isArray(response.data)) {
-          content = response.data;
-          totalElements = response.data.length;
+        // 处理后端返回的真实数据结构
+        if (response.data && Array.isArray(response.data.records)) {
+          content = response.data.records;
+          totalElements = response.data.total || content.length;
+          console.log('📦 数据结构：分页对象(records)，内容长度:', content.length, '总数:', totalElements);
         } else if (response.data && Array.isArray(response.data.content)) {
           content = response.data.content;
           totalElements = response.data.totalElements || content.length;
+          console.log('📦 数据结构：分页对象(content)，内容长度:', content.length, '总数:', totalElements);
+        } else if (response.data && Array.isArray(response.data)) {
+          content = response.data;
+          totalElements = response.data.length;
+          console.log('📦 数据结构：直接数组，长度:', content.length);
         }
 
-        const formattedOrders = content.map(order => ({
-          ...order,
-          createTime: formatDate(order.createTime),
-          amount: formatMoney(order.amount)
-        }));
+        // 格式化订单数据
+        console.log('🔧 开始格式化订单数据...');
+        const formattedOrders = content.map(order => this.formatOrderData(order));
 
-        console.log('格式化后的订单列表:', formattedOrders);
+        console.log('✨ 格式化后的订单列表:', formattedOrders);
+        
+        const newOrderList = refresh ? formattedOrders : [...this.data.orderList, ...formattedOrders];
+        console.log('📝 更新页面数据:', {
+          新订单列表长度: newOrderList.length,
+          总数: totalElements,
+          是否还有更多: content.length === this.data.pageSize,
+          是否为空: isFirstPage && content.length === 0,
+          下一页页码: this.data.page + 1
+        });
+
         this.setData({
-          orderList: refresh ? formattedOrders : [...this.data.orderList, ...formattedOrders],
+          orderList: newOrderList,
           total: totalElements,
           hasMore: content.length === this.data.pageSize,
           isEmpty: isFirstPage && content.length === 0,
           loading: false,
           loadingMore: false,
-          refreshing: false
+          page: this.data.page + 1
         });
+        
+        console.log('✅ 订单列表数据更新完成');
       } else {
-        console.error('加载订单列表失败: 无效的响应数据', response);
-        this.setData({
-          orderList: [],
-          total: 0,
-          hasMore: false,
-          isEmpty: true,
-          loading: false,
-          loadingMore: false,
-          refreshing: false
-        });
-        wx.showToast({
-          title: '加载失败',
-          icon: 'none'
-        });
+        throw new Error(response?.message || '获取订单列表失败');
       }
     } catch (error) {
-      console.error('加载订单列表失败:', error);
+      console.error('❌ 加载订单列表失败:', error);
+      console.error('❌ 错误详情:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+
       this.setData({
-        orderList: [],
-        total: 0,
-        hasMore: false,
-        isEmpty: true,
         loading: false,
         loadingMore: false,
-        refreshing: false
+        isEmpty: this.data.orderList.length === 0
       });
+      
       wx.showToast({
-        title: '加载失败',
-        icon: 'none'
+        title: error.message || '加载失败',
+        icon: 'none',
+        duration: 3000
       });
     }
+  },
+
+  // 判断是否为开发模式
+  isDevelopmentMode() {
+    // 禁用开发模式，使用真实数据
+    return false;
+  },
+
+  // 获取模拟订单数据
+  getMockOrderData() {
+    return [
+      {
+        id: 1,
+        orderNumber: 'PO202501001',
+        productName: '智能节电设备',
+        productDesc: '工业级智能节电控制器',
+        amount: 156000,
+        status: 'pending',
+        capacity: '500KW',
+        servicePeriod: '3年',
+        createTime: '2025-01-15 10:30:00',
+        assignedEmployee: {
+          name: '张工程师',
+          phone: '13800138001',
+          avatar: '/assets/images/default-avatar.png'
+        }
+      },
+      {
+        id: 2,
+        orderNumber: 'PO202501002', 
+        productName: '节能监控系统',
+        productDesc: '智能用电监控分析系统',
+        amount: 89000,
+        status: 'confirmed',
+        capacity: '1000KW',
+        servicePeriod: '5年',
+        createTime: '2025-01-14 14:20:00',
+        assignedEmployee: {
+          name: '李经理',
+          phone: '13800138002',
+          avatar: '/assets/images/default-avatar.png'
+        }
+      },
+      {
+        id: 3,
+        orderNumber: 'PO202501003',
+        productName: '电力优化方案',
+        productDesc: '企业电力系统整体优化',
+        amount: 230000,
+        status: 'active',
+        capacity: '2000KW',
+        servicePeriod: '10年',
+        createTime: '2025-01-13 09:15:00',
+        assignedEmployee: {
+          name: '王技师',
+          phone: '13800138003',
+          avatar: '/assets/images/default-avatar.png'
+        }
+      },
+      {
+        id: 4,
+        orderNumber: 'PO202501004',
+        productName: '节电改造服务',
+        productDesc: '厂房照明系统节电改造',
+        amount: 45000,
+        status: 'completed',
+        capacity: '200KW',
+        servicePeriod: '2年',
+        createTime: '2025-01-12 16:45:00'
+      },
+      {
+        id: 5,
+        orderNumber: 'PO202501005',
+        productName: '能耗分析报告',
+        productDesc: '详细的能耗分析与优化建议',
+        amount: 8000,
+        status: 'cancelled',
+        capacity: '100KW',
+        servicePeriod: '1年',
+        createTime: '2025-01-11 11:30:00'
+      }
+    ];
   },
 
   // 加载订单统计
   async loadOrderStats() {
     try {
-      const response = await orderAPI.getOrderStats();
-      console.log('订单统计数据:', response);
+      console.log('📊 开始加载我的订单统计数据');
+      
+      const response = await orderAPI.getMyOrderStats();
+      console.log('✅ 我的订单统计响应:', response);
 
       if (response && response.code === 200 && response.data) {
-        console.log('原始tabList:', this.data.tabList);
-        console.log('统计数据:', response.data);
+        const stats = response.data;
+        const updatedTabList = this.data.tabList.map(tab => ({
+          ...tab,
+          count: stats[tab.key] || 0
+        }));
         
-        const newTabList = this.data.tabList.map(tab => {
-          const count = response.data[tab.key] || 0;
-          console.log(`${tab.key} 状态的订单数:`, count);
-          return { ...tab, count };
-        });
-        
-        console.log('更新后的tabList:', newTabList);
-        this.setData({ 
-          tabList: newTabList 
-        }, () => {
-          console.log('tabList更新完成，当前数据:', this.data.tabList);
-        });
+        console.log('📊 更新标签统计:', updatedTabList);
+        this.setData({ tabList: updatedTabList });
+      } else {
+        throw new Error(response?.message || '获取统计数据失败');
       }
     } catch (error) {
-      console.error('加载订单统计失败:', error);
-      // 设置默认的统计数据
-      const newTabList = this.data.tabList.map(tab => ({
+      console.error('❌ 加载我的订单统计失败:', error);
+      
+      // 设置默认统计值
+      const defaultTabList = this.data.tabList.map(tab => ({
         ...tab,
         count: 0
       }));
       
-      this.setData({ 
-        tabList: newTabList 
-      });
+      this.setData({ tabList: defaultTabList });
     }
   },
 
-  // 切换标签
+  // 获取模拟统计数据
+  getMockStatsData() {
+    return {
+      all: 5,
+      pending: 1,
+      confirmed: 1,
+      contract: 0,
+      active: 1,
+      completed: 1,
+      cancelled: 1
+    };
+  },
+
+  // 格式化订单数据
+  formatOrderData(order) {
+    // 映射后端状态到前端状态
+    const statusMapping = {
+      'completed': 'completed',
+      'activated': 'active', 
+      'negotiating': 'confirmed',
+      'pending': 'pending',
+      'cancelled': 'cancelled'
+    };
+
+    const mappedStatus = statusMapping[order.status] || order.status;
+
+    return {
+      ...order,
+      // 字段名映射
+      orderNumber: order.orderNo || order.orderNumber,
+      createTime: formatDate(order.createdAt || order.createTime),
+      amount: formatMoney(order.amount || 0),
+      status: mappedStatus,
+      statusText: this.data.statusMap[mappedStatus]?.text || order.statusDesc || '未知状态',
+      statusClass: mappedStatus || 'pending',
+      
+      // 员工信息重构
+      assignedEmployee: order.employeeName ? {
+        name: order.employeeName,
+        phone: order.employeePhone,
+        department: order.employeeDepartment,
+        avatar: '/assets/images/default-avatar.png' // 默认头像
+      } : order.assignedEmployee,
+      
+      // 设置操作权限
+      canCancel: ['pending', 'confirmed'].includes(mappedStatus),
+      canPay: mappedStatus === 'confirmed',
+      canViewContract: ['contract', 'active', 'completed'].includes(mappedStatus),
+      canConfirm: mappedStatus === 'active',
+      
+      // 设置进度信息
+      showProgress: ['confirmed', 'contract', 'active', 'completed'].includes(mappedStatus),
+      progressSteps: ['下单', '确认', '签约', '服务中', '完成'],
+      currentStep: this.getProgressStep(mappedStatus),
+      progressPercent: this.getProgressPercent(mappedStatus),
+      
+      // 产品信息处理
+      productName: order.productName || '节电产品',
+      productDesc: order.productDescription || order.productDesc || '高效节能设备',
+      capacity: order.capacity || '待确定',
+      servicePeriod: order.servicePeriod || this.calculateServicePeriod(order.serviceStartDate, order.serviceEndDate),
+      
+      // 其他字段保持不变或设置默认值
+      customerName: order.customerName,
+      customerPhone: order.customerPhone,
+      companyName: order.companyName,
+      remark: order.remark
+    };
+  },
+
+  // 计算服务期限
+  calculateServicePeriod(startDate, endDate) {
+    if (!startDate || !endDate) return '1年';
+    
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffYears = Math.round(diffDays / 365);
+      
+      if (diffYears >= 1) {
+        return `${diffYears}年`;
+      } else {
+        const diffMonths = Math.round(diffDays / 30);
+        return `${diffMonths}个月`;
+      }
+    } catch (error) {
+      console.warn('计算服务期限失败:', error);
+      return '1年';
+    }
+  },
+
+  // 获取进度步骤
+  getProgressStep(status) {
+    const stepMap = {
+      'pending': 0,
+      'confirmed': 1,
+      'contract': 2,
+      'active': 3,
+      'completed': 4
+    };
+    return stepMap[status] || 0;
+  },
+
+  // 获取进度百分比
+  getProgressPercent(status) {
+    const progressMap = {
+      'pending': 20,
+      'confirmed': 40,
+      'contract': 60,
+      'active': 80,
+      'completed': 100
+    };
+    return progressMap[status] || 0;
+  },
+
+  // 刷新订单列表
+  async refreshOrderList() {
+    console.log('🔄 refreshOrderList 被调用');
+    await this.loadOrderList(true);
+  },
+
+  // 加载更多订单
+  async loadMoreOrders() {
+    await this.loadOrderList(false);
+  },
+
+  // 标签切换
   onTabChange(e) {
     const index = e.currentTarget.dataset.index;
-    if (this.data.activeTab !== index) {
-      this.setData({ 
-        activeTab: index,
-        page: 1,
-        orderList: []
-      });
-      this.loadOrderList(true);
-    }
+    if (index === this.data.activeTab) return;
+    
+    this.setData({ activeTab: index });
+    this.refreshOrderList();
   },
 
-  // 搜索订单
-  onSearch() {
-    this.setData({
-      orderList: []
-    }, () => {
-      this.loadOrderList(true);
-    });
+  // 搜索输入
+  onSearchInput(e) {
+    this.setData({ searchKeyword: e.detail.value });
+  },
+
+  // 搜索确认
+  onSearchConfirm() {
+    this.refreshOrderList();
   },
 
   // 清除搜索
   onClearSearch() {
-    this.setData({
-      searchKeyword: '',
-      orderList: []
-    }, () => {
-      this.loadOrderList(true);
-    });
+    this.setData({ searchKeyword: '' });
+    this.refreshOrderList();
   },
 
-  // 显示筛选
+  // 显示筛选弹窗
   showFilterPopup() {
     this.setData({ showFilter: true });
   },
 
-  // 关闭筛选
+  // 关闭筛选弹窗
   closeFilterPopup() {
     this.setData({ showFilter: false });
   },
 
-  // 应用筛选
-  applyFilter(e) {
-    const filterData = e.detail;
+  // 筛选状态改变
+  onFilterStatusChange(e) {
+    const value = e.currentTarget.dataset.value;
     this.setData({
-      filterData,
-      showFilter: false,
-      orderList: []
-    }, () => {
-      this.loadOrderList(true);
+      'filterData.status': value
+    });
+  },
+
+  // 筛选金额改变
+  onFilterAmountChange(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      'filterData.amountRange': value
     });
   },
 
@@ -330,210 +605,212 @@ Page({
   resetFilter() {
     this.setData({
       filterData: {
-        dateRange: '',
+        status: '',
         amountRange: '',
-        productType: ''
-      },
-      orderList: []
-    }, () => {
-      this.loadOrderList(true);
+        dateRange: ''
+      }
     });
   },
 
-  // 刷新订单列表
-  async refreshOrderList() {
-    this.setData({ refreshing: true });
-    try {
-      await Promise.all([
-        this.loadOrderList(true),
-        this.loadOrderStats()
-      ]);
-    } catch (error) {
-      console.error('刷新订单列表失败:', error);
-      wx.showToast({
-        title: '刷新失败',
-        icon: 'none'
-      });
-    } finally {
-      this.setData({ refreshing: false });
-      wx.stopPullDownRefresh();
-    }
+  // 应用筛选
+  applyFilter() {
+    this.closeFilterPopup();
+    this.refreshOrderList();
   },
 
-  // 下拉刷新
-  async onPullDownRefresh() {
-    await this.refreshOrderList();
-  },
-
-  // 上拉加载更多
-  async onReachBottom() {
-    if (!this.data.hasMore || this.data.loadingMore) return;
-    
-    this.setData({
-      page: this.data.page + 1
-    }, () => {
-      this.loadOrderList();
-    });
+  // 阻止事件冒泡
+  stopPropagation() {
+    // 空函数，用于阻止事件冒泡
   },
 
   // 查看订单详情
   viewOrderDetail(e) {
-    const { id } = e.currentTarget.dataset;
+    const order = e.currentTarget.dataset.order;
     wx.navigateTo({
-      url: `/pages/orders/detail/detail?id=${id}`
+      url: `/pages/orders/detail/detail?id=${order.id}`
     });
   },
 
-  // 显示操作菜单
+  // 显示订单操作菜单
   showOrderActions(e) {
-    const { order } = e.currentTarget.dataset;
+    const order = e.currentTarget.dataset.order;
     const actions = this.getOrderActions(order);
     
-    if (actions.length === 0) return;
-    
     this.setData({
-      showActionSheet: true,
+      selectedOrder: order,
       actionSheetActions: actions,
-      selectedOrder: order
+      showActionSheet: true
     });
   },
 
-  // 获取订单可用操作
+  // 关闭操作菜单
+  closeActionSheet() {
+    this.setData({
+      showActionSheet: false,
+      selectedOrder: null,
+      actionSheetActions: []
+    });
+  },
+
+  // 获取订单操作
   getOrderActions(order) {
     const actions = [];
     
-    switch (order.status) {
-      case 'pending':
-        actions.push(
-          { name: '确认订单', color: '#07c160' },
-          { name: '取消订单', color: '#ee0a24' }
-        );
-        break;
-      case 'negotiating':
-        actions.push(
-          { name: '继续洽谈', color: '#1989fa' },
-          { name: '确认订单', color: '#07c160' },
-          { name: '取消订单', color: '#ee0a24' }
-        );
-        break;
-      case 'confirmed':
-        actions.push(
-          { name: '查看合同', color: '#1989fa' },
-          { name: '取消订单', color: '#ee0a24' }
-        );
-        break;
-      case 'active':
-        actions.push(
-          { name: '查看合同', color: '#1989fa' },
-          { name: '查看进度', color: '#07c160' }
-        );
-        break;
-      case 'completed':
-        actions.push(
-          { name: '查看合同', color: '#1989fa' },
-          { name: '评价服务', color: '#07c160' }
-        );
-        break;
+    if (order.canCancel) {
+      actions.push({ action: 'cancel', text: '取消订单' });
     }
+    if (order.canViewContract) {
+      actions.push({ action: 'contract', text: '查看合同' });
+    }
+    if (order.canPay) {
+      actions.push({ action: 'pay', text: '立即支付' });
+    }
+    if (order.canConfirm) {
+      actions.push({ action: 'confirm', text: '确认收货' });
+    }
+    
+    actions.push({ action: 'detail', text: '查看详情' });
     
     return actions;
   },
 
-  // 处理操作菜单选择
+  // 操作选择
   onActionSelect(e) {
-    const { index } = e.detail;
-    const action = this.data.actionSheetActions[index];
+    const action = e.currentTarget.dataset.action;
     const order = this.data.selectedOrder;
     
-    this.setData({ showActionSheet: false });
+    this.closeActionSheet();
     
-    switch (action.name) {
-      case '确认订单':
-        this.confirmOrder(order);
-        break;
-      case '取消订单':
+    switch (action) {
+      case 'cancel':
         this.cancelOrder(order);
         break;
-      case '继续洽谈':
-        this.negotiateOrder(order);
+      case 'pay':
+        this.payOrder(order);
         break;
-      case '查看合同':
+      case 'contract':
         this.viewContract(order);
         break;
-      case '查看进度':
-        this.viewProgress(order);
+      case 'confirm':
+        this.confirmOrder(order);
         break;
-      case '评价服务':
-        this.reviewService(order);
+      case 'detail':
+        this.viewOrderDetail({ currentTarget: { dataset: { order } } });
         break;
-    }
-  },
-
-  // 确认订单
-  async confirmOrder(order) {
-    try {
-      await orderAPI.confirmOrder(order.id);
-      
-      wx.showToast({
-        title: '确认成功',
-        icon: 'success'
-      });
-      
-      this.refreshOrderList();
-    } catch (error) {
-      console.error('确认订单失败:', error);
-      wx.showToast({
-        title: '确认失败',
-        icon: 'none'
-      });
     }
   },
 
   // 取消订单
   async cancelOrder(order) {
     try {
-      await orderAPI.cancelOrder(order.id);
-      
-      wx.showToast({
-        title: '取消成功',
-        icon: 'success'
-      });
-      
-      this.refreshOrderList();
+      const result = await this.showCancelDialog();
+      if (result.confirm) {
+        await orderAPI.cancelOrder(order.id, result.reason);
+        wx.showToast({
+          title: '订单已取消',
+          icon: 'success'
+        });
+        this.refreshOrderList();
+      }
     } catch (error) {
       console.error('取消订单失败:', error);
       wx.showToast({
-        title: '取消失败',
+        title: error.message || '取消失败',
         icon: 'none'
       });
     }
   },
 
-  // 继续洽谈
-  negotiateOrder(order) {
+  // 显示取消对话框
+  showCancelDialog() {
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '取消订单',
+        content: '确定要取消这个订单吗？',
+        success: (res) => {
+          resolve({
+            confirm: res.confirm,
+            reason: res.confirm ? '用户主动取消' : null
+          });
+        }
+      });
+    });
+  },
+
+  // 确认收货
+  async confirmOrder(order) {
+    try {
+      const result = await this.showConfirmDialog();
+      if (result.confirm) {
+        await orderAPI.confirmOrder(order.id);
+        wx.showToast({
+          title: '确认收货成功',
+          icon: 'success'
+        });
+        this.refreshOrderList();
+      }
+    } catch (error) {
+      console.error('确认收货失败:', error);
+      wx.showToast({
+        title: error.message || '确认失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 显示确认对话框
+  showConfirmDialog() {
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '确认收货',
+        content: '确定已收到服务并满意吗？',
+        success: (res) => {
+          resolve({ confirm: res.confirm });
+        }
+      });
+    });
+  },
+
+  // 支付订单
+  payOrder(order) {
     wx.navigateTo({
-      url: `/pages/orders/negotiate/negotiate?id=${order.id}`
+      url: `/pages/payment/index?orderId=${order.id}&amount=${order.amount}`
     });
   },
 
   // 查看合同
   viewContract(order) {
     wx.navigateTo({
-      url: `/pages/orders/contract/contract?id=${order.id}`
+      url: `/pages/contract/detail?orderId=${order.id}`
     });
   },
 
-  // 查看进度
-  viewProgress(order) {
-    wx.navigateTo({
-      url: `/pages/orders/progress/progress?id=${order.id}`
+  // 联系服务
+  onCallService(e) {
+    const phone = e.currentTarget.dataset.phone;
+    if (phone) {
+      wx.makePhoneCall({
+        phoneNumber: phone
+      });
+    }
+  },
+
+  // 去购物
+  onGoShopping() {
+    wx.switchTab({
+      url: '/pages/products/index/index'
     });
   },
 
-  // 评价服务
-  reviewService(order) {
-    wx.navigateTo({
-      url: `/pages/orders/review/review?id=${order.id}`
-    });
+  // 图片加载错误处理
+  onImageError(e) {
+    console.warn('产品图片加载失败:', e);
+    // 可以在这里设置默认图片或者隐藏图片
   },
+
+  // 头像加载错误处理
+  onAvatarError(e) {
+    console.warn('头像加载失败:', e);
+    // 可以在这里设置默认头像或者隐藏头像
+  }
 }); 

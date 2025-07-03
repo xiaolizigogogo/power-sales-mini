@@ -1,7 +1,6 @@
 const app = getApp()
 const auth = require('../../../utils/auth')
-const { checkRoleAccess } = require('../../../utils/auth')
-const { request } = require('../../../utils/api')
+const { productAPI } = require('../../../utils/api')
 
 Page({
   data: {
@@ -13,12 +12,14 @@ Page({
     categories: ['all', 'industrial', 'commercial', 'residential'],
     
     // 产品列表
-    products: [],
+    products: {
+      list: [],
+      total: 0
+    },
     loading: false,
     hasMore: true,
     page: 1,
-    pageSize: 10,
-    compareList: [],
+    pageSize: 10
   },
 
   onLoad(options) {
@@ -40,21 +41,6 @@ Page({
       });
       return;
     }
-
-    // 检查角色权限
-    if (!checkRoleAccess('products')) {
-      wx.showModal({
-        title: '权限不足',
-        content: '您没有权限访问此页面',
-        showCancel: false,
-        success: () => {
-          wx.switchTab({
-            url: '/pages/index/index'
-          });
-        }
-      });
-      return;
-    }
     
     // 页面显示时刷新数据
     this.loadProducts(true);
@@ -65,7 +51,7 @@ Page({
     if (refresh) {
       this.setData({
         page: 1,
-        products: [],
+        'products.list': [],
         hasMore: true
       })
     }
@@ -83,42 +69,76 @@ Page({
         category: categories[activeTab]
       }
 
-      const res = await request('GET', '/api/products', params)
+      console.log('🔍 请求产品列表参数:', params)
+      const res = await productAPI.getProducts(params)
+      console.log('📦 产品列表响应:', res)
       
-      const { list, total } = res.data
-      const hasMore = page * pageSize < total
+      // 处理返回的数据结构
+      let list = [], total = 0;
+      
+      if (res.code === 200 && Array.isArray(res.data)) {
+        list = res.data.map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          basePrice: item.basePrice,
+          imageUrl: item.imageUrl,
+          isNew: item.isNew,
+          isHot: item.isHot
+        }));
+        total = list.length; // 由于后端没有返回总数，暂时用列表长度代替
+      }
+      
+      console.log('🎯 处理后的数据:', { list, total })
+      
+      // 判断是否还有更多数据
+      const hasMore = list.length >= pageSize
       
       this.setData({
-        products: [...this.data.products, ...list],
+        'products.list': refresh ? list : [...(this.data.products.list || []), ...list],
+        'products.total': total,
         page: hasMore ? page + 1 : page,
         hasMore,
         loading: false
       })
+
+      // 如果是刷新且没有数据，显示提示
+      if (refresh && list.length === 0) {
+        wx.showToast({
+          title: '暂无产品数据',
+          icon: 'none'
+        });
+      }
     } catch (error) {
-      console.error('加载产品列表失败:', error)
+      console.error('❌ 加载产品列表失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'
+      });
+      this.setData({ 
+        loading: false
       })
-      this.setData({ loading: false })
     }
   },
 
   // 搜索相关
   onSearchChange(e) {
     this.setData({
-      searchValue: e.detail
+      searchValue: e.detail.value
     })
   },
 
-  onSearch() {
+  onSearch(e) {
     this.loadProducts(true)
   },
 
   // 分类切换
   onTabChange(e) {
+    const index = e.currentTarget.dataset.index
+    if (this.data.activeTab === index) return
+    
     this.setData({
-      activeTab: e.detail.index
+      activeTab: index
     })
     this.loadProducts(true)
   },
@@ -131,60 +151,14 @@ Page({
     })
   },
 
-  // 对比相关
-  toggleCompare(e) {
-    const { id } = e.currentTarget.dataset
-    const { compareList } = this.data
-    
-    if (compareList.includes(id)) {
-      this.setData({
-        compareList: compareList.filter(item => item !== id)
-      })
-    } else {
-      if (compareList.length >= 3) {
-        wx.showToast({
-          title: '最多只能对比3个产品',
-          icon: 'none'
-        })
-        return
-      }
-      this.setData({
-        compareList: [...compareList, id]
-      })
-    }
-  },
-
-  showCompare() {
-    const { compareList } = this.data
-    if (compareList.length < 2) {
-      wx.showToast({
-        title: '请至少选择2个产品进行对比',
-        icon: 'none'
-      })
-      return
-    }
-    
-    wx.navigateTo({
-      url: `/pages/products/compare/compare?ids=${compareList.join(',')}`,
-    })
-  },
-
   onPullDownRefresh() {
-    this.loadProducts(true)
-    wx.stopPullDownRefresh()
+    this.loadProducts(true).then(() => {
+      wx.stopPullDownRefresh();
+    });
   },
 
   onReachBottom() {
     this.loadProducts()
-  },
-
-  // 刷新产品列表
-  refreshProducts() {
-    this.setData({
-      page: 1,
-      hasMore: true
-    })
-    this.loadProducts(true)
   },
 
   // 跳转到电费计算器

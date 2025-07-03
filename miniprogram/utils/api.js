@@ -382,8 +382,14 @@ const orderAPI = {
   },
 
   // 获取订单统计（简短路径）
-  getOrderStats: () => {
-    return apiService.get('/orders/stats')
+  getOrderStats: (userId) => {
+    const params = userId ? { userId } : {};
+    return apiService.get('/orders/stats', params)
+  },
+
+  // 获取我的订单统计
+  getMyOrderStats: () => {
+    return apiService.get('/orders/my/stats')
   }
 }
 

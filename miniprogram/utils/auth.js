@@ -3,13 +3,13 @@ const { showToast, navigateTo, switchTab } = require('./common')
 
 // 角色常量定义
 const ROLES = {
-  CUSTOMER: 'CUSTOMER',
-  CUSTOMER_MANAGER: 'CUSTOMER_MANAGER', 
-  SALES_MANAGER: 'SALES_MANAGER',
-  SALES_DIRECTOR: 'SALES_DIRECTOR',
-  CUSTOMER_SERVICE: 'CUSTOMER_SERVICE',
-  FINANCE: 'FINANCE',
-  ADMIN: 'ADMIN'
+  CUSTOMER: 'customer',
+  CUSTOMER_MANAGER: 'manager',
+  SALES_MANAGER: 'sales_manager',
+  SALES_DIRECTOR: 'sales_director',
+  CUSTOMER_SERVICE: 'customer_service',
+  FINANCE: 'finance',
+  ADMIN: 'admin'
 }
 
 // 权限常量定义
@@ -43,6 +43,14 @@ const PERMISSIONS = {
   // 合同管理权限
   CONTRACT_VIEW: 'contract:view',
   CONTRACT_SIGN: 'contract:sign'
+}
+
+// 页面类型权限映射
+const PAGE_ACCESS = {
+  'products': [ROLES.CUSTOMER, ROLES.CUSTOMER_MANAGER, ROLES.SALES_MANAGER],
+  'orders': [ROLES.CUSTOMER, ROLES.CUSTOMER_MANAGER, ROLES.SALES_MANAGER],
+  'customers': [ROLES.CUSTOMER_MANAGER, ROLES.SALES_MANAGER],
+  'performance': [ROLES.CUSTOMER_MANAGER, ROLES.SALES_MANAGER]
 }
 
 // 角色权限映射
@@ -421,43 +429,31 @@ function requireRole(roles, showTip = true) {
   }
 }
 
-// 角色权限路由守卫
-const checkRoleAccess = (pageType) => {
-  // 先检查登录状态
-  if (!isLoggedIn()) {
-    wx.redirectTo({
-      url: '/pages/auth/login/login'
-    });
-    return false;
+// 检查角色访问权限
+function checkRoleAccess(pageType) {
+  const userRole = getUserRole();
+  
+  if (!userRole) {
+    console.warn('用户角色未定义');
+    return true; // 暂时放行，等待角色系统完善
   }
-
-  const role = getUserRole();
-  if (!role) {
-    console.error('用户角色未定义');
-    return true; // 如果已登录但没有角色，暂时允许访问
+  
+  if (!PAGE_ACCESS[pageType]) {
+    console.warn('页面类型未定义权限:', pageType);
+    return true; // 未定义权限的页面默认放行
   }
-
-  const managerPages = ['customers', 'follow', 'performance', 'maintenance'];
-  const customerPages = ['products', 'profile'];
-
-  if (role === USER_ROLES.MANAGER && customerPages.includes(pageType)) {
+  
+  const hasAccess = PAGE_ACCESS[pageType].includes(userRole);
+  
+  if (!hasAccess) {
     wx.showToast({
-      title: '无访问权限',
+      title: '暂无访问权限',
       icon: 'none'
     });
-    return false;
   }
-
-  if (role === USER_ROLES.CUSTOMER && managerPages.includes(pageType)) {
-    wx.showToast({
-      title: '无访问权限',
-      icon: 'none'
-    });
-    return false;
-  }
-
-  return true;
-};
+  
+  return hasAccess;
+}
 
 module.exports = {
   // 常量

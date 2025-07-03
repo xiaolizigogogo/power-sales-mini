@@ -11,7 +11,7 @@ Component({
         selectedIcon: "home"
       },
       {
-        pagePath: "/pages/products/index/index",
+        pagePath: "/pages/products/list/list",
         text: "产品",
         icon: "shop-o",
         selectedIcon: "shop"

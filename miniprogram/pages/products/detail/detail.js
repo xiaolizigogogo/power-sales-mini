@@ -1,5 +1,5 @@
+const { productAPI } = require('../../../utils/api');
 const { checkRoleAccess } = require('../../../utils/auth');
-const { request } = require('../../../utils/api');
 
 Page({
   data: {
@@ -11,47 +11,60 @@ Page({
   },
 
   onLoad(options) {
-    // 检查角色权限
-    if (!checkRoleAccess('products')) {
+    // 放宽角色检查，允许所有已登录用户访问
+    if (!checkRoleAccess(['user', 'admin', 'manager', 'sales'])) {
+      wx.redirectTo({
+        url: '/pages/auth/login/login'
+      });
       return;
     }
 
     const { id } = options;
     if (id) {
-      this.loadProductDetail(id);
+      this.fetchProductDetail(id);
     }
   },
 
-  // 加载产品详情
-  async loadProductDetail(id) {
+  async fetchProductDetail(id) {
     this.setData({ loading: true });
 
     try {
-      const res = await request('GET', `/api/products/${id}`);
+      const res = await productAPI.getProductDetail(id);
+      console.log('产品详情响应:', res);
       
-      // 处理产品数据
-      const product = {
-        ...res.data,
-        images: res.data.images || [res.data.image],
-        tags: [
-          res.data.category,
-          `${res.data.voltage}V`,
-          `${res.data.phase}相`
-        ].filter(Boolean)
-      };
+      if (res.code === 200 && res.data) {
+        // 处理产品数据
+        const product = {
+          ...res.data,
+          features: res.data.features || [],
+          priceTiers: this.formatPriceTiers(res.data.priceTiers || []),
+          instructions: res.data.instructions || [],
+          images: res.data.images || ['/assets/images/default-product.png']
+        };
 
-      this.setData({
-        product,
-        loading: false
-      });
+        this.setData({
+          product,
+          loading: false
+        });
+      } else {
+        throw new Error(res.message || '获取产品详情失败');
+      }
     } catch (error) {
-      console.error('加载产品详情失败:', error);
+      console.error('获取产品详情失败:', error);
       wx.showToast({
-        title: '加载失败，请重试',
+        title: '获取产品详情失败',
         icon: 'none'
       });
       this.setData({ loading: false });
     }
+  },
+
+  formatPriceTiers(tiers) {
+    return tiers.map(tier => ({
+      ...tier,
+      range: `${tier.min}度 - ${tier.max}度`,
+      note: tier.description || '标准价格'
+    }));
   },
 
   // Tab切换
@@ -70,9 +83,9 @@ Page({
 
   // 跳转到计算器
   goToCalculator() {
-    const { id, name, price } = this.data.product;
+    const { product } = this.data;
     wx.navigateTo({
-      url: `/pages/products/calculator/calculator?id=${id}&name=${encodeURIComponent(name)}&price=${price}`
+      url: `/pages/calculator/index/index?productId=${product.id}&basePrice=${product.basePrice}`
     });
   },
 
@@ -82,7 +95,7 @@ Page({
       phoneNumber: '400-123-4567',
       fail() {
         wx.showToast({
-          title: '拨打失败，请稍后重试',
+          title: '请稍后再试',
           icon: 'none'
         });
       }
@@ -91,9 +104,16 @@ Page({
 
   // 创建订单
   createOrder() {
-    const { id } = this.data.product;
+    const { product } = this.data;
+    if (!product) {
+      return wx.showToast({
+        title: '产品信息不完整',
+        icon: 'none'
+      });
+    }
+
     wx.navigateTo({
-      url: `/pages/orders/create/create?productId=${id}`
+      url: `/pages/orders/create/create?productId=${product.id}`
     });
   },
 
@@ -119,7 +139,7 @@ Page({
   previewImage(e) {
     const { current } = e.currentTarget.dataset;
     const { images } = this.data.product;
-
+    
     wx.previewImage({
       current,
       urls: images
@@ -159,7 +179,7 @@ Page({
 
     try {
       // 这里应该调用生成海报接口
-      const res = await request('GET', `/api/products/${this.data.product.id}/poster`);
+      const res = await productAPI.getProductPoster(this.data.product.id);
 
       // 保存图片到相册
       await wx.saveImageToPhotosAlbum({
@@ -229,6 +249,32 @@ Page({
           });
         }
       }
+    });
+  },
+
+  // 切换详情选项卡
+  switchTab(e) {
+    const tab = parseInt(e.currentTarget.dataset.tab);
+    this.setData({
+      activeTab: tab
+    });
+  },
+
+  // 显示规格选择弹窗
+  showSpecPopup() {
+    // TODO: 实现规格选择弹窗
+    wx.showToast({
+      title: '规格选择功能开发中',
+      icon: 'none'
+    });
+  },
+
+  // 显示参数详情弹窗
+  showParamsPopup() {
+    // TODO: 实现参数详情弹窗
+    wx.showToast({
+      title: '参数详情功能开发中',
+      icon: 'none'
     });
   }
 }); 
