@@ -137,20 +137,17 @@
   </view>
 
   <!-- 底部操作栏 -->
-  <view class="action-bar">
-    <view class="left-btns">
-      <view class="icon-btn" bindtap="contactService">
-        <icon type="info" size="24" color="#666"/>
-        <text>客服</text>
-      </view>
-      <view class="icon-btn" bindtap="goToCalculator">
-        <icon type="search" size="24" color="#666"/>
-        <text>计算器</text>
-      </view>
+  <view class="footer-bar">
+    <view class="price-info">
+      <text class="price-label">单价</text>
+      <text class="price-value">¥{{product.unitPrice}}</text>
     </view>
-    <view class="right-btns">
-      <button class="action-btn consult" bindtap="contactService">在线咨询</button>
-      <button class="action-btn buy" bindtap="createOrder">立即购买</button>
+    <view class="action-buttons">
+      <button class="contact-btn" open-type="contact">
+        <van-icon name="service" size="40rpx" />
+        <text>客服咨询</text>
+      </button>
+      <button class="order-btn" bindtap="goToCreateOrder">立即购买</button>
     </view>
   </view>
 </view> 

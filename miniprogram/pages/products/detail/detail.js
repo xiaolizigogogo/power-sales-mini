@@ -233,22 +233,44 @@ Page({
       return;
     }
     
-    // 显示购买选项
-    wx.showModal({
-      title: '购买咨询',
-      content: `您选择的是「${this.data.product.name}」，该产品需要专业评估用电需求。是否联系客服进行详细咨询？`,
-      confirmText: '立即咨询',
-      cancelText: '查看更多',
-      success: (res) => {
-        if (res.confirm) {
-          this.contactService();
-        } else {
-          // 跳转到订单创建页面或产品计算器
-          wx.navigateTo({
-            url: `/pages/products/calculator/calculator?id=${this.data.product.id}`
-          });
-        }
-      }
+    // 直接跳转到订单创建页面
+    this.goToCreateOrder();
+  },
+
+  // 跳转到创建订单页面
+  goToCreateOrder() {
+    const { product } = this.data;
+    if (!product) {
+      wx.showToast({
+        title: '产品信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 构建跳转参数
+    const params = {
+      productId: product.id,
+      productName: encodeURIComponent(product.name),
+      currentPrice: product.basePrice || product.price || '0.65',
+      productType: product.category || 'commercial',
+      voltage: product.voltage || '380',
+      phase: product.phase || '三相'
+    };
+    
+    // 如果有预估用电量，也传递过去
+    if (product.defaultUsage) {
+      params.consumption = product.defaultUsage;
+    }
+    
+    const queryString = Object.keys(params)
+      .map(key => `${key}=${params[key]}`)
+      .join('&');
+    
+    console.log('跳转到订单创建页面，参数:', params);
+    
+    wx.navigateTo({
+      url: `/pages/orders/create/create?${queryString}`
     });
   },
 

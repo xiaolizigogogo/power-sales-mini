@@ -74,6 +74,7 @@ input {
   border-radius: 12rpx;
   font-size: 28rpx;
   font-weight: bold;
+  transition: none;
 }
 
 .login-button:disabled {
@@ -81,13 +82,9 @@ input {
   background-color: #c0c4cc;
 }
 
-.login-button:not(:disabled):active {
-  background-color: #337ECC;
-  transform: scale(0.98);
-}
-
 .button-loading {
   opacity: 0.8;
+  pointer-events: none;
 }
 
 .form-footer {
@@ -133,11 +130,16 @@ input {
   border: none;
   font-size: 32rpx;
   font-weight: 500;
+  transition: none;
+}
+
+.button-wechat:disabled {
+  opacity: 0.6;
+  background: #c0c4cc;
 }
 
 .wechat-icon {
-  width: 40rpx;
-  height: 40rpx;
+  font-size: 32rpx;
   margin-right: 12rpx;
 }
 

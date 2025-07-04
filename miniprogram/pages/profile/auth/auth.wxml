@@ -1,0 +1,261 @@
+<!--pages/profile/auth/auth.wxml-->
+<view class="container">
+  <!-- 导航栏 -->
+  <view class="navbar">
+    <view class="navbar-title">身份认证</view>
+    <view class="navbar-subtitle">{{authStatus === 'pending' ? '查看认证状态' : '完善认证信息'}}</view>
+  </view>
+
+  <!-- 步骤指示器 -->
+  <view class="step-indicator">
+    <view class="step-item {{currentStep >= 1 ? 'active' : ''}}">
+      <view class="step-number">1</view>
+      <text class="step-text">基本信息</text>
+    </view>
+    <view class="step-line {{currentStep >= 2 ? 'active' : ''}}"></view>
+    <view class="step-item {{currentStep >= 2 ? 'active' : ''}}">
+      <view class="step-number">2</view>
+      <text class="step-text">身份认证</text>
+    </view>
+  </view>
+
+  <!-- 第一步：基本信息 -->
+  <view class="step-content" wx:if="{{currentStep === 1}}">
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-icon">👤</text>
+        <text class="title-text">个人信息</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">真实姓名 <text class="required">*</text></text>
+        <input class="input" 
+               placeholder="请输入真实姓名" 
+               value="{{basicInfo.realName}}"
+               data-field="realName"
+               bindinput="onBasicInfoInput" />
+      </view>
+      
+      <view class="form-item">
+        <text class="label">联系方式 <text class="required">*</text></text>
+        <input class="input" 
+               type="number"
+               placeholder="请输入手机号码" 
+               value="{{basicInfo.phone}}"
+               data-field="phone"
+               bindinput="onBasicInfoInput" />
+      </view>
+      
+      <view class="form-item">
+        <text class="label">职位信息</text>
+        <input class="input" 
+               placeholder="请输入您的职位" 
+               value="{{basicInfo.position}}"
+               data-field="position"
+               bindinput="onBasicInfoInput" />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-icon">🏢</text>
+        <text class="title-text">企业信息</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">企业名称 <text class="required">*</text></text>
+        <view class="input-wrapper">
+          <input class="input" 
+                 placeholder="请输入或选择企业名称" 
+                 value="{{basicInfo.companyName}}"
+                 data-field="companyName"
+                 bindinput="onBasicInfoInput" />
+          
+          <!-- 企业名称建议列表 -->
+          <view class="suggestions" wx:if="{{showCompanySuggestions && companySuggestions.length > 0}}">
+            <view class="suggestion-item" 
+                  wx:for="{{companySuggestions}}" 
+                  wx:key="index"
+                  data-company="{{item}}"
+                  bindtap="selectCompany">
+              {{item}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <text class="title-icon">⚡</text>
+        <text class="title-text">用电信息</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">用电容量</text>
+        <view class="input-with-unit">
+          <input class="input" 
+                 type="digit"
+                 placeholder="请输入用电容量" 
+                 value="{{basicInfo.powerCapacity}}"
+                 data-field="powerCapacity"
+                 bindinput="onBasicInfoInput" />
+          <text class="unit">kVA</text>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">月度用电量</text>
+        <view class="input-with-unit">
+          <input class="input" 
+                 type="digit"
+                 placeholder="请输入月度用电量" 
+                 value="{{basicInfo.monthlyUsage}}"
+                 data-field="monthlyUsage"
+                 bindinput="onBasicInfoInput" />
+          <text class="unit">kWh</text>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">当前电价</text>
+        <view class="input-with-unit">
+          <input class="input" 
+                 type="digit"
+                 placeholder="请输入当前电价" 
+                 value="{{basicInfo.currentPrice}}"
+                 data-field="currentPrice"
+                 bindinput="onBasicInfoInput" />
+          <text class="unit">元/kWh</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 下一步按钮 -->
+    <view class="button-group">
+      <button class="btn-primary" bindtap="nextStep">下一步</button>
+    </view>
+  </view>
+
+  <!-- 第二步：身份认证 -->
+  <view class="step-content" wx:if="{{currentStep === 2}}">
+    <view class="auth-section">
+      <view class="section-title">
+        <text class="title-icon">📄</text>
+        <text class="title-text">企业认证</text>
+      </view>
+      
+      <!-- 营业执照上传 -->
+      <view class="upload-item">
+        <view class="upload-header">
+          <text class="upload-title">营业执照 <text class="required">*</text></text>
+          <text class="upload-tip">支持OCR自动识别</text>
+        </view>
+        
+        <view class="upload-area" data-type="businessLicense" bindtap="uploadFile" wx:if="{{!authFiles.businessLicense}}">
+          <text class="upload-icon">📷</text>
+          <text class="upload-text">点击上传营业执照</text>
+        </view>
+        
+        <view class="uploaded-image" wx:if="{{authFiles.businessLicense}}">
+          <image src="{{authFiles.businessLicense}}" 
+                 mode="aspectFit" 
+                 data-url="{{authFiles.businessLicense}}"
+                 bindtap="previewImage" />
+          <view class="image-actions">
+            <text class="action-btn" data-type="businessLicense" bindtap="deleteImage">删除</text>
+            <text class="action-btn" data-type="businessLicense" bindtap="uploadFile">重新上传</text>
+          </view>
+        </view>
+        
+        <!-- OCR识别结果 -->
+        <view class="ocr-result" wx:if="{{ocrResults.businessLicense}}">
+          <text class="ocr-title">识别结果：</text>
+          <text class="ocr-text">{{ocrResults.businessLicense.companyName}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="auth-section">
+      <view class="section-title">
+        <text class="title-icon">🆔</text>
+        <text class="title-text">身份认证</text>
+      </view>
+      
+      <!-- 身份证正面上传 -->
+      <view class="upload-item">
+        <view class="upload-header">
+          <text class="upload-title">身份证正面 <text class="required">*</text></text>
+          <text class="upload-tip">请确保信息清晰可见</text>
+        </view>
+        
+        <view class="upload-area" data-type="idCardFront" bindtap="uploadFile" wx:if="{{!authFiles.idCardFront}}">
+          <text class="upload-icon">📷</text>
+          <text class="upload-text">点击上传身份证正面</text>
+        </view>
+        
+        <view class="uploaded-image" wx:if="{{authFiles.idCardFront}}">
+          <image src="{{authFiles.idCardFront}}" 
+                 mode="aspectFit" 
+                 data-url="{{authFiles.idCardFront}}"
+                 bindtap="previewImage" />
+          <view class="image-actions">
+            <text class="action-btn" data-type="idCardFront" bindtap="deleteImage">删除</text>
+            <text class="action-btn" data-type="idCardFront" bindtap="uploadFile">重新上传</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 身份证反面上传 -->
+      <view class="upload-item">
+        <view class="upload-header">
+          <text class="upload-title">身份证反面 <text class="required">*</text></text>
+          <text class="upload-tip">请确保信息清晰可见</text>
+        </view>
+        
+        <view class="upload-area" data-type="idCardBack" bindtap="uploadFile" wx:if="{{!authFiles.idCardBack}}">
+          <text class="upload-icon">📷</text>
+          <text class="upload-text">点击上传身份证反面</text>
+        </view>
+        
+        <view class="uploaded-image" wx:if="{{authFiles.idCardBack}}">
+          <image src="{{authFiles.idCardBack}}" 
+                 mode="aspectFit" 
+                 data-url="{{authFiles.idCardBack}}"
+                 bindtap="previewImage" />
+          <view class="image-actions">
+            <text class="action-btn" data-type="idCardBack" bindtap="deleteImage">删除</text>
+            <text class="action-btn" data-type="idCardBack" bindtap="uploadFile">重新上传</text>
+          </view>
+        </view>
+        
+        <!-- OCR识别结果 -->
+        <view class="ocr-result" wx:if="{{ocrResults.idCard}}">
+          <text class="ocr-title">识别结果：</text>
+          <text class="ocr-text">{{ocrResults.idCard.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="button-group">
+      <button class="btn-secondary" bindtap="prevStep">上一步</button>
+      <button class="btn-primary {{submitting ? 'loading' : ''}}" 
+              bindtap="submitAuth" 
+              disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交认证'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 认证须知 -->
+  <view class="notice-section">
+    <view class="notice-title">认证须知</view>
+    <view class="notice-list">
+      <text class="notice-item">• 请确保上传的证件信息清晰、完整</text>
+      <text class="notice-item">• 审核时间为1-3个工作日</text>
+      <text class="notice-item">• 认证通过后可享受更多服务权益</text>
+      <text class="notice-item">• 如有疑问请联系客服</text>
+    </view>
+  </view>
+</view> 

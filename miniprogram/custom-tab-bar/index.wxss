@@ -31,4 +31,25 @@
 .tab-bar-text {
   font-size: 10px;
   margin-top: 3px;
+}
+
+.van-tabbar {
+  box-shadow: 0 -2rpx 4rpx rgba(0, 0, 0, 0.05);
+}
+
+.van-tabbar-item {
+  color: #646566 !important;
+}
+
+.van-tabbar-item--active {
+  color: #1989fa !important;
+}
+
+.van-tabbar-item__icon {
+  margin-bottom: 4rpx !important;
+}
+
+.van-tabbar-item__text {
+  font-size: 24rpx !important;
+  line-height: 1.2 !important;
 } 

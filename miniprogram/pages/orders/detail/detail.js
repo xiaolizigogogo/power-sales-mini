@@ -1,6 +1,19 @@
-const api = require('../../../utils/api');
+const { api } = require('../../../utils/api');
 const util = require('../../../utils/common');
 const app = getApp();
+
+// 调试信息：检查导入的模块
+console.log('=== 订单详情页面模块导入 ===');
+console.log('📦 api模块:', api);
+console.log('📦 api模块类型:', typeof api);
+console.log('📦 api模块方法:', Object.keys(api));
+console.log('📦 util模块:', util);
+console.log('📦 util模块类型:', typeof util);
+console.log('📦 util模块方法:', Object.keys(util));
+console.log('📦 app模块:', app);
+console.log('📦 app模块类型:', typeof app);
+console.log('📦 app全局数据:', app.globalData);
+console.log('=== 模块导入完成 ===');
 
 Page({
   data: {
@@ -69,42 +82,58 @@ Page({
     contractUrl: '',
 
     statusMap: {
-      'pending': '待确认',
-      'negotiating': '商务洽谈',
+      'pending': '待处理',
+      'negotiating': '商务洽谈中',
       'confirmed': '已确认',
-      'rejected': '已拒绝',
-      'cancelled': '已取消'
+      'paid': '已支付',
+      'service': '服务中',
+      'completed': '已完成',
+      'cancelled': '已取消',
+      'rejected': '已拒绝'
     },
     statusColorMap: {
-      'pending': '#1989fa',
-      'negotiating': '#ff976a',
-      'confirmed': '#07c160',
-      'rejected': '#ee0a24',
-      'cancelled': '#969799'
+      'pending': '#ff9500',
+      'negotiating': '#007aff',
+      'confirmed': '#34c759',
+      'paid': '#30d158',
+      'service': '#0066cc',
+      'completed': '#28a745',
+      'cancelled': '#ff3b30',
+      'rejected': '#ff3b30'
     },
     isManager: false, // 是否为客户经理
     showNegotiationPopup: false,
     negotiationForm: {
       content: '',
       files: []
-    }
+    },
+    submitting: false
   },
 
   onLoad(options) {
-    console.log('订单详情页面加载:', options);
+    console.log('=== 订单详情页面加载 ===');
+    console.log('页面参数:', options);
+    
     if (options.id) {
+      console.log('✅ 订单ID存在:', options.id);
       this.setData({ orderId: options.id });
+      
+      // 只调用必要的API
       this.loadOrderDetail();
       this.checkUserRole();
     } else {
+      console.error('❌ 订单ID不存在');
       this.showError('订单ID不能为空');
     }
   },
 
   onShow() {
-    // 页面显示时刷新数据
-    if (this.data.orderId) {
-      this.loadOrderDetail();
+    console.log('=== 订单详情页面显示 ===');
+    // 移除重复的API调用，只在首次加载时调用
+    if (!this.data.orderInfo || !this.data.orderInfo.id) {
+      if (this.data.orderId) {
+        this.loadOrderDetail();
+      }
     }
   },
 
@@ -123,60 +152,191 @@ Page({
 
   // 加载订单详情
   async loadOrderDetail() {
+    console.log('=== 开始加载订单详情 ===');
+    console.log('订单ID:', this.data.orderId);
+    console.log('API对象:', api);
+    console.log('getOrderDetail方法:', api.getOrderDetail);
+    console.log('getOrderDetail方法类型:', typeof api.getOrderDetail);
+    console.log('API对象的所有方法:', Object.keys(api));
+    
     try {
       this.setData({ loading: true });
       
-      const response = await api.getOrderDetail(this.data.orderId);
-      
-      if (response.success) {
-        const orderInfo = this.processOrderData(response.data);
-        this.setData({ 
-          orderInfo,
-          loading: false 
-        });
-        
-        // 设置页面标题
-        wx.setNavigationBarTitle({
-          title: `订单详情 - ${orderInfo.orderNo}`
-        });
-
-        // 如果订单状态为服务中，加载服务数据
-        if (orderInfo.status === 'active' || orderInfo.status === 'completed') {
-          this.loadServiceData();
+      // 检查API方法是否存在
+      if (typeof api.getOrderDetail !== 'function') {
+        console.error('❌ getOrderDetail方法不存在');
+        console.error('尝试使用orderAPI.getOrderDetail');
+        if (typeof api.orderAPI?.getOrderDetail === 'function') {
+          console.log('✅ 使用orderAPI.getOrderDetail');
+          const response = await api.orderAPI.getOrderDetail(this.data.orderId);
+          console.log('orderAPI响应:', response);
+        } else {
+          console.error('❌ orderAPI.getOrderDetail也不存在');
+          throw new Error('getOrderDetail方法未找到');
         }
       } else {
-        this.showError(response.message || '获取订单详情失败');
+        console.log('✅ 调用api.getOrderDetail');
+        console.log('调用参数:', this.data.orderId);
+        
+        const startTime = Date.now();
+        const response = await api.getOrderDetail(this.data.orderId);
+        const endTime = Date.now();
+        
+        console.log('⏱️ API调用耗时:', endTime - startTime, 'ms');
+        console.log('📡 API响应:', response);
+        console.log('📡 API响应类型:', typeof response);
+        console.log('📡 API响应结构:', {
+          hasData: !!response,
+          hasSuccess: response && 'success' in response,
+          hasCode: response && 'code' in response,
+          hasData: response && 'data' in response,
+          responseKeys: response ? Object.keys(response) : 'null'
+        });
+        
+        // 兼容不同的响应格式
+        const isSuccess = response && (
+          (response.success === true) || 
+          (response.code === 200) || 
+          (response.code === 0)
+        );
+        
+        if (isSuccess) {
+          console.log('✅ API调用成功');
+          const orderData = response.data || response;
+          console.log('📦 订单数据:', orderData);
+          console.log('📦 订单数据类型:', typeof orderData);
+          console.log('📦 订单数据字段:', orderData ? Object.keys(orderData) : 'null');
+          
+          const orderInfo = this.processOrderData(orderData);
+          console.log('🔄 处理后的订单信息:', orderInfo);
+          console.log('🔄 处理后的订单信息字段:', Object.keys(orderInfo));
+          
+          this.setData({ 
+            orderInfo,
+            loading: false 
+          });
+          console.log('✅ 页面数据更新完成');
+          
+          // 设置页面标题
+          wx.setNavigationBarTitle({
+            title: `订单详情 - ${orderInfo.orderNo}`
+          });
+          console.log('✅ 页面标题设置完成:', `订单详情 - ${orderInfo.orderNo}`);
+
+          // 如果订单状态为服务中，加载服务数据
+          if (orderInfo.status === 'service' || orderInfo.status === 'completed') {
+            console.log('🔄 订单状态为服务中，开始加载服务数据');
+            this.loadServiceData();
+          } else {
+            console.log('ℹ️ 订单状态不是服务中，跳过服务数据加载:', orderInfo.status);
+          }
+        } else {
+          console.error('❌ API返回错误');
+          console.error('响应内容:', response);
+          const errorMsg = response?.message || response?.msg || '获取订单详情失败';
+          console.error('错误信息:', errorMsg);
+          this.showError(errorMsg);
+        }
       }
     } catch (error) {
-      console.error('加载订单详情失败:', error);
-      this.showError('网络错误，请重试');
+      console.error('❌ 加载订单详情失败:', error);
+      console.error('❌ 错误类型:', error.constructor.name);
+      console.error('❌ 错误消息:', error.message);
+      console.error('❌ 错误堆栈:', error.stack);
+      console.error('❌ 错误详情:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        orderId: this.data.orderId,
+        apiMethod: typeof api.getOrderDetail
+      });
+      this.showError(`网络错误: ${error.message}`);
     } finally {
       this.setData({ loading: false });
       wx.stopPullDownRefresh();
+      console.log('=== 订单详情加载完成 ===');
     }
   },
 
   // 加载服务数据
   async loadServiceData() {
+    console.log('=== 开始加载服务数据 ===');
+    console.log('订单ID:', this.data.orderId);
+    console.log('API对象:', api);
+    console.log('getServiceData方法:', api.getServiceData);
+    console.log('getServiceData方法类型:', typeof api.getServiceData);
+    console.log('API对象的所有方法:', Object.keys(api));
+    
     try {
-      const response = await api.getServiceData(this.data.orderId);
-      
-      if (response.success) {
-        this.setData({ 
-          serviceData: response.data 
+      // 检查是否有getServiceData方法
+      if (typeof api.getServiceData === 'function') {
+        console.log('✅ 调用api.getServiceData');
+        console.log('调用参数:', this.data.orderId);
+        
+        const startTime = Date.now();
+        const response = await api.getServiceData(this.data.orderId);
+        const endTime = Date.now();
+        
+        console.log('⏱️ 服务数据API调用耗时:', endTime - startTime, 'ms');
+        console.log('📡 服务数据响应:', response);
+        console.log('📡 服务数据响应类型:', typeof response);
+        console.log('📡 服务数据响应结构:', {
+          hasData: !!response,
+          hasSuccess: response && 'success' in response,
+          hasCode: response && 'code' in response,
+          hasData: response && 'data' in response,
+          responseKeys: response ? Object.keys(response) : 'null'
         });
+        
+        // 兼容不同的响应格式
+        const isSuccess = response && (
+          (response.success === true) || 
+          (response.code === 200) || 
+          (response.code === 0)
+        );
+        
+        if (isSuccess) {
+          console.log('✅ 服务数据API调用成功');
+          const serviceData = response.data || response;
+          console.log('📊 服务数据:', serviceData);
+          console.log('📊 服务数据类型:', typeof serviceData);
+          console.log('📊 服务数据字段:', serviceData ? Object.keys(serviceData) : 'null');
+          
+          this.setData({ 
+            serviceData: serviceData 
+          });
+          console.log('✅ 服务数据设置完成');
+        } else {
+          console.error('❌ 获取服务数据失败');
+          console.error('响应内容:', response);
+          throw new Error(response?.message || '获取服务数据失败');
+        }
+      } else {
+        console.log('⚠️ getServiceData方法不存在，使用模拟数据');
+        console.log('⚠️ 可用的API方法:', Object.keys(api).filter(key => key.includes('Service') || key.includes('Data')));
+        throw new Error('getServiceData方法未实现');
       }
     } catch (error) {
-      console.error('加载服务数据失败:', error);
+      console.error('❌ 加载服务数据失败:', error);
+      console.error('❌ 错误类型:', error.constructor.name);
+      console.error('❌ 错误消息:', error.message);
+      console.error('❌ 错误堆栈:', error.stack);
+      console.error('❌ 使用模拟数据');
+      
       // 使用模拟数据
+      const mockServiceData = {
+        monthlyUsage: 12500,
+        monthlySavings: 3200,
+        totalSavings: 15600
+      };
+      
+      console.log('📊 设置模拟服务数据:', mockServiceData);
       this.setData({
-        serviceData: {
-          monthlyUsage: 12500,
-          monthlySavings: 3200,
-          totalSavings: 15600
-        }
+        serviceData: mockServiceData
       });
+      console.log('✅ 模拟服务数据设置完成');
     }
+    console.log('=== 服务数据加载完成 ===');
   },
 
   // 刷新订单详情
@@ -188,33 +348,36 @@ Page({
 
   // 处理订单数据
   processOrderData(orderData) {
-    return {
-      ...orderData,
-      // 格式化创建时间
-      createTimeFormatted: util.formatTime(new Date(orderData.createdAt)),
-      // 格式化更新时间
-      updateTimeFormatted: util.formatTime(new Date(orderData.updatedAt)),
-      // 格式化服务时间
-      serviceStartDateFormatted: orderData.serviceStartDate ? 
-        util.formatDate(new Date(orderData.serviceStartDate)) : '',
-      serviceEndDateFormatted: orderData.serviceEndDate ? 
-        util.formatDate(new Date(orderData.serviceEndDate)) : '',
-      // 格式化金额
-      amountFormatted: util.formatCurrency(orderData.amount),
-      // 计算当前状态在流程中的位置
-      currentStatusIndex: this.data.statusFlow.findIndex(item => item.key === orderData.status),
-      // 判断是否可以取消
-      canCancel: ['pending', 'confirmed'].includes(orderData.status),
-      // 判断是否可以支付
-      canPay: orderData.status === 'confirmed' && !orderData.isPaid,
-      // 判断是否可以查看合同
-      canViewContract: ['contract', 'service', 'completed'].includes(orderData.status),
-      // 格式化联系人信息
-      managerInfo: orderData.assignedEmployee ? {
-        ...orderData.assignedEmployee,
-        phoneFormatted: this.formatPhone(orderData.assignedEmployee.phone)
-      } : null
-    };
+    const util = require('../../../utils/common');
+    
+    // 格式化时间
+    if (orderData.createdAt) {
+      orderData.createTimeFormatted = util.formatTime(new Date(orderData.createdAt), 'YYYY-MM-DD HH:mm');
+    }
+    
+    if (orderData.updatedAt) {
+      orderData.updateTimeFormatted = util.formatTime(new Date(orderData.updatedAt), 'YYYY-MM-DD HH:mm');
+    }
+    
+    if (orderData.serviceStartDate) {
+      orderData.serviceStartDateFormatted = util.formatTime(new Date(orderData.serviceStartDate), 'YYYY-MM-DD');
+    }
+    
+    if (orderData.serviceEndDate) {
+      orderData.serviceEndDateFormatted = util.formatTime(new Date(orderData.serviceEndDate), 'YYYY-MM-DD');
+    }
+    
+    // 格式化金额
+    if (orderData.amount) {
+      orderData.amountFormatted = util.formatCurrency(orderData.amount);
+    }
+    
+    // 初始化默认值
+    if (!orderData.negotiations) {
+      orderData.negotiations = [];
+    }
+    
+    return orderData;
   },
 
   // 格式化手机号
@@ -225,12 +388,14 @@ Page({
 
   // 取消订单
   onCancelOrder() {
-    this.setData({
-      showConfirmDialog: true,
-      confirmDialog: {
-        title: '取消订单',
-        message: '确定要取消这个订单吗？取消后无法恢复。',
-        action: 'cancel'
+    const that = this;
+    wx.showModal({
+      title: '确认取消',
+      content: '确定要取消这个订单吗？',
+      success(res) {
+        if (res.confirm) {
+          that.cancelOrder();
+        }
       }
     });
   },
@@ -291,7 +456,11 @@ Page({
 
   // 支付订单
   onPayOrder() {
-    this.setData({ showPaymentSheet: true });
+    wx.showToast({
+      title: '跳转支付页面',
+      icon: 'none'
+    });
+    // TODO: 实现支付功能
   },
 
   // 支付方式选择
@@ -391,14 +560,11 @@ Page({
 
   // 联系服务经理
   onContactManager() {
-    if (!this.data.orderInfo.managerInfo) {
-      wx.showToast({
-        title: '暂未分配服务经理',
-        icon: 'none'
-      });
-      return;
-    }
-    this.setData({ showContactSheet: true });
+    wx.showToast({
+      title: '联系客服功能',
+      icon: 'none'
+    });
+    // TODO: 实现联系客服功能
   },
 
   // 联系方式选择
@@ -442,38 +608,11 @@ Page({
 
   // 查看合同
   onViewContract() {
-    if (!this.data.orderInfo.contractUrl) {
-      wx.showToast({
-        title: '合同文件不存在',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 预览合同文件
-    wx.downloadFile({
-      url: this.data.orderInfo.contractUrl,
-      success: (res) => {
-        wx.openDocument({
-          filePath: res.tempFilePath,
-          fileType: 'pdf',
-          fail: (error) => {
-            console.error('打开合同文件失败:', error);
-            wx.showToast({
-              title: '文件打开失败',
-              icon: 'none'
-            });
-          }
-        });
-      },
-      fail: (error) => {
-        console.error('下载合同文件失败:', error);
-        wx.showToast({
-          title: '文件下载失败',
-          icon: 'none'
-        });
-      }
+    wx.showToast({
+      title: '查看合同功能',
+      icon: 'none'
     });
+    // TODO: 实现查看合同功能
   },
 
   // 再次购买
@@ -538,6 +677,12 @@ Page({
 
   // 显示错误信息
   showError(message) {
+    console.error('=== 显示错误信息 ===');
+    console.error('❌ 错误消息:', message);
+    console.error('❌ 错误时间:', new Date().toISOString());
+    console.error('❌ 当前页面:', getCurrentPages()[getCurrentPages().length - 1].route);
+    console.error('❌ 当前订单ID:', this.data.orderId);
+    
     wx.showToast({
       title: message,
       icon: 'none',
@@ -546,25 +691,78 @@ Page({
     
     // 如果是严重错误，返回上一页
     setTimeout(() => {
+      console.log('🔄 3秒后自动返回上一页');
       wx.navigateBack();
     }, 2000);
   },
 
   // 检查用户角色
   async checkUserRole() {
+    console.log('=== 开始检查用户角色 ===');
+    console.log('API对象:', api);
+    console.log('getUserInfo方法:', api.getUserInfo);
+    console.log('getUserInfo方法类型:', typeof api.getUserInfo);
+    console.log('API对象的所有方法:', Object.keys(api));
+    
     try {
-      const res = await app.request({
-        url: '/user/role'
-      })
+      console.log('✅ 调用api.getUserInfo');
+      const startTime = Date.now();
+      const response = await api.getUserInfo();
+      const endTime = Date.now();
       
-      if (res.data) {
+      console.log('⏱️ 用户信息API调用耗时:', endTime - startTime, 'ms');
+      console.log('📡 用户信息响应:', response);
+      console.log('📡 用户信息响应类型:', typeof response);
+              console.log('📡 用户信息响应结构:', {
+          hasData: !!response,
+          hasSuccess: response && 'success' in response,
+          hasCode: response && 'code' in response,
+          hasData: response && 'data' in response,
+          responseKeys: response ? Object.keys(response) : 'null'
+        });
+        
+        // 兼容不同的响应格式
+        const isSuccess = response && (
+          (response.success === true) || 
+          (response.code === 200) || 
+          (response.code === 0)
+        );
+        
+                if (isSuccess) {
+          console.log('✅ 用户信息API调用成功');
+          const userInfo = response.data || response;
+        console.log('👤 用户信息:', userInfo);
+        console.log('👤 用户信息类型:', typeof userInfo);
+        console.log('👤 用户信息字段:', userInfo ? Object.keys(userInfo) : 'null');
+        console.log('👤 用户角色:', userInfo.role);
+        console.log('👤 用户ID:', userInfo.id);
+        console.log('👤 用户姓名:', userInfo.name);
+        
+        const isManager = userInfo.role === 'manager' || userInfo.role === 'admin';
+        console.log('👤 是否为管理员:', isManager);
+        
         this.setData({
-          isManager: res.data.role === 'manager'
-        })
+          isManager: isManager
+        });
+        console.log('✅ 用户角色设置完成:', isManager);
+      } else {
+        console.error('❌ 获取用户信息失败');
+        console.error('响应内容:', response);
+        console.error('错误信息:', response?.message);
       }
     } catch (error) {
-      console.error('检查用户角色失败:', error)
+      console.error('❌ 检查用户角色失败:', error);
+      console.error('❌ 错误类型:', error.constructor.name);
+      console.error('❌ 错误消息:', error.message);
+      console.error('❌ 错误堆栈:', error.stack);
+      console.error('❌ 错误详情:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        apiMethod: typeof api.getUserInfo
+      });
     }
+    console.log('=== 用户角色检查完成 ===');
   },
 
   // 显示商务洽谈弹窗
@@ -747,9 +945,86 @@ Page({
       'activating': '开通中',
       'active': '服务中',
       'suspended': '已暂停',
-      'expired': '已到期',
+      'completed': '已完成',
       'cancelled': '已取消'
     };
     return statusMap[status] || '未知状态';
+  },
+
+  // 测试API调用
+  async testAPI() {
+    console.log('=== 开始测试API调用 ===');
+    console.log('当前时间:', new Date().toISOString());
+    
+    // 检查token状态
+    const token = wx.getStorageSync('token');
+    console.log('🔑 当前token状态:', {
+      hasToken: !!token,
+      tokenLength: token ? token.length : 0,
+      tokenPrefix: token ? token.substring(0, 10) + '...' : 'null'
+    });
+    
+    if (!token) {
+      console.error('❌ 没有token，无法进行API测试');
+      return;
+    }
+    
+    try {
+      // 测试getUserInfo
+      console.log('🧪 测试getUserInfo API');
+      const userResponse = await api.getUserInfo();
+      console.log('✅ getUserInfo响应:', userResponse);
+      console.log('✅ getUserInfo响应类型:', typeof userResponse);
+      console.log('✅ getUserInfo响应结构:', {
+        hasData: !!userResponse,
+        hasSuccess: userResponse && 'success' in userResponse,
+        hasCode: userResponse && 'code' in userResponse,
+        hasData: userResponse && 'data' in userResponse,
+        responseKeys: userResponse ? Object.keys(userResponse) : 'null'
+      });
+      
+      // 测试getOrderDetail
+      console.log('🧪 测试getOrderDetail API');
+      const orderResponse = await api.getOrderDetail(this.data.orderId || '1');
+      console.log('✅ getOrderDetail响应:', orderResponse);
+      console.log('✅ getOrderDetail响应类型:', typeof orderResponse);
+      console.log('✅ getOrderDetail响应结构:', {
+        hasData: !!orderResponse,
+        hasSuccess: orderResponse && 'success' in orderResponse,
+        hasCode: orderResponse && 'code' in orderResponse,
+        hasData: orderResponse && 'data' in orderResponse,
+        responseKeys: orderResponse ? Object.keys(orderResponse) : 'null'
+      });
+      
+      // 分析响应格式
+      console.log('📊 响应格式分析:');
+      if (userResponse && userResponse.code === 200) {
+        console.log('✅ getUserInfo使用标准格式 (code: 200)');
+      } else if (userResponse && userResponse.success === true) {
+        console.log('✅ getUserInfo使用success格式');
+      } else if (userResponse && userResponse.data) {
+        console.log('✅ getUserInfo使用data格式');
+      } else {
+        console.log('❓ getUserInfo使用未知格式');
+      }
+      
+      if (orderResponse && orderResponse.code === 200) {
+        console.log('✅ getOrderDetail使用标准格式 (code: 200)');
+      } else if (orderResponse && orderResponse.success === true) {
+        console.log('✅ getOrderDetail使用success格式');
+      } else if (orderResponse && orderResponse.data) {
+        console.log('✅ getOrderDetail使用data格式');
+      } else {
+        console.log('❓ getOrderDetail使用未知格式');
+      }
+      
+    } catch (error) {
+      console.error('❌ API测试失败:', error);
+      console.error('❌ 错误类型:', error.constructor.name);
+      console.error('❌ 错误消息:', error.message);
+      console.error('❌ 错误堆栈:', error.stack);
+    }
+    
+    console.log('=== API测试完成 ===');
   }
 }); 

@@ -5,22 +5,24 @@
   <block wx:else>
     <!-- 订单状态 -->
     <view class="status-card">
-      <view class="status-text" style="color: {{ statusColorMap[order.status] }}">
-        {{ statusMap[order.status] }}
+      <view class="status-text" style="color: {{ statusColorMap[orderInfo.status] }}">
+        {{ statusMap[orderInfo.status] || orderInfo.statusDesc }}
       </view>
-      <view class="order-no">订单号：{{ order.orderNo }}</view>
+      <view class="order-no">订单号：{{ orderInfo.orderNo }}</view>
+      <view class="create-time">创建时间：{{ orderInfo.createTimeFormatted }}</view>
     </view>
 
     <!-- 产品信息 -->
     <view class="info-card">
       <view class="card-title">产品信息</view>
       <view class="product-info">
-        <image class="product-image" src="{{ order.product.image }}" mode="aspectFill" />
+        <image class="product-image" src="/images/products/default.png" mode="aspectFill" />
         <view class="product-detail">
-          <view class="product-name">{{ order.product.name }}</view>
+          <view class="product-name">{{ orderInfo.productName }}</view>
+          <view class="product-description">{{ orderInfo.productDescription }}</view>
           <view class="product-price">
-            <text class="price">{{ order.product.price }}</text>
-            <text class="unit">元/kWh</text>
+            <text class="price">¥{{ orderInfo.productPrice }}</text>
+            <text class="unit">/kWh</text>
           </view>
         </view>
       </view>
@@ -30,46 +32,46 @@
     <view class="info-card">
       <view class="card-title">订单信息</view>
       <view class="info-item">
+        <text class="label">订单金额</text>
+        <text class="value highlight">{{ orderInfo.amountFormatted || ('¥' + orderInfo.amount) }}</text>
+      </view>
+      <view class="info-item">
         <text class="label">服务期限</text>
-        <text class="value">{{ order.servicePeriod }}个月</text>
+        <text class="value">{{ orderInfo.servicePeriod }}个月</text>
       </view>
       <view class="info-item">
-        <text class="label">开始时间</text>
-        <text class="value">{{ order.startDate }}</text>
+        <text class="label">服务开始时间</text>
+        <text class="value">{{ orderInfo.serviceStartDateFormatted || orderInfo.serviceStartDate }}</text>
       </view>
       <view class="info-item">
-        <text class="label">预估月用电量</text>
-        <text class="value">{{ order.estimatedUsage }} kWh</text>
+        <text class="label">服务结束时间</text>
+        <text class="value">{{ orderInfo.serviceEndDateFormatted || orderInfo.serviceEndDate }}</text>
+      </view>
+      <view class="info-item" wx:if="{{ orderInfo.serviceAddress }}">
+        <text class="label">服务地址</text>
+        <text class="value">{{ orderInfo.serviceAddress }}</text>
+      </view>
+      <view class="info-item" wx:if="{{ orderInfo.specialRequirements }}">
+        <text class="label">特殊需求</text>
+        <text class="value">{{ orderInfo.specialRequirements }}</text>
+      </view>
+      <view class="info-item" wx:if="{{ orderInfo.remark }}">
+        <text class="label">备注</text>
+        <text class="value">{{ orderInfo.remark }}</text>
       </view>
       <view class="info-item">
-        <text class="label">月均费用</text>
-        <text class="value">{{ order.monthlyFee }} 元</text>
+        <text class="label">更新时间</text>
+        <text class="value">{{ orderInfo.updateTimeFormatted || orderInfo.updatedAt }}</text>
       </view>
-      <view class="info-item">
-        <text class="label">服务期总费用</text>
-        <text class="value highlight">{{ order.totalAmount }} 元</text>
-      </view>
-      <block wx:if="{{ order.specialRequirements }}">
-        <view class="info-item">
-          <text class="label">特殊需求</text>
-          <text class="value">{{ order.specialRequirements }}</text>
-        </view>
-      </block>
-      <block wx:if="{{ order.remarks }}">
-        <view class="info-item">
-          <text class="label">备注</text>
-          <text class="value">{{ order.remarks }}</text>
-        </view>
-      </block>
     </view>
 
     <!-- 商务洽谈记录 -->
-    <view class="info-card" wx:if="{{ order.negotiations.length > 0 }}">
+    <view class="info-card" wx:if="{{ orderInfo.negotiations && orderInfo.negotiations.length > 0 }}">
       <view class="card-title">商务洽谈记录</view>
       <view class="negotiation-list">
         <view 
           class="negotiation-item"
-          wx:for="{{ order.negotiations }}"
+          wx:for="{{ orderInfo.negotiations }}"
           wx:key="id"
         >
           <view class="negotiation-header">
@@ -77,7 +79,7 @@
             <view class="time">{{ item.createTime }}</view>
           </view>
           <view class="negotiation-content">{{ item.content }}</view>
-          <view class="file-list" wx:if="{{ item.files.length > 0 }}">
+          <view class="file-list" wx:if="{{ item.files && item.files.length > 0 }}">
             <view 
               class="file-item"
               wx:for="{{ item.files }}"
@@ -95,56 +97,56 @@
     </view>
 
     <!-- 服务状态 -->
-    <view class="info-card" wx:if="{{ order.status === 'active' || order.status === 'completed' }}">
+    <view class="info-card" wx:if="{{ orderInfo.status === 'active' || orderInfo.status === 'completed' }}">
       <view class="card-title">服务状态</view>
       <view class="service-status">
         <view class="service-item">
           <text class="label">服务状态</text>
-          <text class="value status-active">{{ getServiceStatusText(order.serviceStatus) }}</text>
+          <text class="value status-active">{{ getServiceStatusText(orderInfo.serviceStatus) }}</text>
         </view>
         <view class="service-item">
           <text class="label">开通时间</text>
-          <text class="value">{{ order.activationDate || '待开通' }}</text>
+          <text class="value">{{ orderInfo.activationDate || '待开通' }}</text>
         </view>
         <view class="service-item">
           <text class="label">有效期至</text>
-          <text class="value">{{ order.serviceEndDate }}</text>
+          <text class="value">{{ orderInfo.serviceEndDate }}</text>
         </view>
-        <view class="service-item" wx:if="{{ order.serviceStatus === 'active' }}">
+        <view class="service-item" wx:if="{{ orderInfo.serviceStatus === 'active' }}">
           <text class="label">本月用电量</text>
           <text class="value">{{ serviceData.monthlyUsage || 0 }} kWh</text>
         </view>
-        <view class="service-item" wx:if="{{ order.serviceStatus === 'active' }}">
+        <view class="service-item" wx:if="{{ orderInfo.serviceStatus === 'active' }}">
           <text class="label">本月节省金额</text>
           <text class="value highlight">¥{{ serviceData.monthlySavings || 0 }}</text>
         </view>
-        <view class="service-item" wx:if="{{ order.serviceStatus === 'active' }}">
+        <view class="service-item" wx:if="{{ orderInfo.serviceStatus === 'active' }}">
           <text class="label">累计节省金额</text>
           <text class="value highlight">¥{{ serviceData.totalSavings || 0 }}</text>
         </view>
       </view>
       
       <!-- 服务进度 -->
-      <view class="service-progress" wx:if="{{ order.serviceStatus === 'activating' }}">
+      <view class="service-progress" wx:if="{{ orderInfo.serviceStatus === 'activating' }}">
         <view class="progress-title">开通进度</view>
         <view class="progress-bar">
-          <view class="progress-fill" style="width: {{ order.progressPercent || 0 }}%"></view>
+          <view class="progress-fill" style="width: {{ orderInfo.progressPercent || 0 }}%"></view>
         </view>
-        <view class="progress-text">{{ order.progressText || '准备开通中' }}</view>
+        <view class="progress-text">{{ orderInfo.progressText || '准备开通中' }}</view>
       </view>
     </view>
 
     <!-- 联系信息 -->
-    <view class="info-card">
+    <view class="info-card" wx:if="{{ orderInfo.managerInfo || isManager }}">
       <view class="card-title">联系方式</view>
       <view class="contact-info">
         <block wx:if="{{ isManager }}">
-          <text>客户：{{ order.customerName }}</text>
+          <text>客户：{{ orderInfo.customerName || '客户' }}</text>
         </block>
         <block wx:else>
-          <text>客户经理：{{ order.managerName }}</text>
+          <text>客户经理：{{ orderInfo.managerInfo.name || '暂未分配' }}</text>
         </block>
-        <view class="contact-btn" bind:tap="makePhoneCall">
+        <view class="contact-btn" bind:tap="makePhoneCall" wx:if="{{ !isManager && orderInfo.managerInfo }}">
           <van-icon name="phone" />
           <text>立即联系</text>
         </view>
@@ -154,7 +156,7 @@
     <!-- 底部操作栏 -->
     <view class="bottom-bar">
       <block wx:if="{{ isManager }}">
-        <block wx:if="{{ order.status === 'pending' }}">
+        <block wx:if="{{ orderInfo.status === 'pending' }}">
           <van-button 
             type="info" 
             bind:click="updateOrderStatus" 
@@ -166,7 +168,7 @@
             data-status="rejected"
           >拒绝订单</van-button>
         </block>
-        <block wx:elif="{{ order.status === 'negotiating' }}">
+        <block wx:elif="{{ orderInfo.status === 'negotiating' }}">
           <van-button 
             type="primary" 
             bind:click="showNegotiation"
@@ -179,12 +181,27 @@
         </block>
       </block>
       <block wx:else>
-        <block wx:if="{{ order.status === 'pending' }}">
+        <block wx:if="{{ orderInfo.status === 'pending' }}">
           <van-button 
             type="danger" 
-            bind:click="updateOrderStatus" 
-            data-status="cancelled"
+            bind:click="onCancelOrder"
           >取消订单</van-button>
+        </block>
+        <block wx:elif="{{ orderInfo.status === 'confirmed' && !orderInfo.isPaid }}">
+          <van-button 
+            type="primary" 
+            bind:click="onPayOrder"
+          >立即支付</van-button>
+        </block>
+        <block wx:elif="{{ orderInfo.status === 'service' || orderInfo.status === 'completed' }}">
+          <van-button 
+            type="default" 
+            bind:click="onViewContract"
+          >查看合同</van-button>
+          <van-button 
+            type="primary" 
+            bind:click="onContactManager"
+          >联系客服</van-button>
         </block>
       </block>
     </view>

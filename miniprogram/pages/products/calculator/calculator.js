@@ -1,6 +1,6 @@
 const app = getApp();
 const { checkRoleAccess } = require('../../../utils/auth');
-const { request } = require('../../../utils/api');
+const { apiService } = require('../../../utils/api');
 
 Page({
   data: {
@@ -26,15 +26,18 @@ Page({
     rules: {
       power: [
         { required: true, message: '请输入设备功率' },
-        { custom: (value) => !isNaN(value) && Number(value) > 0, message: '请输入大于0的功率数值' }
+        { pattern: /^\d+(\.\d+)?$/, message: '请输入有效的功率数值' },
+        { validator: (val) => Number(val) > 0, message: '功率必须大于0' }
       ],
       hours: [
         { required: true, message: '请输入每日用电时长' },
-        { custom: (value) => !isNaN(value) && Number(value) >= 0 && Number(value) <= 24, message: '每日用电时长必须在0-24小时之间' }
+        { pattern: /^\d+(\.\d+)?$/, message: '请输入有效的时长数值' },
+        { validator: (val) => Number(val) >= 0 && Number(val) <= 24, message: '每日用电时长必须在0-24小时之间' }
       ],
       days: [
         { required: true, message: '请输入每月用电天数' },
-        { custom: (value) => !isNaN(value) && Number(value) >= 1 && Number(value) <= 31 && Number(value) % 1 === 0, message: '每月用电天数必须是1-31之间的整数' }
+        { pattern: /^\d+$/, message: '请输入整数天数' },
+        { validator: (val) => Number(val) >= 1 && Number(val) <= 31, message: '每月用电天数必须是1-31之间的整数' }
       ],
       monthlyUsage: [
         { required: true, message: '请输入月均用电量' },
@@ -72,6 +75,11 @@ Page({
         peak: 0.8,
         valley: 0.3
       }
+    },
+    formData: {
+      consumption: '',
+      peakHours: '',
+      valleyHours: ''
     }
   },
 
@@ -81,31 +89,48 @@ Page({
       return;
     }
 
-    const { id, name, price } = options;
-    if (id && name && price) {
-      this.setData({
-        product: {
-          id,
-          name,
-          price: parseFloat(price)
-        }
-      });
-    }
-
-    console.log('计算器页面加载，产品ID:', id);
+    console.log('计算器页面加载，参数:', options);
     
-    if (id) {
+    const { productId, productName, currentPrice, consumption } = options;
+    
+    // 设置初始产品信息
+    if (productId && productName && currentPrice) {
+      // 解码URL编码的产品名称
+      const decodedName = decodeURIComponent(productName);
+      
+      const productInfo = {
+        id: productId,
+        name: decodedName,
+        price: currentPrice,
+        image: '/assets/images/product-default.png',
+        voltage: '380',
+        phase: '三相',
+        categoryName: '工商业套餐',
+        priceRange: `¥${currentPrice} - ¥${(parseFloat(currentPrice) * 1.2).toFixed(2)}/度`,
+        minCapacity: '1000度/月',
+        maxCapacity: '50000度/月',
+        suitableDesc: '适用于工商业用户的基础用电套餐',
+        features: ['稳定供电', '价格透明', '服务保障']
+      };
+      
       this.setData({
-        'form.productId': id
+        productInfo,
+        'form.productId': productId,
+        'form.voltage': productInfo.voltage,
+        'form.phase': productInfo.phase,
+        'form.currentPrice': currentPrice,
+        'form.monthlyUsage': consumption || ''
       });
       
-      // 立即设置默认的产品信息，确保页面有内容
-      this.setDefaultProductInfo(id);
+      console.log('设置传入的产品信息:', productInfo);
       
-      // 尝试加载真实的产品信息
-      this.loadProductInfo(id);
+      // 尝试加载更详细的产品信息（可选）
+      if (productId !== 'default') {
+        this.loadProductInfo(productId);
+      }
     } else {
-      // 没有指定产品时，使用默认产品信息
+      console.warn('未传入完整的产品信息');
+      // 使用默认产品信息
       this.setDefaultProductInfo('default');
     }
 
@@ -118,29 +143,19 @@ Page({
   // 设置默认产品信息
   setDefaultProductInfo(id) {
     const defaultProducts = {
-      1: {
-        id: 1,
-        name: '工商业基础用电套餐',
-        price: '0.65',
-        image: '/assets/images/product-1.png',
-        voltage: '380',
-        phase: '三相'
-      },
-      2: {
-        id: 2,
-        name: '工商业优选用电套餐',
-        price: '0.58',
-        image: '/assets/images/product-2.png',
-        voltage: '380',
-        phase: '三相'
-      },
       default: {
         id: 'default',
         name: '电力产品套餐',
         price: '0.60',
         image: '/assets/images/product-default.png',
         voltage: '220',
-        phase: '单相'
+        phase: '单相',
+        categoryName: '基础套餐',
+        priceRange: '¥0.60 - ¥0.72/度',
+        minCapacity: '100度/月',
+        maxCapacity: '10000度/月',
+        suitableDesc: '适用于一般用户的电力套餐',
+        features: ['基础供电', '价格实惠', '简单便捷']
       }
     };
 
@@ -149,37 +164,41 @@ Page({
     this.setData({
       productInfo,
       'form.voltage': productInfo.voltage,
-      'form.phase': productInfo.phase
+      'form.phase': productInfo.phase,
+      'form.currentPrice': productInfo.price
     });
     
     console.log('设置默认产品信息:', productInfo);
   },
 
   // 加载产品信息
-  async loadProductInfo(id) {
-    this.setData({ loading: false }); // 不显示loading，因为已有默认数据
-
+  async loadProductInfo(productId) {
     try {
-      console.log('尝试加载产品信息，ID:', id);
-      const res = await app.request({
-        url: `/products/${id}`
-      });
-
-      console.log('产品信息加载成功:', res);
+      this.setData({ loading: true });
+      
+      // 使用HTTP API替代云函数
+      const res = await apiService.get(`/products/${productId}`, {}, { showError: false });
+      
       if (res && res.data) {
+        const product = res.data;
+        // 格式化价格区间
+        const priceRange = `¥${product.minPrice || product.price} - ¥${product.maxPrice || (parseFloat(product.price) * 1.2).toFixed(2)}/度`;
+        
         this.setData({
-          productInfo: res.data,
-          'form.voltage': res.data.voltage || this.data.form.voltage,
-          'form.phase': res.data.phase || this.data.form.phase,
-          'form.industry': res.data.industry || ''
+          productInfo: {
+            ...this.data.productInfo, // 保留现有信息
+            ...product,
+            priceRange,
+            minCapacity: product.minCapacity ? `${product.minCapacity}度/月` : '暂无限制',
+            maxCapacity: product.maxCapacity ? `${product.maxCapacity}度/月` : '暂无限制'
+          }
         });
-        console.log('真实产品信息设置成功');
+        
+        console.log('成功加载详细产品信息:', product);
       }
-
     } catch (error) {
-      console.error('加载产品信息失败:', error);
-      console.log('保持使用默认产品信息');
-      // 不显示错误提示，保持默认数据
+      console.warn('获取详细产品信息失败，使用基础信息:', error);
+      // 不显示错误提示，保持使用基础信息
     } finally {
       this.setData({ loading: false });
     }
@@ -188,9 +207,7 @@ Page({
   // 加载客户信息
   async loadCustomerInfo(customerId) {
     try {
-      const res = await app.request({
-        url: `/customers/${customerId}`
-      });
+      const res = await apiService.get(`/customers/${customerId}`);
       if (res.data) {
         // 预填充客户用电数据
         this.setData({
@@ -205,14 +222,15 @@ Page({
     }
   },
 
-  // 输入框变化
+  // 输入事件处理
   onInput(e) {
     const { field } = e.currentTarget.dataset;
-    const { value } = e.detail;
+    const value = e.detail;
+    
+    console.log('输入变化:', field, value);
     
     this.setData({
-      [`form.${field}`]: value,
-      result: null
+      [`form.${field}`]: value
     });
   },
 
@@ -229,75 +247,76 @@ Page({
 
   // 表单验证
   validateForm() {
-    const { form, rules } = this.data;
-    let isValid = true;
-    let errorMessage = '';
+    console.log('开始表单验证:', this.data.form);
+    
+    const { form } = this.data;
+    const rules = {
+      power: [
+        { required: true, message: '请输入设备功率' },
+        { pattern: /^\d+(\.\d+)?$/, message: '请输入有效的功率数值' },
+        { validator: (val) => Number(val) > 0, message: '功率必须大于0' }
+      ],
+      hours: [
+        { required: true, message: '请输入每日用电时长' },
+        { pattern: /^\d+(\.\d+)?$/, message: '请输入有效的时长数值' },
+        { validator: (val) => Number(val) >= 0 && Number(val) <= 24, message: '每日用电时长必须在0-24小时之间' }
+      ],
+      days: [
+        { required: true, message: '请输入每月用电天数' },
+        { pattern: /^\d+$/, message: '请输入整数天数' },
+        { validator: (val) => Number(val) >= 1 && Number(val) <= 31, message: '每月用电天数必须是1-31之间的整数' }
+      ]
+    };
 
-    console.log('开始表单验证:', form);
-
+    // 遍历规则进行验证
     for (const field in rules) {
-      const value = form[field];
+      console.log('验证字段', field + ':', form[field]);
+      
       const fieldRules = rules[field];
+      const value = form[field];
 
-      console.log(`验证字段 ${field}:`, value);
-
-      for (const rule of fieldRules) {
+      // 检查每个规则
+      const error = fieldRules.find(rule => {
         // 必填验证
-        if (rule.required && (!value || value.toString().trim() === '')) {
-          isValid = false;
-          errorMessage = rule.message;
-          console.log(`必填验证失败: ${field}`);
-          break;
+        if (rule.required) {
+          if (!value && value !== 0) {
+            console.log('必填验证失败:', field);
+            return true;
+          }
         }
 
-        // 跳过空值的其他验证
-        if (!value || value.toString().trim() === '') continue;
+        // 正则验证
+        if (rule.pattern && value) {
+          if (!rule.pattern.test(value)) {
+            console.log('正则验证失败:', field);
+            return true;
+          }
+        }
 
         // 自定义验证
-        if (rule.custom) {
-          try {
-            if (!rule.custom(value)) {
-              isValid = false;
-              errorMessage = rule.message;
-              console.log(`自定义验证失败: ${field}, 值:`, value);
-              break;
-            }
-          } catch (error) {
-            console.error(`验证出错: ${field}`, error);
-            isValid = false;
-            errorMessage = '数据格式错误';
-            break;
+        if (rule.validator && value) {
+          if (!rule.validator(value)) {
+            console.log('自定义验证失败:', field);
+            return true;
           }
         }
 
-        // 数字类型验证
-        if (rule.type === 'number') {
-          const num = parseFloat(value);
-          if (isNaN(num) || (rule.min !== undefined && num < rule.min)) {
-            isValid = false;
-            errorMessage = rule.message;
-            console.log(`数字验证失败: ${field}, 值:`, value);
-            break;
-          }
-        }
-      }
-
-      if (!isValid) break;
-    }
-
-    if (!isValid) {
-      console.log('表单验证失败:', errorMessage);
-      wx.showToast({
-        title: errorMessage,
-        icon: 'none',
-        duration: 3000
+        return false;
       });
-    } else {
-      console.log('表单验证通过');
+
+      if (error) {
+        console.log('表单验证失败:', error.message);
+        wx.showToast({
+          title: error.message,
+          icon: 'none',
+          duration: 2000
+        });
+        return false;
+      }
     }
 
-    this.setData({ errors: !isValid ? { [Object.keys(rules).find(key => rules[key].some(r => r.required && !value))]: rules[Object.keys(rules).find(key => rules[key].some(r => r.required && !value))].find(r => r.required && !value).message } : {} });
-    return isValid;
+    console.log('表单验证通过');
+    return true;
   },
 
   // 计算电费
@@ -497,44 +516,70 @@ Page({
 
   // 计算电费
   calculate() {
-    const { type, consumption, peakPercent, baseRates, product } = this.data;
-
-    // 验证输入
-    if (!consumption || isNaN(consumption) || consumption <= 0) {
-      wx.showToast({
-        title: '请输入有效的用电量',
-        icon: 'none'
-      });
+    console.log('=== 开始计算电费 ===');
+    console.log('当前表单数据:', this.data.form);
+    
+    // 表单验证
+    if (!this.validateForm()) {
+      console.log('表单验证失败，停止计算');
       return;
     }
 
-    // 获取基准费率
-    const rates = baseRates[type];
-    const monthlyConsumption = parseFloat(consumption);
-    const peakRatio = peakPercent / 100;
-    const valleyRatio = 1 - peakRatio;
+    console.log('表单验证通过，开始计算');
 
-    // 计算当前电费
-    const currentPeakCost = monthlyConsumption * peakRatio * rates.peak;
-    const currentValleyCost = monthlyConsumption * valleyRatio * rates.valley;
-    const currentBill = currentPeakCost + currentValleyCost;
-
-    // 计算新电费（使用产品电价）
-    const newBill = monthlyConsumption * product.price;
-
-    // 计算节省金额
-    const monthlySavings = Math.max(0, currentBill - newBill).toFixed(2);
-    const annualSavings = (monthlySavings * 12).toFixed(2);
-
-    this.setData({
-      showResult: true,
-      results: {
-        currentBill: currentBill.toFixed(2),
-        newBill: newBill.toFixed(2),
-        monthlySavings,
-        annualSavings
-      }
+    const { form, productInfo } = this.data;
+    const { power, hours, days } = form;
+    
+    // 转换为数字类型
+    const powerNum = Number(power);
+    const hoursNum = Number(hours);
+    const daysNum = Number(days);
+    
+    console.log('计算参数:', { 
+      power: powerNum, 
+      hours: hoursNum, 
+      days: daysNum, 
+      productInfo 
     });
+
+    // 计算月用电量（度）= 功率(W) × 小时数 × 天数 / 1000
+    const monthlyUsage = (powerNum * hoursNum * daysNum) / 1000;
+    
+    // 获取电价，如果没有产品信息则使用默认电价
+    const pricePerKWh = productInfo ? Number(productInfo.price) : 0.60;
+    
+    console.log('电价:', pricePerKWh, '元/度');
+    
+    // 计算月电费
+    const monthlyFee = monthlyUsage * pricePerKWh;
+
+    const result = {
+      monthlyUsage: monthlyUsage.toFixed(2),
+      monthlyFee: monthlyFee.toFixed(2),
+      yearlyUsage: (monthlyUsage * 12).toFixed(2),
+      yearlyFee: (monthlyFee * 12).toFixed(2)
+    };
+
+    console.log('计算结果:', result);
+
+    this.setData({ result });
+
+    // 显示计算完成提示
+    wx.showToast({
+      title: '计算完成！',
+      icon: 'success',
+      duration: 1500
+    });
+
+    // 滚动到结果区域
+    setTimeout(() => {
+      wx.pageScrollTo({
+        selector: '.result-card',
+        duration: 300
+      });
+    }, 500);
+    
+    console.log('=== 计算电费完成 ===');
   },
 
   // 重新计算
@@ -548,7 +593,7 @@ Page({
 
   // 创建订单
   createOrder() {
-    const { id } = this.data.product;
+    const { id } = this.data.productInfo;
     wx.navigateTo({
       url: `/pages/orders/create/create?productId=${id}`
     });

@@ -17,11 +17,17 @@ Page({
       wx.reLaunch({
         url: '/pages/index/index'
       });
+      return;
     }
   },
 
   // 处理微信登录
   handleWechatLogin() {
+    // 防止重复点击
+    if (this.data.loading) {
+      return;
+    }
+
     this.setData({ loading: true });
 
     wx.getUserProfile({
@@ -69,17 +75,10 @@ Page({
 
               console.log('微信登录成功，用户信息：', response.userInfo);
 
-              wx.showToast({
-                title: '登录成功',
-                icon: 'success'
+              // 立即跳转，不显示toast避免抖动
+              wx.reLaunch({
+                url: '/pages/index/index'
               });
-
-              // 登录成功后跳转到首页
-              setTimeout(() => {
-                wx.reLaunch({
-                  url: '/pages/index/index'
-                });
-              }, 1500);
 
             } catch (error) {
               console.error('微信登录失败:', error);
@@ -87,6 +86,7 @@ Page({
                 title: error.message || '登录失败',
                 icon: 'none'
               });
+              this.setData({ loading: false });
             }
           },
           fail: (err) => {
@@ -95,6 +95,7 @@ Page({
               title: '获取登录凭证失败',
               icon: 'none'
             });
+            this.setData({ loading: false });
           }
         });
       },
@@ -111,8 +112,6 @@ Page({
             icon: 'none'
           });
         }
-      },
-      complete: () => {
         this.setData({ loading: false });
       }
     });
@@ -134,6 +133,11 @@ Page({
 
   // 提交登录
   async handleLogin() {
+    // 防止重复点击
+    if (this.data.loading) {
+      return;
+    }
+
     if (!this.validateForm()) {
       return;
     }
@@ -167,17 +171,10 @@ Page({
 
       console.log('手机号登录成功，用户信息：', response.userInfo);
       
-      wx.showToast({
-        title: '登录成功',
-        icon: 'success'
+      // 立即跳转，避免抖动
+      wx.reLaunch({
+        url: '/pages/index/index'
       });
-
-      // 登录成功后直接跳转到首页
-      setTimeout(() => {
-        wx.reLaunch({
-          url: '/pages/index/index'
-        });
-      }, 1500);
 
     } catch (error) {
       console.error('登录失败:', error);

@@ -1,11 +1,5 @@
-<view class="tab-bar">
-  <view class="tab-bar-border"></view>
-  <view wx:for="{{list}}" wx:key="index" class="tab-bar-item" data-path="{{item.pagePath}}" data-index="{{index}}" bindtap="switchTab">
-    <van-icon 
-      name="{{selected === index ? item.selectedIcon : item.icon}}" 
-      color="{{selected === index ? selectedColor : color}}"
-      size="22px"
-    />
-    <view class="tab-bar-text" style="color: {{selected === index ? selectedColor : color}}">{{item.text}}</view>
-  </view>
-</view> 
+<van-tabbar active="{{ active }}" bind:change="onChange" active-color="#1989fa" inactive-color="#646566" safe-area-inset-bottom>
+  <van-tabbar-item wx:for="{{ list }}" wx:key="text" icon="{{ item.icon }}">
+    {{ item.text }}
+  </van-tabbar-item>
+</van-tabbar> 

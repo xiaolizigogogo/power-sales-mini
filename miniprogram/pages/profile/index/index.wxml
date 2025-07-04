@@ -13,19 +13,37 @@
   <view class="user-section">
     <view class="user-info" bindtap="onAvatarTap">
       <view class="avatar-wrapper">
-        <image class="avatar" src="{{ userInfo.avatarUrl || '/assets/images/icons/default-avatar.png' }}" mode="aspectFill"/>
+        <block wx:if="{{userInfo.avatarUrl || userInfo.avatar}}">
+          <image class="avatar" src="{{ userInfo.avatarUrl || userInfo.avatar }}" mode="aspectFill"/>
+        </block>
+        <block wx:else>
+          <view class="avatar default-avatar">👤</view>
+        </block>
         <view class="user-level" wx:if="{{userInfo.userLevel}}">{{userInfo.userLevel}}</view>
       </view>
       <view class="info-right">
         <view class="name-row">
-          <text class="name">{{ userInfo.nickName || userInfo.realName || '未登录' }}</text>
-          <view class="edit-profile" catchtap="navigateTo" data-url="/pages/profile/info/info">
+          <text class="name">{{ userInfo.nickName || userInfo.realName || userInfo.name || (isLoggedIn ? '微信用户' : '未登录') }}</text>
+          <view class="edit-profile" catchtap="navigateTo" data-url="/pages/profile/info/info" wx:if="{{isLoggedIn}}">
             <text>编辑资料</text>
             <van-icon name="arrow" />
           </view>
         </view>
+        <!-- 认证状态 -->
+        <view class="auth-status" wx:if="{{isLoggedIn}}">
+          <view class="auth-badge {{userInfo.authStatus === 'verified' ? 'verified' : userInfo.authStatus === 'pending' ? 'pending' : 'unverified'}}" 
+                bindtap="{{userInfo.authStatus !== 'verified' ? 'goToAuth' : ''}}"
+                data-status="{{userInfo.authStatus}}">
+            <text class="auth-icon">{{userInfo.authStatus === 'verified' ? '✓' : userInfo.authStatus === 'pending' ? '⏳' : '!'}}</text>
+            <text class="auth-text">
+              {{userInfo.authStatus === 'verified' ? '已认证' : userInfo.authStatus === 'pending' ? '认证中' : '未认证'}}
+            </text>
+            <text class="auth-action" wx:if="{{userInfo.authStatus !== 'verified'}}">点击{{userInfo.authStatus === 'pending' ? '查看' : '认证'}}</text>
+          </view>
+        </view>
         <view class="company" wx:if="{{ userInfo.companyName }}">{{ userInfo.companyName }}</view>
         <view class="phone" wx:if="{{ userInfo.phone }}">{{ userInfo.phone }}</view>
+        <view class="phone" wx:if="{{ userInfo.openId && !userInfo.phone }}">ID: {{ userInfo.openId.substring(0, 10) }}...</view>
       </view>
     </view>
   </view>
@@ -33,19 +51,27 @@
   <!-- 数据概览卡片 -->
   <view class="stats-card">
     <view class="stat-item" bindtap="onStatsTap" data-type="orders">
-      <text class="value">{{ formatNumber(stats.orderCount) }}</text>
+      <text class="value">{{ stats.orderCount || 0 }}</text>
       <text class="label">订单数</text>
     </view>
     <view class="divider"></view>
     <view class="stat-item" bindtap="onStatsTap" data-type="contracts">
-      <text class="value">{{ formatNumber(stats.contractCount) }}</text>
+      <text class="value">{{ stats.contractCount || 0 }}</text>
       <text class="label">合同数</text>
     </view>
     <view class="divider"></view>
     <view class="stat-item" bindtap="onStatsTap" data-type="power-points">
-      <text class="value">{{ formatNumber(stats.powerPoints) }}</text>
+      <text class="value">{{ stats.powerPoints || 0 }}</text>
       <text class="label">用电户号</text>
     </view>
+  </view>
+
+  <!-- 临时调试信息 -->
+  <view style="background: #f0f0f0; padding: 20rpx; margin: 20rpx; border-radius: 10rpx; font-size: 24rpx;" wx:if="{{stats}}">
+    <text>调试信息：</text>
+    <text>orderCount: {{stats.orderCount}}</text>
+    <text>contractCount: {{stats.contractCount}}</text>
+    <text>powerPoints: {{stats.powerPoints}}</text>
   </view>
 
   <!-- 快捷功能区 -->
@@ -53,7 +79,7 @@
     <view class="quick-action-item" wx:for="{{quickActions}}" wx:key="id"
           bindtap="onQuickActionTap" data-id="{{item.id}}">
       <view class="icon-wrapper" style="background-color: {{item.color}}">
-        <image class="icon" src="/assets/images/icons/{{item.icon}}.png"/>
+        <text class="icon-text">{{item.icon}}</text>
       </view>
       <text>{{item.title}}</text>
     </view>
@@ -69,21 +95,21 @@
       <view class="power-item">
         <text class="item-label">用电量</text>
         <view class="item-value">
-          <text class="number">{{ formatNumber(powerData.monthlyConsumption) }}</text>
+          <text class="number">{{ powerData.monthlyConsumption || 0 }}</text>
           <text class="unit">度</text>
         </view>
       </view>
       <view class="power-item">
         <text class="item-label">电费</text>
         <view class="item-value">
-          <text class="number">{{ formatAmount(powerData.monthlyBill) }}</text>
+          <text class="number">{{ powerData.monthlyBill || 0 }}</text>
           <text class="unit">元</text>
         </view>
       </view>
       <view class="power-item highlight">
         <text class="item-label">节省</text>
         <view class="item-value">
-          <text class="number">{{ powerData.savingRate }}</text>
+          <text class="number">{{ powerData.savingRate || 0 }}</text>
           <text class="unit">%</text>
         </view>
       </view>
@@ -96,7 +122,7 @@
       <view class="menu-item" wx:for="{{menuItems}}" wx:key="id"
             bindtap="onMenuTap" data-id="{{item.id}}" data-url="{{item.url}}">
         <view class="menu-item-left">
-          <image class="icon" src="/assets/images/icons/{{item.icon}}.png"/>
+          <text class="menu-icon">{{item.icon}}</text>
           <view class="text-wrapper">
             <text class="title">{{item.title}}</text>
             <text class="subtitle" wx:if="{{item.subtitle}}">{{item.subtitle}}</text>
@@ -113,13 +139,13 @@
     <view class="action-button">
       <block wx:if="{{!isLoggedIn}}">
         <button class="login-btn" bindtap="onAuthConfirm">
-          <image class="icon" src="/assets/images/icons/login.png"/>
+          <text class="btn-icon">🔑</text>
           <text>立即登录</text>
         </button>
       </block>
       <block wx:else>
         <button class="logout-btn" bindtap="handleLogout">
-          <image class="icon" src="/assets/images/icons/logout.png"/>
+          <text class="btn-icon">🚪</text>
           <text>退出登录</text>
         </button>
       </block>

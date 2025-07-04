@@ -1,39 +1,36 @@
 Component({
   data: {
-    selected: 0,
+    active: 0,
     color: "#999999",
     selectedColor: "#409EFF",
     list: [
       {
-        pagePath: "/pages/index/index",
-        text: "首页",
-        icon: "home-o",
-        selectedIcon: "home"
+        icon: 'home-o',
+        text: '首页',
+        url: '/pages/index/index'
       },
       {
-        pagePath: "/pages/products/list/list",
-        text: "产品",
-        icon: "shop-o",
-        selectedIcon: "shop"
+        icon: 'shop-o',
+        text: '产品',
+        url: '/pages/products/index/index'
       },
       {
-        pagePath: "/pages/orders/index/index",
-        text: "订单",
-        icon: "orders-o",
-        selectedIcon: "orders"
+        icon: 'orders-o',
+        text: '订单',
+        url: '/pages/orders/index/index'
       },
       {
-        pagePath: "/pages/profile/index/index",
-        text: "我的",
-        icon: "user-o",
-        selectedIcon: "user"
+        icon: 'user-o',
+        text: '我的',
+        url: '/pages/profile/index/index'
       }
     ]
   },
+
   methods: {
-    switchTab(e) {
-      const data = e.currentTarget.dataset;
-      const url = data.path;
+    onChange(event) {
+      const index = event.detail;
+      const url = this.data.list[index].url;
       
       // 检查登录状态
       const app = getApp();
@@ -50,10 +47,30 @@ Component({
         url,
         success: () => {
           this.setData({
-            selected: data.index
+            active: index
           });
         }
       });
+    },
+
+    init() {
+      const page = getCurrentPages().pop();
+      const route = page ? page.route : '';
+      const active = this.data.list.findIndex(item => 
+        item.url.includes(route.split('/').slice(1, 3).join('/'))
+      );
+      
+      this.setData({ active: active !== -1 ? active : 0 });
+    }
+  },
+
+  lifetimes: {
+    attached() {
+      this.init();
+    },
+
+    pageShow() {
+      this.init();
     }
   }
 }) 

@@ -1,0 +1,446 @@
+/* pages/profile/auth/auth.wxss */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  padding-bottom: 140rpx;
+}
+
+/* 导航栏 */
+.navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 60rpx 40rpx 40rpx;
+  color: white;
+  text-align: center;
+}
+
+.navbar-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.navbar-subtitle {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+/* 步骤指示器 */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.step-number {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.step-text {
+  font-size: 24rpx;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-text {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.step-line {
+  width: 80rpx;
+  height: 4rpx;
+  background: #e9ecef;
+  margin: 0 20rpx;
+  transition: all 0.3s ease;
+}
+
+.step-line.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 表单内容 */
+.step-content {
+  padding: 0 20rpx;
+}
+
+.form-section {
+  background: white;
+  margin: 20rpx 0;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f8f9fa;
+}
+
+.title-icon {
+  font-size: 32rpx;
+}
+
+.title-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.required {
+  color: #ff4757;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  height: 88rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
+}
+
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.input-with-unit .input {
+  flex: 1;
+}
+
+.unit {
+  font-size: 26rpx;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* 企业名称建议 */
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2rpx solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 12rpx 12rpx;
+  max-height: 300rpx;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  color: #333;
+  border-bottom: 1rpx solid #f8f9fa;
+  transition: background-color 0.3s ease;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:active {
+  background: #f8f9fa;
+}
+
+/* 认证上传区域 */
+.auth-section {
+  background: white;
+  margin: 20rpx 0;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.upload-item {
+  margin-bottom: 40rpx;
+}
+
+.upload-item:last-child {
+  margin-bottom: 0;
+}
+
+.upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.upload-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.upload-tip {
+  font-size: 22rpx;
+  color: #6c757d;
+}
+
+.upload-area {
+  border: 3rpx dashed #dee2e6;
+  border-radius: 12rpx;
+  padding: 60rpx;
+  text-align: center;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.upload-area:active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.upload-icon {
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.upload-text {
+  font-size: 26rpx;
+  color: #6c757d;
+}
+
+.uploaded-image {
+  position: relative;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.uploaded-image image {
+  width: 100%;
+  height: 400rpx;
+}
+
+.image-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 20rpx;
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
+}
+
+.action-btn {
+  color: white;
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20rpx;
+  transition: all 0.3s ease;
+}
+
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* OCR识别结果 */
+.ocr-result {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  background: #e8f5e8;
+  border-radius: 12rpx;
+  border-left: 4rpx solid #52c41a;
+}
+
+.ocr-title {
+  font-size: 24rpx;
+  color: #52c41a;
+  font-weight: 500;
+}
+
+.ocr-text {
+  font-size: 26rpx;
+  color: #333;
+  margin-left: 8rpx;
+}
+
+/* 按钮组 */
+.button-group {
+  padding: 40rpx 20rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 2rpx solid #667eea;
+}
+
+.btn-secondary:active {
+  background: #f8f9fa;
+}
+
+/* 认证须知 */
+.notice-section {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.notice-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.notice-title::before {
+  content: "ℹ️";
+  font-size: 24rpx;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.notice-item {
+  font-size: 24rpx;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .container {
+    padding-bottom: 160rpx;
+  }
+  
+  .form-section,
+  .auth-section,
+  .notice-section {
+    margin: 15rpx;
+    padding: 20rpx;
+  }
+  
+  .step-indicator {
+    margin: 15rpx;
+    padding: 30rpx;
+  }
+  
+  .button-group {
+    padding: 30rpx 15rpx;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-content {
+  animation: fadeIn 0.3s ease-out;
+} 

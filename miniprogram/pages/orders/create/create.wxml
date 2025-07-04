@@ -3,137 +3,125 @@
   <van-loading wx:if="{{ loading }}" custom-class="page-loading" />
 
   <block wx:else>
-    <!-- 产品信息 -->
-    <view class="product-info">
-      <image class="product-image" src="{{ product.image }}" mode="aspectFill"/>
-      <view class="product-detail">
-        <view class="product-name">{{ product.name }}</view>
-        <view class="product-price">
-          <text class="price-label">电价：</text>
-          <text class="price-value">¥{{ product.price }}/度</text>
+    <form bindsubmit="handleSubmit">
+      <!-- 产品信息 -->
+      <view class="section">
+        <view class="section-title">产品信息</view>
+        <view class="form-item">
+          <text class="label">产品名称</text>
+          <text class="value">{{product.name || '加载中...'}}</text>
+        </view>
+        <view class="form-item">
+          <text class="label">单价</text>
+          <text class="value">¥{{product.unitPrice || product.price || '0.00'}}/度</text>
+        </view>
+        <view class="form-item">
+          <text class="label">电压等级</text>
+          <text class="value">{{product.voltage || '380'}}V {{product.phase || '三相'}}</text>
+        </view>
+        <view class="form-item">
+          <text class="label">预估月用电量</text>
+          <van-field
+            value="{{orderForm.estimatedUsage}}"
+            placeholder="请输入预估月用电量（度）"
+            type="number"
+            border="{{false}}"
+            bind:change="onEstimatedUsageChange"
+          />
         </view>
       </view>
-    </view>
 
-    <!-- 表单区域 -->
-    <view class="form-section">
-      <van-cell-group>
-        <!-- 用电地址 -->
-        <van-field
-          value="{{ form.address }}"
-          required
-          clearable
-          label="用电地址"
-          placeholder="请输入用电地址"
-          bind:change="onInput"
-          data-field="address"
-        />
-
-        <!-- 联系人 -->
-        <van-field
-          value="{{ form.contactName }}"
-          required
-          clearable
-          label="联系人"
-          placeholder="请输入联系人姓名"
-          bind:change="onInput"
-          data-field="contactName"
-        />
-
-        <!-- 联系电话 -->
-        <van-field
-          value="{{ form.contactPhone }}"
-          required
-          clearable
-          type="number"
-          label="联系电话"
-          placeholder="请输入联系电话"
-          bind:change="onInput"
-          data-field="contactPhone"
-        />
-
-        <!-- 用电容量 -->
-        <van-field
-          value="{{ form.capacity }}"
-          required
-          clearable
-          type="digit"
-          label="用电容量"
-          placeholder="请输入用电容量(kW)"
-          bind:change="onInput"
-          data-field="capacity"
-        >
-          <text slot="right-icon">kW</text>
-        </van-field>
-
-        <!-- 电压等级 -->
-        <van-field
-          value="{{ form.voltage }}"
-          required
-          readonly
-          label="电压等级"
-          placeholder="请选择电压等级"
-          bindtap="showVoltagePopup"
-        />
-
-        <!-- 用电类型 -->
-        <van-field
-          value="{{ form.type }}"
-          required
-          readonly
-          label="用电类型"
-          placeholder="请选择用电类型"
-          bindtap="showTypePopup"
-        />
-
-        <!-- 服务期限 -->
-        <van-field
-          value="{{ form.period }}"
-          required
-          readonly
-          label="服务期限"
-          placeholder="请选择服务期限"
-          bindtap="showPeriodPopup"
-        />
-      </van-cell-group>
-
-      <!-- 备注信息 -->
-      <van-field
-        value="{{ form.remark }}"
-        type="textarea"
-        autosize
-        label="备注信息"
-        placeholder="请输入备注信息（选填）"
-        bind:change="onInput"
-        data-field="remark"
-      />
-    </view>
-
-    <!-- 协议确认 -->
-    <view class="agreement-section">
-      <van-checkbox 
-        value="{{ agreed }}" 
-        bind:change="onAgreementChange"
-        icon-size="32rpx"
-        checked-color="#409EFF"
-      >
-        我已阅读并同意
-      </van-checkbox>
-      <text class="agreement-link" bindtap="viewAgreement">《用电服务协议》</text>
-    </view>
-
-    <!-- 底部操作栏 -->
-    <view class="bottom-bar">
-      <view class="price-info">
-        <text class="label">预计每月电费</text>
-        <text class="value">¥{{ estimatedBill }}</text>
+      <!-- 服务信息 -->
+      <view class="section">
+        <view class="section-title">服务信息</view>
+        <view class="form-item">
+          <text class="label">服务地址</text>
+          <van-field
+            value="{{serviceAddress}}"
+            placeholder="请输入服务地址"
+            border="{{false}}"
+            bind:change="onServiceAddressChange"
+          />
+        </view>
+        <view class="form-item" bindtap="showPeriodPopup">
+          <text class="label">服务期限</text>
+          <view class="select-value">
+            <text class="value-text">{{servicePeriod || 12}}个月</text>
+            <van-icon name="arrow" />
+          </view>
+        </view>
+        <view class="form-item" bindtap="showDatePicker">
+          <text class="label">开始日期</text>
+          <view class="select-value">
+            <text class="value-text">{{formattedStartDate || '请选择日期'}}</text>
+            <van-icon name="arrow" />
+          </view>
+        </view>
       </view>
-      <button 
-        class="submit-btn {{ agreed ? 'active' : '' }}" 
-        disabled="{{ !agreed }}"
-        bindtap="submitOrder"
-      >提交订单</button>
-    </view>
+
+      <!-- 特殊要求 -->
+      <view class="section">
+        <view class="section-title">特殊要求</view>
+        <view class="special-requirements">
+          <van-field
+            value="{{specialRequirements}}"
+            type="textarea"
+            placeholder="请输入特殊要求（选填）"
+            autosize
+            border="{{false}}"
+            bind:change="onSpecialRequirementsChange"
+          />
+        </view>
+      </view>
+
+      <!-- 费用信息 -->
+      <view class="section">
+        <view class="section-title">费用信息</view>
+        <view class="form-item">
+          <text class="label">月均费用</text>
+          <text class="value">¥{{orderForm.monthlyFee || '0.00'}}</text>
+        </view>
+        <view class="form-item">
+          <text class="label">总费用</text>
+          <text class="value">¥{{totalAmount}}</text>
+        </view>
+        <view class="form-item">
+          <text class="label">预计节省</text>
+          <text class="value savings">¥{{estimatedSavings}}</text>
+        </view>
+        <view class="form-item">
+          <text class="label">实付金额</text>
+          <text class="value primary">¥{{actualAmount}}</text>
+        </view>
+      </view>
+
+      <!-- 服务条款 -->
+      <view class="section">
+        <view class="section-title">服务条款</view>
+        <view class="agreement-section">
+          <van-checkbox 
+            value="{{ agreedTerms }}" 
+            bind:change="onAgreementChange"
+            icon-size="16px"
+            checked-color="#1989fa"
+          >
+            <text class="agreement-text">
+              我已阅读并同意
+              <text class="agreement-link" bindtap="viewAgreement">《电力销售服务协议》</text>
+              和
+              <text class="agreement-link" bindtap="viewAgreement">《隐私政策》</text>
+            </text>
+          </van-checkbox>
+        </view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="footer">
+        <van-button type="primary" block form-type="submit" loading="{{submitting}}">
+          提交订单
+        </van-button>
+      </view>
+    </form>
 
     <!-- 电压等级选择器 -->
     <van-popup 
@@ -170,6 +158,7 @@
       show="{{ showPeriodPopup }}" 
       position="bottom"
       bind:close="closePeriodPopup"
+      round
     >
       <van-picker
         show-toolbar
@@ -179,5 +168,36 @@
         bind:confirm="onPeriodConfirm"
       />
     </van-popup>
+
+    <!-- 日期选择器 -->
+    <van-popup 
+      show="{{ showDatePicker }}" 
+      position="bottom"
+      bind:close="closeDatePicker"
+      round
+    >
+      <van-datetime-picker
+        type="date"
+        value="{{ serviceStartDate }}"
+        min-date="{{ minDate }}"
+        max-date="{{ maxDate }}"
+        bind:confirm="onDateConfirm"
+        bind:cancel="closeDatePicker"
+        title="选择开始日期"
+      />
+    </van-popup>
+
+    <!-- 确认提交对话框 -->
+    <van-dialog
+      show="{{ showConfirmDialog }}"
+      title="确认提交订单"
+      message="{{ confirmMessage }}"
+      show-cancel-button
+      confirm-button-text="确认提交"
+      cancel-button-text="取消"
+      bind:confirm="confirmSubmit"
+      bind:close="cancelSubmit"
+      confirm-button-color="#1989fa"
+    />
   </block>
 </view> 

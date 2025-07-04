@@ -26,7 +26,7 @@ Page({
 
     try {
       const products = await Promise.all(
-        ids.map(id => request('GET', `/api/products/${id}`))
+        ids.map(id => request('GET', `/products/${id}`))
       );
 
       // 处理产品数据

@@ -1,181 +1,166 @@
 .container {
+  padding: 30rpx;
+  background: #f7f8fa;
   min-height: 100vh;
-  background: #f5f7fa;
-  padding: 20rpx;
 }
 
+/* 产品信息样式 */
 .product-info {
   background: #fff;
-  padding: 30rpx;
   border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.product-header {
   margin-bottom: 20rpx;
 }
 
 .product-name {
   font-size: 32rpx;
   font-weight: bold;
-  color: #333;
-  margin-bottom: 10rpx;
+  color: #323233;
+  margin-bottom: 8rpx;
 }
 
-.product-price {
-  display: flex;
-  align-items: baseline;
-}
-
-.price-label {
+.product-category {
   font-size: 24rpx;
-  color: #999;
+  color: #969799;
 }
 
-.price-value {
-  font-size: 36rpx;
-  color: #ff6b6b;
-  font-weight: bold;
+.price-info, .capacity-info {
+  margin-bottom: 20rpx;
+  padding: 16rpx 0;
+  border-bottom: 1px solid #ebedf0;
 }
 
-.calculator-form {
-  background: #fff;
-  padding: 30rpx;
-  border-radius: 12rpx;
+.price-item, .capacity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.price-item:last-child, .capacity-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #646566;
+}
+
+.value {
+  font-size: 28rpx;
+  color: #323233;
+  font-weight: 500;
+}
+
+.product-desc {
+  font-size: 26rpx;
+  color: #646566;
+  line-height: 1.5;
   margin-bottom: 20rpx;
 }
 
-.form-item {
-  margin-bottom: 30rpx;
+.product-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
 }
 
-.form-item:last-child {
-  margin-bottom: 0;
+.feature-tag {
+  font-size: 24rpx;
+  color: #1989fa;
+  background: rgba(25, 137, 250, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+/* 表单样式 */
+.calculator-form {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.form-item {
+  margin-bottom: 24rpx;
 }
 
 .form-label {
   font-size: 28rpx;
-  color: #333;
-  margin-bottom: 16rpx;
-}
-
-.slider-box {
-  margin-bottom: 20rpx;
-}
-
-.slider-box:last-child {
-  margin-bottom: 0;
-}
-
-.slider-label {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 10rpx;
+  color: #323233;
+  margin-bottom: 8rpx;
 }
 
 .form-actions {
-  margin-top: 40rpx;
+  margin-top: 32rpx;
 }
 
+/* 结果样式 */
 .result-section {
   background: #fff;
   border-radius: 12rpx;
-  overflow: hidden;
+  padding: 24rpx;
 }
 
 .result-title {
   font-size: 32rpx;
   font-weight: bold;
-  color: #333;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #eee;
+  color: #323233;
+  margin-bottom: 24rpx;
 }
 
 .result-card {
-  padding: 30rpx;
-  border-bottom: 1rpx solid #eee;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
   font-size: 28rpx;
-  color: #333;
-}
-
-.compare-text {
-  font-size: 24rpx;
-  color: #999;
+  color: #323233;
+  margin-bottom: 16rpx;
 }
 
 .result-content {
-  background: #f8f9fa;
-  border-radius: 8rpx;
-  padding: 20rpx;
+  padding: 16rpx 0;
 }
 
 .result-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16rpx 0;
-  font-size: 28rpx;
+  margin-bottom: 12rpx;
 }
 
-.item-label {
-  color: #666;
+.result-item:last-child {
+  margin-bottom: 0;
 }
 
-.item-value {
-  color: #333;
-  font-weight: bold;
-}
-
-.result-item.highlight .item-value {
-  color: #409eff;
-}
-
-.result-item.savings {
-  margin-top: 10rpx;
-  padding-top: 20rpx;
-  border-top: 1rpx dashed #eee;
-}
-
-.result-item.savings .item-value {
-  color: #ff6b6b;
-}
-
-.annual-savings {
-  text-align: center;
-  padding: 40rpx 0;
-}
-
-.savings-value {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #ff6b6b;
-}
-
-.savings-label {
-  display: block;
-  font-size: 26rpx;
-  color: #999;
-  margin-top: 10rpx;
-}
-
-.savings-tips {
-  text-align: center;
-  padding: 20rpx 0;
+.tips {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid #ebedf0;
 }
 
 .tip-text {
   font-size: 24rpx;
-  color: #999;
+  color: #969799;
 }
 
 .result-actions {
-  padding: 30rpx;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20rpx;
+  margin-top: 32rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.result-actions .van-button {
+  flex: 1;
 }
 
 .calculator-container {
@@ -218,14 +203,6 @@
 
 .button-group {
   margin: 48rpx 0;
-}
-
-.result-section {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 32rpx;
-  margin-bottom: 32rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
 }
 
 .result-time {

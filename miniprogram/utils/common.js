@@ -77,6 +77,25 @@ function formatDate(date, format = 'YYYY-MM-DD') {
     .replace('ss', second)
 }
 
+// 格式化时间（包含日期和时间）
+function formatTime(date, format = 'YYYY-MM-DD HH:mm:ss') {
+  return formatDate(date, format)
+}
+
+// 格式化货币（金额）
+function formatCurrency(amount, precision = 2, symbol = '¥') {
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return `${symbol}0.00`
+  }
+  
+  const num = parseFloat(amount)
+  const formatted = num.toLocaleString('zh-CN', {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision
+  })
+  return `${symbol}${formatted}`
+}
+
 // 格式化相对时间
 function formatRelativeTime(date) {
   if (!date) return ''
@@ -618,6 +637,8 @@ module.exports = {
   formatMoney,
   formatNumber,
   formatPercent,
+  formatTime,
+  formatCurrency,
   
   // 验证工具
   validatePhone,

@@ -2,6 +2,7 @@
 const config = require('./config')
 const { showToast, showLoading, hideLoading } = require('./common')
 
+
 class ApiService {
   constructor() {
     this.baseURL = config.apiConfig.baseURL
@@ -59,8 +60,11 @@ class ApiService {
         ...options.header
       }
       
-      // 非登录接口才需要token
-      if (!options.url.includes('/auth/') || options.url === '/auth/me') {
+      // 需要认证的接口列表（登录相关接口除外）
+      const noAuthUrls = ['/auth/login', '/auth/wechat-login', '/auth/register', '/auth/send-code', '/auth/verify-code-login']
+      const needAuth = !noAuthUrls.some(url => options.url.includes(url))
+      
+      if (needAuth) {
         if (!token) {
           console.error('请求未携带token:', options.url)
           this.handleAuthError()
@@ -233,11 +237,34 @@ const authAPI = {
   // 获取用户信息
   getUserInfo: async () => {
     console.log('获取用户信息')
-    const response = await apiService.get('/auth/me', {}, {
+    const response = await apiService.get('/user/profile', {}, {
       showError: false
     });
     console.log('获取用户信息响应:', response)
-    return formatUserInfo(response.data);
+    return response;
+  },
+
+  // 获取用户电力信息
+  getPowerInfo: async () => {
+    console.log('获取用户电力信息')
+    try {
+      const response = await apiService.get('/user/power-info', {}, {
+        showError: false
+      });
+      console.log('获取用户电力信息响应:', response)
+      return response;
+    } catch (error) {
+      console.error('获取用户电力信息失败:', error)
+      // 返回默认数据
+      return {
+        code: 200,
+        data: {
+          monthlyConsumption: 0,
+          monthlyBill: 0,
+          savingRate: 0
+        }
+      };
+    }
   },
 
   // 获取用户统计数据
@@ -248,22 +275,19 @@ const authAPI = {
         showError: false
       });
       console.log('获取用户统计数据响应:', response)
-      return response.data || {
-        totalOrders: 0,
-        totalAmount: 0,
-        totalSavings: 0,
-        pendingOrders: 0,
-        completedOrders: 0
-      };
+      return response;
     } catch (error) {
       console.error('获取用户统计数据失败:', error)
       // 返回默认数据
       return {
-        totalOrders: 0,
-        totalAmount: 0,
-        totalSavings: 0,
-        pendingOrders: 0,
-        completedOrders: 0
+        code: 200,
+        data: {
+          totalOrders: 0,
+          totalAmount: 0,
+          totalSavings: 0,
+          pendingOrders: 0,
+          completedOrders: 0
+        }
       };
     }
   },
@@ -291,10 +315,10 @@ const authAPI = {
 
   // 获取当前用户信息
   getCurrentUser: async () => {
-    const response = await apiService.get('/auth/me', {}, {
+    const response = await apiService.get('/user/profile', {}, {
       showError: false
     });
-    return formatUserInfo(response.data);
+    return response;
   },
 
   // 刷新令牌
@@ -306,39 +330,107 @@ const authAPI = {
   },
 
   // 退出登录
-  logout: () => {
-    return apiService.post('/auth/logout');
+  logout: (refreshToken) => {
+    return apiService.post(`/mini/auth/logout?refreshToken=${refreshToken}`);
+  },
+
+  // OCR识别
+  performOCR: async (data) => {
+    console.log('发起OCR识别请求:', data)
+    const response = await apiService.post('/auth/ocr', data);
+    console.log('OCR识别响应:', response)
+    return response;
+  },
+
+  // 提交认证申请
+  submitAuth: async (authData) => {
+    console.log('提交认证申请:', authData)
+    const response = await apiService.post('/mini/auth/submit', authData);
+    console.log('认证申请响应:', response)
+    return response;
+  },
+
+  // 搜索企业名称
+  searchCompanies: async (keyword) => {
+    console.log('搜索企业名称:', keyword)
+    const response = await apiService.get('/mini/auth/companies/search', { keyword });
+    console.log('企业名称搜索响应:', response)
+    return response;
+  },
+
+  // 获取认证状态
+  getAuthStatus: async () => {
+    console.log('获取认证状态')
+    const response = await apiService.get('/mini/auth/status');
+    console.log('认证状态响应:', response)
+    return response;
   }
 }
 
 // 产品相关 API
 const productAPI = {
   // 获取产品列表
-  getProducts: (params) => {
-    return apiService.get('/products', params)
+  getProducts: async (params = {}) => {
+    console.log('获取产品列表:', params)
+    const response = await apiService.get('/products', params);
+    console.log('产品列表响应:', response)
+    return response;
   },
 
   // 获取产品详情
-  getProductDetail: (id) => {
-    return apiService.get(`/products/${id}`)
+  getProductDetail: async (productId) => {
+    console.log('获取产品详情:', productId)
+    const response = await apiService.get(`/products/${productId}`);
+    console.log('产品详情响应:', response)
+    return response;
   },
 
-  // 节电效益计算
-  calculateSavings: (params) => {
-    return apiService.post('/products/calculate', params)
+  // 获取产品价格计算
+  calculatePrice: async (productId, params) => {
+    console.log('计算产品价格:', { productId, params })
+    const response = await apiService.post(`/products/${productId}/calculate`, params);
+    console.log('价格计算响应:', response)
+    return response;
   }
 }
 
-// 订单相关 API
-const orderAPI = {
-  // 获取订单列表
-  getOrders: (params) => {
-    return apiService.get('/orders', params)
+// 用户电力信息相关 API
+const powerAPI = {
+  // 获取用户电力信息
+  getUserPowerInfo: async () => {
+    console.log('获取用户电力信息')
+    const response = await apiService.get('/user/power-info');
+    console.log('用户电力信息响应:', response)
+    return response;
   },
 
-  // 获取我的订单
-  getMyOrders: (params) => {
-    return apiService.get('/orders/my', params)
+  // 获取用户用电统计
+  getPowerStats: async (params = {}) => {
+    console.log('获取用电统计:', params)
+    const response = await apiService.get('/user/power-stats', params);
+    console.log('用电统计响应:', response)
+    return response;
+  }
+}
+
+// 用户相关接口
+const userAPI = {
+  // 获取用户信息
+  getUserInfo: () => {
+    return apiService.get('/user/profile')
+  },
+
+  // 获取用户用电信息
+  getUserPowerInfo: () => {
+    return apiService.get('/user/power-info')
+  }
+}
+
+// 订单相关接口
+const orderAPI = {
+  // 创建订单
+  createOrder: (data) => {
+    return apiService.post('/orders', data)
   },
 
   // 获取订单详情
@@ -346,14 +438,50 @@ const orderAPI = {
     return apiService.get(`/orders/${id}`)
   },
 
-  // 创建订单
-  createOrder: (orderData) => {
-    return apiService.post('/orders', orderData)
+  // 获取订单列表
+  getOrderList: (params) => {
+    return apiService.get('/orders', params)
   },
 
-  // 更新订单
-  updateOrder: (id, orderData) => {
-    return apiService.put(`/orders/${id}`, orderData)
+  // 获取我的订单列表
+  getMyOrders: (params) => {
+    return apiService.get('/orders/my', params)
+  },
+
+  // 获取我的订单统计
+  getMyOrderStats: () => {
+    try {
+      return apiService.get('/user/orders/stats')
+    } catch (error) {
+      console.error('获取订单统计失败:', error)
+      // 返回默认数据
+      return Promise.resolve({
+        code: 200,
+        data: {
+          orderCount: 0,
+          contractCount: 0,
+          powerPoints: 0
+        }
+      });
+    }
+  },
+
+  // 获取订单统计（通用）
+  getOrderStats: () => {
+    try {
+      return apiService.get('/user/orders/stats')
+    } catch (error) {
+      console.error('获取订单统计失败:', error)
+      // 返回默认数据
+      return Promise.resolve({
+        code: 200,
+        data: {
+          orderCount: 0,
+          contractCount: 0,
+          powerPoints: 0
+        }
+      });
+    }
   },
 
   // 取消订单
@@ -361,35 +489,24 @@ const orderAPI = {
     return apiService.post(`/orders/${id}/cancel`, { reason })
   },
 
-  // 确认收货
+  // 确认订单
   confirmOrder: (id) => {
     return apiService.post(`/orders/${id}/confirm`)
   },
 
-  // 申请退款
-  requestRefund: (id, reason, description) => {
-    return apiService.post(`/orders/${id}/refund`, { reason, description })
-  },
-
-  // 订单支付
+  // 支付订单
   payOrder: (id, paymentMethod) => {
     return apiService.post(`/orders/${id}/pay`, { paymentMethod })
   },
 
-  // 获取订单统计
-  getOrderStatistics: () => {
-    return apiService.get('/orders/statistics')
+  // 评价订单
+  reviewOrder: (id, rating, comment) => {
+    return apiService.post(`/orders/${id}/review`, { rating, comment })
   },
 
-  // 获取订单统计（简短路径）
-  getOrderStats: (userId) => {
-    const params = userId ? { userId } : {};
-    return apiService.get('/orders/stats', params)
-  },
-
-  // 获取我的订单统计
-  getMyOrderStats: () => {
-    return apiService.get('/orders/my/stats')
+  // 获取订单服务数据
+  getServiceData: (id) => {
+    return apiService.get(`/orders/${id}/service`)
   }
 }
 
@@ -482,7 +599,112 @@ const formatUserInfo = (userInfo) => {
   return result;
 };
 
+// 模拟数据
+const mockProducts = [
+  {
+    id: 1,
+    name: '工业用电套餐A',
+    description: '适用于小型工业企业',
+    price: 0.65,
+    unit: '元/度',
+    category: '工业用电',
+    features: ['阶梯电价', '峰谷分时', '节能补贴'],
+    minCapacity: 100,
+    maxCapacity: 1000
+  },
+  {
+    id: 2,
+    name: '商业用电套餐B',
+    description: '适用于商场、超市等商业场所',
+    price: 0.75,
+    unit: '元/度',
+    category: '商业用电',
+    features: ['固定电价', '免费能耗分析', '专属客服'],
+    minCapacity: 50,
+    maxCapacity: 500
+  },
+  {
+    id: 3,
+    name: '居民用电套餐C',
+    description: '适用于家庭住宅',
+    price: 0.55,
+    unit: '元/度',
+    category: '居民用电',
+    features: ['阶梯电价', '绿色能源', '智能监控'],
+    minCapacity: 1,
+    maxCapacity: 50
+  },
+  {
+    id: 4,
+    name: '农业用电套餐D',
+    description: '适用于农业生产',
+    price: 0.45,
+    unit: '元/度',
+    category: '农业用电',
+    features: ['政策补贴', '季节性调价', '专业支持'],
+    minCapacity: 10,
+    maxCapacity: 200
+  }
+]
+
+const mockUserInfo = {
+  id: 1,
+  name: '张三',
+  phone: '13800138000',
+  address: '广东省深圳市南山区科技园',
+  customerType: '工业用户',
+  contractStatus: '已签约',
+  powerCapacity: 500
+}
+
+const mockPowerInfo = {
+  currentMonth: {
+    consumption: 12500,
+    amount: 8125,
+    peak: 600,
+    valley: 300
+  },
+  lastMonth: {
+    consumption: 11800,
+    amount: 7670,
+    peak: 580,
+    valley: 280
+  },
+  yearToDate: {
+    consumption: 138000,
+    amount: 89700,
+    average: 11500
+  }
+}
+
+// 开发环境使用模拟数据
+const isDev = false
+
+// 导出API
 module.exports = {
+  api: {
+    ...authAPI,
+    ...productAPI,
+    ...powerAPI,
+    // 用户接口 - 覆盖authAPI中的getUserInfo
+    getUserInfo: isDev ? () => Promise.resolve({ data: mockUserInfo }) : userAPI.getUserInfo,
+    getUserPowerInfo: isDev ? () => Promise.resolve({ data: mockPowerInfo }) : userAPI.getUserPowerInfo,
+    
+    // 订单接口
+    createOrder: isDev ? (data) => Promise.resolve({ data: { ...data, id: Date.now() } }) : orderAPI.createOrder,
+    getOrderDetail: isDev ? (id) => Promise.resolve({ data: { id } }) : orderAPI.getOrderDetail,
+    getOrderList: isDev ? () => Promise.resolve({ data: [] }) : orderAPI.getOrderList,
+    
+    // 添加缺失的订单方法
+    getMyOrders: orderAPI.getMyOrders,
+    getMyOrderStats: orderAPI.getMyOrderStats,
+    getOrderStats: orderAPI.getOrderStats,
+    cancelOrder: orderAPI.cancelOrder,
+    confirmOrder: orderAPI.confirmOrder,
+    payOrder: orderAPI.payOrder,
+    reviewOrder: orderAPI.reviewOrder,
+    getServiceData: orderAPI.getServiceData
+  },
   apiService,
   authAPI,
   productAPI,

@@ -851,6 +851,10 @@
 
 /* 响应式适配 */
 @media (max-width: 375px) {
+  .container {
+    padding-bottom: 160rpx; /* 小屏幕设备增加更多底部间距 */
+  }
+  
   .order-item {
     padding: 24rpx;
   }

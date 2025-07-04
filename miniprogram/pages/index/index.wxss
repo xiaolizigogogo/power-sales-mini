@@ -55,6 +55,7 @@
 .container {
   min-height: 100vh;
   background-color: var(--bg-color);
+  padding-bottom: 140rpx; /* 添加底部padding，避免被tabbar遮挡 */
 }
 
 /* 轮播图 */
@@ -648,4 +649,19 @@
   flex: 1;
   padding: 20rpx;
   text-align: center;
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .container {
+    padding-bottom: 160rpx; /* 小屏幕设备增加更多底部间距 */
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr); /* 小屏幕减少列数 */
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr); /* 小屏幕统计数据改为2列 */
+  }
 } 

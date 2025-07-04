@@ -1,6 +1,7 @@
+/* 订单详情页面样式 */
 .order-detail {
-  min-height: 100vh;
   background-color: #f7f8fa;
+  min-height: 100vh;
   padding-bottom: 120rpx;
 }
 
@@ -9,54 +10,67 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 1000;
 }
 
 /* 状态卡片 */
 .status-card {
-  margin: 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   padding: 40rpx 30rpx;
-  background-color: #fff;
-  border-radius: 12rpx;
-  text-align: center;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.3);
 }
 
 .status-text {
-  font-size: 40rpx;
+  font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 16rpx;
+  margin-bottom: 10rpx;
 }
 
 .order-no {
   font-size: 28rpx;
-  color: #999;
+  opacity: 0.9;
+  margin-bottom: 5rpx;
+}
+
+.create-time {
+  font-size: 24rpx;
+  opacity: 0.8;
 }
 
 /* 信息卡片 */
 .info-card {
+  background: white;
   margin: 20rpx;
+  border-radius: 20rpx;
   padding: 30rpx;
-  background-color: #fff;
-  border-radius: 12rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
 }
 
 .card-title {
   font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 24rpx;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f7f8fa;
 }
 
 /* 产品信息 */
 .product-info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .product-image {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 8rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
   margin-right: 20rpx;
+  background-color: #f7f8fa;
+  flex-shrink: 0;
 }
 
 .product-detail {
@@ -64,10 +78,18 @@
 }
 
 .product-name {
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 12rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 10rpx;
+  line-height: 1.4;
+}
+
+.product-description {
+  font-size: 24rpx;
+  color: #969799;
+  margin-bottom: 15rpx;
+  line-height: 1.5;
 }
 
 .product-price {
@@ -76,25 +98,24 @@
 }
 
 .product-price .price {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: bold;
-  color: #f44;
+  color: #ee0a24;
 }
 
 .product-price .unit {
   font-size: 24rpx;
-  color: #999;
-  margin-left: 4rpx;
+  color: #969799;
+  margin-left: 5rpx;
 }
 
-/* 信息项 */
+/* 订单信息 */
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20rpx 0;
-  font-size: 28rpx;
-  border-bottom: 2rpx solid #f5f5f5;
+  border-bottom: 1rpx solid #f7f8fa;
 }
 
 .info-item:last-child {
@@ -102,78 +123,24 @@
 }
 
 .info-item .label {
-  color: #666;
+  font-size: 28rpx;
+  color: #646566;
+  flex-shrink: 0;
 }
 
 .info-item .value {
-  color: #333;
+  font-size: 28rpx;
+  color: #323233;
+  text-align: right;
+  flex: 1;
+  margin-left: 20rpx;
+  word-break: break-all;
 }
 
 .info-item .value.highlight {
-  color: #f44;
+  color: #ee0a24;
   font-weight: bold;
-}
-
-/* 商务洽谈记录 */
-.negotiation-list {
-  margin-top: 20rpx;
-}
-
-.negotiation-item {
-  padding: 20rpx;
-  background-color: #f8f8f8;
-  border-radius: 8rpx;
-  margin-bottom: 20rpx;
-}
-
-.negotiation-item:last-child {
-  margin-bottom: 0;
-}
-
-.negotiation-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.negotiator {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: #333;
-}
-
-.time {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.negotiation-content {
-  font-size: 28rpx;
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 16rpx;
-}
-
-.file-list {
-  margin-top: 16rpx;
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  padding: 12rpx 0;
-}
-
-.file-item .van-icon {
-  font-size: 32rpx;
-  color: #1989fa;
-  margin-right: 12rpx;
-}
-
-.file-name {
-  font-size: 26rpx;
-  color: #1989fa;
+  font-size: 30rpx;
 }
 
 /* 服务状态 */
@@ -185,9 +152,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16rpx 0;
-  font-size: 28rpx;
-  border-bottom: 2rpx solid #f5f5f5;
+  padding: 15rpx 0;
+  border-bottom: 1rpx solid #f7f8fa;
 }
 
 .service-item:last-child {
@@ -195,57 +161,119 @@
 }
 
 .service-item .label {
-  color: #666666;
+  font-size: 26rpx;
+  color: #646566;
 }
 
 .service-item .value {
-  color: #333333;
-  font-weight: 500;
+  font-size: 26rpx;
+  color: #323233;
 }
 
 .service-item .value.status-active {
-  color: #52c41a;
+  color: #07c160;
+  font-weight: bold;
 }
 
 .service-item .value.highlight {
-  color: #1989fa;
-  font-weight: 600;
+  color: #ee0a24;
+  font-weight: bold;
 }
 
 /* 服务进度 */
 .service-progress {
   margin-top: 30rpx;
   padding: 20rpx;
-  background: #f8f9fa;
+  background: #f7f8fa;
   border-radius: 12rpx;
 }
 
 .progress-title {
   font-size: 28rpx;
-  color: #333333;
-  margin-bottom: 16rpx;
-  font-weight: 500;
+  color: #323233;
+  margin-bottom: 20rpx;
 }
 
 .progress-bar {
   height: 8rpx;
-  background: #e5e5e5;
+  background: #ebedf0;
   border-radius: 4rpx;
   overflow: hidden;
-  margin-bottom: 12rpx;
+  margin-bottom: 15rpx;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #1989fa, #52c41a);
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   border-radius: 4rpx;
   transition: width 0.3s ease;
 }
 
 .progress-text {
   font-size: 24rpx;
-  color: #666666;
-  text-align: right;
+  color: #646566;
+  text-align: center;
+}
+
+/* 商务洽谈记录 */
+.negotiation-list {
+  margin-top: 20rpx;
+}
+
+.negotiation-item {
+  background: #f7f8fa;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.negotiation-item:last-child {
+  margin-bottom: 0;
+}
+
+.negotiation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.negotiator {
+  font-size: 26rpx;
+  color: #323233;
+  font-weight: bold;
+}
+
+.time {
+  font-size: 22rpx;
+  color: #969799;
+}
+
+.negotiation-content {
+  font-size: 26rpx;
+  color: #646566;
+  line-height: 1.6;
+  margin-bottom: 15rpx;
+}
+
+.file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 15rpx;
+  background: white;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #1989fa;
+}
+
+.file-item .file-name {
+  margin-left: 8rpx;
 }
 
 /* 联系信息 */
@@ -253,22 +281,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 28rpx;
-  color: #333;
 }
 
 .contact-btn {
   display: flex;
   align-items: center;
-  padding: 12rpx 24rpx;
-  background-color: #f5f5f5;
-  border-radius: 24rpx;
+  padding: 15rpx 25rpx;
+  background: #1989fa;
+  color: white;
+  border-radius: 25rpx;
+  font-size: 26rpx;
 }
 
-.contact-btn .van-icon {
-  font-size: 32rpx;
-  color: #1989fa;
-  margin-right: 8rpx;
+.contact-btn text {
+  margin-left: 8rpx;
 }
 
 /* 底部操作栏 */
@@ -277,12 +303,20 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20rpx;
-  background-color: #fff;
-  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
+  background: white;
+  padding: 20rpx 30rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: flex-end;
   gap: 20rpx;
+  z-index: 100;
+}
+
+.bottom-bar .van-button {
+  flex: 1;
+  border-radius: 25rpx !important;
+  font-size: 28rpx !important;
+  height: 80rpx !important;
+  line-height: 80rpx !important;
 }
 
 /* 商务洽谈弹窗 */
@@ -292,8 +326,8 @@
 
 .popup-title {
   font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
+  font-weight: bold;
+  color: #323233;
   text-align: center;
   margin-bottom: 30rpx;
 }
@@ -308,620 +342,61 @@
 
 .upload-title {
   font-size: 28rpx;
-  color: #333;
-  margin-bottom: 16rpx;
+  color: #323233;
+  margin-bottom: 20rpx;
 }
 
 .popup-footer {
   display: flex;
-  justify-content: flex-end;
   gap: 20rpx;
-  margin-top: 30rpx;
 }
 
-/* 自定义van-button样式 */
-.van-button {
-  min-width: 180rpx !important;
-}
-
-.container {
-  min-height: 100vh;
-  background: #f5f7fa;
-  padding-bottom: 120rpx;
-}
-
-.status-card {
-  background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%);
-  border-radius: 16rpx;
-  padding: 40rpx 30rpx;
-  margin-bottom: 30rpx;
-  color: #fff;
-}
-
-.status-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.status-icon {
-  width: 48rpx;
-  height: 48rpx;
-  margin-right: 16rpx;
-}
-
-.status-desc {
-  font-size: 28rpx;
-  opacity: 0.9;
-}
-
-.order-status {
-  padding: 8rpx 20rpx;
-  border-radius: 30rpx;
-  font-size: 24rpx;
-  font-weight: 500;
-}
-
-.order-status.pending {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.order-status.confirmed {
-  background-color: #d1ecf1;
-  color: #0c5460;
-}
-
-.order-status.contract {
-  background-color: #cce5ff;
-  color: #004085;
-}
-
-.order-status.active {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.order-status.completed {
-  background-color: #e2e3e5;
-  color: #383d41;
-}
-
-.order-status.cancelled {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.info-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.copy-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-left: 16rpx;
-  opacity: 0.6;
-}
-
-.product-card {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.product-details {
+.popup-footer .van-button {
   flex: 1;
-  min-width: 0;
+  border-radius: 25rpx !important;
 }
 
-.product-desc {
-  display: block;
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 16rpx;
-  line-height: 1.4;
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .status-card {
+    margin: 15rpx;
+    padding: 30rpx 20rpx;
+  }
+  
+  .info-card {
+    margin: 15rpx;
+    padding: 25rpx;
+  }
+  
+  .product-image {
+    width: 100rpx;
+    height: 100rpx;
+  }
+  
+  .bottom-bar {
+    padding: 15rpx 20rpx;
+  }
 }
 
-.product-specs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-}
-
-.spec-item {
-  font-size: 24rpx;
-  color: #999;
-  background-color: #f5f5f5;
-  padding: 8rpx 16rpx;
-  border-radius: 12rpx;
-}
-
-.manager-info {
-  display: flex;
-  align-items: center;
-}
-
-.manager-avatar {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 50%;
-  margin-right: 24rpx;
-}
-
-.manager-details {
-  flex: 1;
-}
-
-.manager-name {
-  display: block;
-  font-size: 32rpx;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 8rpx;
-}
-
-.manager-title {
-  display: block;
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 8rpx;
-}
-
-.manager-phone {
-  display: block;
-  font-size: 26rpx;
-  color: var(--primary-color);
-  text-decoration: underline;
-}
-
-.contract-info {
-  background-color: #f8f9fa;
-  border-radius: 16rpx;
-  overflow: hidden;
-}
-
-.contract-item {
-  display: flex;
-  align-items: center;
-  padding: 30rpx;
-}
-
-.contract-icon {
-  width: 48rpx;
-  height: 48rpx;
-  margin-right: 20rpx;
-}
-
-.contract-details {
-  flex: 1;
-}
-
-.contract-name {
-  display: block;
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 8rpx;
-}
-
-.contract-desc {
-  display: block;
-  font-size: 24rpx;
-  color: #999;
-}
-
-.arrow-icon {
-  width: 32rpx;
-  height: 32rpx;
-  opacity: 0.3;
-}
-
-.action-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  padding: 20rpx 30rpx;
-  display: flex;
-  justify-content: flex-end;
-  gap: 20rpx;
-  box-shadow: 0 -2rpx 20rpx rgba(0, 0, 0, 0.05);
-}
-
-.action-btn {
-  min-width: 180rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  text-align: center;
-  border-radius: 40rpx;
-  font-size: 28rpx;
-  border: none;
-  padding: 0 40rpx;
-}
-
-.action-btn.primary {
-  background-color: var(--primary-color);
-  color: #fff;
-}
-
-.action-btn.secondary {
-  background-color: #f5f5f5;
-  color: #666;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 120rpx 0;
-  text-align: center;
-}
-
-.empty-icon {
-  width: 200rpx;
-  height: 200rpx;
-  margin-bottom: 40rpx;
-  opacity: 0.5;
-}
-
-.empty-text {
-  font-size: 32rpx;
-  color: #666;
-  margin-bottom: 20rpx;
-}
-
-.empty-desc {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 60rpx;
-}
-
-.empty-btn {
-  background-color: var(--primary-color);
-  color: #fff;
-  border-radius: 50rpx;
-  padding: 20rpx 60rpx;
-  font-size: 28rpx;
-  border: none;
-}
-
-.dialog-content {
-  padding: 40rpx 30rpx;
-  text-align: center;
-  font-size: 28rpx;
-  color: #666;
-}
-
-.payment-popup {
-  padding: 40rpx 30rpx;
-}
-
-.payment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40rpx;
-}
-
-.payment-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.payment-amount {
-  font-size: 36rpx;
-  color: var(--price-color);
-  font-weight: 600;
-}
-
-.payment-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 30rpx;
-}
-
-.payment-method {
-  display: flex;
-  align-items: center;
-  padding: 20rpx;
-  background-color: #f8f9fa;
-  border-radius: 16rpx;
-  transition: background-color 0.3s;
-}
-
-.payment-method:active {
-  background-color: #f0f0f0;
-}
-
-.method-icon {
-  width: 48rpx;
-  height: 48rpx;
-  margin-right: 20rpx;
-}
-
-.method-info {
-  flex: 1;
-}
-
-.method-name {
-  display: block;
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 8rpx;
-}
-
-.method-desc {
-  display: block;
-  font-size: 24rpx;
-  color: #999;
-}
-
-.check-icon {
-  width: 32rpx;
-  height: 32rpx;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.payment-method.selected .check-icon {
-  opacity: 1;
-}
-
+/* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
-  .container {
+  .order-detail {
     background-color: #1a1a1a;
   }
   
-  .info-card, .progress-section, .action-bar {
-    background-color: #2a2a2a;
+  .info-card {
+    background: #2a2a2a;
   }
   
-  .card-title, .product-name, .manager-name {
-    color: #fff;
+  .card-title {
+    color: #ffffff;
   }
   
-  .info-label, .info-value, .product-desc, .manager-title {
-    color: #ccc;
+  .info-item .value {
+    color: #ffffff;
   }
   
-  .spec-item, .payment-method {
-    background-color: #333;
+  .bottom-bar {
+    background: #2a2a2a;
   }
-  
-  .action-btn.secondary {
-    background-color: #333;
-    color: #fff;
-  }
-  
-  .info-item {
-    border-color: #333;
-  }
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-.progress-section {
-  background-color: #fff;
-  padding: 40rpx 30rpx;
-  margin-bottom: 20rpx;
-}
-
-.progress-steps {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 40rpx;
-  position: relative;
-}
-
-.step-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  position: relative;
-}
-
-.step-dot {
-  width: 20rpx;
-  height: 20rpx;
-  border-radius: 50%;
-  background-color: #ddd;
-  margin-bottom: 16rpx;
-  transition: background-color 0.3s;
-}
-
-.step-item.completed .step-dot {
-  background-color: var(--primary-color);
-}
-
-.step-text {
-  font-size: 24rpx;
-  color: #999;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.step-item.completed .step-text {
-  color: var(--primary-color);
-}
-
-.progress-line {
-  height: 4rpx;
-  background-color: #eee;
-  border-radius: 2rpx;
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: var(--primary-color);
-  border-radius: 2rpx;
-  transition: width 0.3s ease;
-}
-
-.status-section {
-  background: #409eff;
-  padding: 40rpx 30rpx;
-  color: #fff;
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.status-text {
-  font-size: 36rpx;
-  font-weight: bold;
-  margin-bottom: 10rpx;
-}
-
-.status-desc {
-  font-size: 26rpx;
-  opacity: 0.9;
-}
-
-.status-text.pending {
-  color: #fff;
-}
-
-.status-text.processing {
-  color: #fff;
-}
-
-.status-text.completed {
-  color: #fff;
-}
-
-.status-text.cancelled {
-  color: #fff;
-}
-
-.info-card {
-  background: #fff;
-  margin: 20rpx;
-  border-radius: 12rpx;
-  overflow: hidden;
-}
-
-.card-title {
-  font-size: 28rpx;
-  color: #333;
-  font-weight: bold;
-  padding: 20rpx 30rpx;
-  border-bottom: 1rpx solid #eee;
-}
-
-.product-info {
-  padding: 20rpx 30rpx;
-  display: flex;
-}
-
-.product-name {
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 10rpx;
-}
-
-.product-price {
-  display: flex;
-  align-items: baseline;
-}
-
-.price-label {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.price-value {
-  font-size: 32rpx;
-  color: #ff6b6b;
-  font-weight: bold;
-}
-
-.info-list {
-  padding: 0 30rpx;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20rpx 0;
-  font-size: 26rpx;
-  border-bottom: 1rpx solid #eee;
-}
-
-.info-item:last-child {
-  border-bottom: none;
-}
-
-.info-item .label {
-  color: #666;
-}
-
-.info-item .value {
-  color: #333;
-}
-
-.info-item .value.price {
-  color: #ff6b6b;
-  font-weight: bold;
-}
-
-.remark-text {
-  padding: 20rpx 30rpx;
-  font-size: 26rpx;
-  color: #666;
-  line-height: 1.6;
-}
-
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  padding: 20rpx;
-  display: flex;
-  justify-content: flex-end;
-  gap: 20rpx;
-  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.action-btn {
-  min-width: 160rpx;
-  height: 72rpx;
-  line-height: 72rpx;
-  text-align: center;
-  border-radius: 36rpx;
-  font-size: 26rpx;
-  background: #f5f7fa;
-  color: #666;
-  border: none;
-}
-
-.action-btn::after {
-  display: none;
-}
-
-.action-btn.primary {
-  background: #409eff;
-  color: #fff;
-  box-shadow: 0 4rpx 16rpx rgba(64, 158, 255, 0.4);
 } 

@@ -8,11 +8,12 @@
   <!-- 微信授权登录按钮 -->
   <view class="wechat-login">
     <button 
-      class="button button-wechat"
+      class="button button-wechat {{loading ? 'button-loading' : ''}}"
       bindtap="handleWechatLogin"
+      disabled="{{loading}}"
     >
-      <image class="wechat-icon" src="/assets/images/icons/wechat.png" />
-      <text>微信一键登录</text>
+      <text class="wechat-icon">💬</text>
+      <text>{{loading ? '登录中...' : '微信一键登录'}}</text>
     </button>
   </view>
 

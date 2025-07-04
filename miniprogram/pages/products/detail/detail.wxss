@@ -286,7 +286,7 @@
 }
 
 /* 底部操作栏 */
-.action-bar {
+.footer-bar {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -295,52 +295,70 @@
   background: #fff;
   display: flex;
   align-items: center;
-  padding: 0 30rpx;
-  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  justify-content: space-between;
+  padding: 0 24rpx;
+  box-shadow: 0 -2rpx 4rpx rgba(0, 0, 0, 0.05);
 }
 
-.left-btns {
+.price-info {
   display: flex;
-  margin-right: 30rpx;
+  align-items: baseline;
 }
 
-.icon-btn {
+.price-label {
+  font-size: 28rpx;
+  color: #646566;
+  margin-right: 8rpx;
+}
+
+.price-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ee0a24;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.contact-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 40rpx;
+  justify-content: center;
+  margin-right: 24rpx;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 120rpx;
+  height: 80rpx;
 }
 
-.icon-btn text {
-  font-size: 20rpx;
-  color: #666;
-  margin-top: 6rpx;
+.contact-btn::after {
+  border: none;
 }
 
-.right-btns {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
+.contact-btn text {
+  font-size: 24rpx;
+  color: #646566;
+  margin-top: 4rpx;
 }
 
-.action-btn {
-  width: 180rpx;
-  height: 72rpx;
-  line-height: 72rpx;
+.order-btn {
+  width: 240rpx;
+  height: 80rpx;
+  line-height: 80rpx;
   text-align: center;
-  border-radius: 36rpx;
-  font-size: 28rpx;
-  margin-left: 20rpx;
-}
-
-.action-btn.consult {
-  background: #fff4f4;
-  color: #e93b3d;
-}
-
-.action-btn.buy {
-  background: #e93b3d;
+  background: #1989fa;
   color: #fff;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.order-btn::after {
+  border: none;
 }
 
 .product-info {

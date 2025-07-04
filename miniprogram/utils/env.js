@@ -13,12 +13,14 @@ const CURRENT_ENV = ENV_TYPES.DEVELOPMENT
 const envConfigs = {
   [ENV_TYPES.DEVELOPMENT]: {
     apiBaseURL: 'http://localhost:8000/api/v1/mini',
+    uploadBaseURL: 'http://localhost:8000',
     enableDebug: true,
     enableMock: true,
     logLevel: 'debug'
   },
   [ENV_TYPES.PRODUCTION]: {
     apiBaseURL: 'https://dyh.zytcft.com/power/mini',
+    uploadBaseURL: 'https://dyh.zytcft.com',
     enableDebug: false,
     enableMock: false,
     logLevel: 'error'
@@ -43,6 +45,11 @@ function isProduction() {
 // 获取API基础URL
 function getApiBaseURL() {
   return getCurrentConfig().apiBaseURL
+}
+
+// 获取上传基础URL
+function getUploadBaseURL() {
+  return getCurrentConfig().uploadBaseURL
 }
 
 // 是否启用调试模式
@@ -84,6 +91,7 @@ module.exports = {
   isDevelopment,
   isProduction,
   getApiBaseURL,
+  getUploadBaseURL,
   isDebugEnabled,
   isMockEnabled,
   getLogLevel,

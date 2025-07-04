@@ -3,7 +3,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'https://your-api-domain.com/power/mini',
+    baseUrl: 'https://your-api-domain.com/power',
     isLoggedIn: false, // 统一使用 isLoggedIn
     userRole: '', // customer: 普通客户, manager: 客户经理
     companyInfo: null,
@@ -126,7 +126,7 @@ App({
     try {
       // 验证token有效性
       const res = await wx.request({
-        url: this.globalData.baseUrl + '/mini/auth/verify-token',
+        url: this.globalData.baseUrl + '/auth/verify-token',
         method: 'POST',
         header: {
           'Authorization': 'Bearer ' + this.globalData.token
@@ -155,7 +155,7 @@ App({
       }
 
       const res = await wx.request({
-        url: this.globalData.baseUrl + '/mini/auth/refresh-token',
+        url: this.globalData.baseUrl + '/auth/refresh-token',
         method: 'POST',
         data: {
           refreshToken: refreshToken

@@ -1,6 +1,6 @@
 const app = getApp()
 const { checkRoleAccess } = require('../../../utils/auth');
-const { request } = require('../../../utils/api');
+const { apiService } = require('../../../utils/api');
 
 Page({
   data: {
@@ -32,12 +32,12 @@ Page({
     // 产品信息
     product: null,
     
-    // 服务期限选项
+    // 服务期限选项 - 使用数组格式，Vant picker需要
     periodOptions: [
-      { text: '1年', value: 12 },
-      { text: '2年', value: 24 },
-      { text: '3年', value: 36 },
-      { text: '5年', value: 60 }
+      '6个月',
+      '12个月', 
+      '24个月',
+      '36个月'
     ],
 
     // 用电性质选项
@@ -84,33 +84,121 @@ Page({
     agreedTerms: false,
     showConfirmDialog: false,
     confirmMessage: '',
-    form: {
-      address: '',
-      contactName: '',
-      contactPhone: '',
-      capacity: '',
-      voltage: '',
-      type: '',
-      period: '',
-      remark: ''
-    },
-    estimatedBill: '0.00',
+    
+    // 表单字段
+    serviceAddress: '',
+    servicePeriod: 12,
+    serviceStartDate: new Date().getTime(),
+    specialRequirements: '',
+    
+    // 费用计算
+    totalAmount: '0.00',
+    actualAmount: '0.00',
+    estimatedSavings: '0.00',
+    
     // 选择器相关
     showVoltagePopup: false,
     showTypePopup: false,
     showPeriodPopup: false,
-    typeOptions: ['工业用电', '商业用电', '居民用电', '农业用电']
+    typeOptions: ['工业用电', '商业用电', '居民用电', '农业用电'],
+    
+    // 其他字段
+    quantity: 1,
+    estimatedBill: '0.00',
+    
+    // 格式化后的日期
+    formattedStartDate: ''
   },
 
   onLoad(options) {
-    // 检查角色权限
-    if (!checkRoleAccess('orders')) {
-      return;
-    }
+    console.log('🚀 订单创建页面 onLoad 被调用');
+    console.log('📋 页面参数:', options);
+    
+    try {
+      // 检查角色权限
+      if (!checkRoleAccess('orders')) {
+        console.warn('⚠️ 用户角色未定义或权限不足');
+        // 暂时允许访问，后续可以添加重定向逻辑
+      } else {
+        console.log('✅ 角色权限检查通过');
+      }
 
-    const { productId } = options;
-    if (productId) {
-      this.loadProductInfo(productId);
+      console.log('📊 当前用户信息:', {
+        token: wx.getStorageSync('token') ? '已设置' : '未设置',
+        userInfo: wx.getStorageSync('userInfo'),
+        userRole: wx.getStorageSync('userRole')
+      });
+      
+      const { 
+        productId, 
+        productName, 
+        currentPrice, 
+        productType, 
+        voltage, 
+        phase, 
+        consumption 
+      } = options;
+      
+      // 如果有传入的产品信息，先设置基础信息
+      if (productId && productName) {
+        const decodedName = decodeURIComponent(productName);
+        
+        // 设置基础产品信息
+        const baseProductInfo = {
+          id: productId,
+          name: decodedName,
+          price: currentPrice || '0.65',
+          unitPrice: currentPrice || '0.65',
+          category: productType || 'commercial',
+          voltage: voltage || '380',
+          phase: phase || '三相',
+          description: '电力优化服务套餐'
+        };
+        
+        this.setData({
+          product: baseProductInfo,
+          'orderForm.productId': productId,
+          'orderForm.productName': decodedName,
+          'orderForm.estimatedUsage': consumption || '',
+          'orderForm.voltageLevel': voltage || '380V及以下',
+          'orderForm.usageType': productType || 'commercial'
+        });
+        
+        console.log('设置基础产品信息:', baseProductInfo);
+        
+        // 如果有预估用电量，计算费用
+        if (consumption) {
+          this.calculateAmount();
+        }
+      }
+      
+      // 加载详细产品信息（如果有productId）
+      if (productId) {
+        this.loadProductInfo(productId);
+      }
+      
+      // 加载客户信息
+      this.loadCustomerInfo();
+      
+    } catch (error) {
+      console.error('页面加载失败:', error);
+    } finally {
+      // 设置页面为已加载状态
+      const today = new Date();
+      const formattedToday = this.formatDate(today);
+      
+      this.setData({ 
+        loading: false,
+        formattedStartDate: formattedToday,
+        serviceStartDate: today.getTime(),
+        'orderForm.startDate': formattedToday
+      });
+      
+      console.log('📅 设置默认开始日期:', {
+        today: today,
+        formattedToday: formattedToday,
+        timestamp: today.getTime()
+      });
     }
   },
 
@@ -135,37 +223,34 @@ Page({
     });
 
     try {
-      const res = await request('GET', `/api/products/${productId}`);
-      this.setData({
-        product: res.data,
-        'orderForm.productName': res.data.name
-      });
+      const res = await apiService.get(`/products/${productId}`);
       
-      // 预填充用电量（如果有）
-      if (res.data.defaultUsage) {
+      if (res && res.data) {
+        // 更新产品信息，保留基础信息
+        const updatedProduct = {
+          ...this.data.product, // 保留基础信息
+          ...res.data,
+          unitPrice: res.data.price || res.data.basePrice || this.data.product.price
+        };
+        
         this.setData({
-          'orderForm.estimatedUsage': res.data.defaultUsage
-        })
-        this.calculateFees()
+          product: updatedProduct,
+          'orderForm.productName': updatedProduct.name
+        });
+        
+        console.log('成功加载详细产品信息:', updatedProduct);
+        
+        // 预填充用电量（如果有）
+        if (res.data.defaultUsage && !this.data.orderForm.estimatedUsage) {
+          this.setData({
+            'orderForm.estimatedUsage': res.data.defaultUsage
+          });
+          this.calculateAmount();
+        }
       }
     } catch (error) {
-      console.error('加载产品信息失败:', error);
-      wx.showToast({
-        title: '加载失败，请重试',
-        icon: 'none'
-      });
-      // 使用模拟数据
-      this.setData({
-        product: {
-          id: productId,
-          name: '工商业电力优化方案',
-          description: '专为中小企业设计的节能方案',
-          price: 0.65,
-          image: '/assets/images/product1.jpg',
-          isHot: true
-        },
-        'orderForm.productName': '工商业电力优化方案'
-      })
+      console.warn('加载详细产品信息失败，使用基础信息:', error);
+      // 不显示错误提示，保持使用基础产品信息
     } finally {
       wx.hideLoading();
     }
@@ -173,18 +258,23 @@ Page({
 
   // 加载客户信息
   async loadCustomerInfo() {
+    console.log('👤 开始加载客户信息...');
     try {
-      const res = await app.request({
-        url: '/customer/profile'
-      })
+      console.log('🌐 调用 /user/profile 接口...');
+      const res = await apiService.get('/user/profile');
       
-      if (res.data) {
+      console.log('✅ 客户信息接口响应:', res);
+      
+      if (res && res.data) {
         this.setData({
           customerInfo: res.data
-        })
+        });
+        console.log('✅ 成功加载用户信息:', res.data);
+      } else {
+        console.warn('⚠️ 客户信息响应数据为空:', res);
       }
     } catch (error) {
-      console.error('加载客户信息失败:', error)
+      console.warn('加载用户信息失败，使用默认信息:', error);
       // 使用默认客户信息
       this.setData({
         customerInfo: {
@@ -193,7 +283,7 @@ Page({
           contactPhone: '138****8888',
           serviceAddress: '北京市朝阳区示例大厦'
         }
-      })
+      });
     }
   },
 
@@ -221,10 +311,14 @@ Page({
 
   // 选择服务期限
   onPeriodChange(e) {
+    const servicePeriod = e.detail;
     this.setData({
-      'orderForm.servicePeriod': e.detail
-    })
-    this.calculateFees()
+      servicePeriod: servicePeriod,
+      'orderForm.servicePeriod': servicePeriod
+    });
+    
+    // 重新计算费用
+    this.calculateAmount();
   },
 
   // 选择用电性质
@@ -239,23 +333,35 @@ Page({
   showDatePicker() {
     this.setData({
       showDatePicker: true
-    })
+    });
   },
 
   // 关闭日期选择器
   closeDatePicker() {
     this.setData({
       showDatePicker: false
-    })
+    });
   },
 
   // 确认日期选择
   onDateConfirm(e) {
-    const date = new Date(e.detail)
+    const date = new Date(e.detail);
+    const formattedDate = this.formatDate(date);
+    
+    console.log('📅 用户选择日期:', {
+      timestamp: e.detail,
+      date: date,
+      formattedDate: formattedDate
+    });
+    
     this.setData({
-      'orderForm.startDate': this.formatDate(date),
+      serviceStartDate: e.detail,
+      formattedStartDate: formattedDate,
+      'orderForm.startDate': formattedDate,
       showDatePicker: false
-    })
+    });
+    
+    console.log('✅ 日期选择完成，当前orderForm.startDate:', this.data.orderForm.startDate);
   },
 
   // 显示电压等级选择器
@@ -314,24 +420,50 @@ Page({
   },
 
   onPeriodConfirm(e) {
+    const selectedPeriod = e.detail.value;
+    console.log('选择的服务期限:', selectedPeriod);
+    
+    // 从字符串中提取数字
+    const periodNumber = parseInt(selectedPeriod);
+    
     this.setData({
-      'form.period': e.detail.value,
+      servicePeriod: periodNumber,
+      'orderForm.servicePeriod': periodNumber,
       showPeriodPopup: false
     });
+    
+    // 重新计算费用
+    this.calculateAmount();
   },
 
   // 协议确认
   onAgreementChange(e) {
+    console.log('📋 服务条款状态变更:', {
+      checked: e.detail,
+      previousValue: this.data.agreedTerms
+    });
+    
     this.setData({
       agreedTerms: e.detail
     });
+    
+    console.log('✅ 服务条款状态已更新:', this.data.agreedTerms);
   },
 
   // 查看协议
   viewAgreement() {
-    wx.navigateTo({
-      url: '/pages/agreement/agreement'
+    console.log('📖 用户点击查看协议');
+    
+    // 暂时显示提示，因为协议页面可能不存在
+    wx.showToast({
+      title: '协议页面开发中',
+      icon: 'none'
     });
+    
+    // 如果后续有协议页面，可以取消注释下面的代码
+    // wx.navigateTo({
+    //   url: '/pages/agreement/agreement'
+    // });
   },
 
   // 上传文件
@@ -413,10 +545,10 @@ Page({
 
   // 格式化日期
   formatDate(date) {
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   },
 
   // 计算费用
@@ -491,106 +623,298 @@ Page({
 
   // 验证表单
   validateForm() {
-    const errors = {}
-    let isValid = true
+    console.log('🔍 开始表单验证...');
+    console.log('📋 验证规则:', this.data.rules);
+    console.log('📝 表单数据:', this.data.orderForm);
+    
+    const errors = {};
+    let isValid = true;
     
     Object.keys(this.data.rules).forEach(field => {
-      const rules = this.data.rules[field]
-      const value = this.data.orderForm[field]
+      const rules = this.data.rules[field];
+      const value = this.data.orderForm[field];
+      
+      console.log(`🔍 验证字段 ${field}:`, { value, rules });
       
       for (const rule of rules) {
         if (rule.required && !value) {
-          errors[field] = rule.message
-          isValid = false
-          break
+          console.log(`❌ 字段 ${field} 验证失败: 必填项为空`);
+          errors[field] = rule.message;
+          isValid = false;
+          break;
         }
         if (rule.type === 'number') {
-          const num = parseFloat(value)
+          const num = parseFloat(value);
           if (isNaN(num) || (rule.min !== undefined && num < rule.min)) {
-            errors[field] = rule.message
-            isValid = false
-            break
+            console.log(`❌ 字段 ${field} 验证失败: 数值验证失败`, { num, min: rule.min });
+            errors[field] = rule.message;
+            isValid = false;
+            break;
           }
         }
       }
-    })
+      
+      if (!errors[field]) {
+        console.log(`✅ 字段 ${field} 验证通过`);
+      }
+    });
     
-    this.setData({ errors })
-    return isValid
+    console.log('📊 验证结果:', { isValid, errors });
+    this.setData({ errors });
+    return isValid;
   },
 
   // 提交订单
   async submitOrder() {
+    console.log('🚀 submitOrder 方法被调用');
+    console.log('📊 当前表单状态:', {
+      agreedTerms: this.data.agreedTerms,
+      orderForm: this.data.orderForm,
+      product: this.data.product
+    });
+
+    console.log('🔍 开始表单验证...');
     if (!this.validateForm()) {
-      return
+      console.log('❌ 表单验证失败');
+      return;
     }
+    console.log('✅ 表单验证通过');
 
     if (!this.data.agreedTerms) {
+      console.log('❌ 用户未同意服务条款');
       wx.showToast({
         title: '请先同意服务条款',
         icon: 'none'
-      })
-      return
+      });
+      return;
     }
+    console.log('✅ 用户已同意服务条款');
     
     // 显示确认对话框
-    const { orderForm, product } = this.data
-    const confirmMessage = `确认提交以下订单申请：\n\n产品：${product.name}\n服务期限：${orderForm.servicePeriod}个月\n预估费用：${orderForm.totalAmount}元\n\n提交后客户经理将联系您确认详情。`
+    const { orderForm, product } = this.data;
+    const confirmMessage = `确认提交以下订单申请：\n\n产品：${product.name}\n服务期限：${orderForm.servicePeriod}个月\n预估费用：${orderForm.totalAmount}元\n\n提交后客户经理将联系您确认详情。`;
+    
+    console.log('📋 确认对话框内容:', confirmMessage);
+    console.log('🔄 显示确认对话框');
     
     this.setData({
       showConfirmDialog: true,
       confirmMessage
-    })
+    });
   },
 
   // 确认提交
   async confirmSubmit() {
+    console.log('🚀 开始提交订单...');
+    console.log('📊 当前页面状态:', {
+      submitting: this.data.submitting,
+      showConfirmDialog: this.data.showConfirmDialog,
+      product: this.data.product,
+      orderForm: this.data.orderForm,
+      customerInfo: this.data.customerInfo
+    });
+
     this.setData({ 
       showConfirmDialog: false,
       submitting: true 
-    })
+    });
     
     try {
-      const orderData = {
-        ...this.data.orderForm,
-        customerInfo: this.data.customerInfo,
-        status: 'pending_confirmation' // 待确认状态
-      }
+      // 构建提交数据
+      const submitData = {
+        productId: this.data.orderForm.productId,
+        assignedEmployeeId: this.data.customerInfo.assignedEmployeeId || 1, // 默认分配员工ID为1
+        servicePeriod: this.data.servicePeriod,
+        serviceAddress: this.data.serviceAddress,
+        remark: this.data.orderForm.remarks || '',
+        specialRequirements: this.data.specialRequirements || ''
+      };
 
-      const res = await app.request({
-        url: '/orders',
-        method: 'POST',
-        data: orderData
-      })
+      console.log('📦 准备提交的订单数据:', submitData);
+      console.log('🔑 当前token状态:', wx.getStorageSync('token') ? '已设置' : '未设置');
+      console.log('🌐 开始调用API...');
+
+      const res = await apiService.post('/orders', submitData);
+      
+      console.log('✅ API调用成功，响应数据:', res);
       
       if (res.data) {
+        console.log('🎉 订单创建成功，订单ID:', res.data.id);
+        
         wx.showToast({
           title: '订单提交成功',
           icon: 'success'
-        })
+        });
         
         // 跳转到订单详情页
         setTimeout(() => {
+          console.log('🔄 准备跳转到订单详情页:', `/pages/orders/detail/detail?id=${res.data.id}`);
           wx.redirectTo({
             url: `/pages/orders/detail/detail?id=${res.data.id}`
-          })
-        }, 1500)
+          });
+        }, 1500);
+      } else {
+        console.warn('⚠️ API响应中没有data字段:', res);
+        throw new Error('订单创建失败：响应数据格式错误');
       }
     } catch (error) {
-      console.error('提交订单失败:', error)
+      console.error('❌ 提交订单失败:', error);
+      console.error('❌ 错误详情:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
       wx.showToast({
-        title: '提交订单失败，请重试',
-        icon: 'none'
-      })
+        title: error.message || '提交订单失败，请重试',
+        icon: 'none',
+        duration: 3000
+      });
     } finally {
-      this.setData({ submitting: false })
+      console.log('🏁 提交流程结束，重置提交状态');
+      this.setData({ submitting: false });
     }
   },
 
   // 取消提交
   cancelSubmit() {
+    console.log('❌ 用户取消提交订单');
     this.setData({
       showConfirmDialog: false
+    });
+    console.log('✅ 确认对话框已关闭');
+  },
+
+  onQuantityChange(event) {
+    this.setData({
+      quantity: event.detail
     })
+    this.calculateAmount()
+  },
+
+  onServiceAddressChange(event) {
+    this.setData({
+      serviceAddress: event.detail
+    });
+  },
+
+  onStartDateChange(event) {
+    this.setData({
+      serviceStartDate: event.detail
+    });
+  },
+
+  onSpecialRequirementsChange(event) {
+    this.setData({
+      specialRequirements: event.detail
+    });
+  },
+
+  // 预估用电量变化
+  onEstimatedUsageChange(event) {
+    const usage = event.detail;
+    this.setData({
+      'orderForm.estimatedUsage': usage
+    });
+    
+    // 重新计算费用
+    if (usage) {
+      this.calculateAmount();
+    }
+  },
+
+  calculateAmount() {
+    const { product, orderForm, servicePeriod } = this.data;
+    if (!product) return;
+
+    const estimatedUsage = parseFloat(orderForm.estimatedUsage) || 0;
+    const unitPrice = parseFloat(product.unitPrice || product.price) || 0;
+    const period = parseInt(servicePeriod) || 12;
+
+    if (estimatedUsage <= 0 || unitPrice <= 0) {
+      this.setData({
+        totalAmount: '0.00',
+        actualAmount: '0.00',
+        estimatedSavings: '0.00'
+      });
+      return;
+    }
+
+    // 计算月均费用
+    const monthlyFee = estimatedUsage * unitPrice;
+    
+    // 计算总费用（服务期限内的总费用）
+    const totalAmount = monthlyFee * period;
+    
+    // 根据服务期限计算折扣
+    let discount = 1;
+    if (period >= 36) {
+      discount = 0.85; // 36个月以上85折
+    } else if (period >= 24) {
+      discount = 0.9;  // 24个月以上9折
+    } else if (period >= 12) {
+      discount = 0.95; // 12个月以上95折
+    }
+
+    const actualAmount = totalAmount * discount;
+    const estimatedSavings = totalAmount - actualAmount;
+
+    this.setData({
+      totalAmount: totalAmount.toFixed(2),
+      actualAmount: actualAmount.toFixed(2),
+      estimatedSavings: estimatedSavings.toFixed(2),
+      'orderForm.totalAmount': totalAmount.toFixed(2),
+      'orderForm.monthlyFee': monthlyFee.toFixed(2),
+      'orderForm.estimatedSavings': estimatedSavings.toFixed(2)
+    });
+
+    console.log('费用计算完成:', {
+      estimatedUsage,
+      unitPrice,
+      period,
+      monthlyFee,
+      totalAmount,
+      actualAmount,
+      estimatedSavings
+    });
+  },
+
+  async handleSubmit() {
+    console.log('🚀 handleSubmit 方法被调用');
+    console.log('📊 当前提交状态:', this.data.submitting);
+    
+    if (this.data.submitting) {
+      console.log('⏸️ 正在提交中，忽略重复调用');
+      return;
+    }
+    
+    const { 
+      product, serviceAddress, servicePeriod,
+      specialRequirements, actualAmount,
+      totalAmount, estimatedSavings
+    } = this.data;
+
+    console.log('📋 表单数据检查:', {
+      product: product ? { id: product.id, name: product.name } : null,
+      serviceAddress,
+      servicePeriod,
+      specialRequirements,
+      actualAmount,
+      totalAmount
+    });
+
+    if (!serviceAddress) {
+      console.log('❌ 服务地址为空，显示错误提示');
+      wx.showToast({
+        title: '请输入服务地址',
+        icon: 'none'
+      });
+      return;
+    }
+
+    console.log('✅ 表单验证通过，开始提交订单');
+    
+    // 调用submitOrder函数，统一处理订单提交
+    await this.submitOrder();
   }
 }) 

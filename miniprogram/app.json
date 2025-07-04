@@ -4,34 +4,24 @@
     "pages/auth/login/login",
     "pages/auth/register/register",
     "pages/auth/verify/verify",
-    "pages/products/list/list",
-    "pages/products/detail/detail",
-    "pages/products/calculator/calculator",
-    "pages/products/compare/compare",
+    "pages/products/index/index",
     "pages/orders/index/index",
-    "pages/orders/detail/detail",
-    "pages/orders/create/create",
     "pages/profile/index/index",
-    "pages/profile/info/info",
-    "pages/profile/contracts/contracts",
-    "pages/profile/contracts/detail/detail",
-    "pages/profile/consumption/consumption",
-    "pages/profile/savings/savings",
-    "pages/profile/service/service",
-    "pages/complaint/submit/submit",
-    "pages/complaint/list/list",
-    "pages/complaint/detail/detail"
+    "pages/orders/create/create",
+    "pages/orders/detail/detail",
+    "pages/products/calculator/calculator",
+    "pages/profile/auth/auth"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#409EFF",
-    "navigationBarTitleText": "电力销售小程序",
-    "navigationBarTextStyle": "white"
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "电力销售",
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "custom": true,
-    "color": "#999999",
-    "selectedColor": "#409EFF",
+    "color": "#646566",
+    "selectedColor": "#1989fa",
     "backgroundColor": "#ffffff",
     "list": [
       {
@@ -39,7 +29,7 @@
         "text": "首页"
       },
       {
-        "pagePath": "pages/products/list/list",
+        "pagePath": "pages/products/index/index",
         "text": "产品"
       },
       {
@@ -55,20 +45,26 @@
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
-    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
-    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
-    "van-cell": "/miniprogram_npm/@vant/weapp/lib/cell/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/lib/cell-group/index",
-    "van-icon": "/miniprogram_npm/@vant/weapp/lib/icon/index",
-    "van-tab": "/miniprogram_npm/@vant/weapp/lib/tab/index",
-    "van-tabs": "/miniprogram_npm/@vant/weapp/lib/tabs/index",
-    "van-tag": "/miniprogram_npm/@vant/weapp/lib/tag/index",
-    "van-popup": "/miniprogram_npm/@vant/weapp/lib/popup/index",
-    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
-    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
-    "van-dialog": "/miniprogram_npm/@vant/weapp/lib/dialog/index",
-    "van-toast": "/miniprogram_npm/@vant/weapp/lib/toast/index",
-    "van-steps": "/miniprogram_npm/@vant/weapp/lib/steps/index",
-    "van-uploader": "/miniprogram_npm/@vant/weapp/lib/uploader/index"
+    "van-button": "@vant/weapp/dist/button/index",
+    "van-field": "@vant/weapp/dist/field/index",
+    "van-icon": "@vant/weapp/dist/icon/index",
+    "van-tabbar": "@vant/weapp/dist/tabbar/index",
+    "van-tabbar-item": "@vant/weapp/dist/tabbar-item/index",
+    "van-dropdown-menu": "@vant/weapp/dist/dropdown-menu/index",
+    "van-dropdown-item": "@vant/weapp/dist/dropdown-item/index",
+    "van-datetime-picker": "@vant/weapp/dist/datetime-picker/index",
+    "van-cell": "@vant/weapp/dist/cell/index",
+    "van-cell-group": "@vant/weapp/dist/cell-group/index",
+    "van-stepper": "@vant/weapp/dist/stepper/index",
+    "van-slider": "@vant/weapp/dist/slider/index",
+    "van-radio": "@vant/weapp/dist/radio/index",
+    "van-radio-group": "@vant/weapp/dist/radio-group/index",
+    "van-tag": "@vant/weapp/dist/tag/index",
+    "van-popup": "@vant/weapp/dist/popup/index",
+    "van-picker": "@vant/weapp/dist/picker/index",
+    "van-loading": "@vant/weapp/dist/loading/index",
+    "van-toast": "@vant/weapp/dist/toast/index",
+    "van-checkbox": "@vant/weapp/dist/checkbox/index",
+    "van-dialog": "@vant/weapp/dist/dialog/index"
   }
 } 
