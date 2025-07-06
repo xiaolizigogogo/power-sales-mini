@@ -1,0 +1,230 @@
+<!--pages/manager/customers/list.wxml-->
+<permission-guard required-user-type="manager" required-page="customers">
+  <view class="customer-list-container">
+    <!-- 头部统计信息 -->
+    <view class="header-stats">
+      <view class="stat-item">
+        <text class="stat-number">{{totalCount}}</text>
+        <text class="stat-label">总客户数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{todayAddCount}}</text>
+        <text class="stat-label">今日新增</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{weekContactCount}}</text>
+        <text class="stat-label">本周联系</text>
+      </view>
+    </view>
+
+    <!-- 搜索和筛选 -->
+    <view class="search-filter-bar">
+      <view class="search-box">
+        <image class="search-icon" src="/assets/images/icons/search.png" mode="aspectFit"></image>
+        <input 
+          class="search-input" 
+          placeholder="搜索客户姓名、公司、电话"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          confirm-type="search"
+        />
+        <view class="clear-btn" wx:if="{{searchKeyword}}" bindtap="onClearSearch">
+          <image src="/assets/images/icons/close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="filter-btn" bindtap="onShowFilter">
+        <image src="/assets/images/icons/filter.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <!-- 状态标签切换 -->
+    <scroll-view class="status-tabs" scroll-x="{{true}}" show-scrollbar="{{false}}">
+      <view class="tab-container">
+        <view 
+          class="tab-item {{activeTab === item.value ? 'active' : ''}}"
+          wx:for="{{statusOptions}}" 
+          wx:key="value"
+          data-tab="{{item.value}}"
+          bindtap="onTabChange"
+        >
+          <text class="tab-label">{{item.label}}</text>
+          <text class="tab-count">{{item.count}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 排序和操作栏 -->
+    <view class="action-bar">
+      <view class="sort-buttons">
+        <view 
+          class="sort-btn {{sortBy === 'createTime' ? 'active' : ''}}"
+          data-sort="createTime"
+          bindtap="onSortChange"
+        >
+          创建时间
+          <text class="sort-arrow" wx:if="{{sortBy === 'createTime'}}">
+            {{sortOrder === 'desc' ? '↓' : '↑'}}
+          </text>
+        </view>
+        <view 
+          class="sort-btn {{sortBy === 'lastContact' ? 'active' : ''}}"
+          data-sort="lastContact"
+          bindtap="onSortChange"
+        >
+          最近联系
+          <text class="sort-arrow" wx:if="{{sortBy === 'lastContact'}}">
+            {{sortOrder === 'desc' ? '↓' : '↑'}}
+          </text>
+        </view>
+      </view>
+      <view class="action-buttons">
+        <view class="action-btn" bindtap="onAddCustomer">
+          <image src="/assets/images/icons/add.png" mode="aspectFit"></image>
+        </view>
+        <view class="action-btn" bindtap="onBatchOperation">
+          <image src="/assets/images/icons/batch.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 客户列表 -->
+    <view class="customer-list">
+      <view 
+        class="customer-item"
+        wx:for="{{customerList}}" 
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCustomerTap"
+      >
+        <view class="customer-avatar">
+          <image src="{{item.avatar}}" mode="aspectFill"></image>
+          <view class="status-indicator {{item.status}}"></view>
+        </view>
+        
+        <view class="customer-info">
+          <view class="customer-header">
+            <view class="customer-name">{{item.name}}</view>
+            <view class="customer-status {{item.status}}">{{item.statusText}}</view>
+          </view>
+          
+          <view class="customer-company">{{item.company}}</view>
+          
+          <view class="customer-details">
+            <text class="detail-item">{{item.industry}}</text>
+            <text class="detail-separator">|</text>
+            <text class="detail-item">{{item.region}}</text>
+            <text class="detail-separator">|</text>
+            <text class="detail-item">跟进{{item.followUpCount}}次</text>
+          </view>
+          
+          <view class="customer-tags" wx:if="{{item.tags.length > 0}}">
+            <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+          </view>
+          
+          <view class="customer-footer">
+            <text class="create-time">创建: {{item.createTime}}</text>
+            <text class="last-contact" wx:if="{{item.lastContact}}">最近联系: {{item.lastContact}}</text>
+          </view>
+          
+          <view class="next-follow" wx:if="{{item.nextFollowUp}}">
+            <text class="follow-label">下次跟进:</text>
+            <text class="follow-time">{{item.nextFollowUp}}</text>
+          </view>
+        </view>
+        
+        <view class="customer-actions">
+          <view class="potential-value">
+            <text class="potential-label">预估价值</text>
+            <text class="potential-amount">¥{{item.potential}}</text>
+          </view>
+          <view 
+            class="contact-btn"
+            data-id="{{item.id}}"
+            data-phone="{{item.phone}}"
+            bindtap="onQuickContact"
+          >
+            <image src="/assets/images/icons/phone.png" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{hasMore && !loading}}">
+        <text>上拉加载更多</text>
+      </view>
+      
+      <!-- 加载中 -->
+      <view class="loading" wx:if="{{loading}}">
+        <text>加载中...</text>
+      </view>
+      
+      <!-- 暂无数据 -->
+      <view class="empty-state" wx:if="{{!loading && customerList.length === 0}}">
+        <image src="/assets/images/empty-customers.png" mode="aspectFit"></image>
+        <text class="empty-text">暂无客户数据</text>
+        <view class="add-customer-btn" bindtap="onAddCustomer">
+          <text>添加客户</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 筛选弹窗 -->
+    <view class="filter-modal" wx:if="{{showFilterModal}}">
+      <view class="modal-mask" bindtap="onHideFilter"></view>
+      <view class="modal-content">
+        <view class="modal-header">
+          <text class="modal-title">筛选条件</text>
+          <view class="close-btn" bindtap="onHideFilter">
+            <image src="/assets/images/icons/close.png" mode="aspectFit"></image>
+          </view>
+        </view>
+        
+        <view class="filter-content">
+          <!-- 客户状态 -->
+          <view class="filter-section">
+            <text class="filter-label">客户状态</text>
+            <view class="filter-options">
+              <view class="option-item">全部</view>
+              <view class="option-item">潜在客户</view>
+              <view class="option-item">已联系</view>
+              <view class="option-item">有意向</view>
+              <view class="option-item">已签约</view>
+            </view>
+          </view>
+          
+          <!-- 所属行业 -->
+          <view class="filter-section">
+            <text class="filter-label">所属行业</text>
+            <view class="filter-options">
+              <view class="option-item">制造业</view>
+              <view class="option-item">服务业</view>
+              <view class="option-item">零售业</view>
+              <view class="option-item">科技业</view>
+            </view>
+          </view>
+          
+          <!-- 所在地区 -->
+          <view class="filter-section">
+            <text class="filter-label">所在地区</text>
+            <view class="filter-options">
+              <view class="option-item">北京</view>
+              <view class="option-item">上海</view>
+              <view class="option-item">广州</view>
+              <view class="option-item">深圳</view>
+            </view>
+          </view>
+        </view>
+        
+        <view class="modal-footer">
+          <view class="reset-btn" bindtap="onClearFilter">重置</view>
+          <view class="confirm-btn" bindtap="onApplyFilter">确定</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 浮动添加按钮 -->
+    <view class="floating-add-btn" bindtap="onAddCustomer">
+      <image src="/assets/images/icons/add-white.png" mode="aspectFit"></image>
+    </view>
+  </view>
+</permission-guard> 

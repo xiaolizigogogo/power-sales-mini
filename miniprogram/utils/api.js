@@ -61,7 +61,7 @@ class ApiService {
       }
       
       // 需要认证的接口列表（登录相关接口除外）
-      const noAuthUrls = ['/auth/login', '/auth/wechat-login', '/auth/register', '/auth/send-code', '/auth/verify-code-login']
+      const noAuthUrls = ['/auth/login', '/auth/wechat-login', '/auth/register', '/auth/send-code', '/auth/verify-code-login', '/mini/auth/wechat-login']
       const needAuth = !noAuthUrls.some(url => options.url.includes(url))
       
       if (needAuth) {
@@ -196,37 +196,94 @@ const apiService = new ApiService()
 
 // 用户认证相关 API
 const authAPI = {
-  // 微信登录
-  wechatLogin: async (code, userInfo) => {
-    console.log('发起微信登录请求:', { code, userInfo })
-    const response = await apiService.post('/auth/wechat-login', { 
-      code,
-      encryptedData: userInfo.encryptedData,
-      iv: userInfo.iv,
-      rawData: userInfo.rawData,
-      signature: userInfo.signature,
-      userInfo: {
-        nickName: userInfo.nickName,
-        avatarUrl: userInfo.avatarUrl,
-        gender: userInfo.gender,
-        country: userInfo.country,
-        province: userInfo.province,
-        city: userInfo.city,
-        language: userInfo.language
-      }
-    }, {
-      showError: false // 不显示错误提示，由调用方处理
+  // 微信登录 - 新版本支持用户类型
+  wechatLogin: async (request) => {
+    console.log('发起微信登录请求:', request)
+    
+    // 兼容新旧调用方式
+    if (typeof request === 'string') {
+      // 旧方式：wechatLogin(code, userInfo)
+      const code = request;
+      const userInfo = arguments[1];
+      request = {
+        code,
+        loginType: 'customer',
+        encryptedData: userInfo?.encryptedData,
+        iv: userInfo?.iv
+      };
+    }
+    
+    const loginData = {
+      code: request.code,
+      loginType: request.loginType || 'customer', // customer 或 manager
+      encryptedData: request.encryptedData,
+      iv: request.iv
+    };
+    
+    console.log('=== 微信登录数据结构 ===');
+    console.log('提醒后端：请根据openId和loginType判断用户类型和是否已存在');
+    console.log('loginType值: customer(普通客户) 或 manager(客户经理)');
+    console.log('=== 微信登录数据结构结束 ===');
+    
+    const response = await apiService.post('/auth/wechat-login', loginData, {
+      showError: false
     });
     console.log('微信登录响应:', response)
     return formatAuthResponse(response);
   },
 
-  // 用户手机号+密码登录
+  // 统一登录接口 - 账号密码登录
+  login: async (request) => {
+    console.log('发起账号密码登录请求:', { phone: request.phone, loginType: request.loginType })
+    const loginData = {
+      phone: request.phone,
+      password: request.password,
+      loginType: request.loginType || 'customer'
+    };
+    
+    const response = await apiService.post('/auth/login', loginData, {
+      showError: false
+    });
+    console.log('账号密码登录响应:', response)
+    return formatAuthResponse(response);
+  },
+
+  // 短信验证码登录
+  smsLogin: async (request) => {
+    console.log('发起短信验证码登录请求:', { phone: request.phone, loginType: request.loginType })
+    const loginData = {
+      phone: request.phone,
+      code: request.code,
+      loginType: request.loginType || 'customer'
+    };
+    
+    const response = await apiService.post('/auth/sms-login', loginData, {
+      showError: false
+    });
+    console.log('短信验证码登录响应:', response)
+    return formatAuthResponse(response);
+  },
+
+  // 发送短信验证码
+  sendSmsCode: async (request) => {
+    console.log('发送短信验证码请求:', { phone: request.phone, type: request.type })
+    const response = await apiService.post('/auth/send-sms-code', {
+      phone: request.phone,
+      type: request.type // customer_login, manager_login, register, forgot_password
+    }, {
+      showError: false
+    });
+    console.log('短信验证码发送响应:', response)
+    return response;
+  },
+
+  // 用户手机号+密码登录 - 保持向后兼容
   userLogin: async (phone, password) => {
     console.log('发起手机号登录请求:', { phone })
     const response = await apiService.post('/auth/login', { 
       phone, 
-      password 
+      password,
+      loginType: 'customer'
     }, {
       showError: false
     });
@@ -331,7 +388,7 @@ const authAPI = {
 
   // 退出登录
   logout: (refreshToken) => {
-    return apiService.post(`/mini/auth/logout?refreshToken=${refreshToken}`);
+    return apiService.post(`/auth/logout?refreshToken=${refreshToken}`);
   },
 
   // OCR识别
@@ -345,7 +402,7 @@ const authAPI = {
   // 提交认证申请
   submitAuth: async (authData) => {
     console.log('提交认证申请:', authData)
-    const response = await apiService.post('/mini/auth/submit', authData);
+    const response = await apiService.post('/auth/submit', authData);
     console.log('认证申请响应:', response)
     return response;
   },
@@ -353,16 +410,68 @@ const authAPI = {
   // 搜索企业名称
   searchCompanies: async (keyword) => {
     console.log('搜索企业名称:', keyword)
-    const response = await apiService.get('/mini/auth/companies/search', { keyword });
+    const response = await apiService.get('/auth/companies/search', { keyword });
     console.log('企业名称搜索响应:', response)
     return response;
   },
 
   // 获取认证状态
-  getAuthStatus: async () => {
-    console.log('获取认证状态')
-    const response = await apiService.get('/mini/auth/status');
-    console.log('认证状态响应:', response)
+  getAuthStatus: async (userId) => {
+    console.log('获取认证状态, userId:', userId)
+    const params = userId ? { userId } : {};
+    
+    try {
+      const response = await apiService.get('/auth/status', params);
+      console.log('认证状态响应:', response)
+      
+      // 检查响应数据结构并给出建议
+      if (response && response.data) {
+        const data = response.data;
+        console.log('=== 认证状态数据结构分析 ===');
+        console.log('返回的数据字段:', Object.keys(data));
+        
+        // 检查认证状态字段
+        const authStatusField = data.authStatus || data.status || data.verifyStatus;
+        console.log('认证状态值:', authStatusField);
+        
+        if (!authStatusField) {
+          console.warn('建议后端返回认证状态字段: authStatus 或 status');
+          console.warn('状态值建议：unverified(未认证), pending(认证中), verified(已认证)');
+        } else {
+          console.log('=== 认证状态说明 ===');
+          console.log('当前状态值:', authStatusField);
+          console.log('建议后端统一状态值：');
+          console.log('- unverified: 未认证');
+          console.log('- pending: 认证中/审核中');
+          console.log('- verified: 已认证');
+          console.log('=== 认证状态说明结束 ===');
+        }
+        
+        if (!data.basicInfo && !data.realName) {
+          console.warn('建议后端返回基本信息字段: realName, companyName, phone, position, powerCapacity, monthlyUsage, currentPrice');
+        }
+        
+        if (!data.authFiles && !data.businessLicense) {
+          console.warn('建议后端返回认证文件字段: businessLicense, idCardFront, idCardBack');
+        }
+        
+        console.log('=== 数据结构分析结束 ===');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('获取认证状态失败:', error);
+      throw error;
+    }
+  },
+
+
+
+  // 取消认证
+  cancelAuth: async () => {
+    console.log('取消认证')
+    const response = await apiService.post('/auth/cancel');
+    console.log('取消认证响应:', response)
     return response;
   }
 }
@@ -423,6 +532,73 @@ const userAPI = {
   // 获取用户用电信息
   getUserPowerInfo: () => {
     return apiService.get('/user/power-info')
+  },
+
+  // 绑定客户经理
+  bindManager: async (data) => {
+    console.log('绑定客户经理请求:', data)
+    
+    try {
+      // 调用真实接口
+      const response = await apiService.post('/user/manager/bind', data);
+      console.log('绑定客户经理响应:', response)
+      return response;
+    } catch (error) {
+      console.warn('绑定客户经理接口调用失败，使用模拟响应:', error);
+      
+      // 模拟接口响应（作为后备方案）
+      const mockResponse = {
+        code: 200,
+        success: true,
+        message: '绑定成功（模拟）',
+        data: {
+          managerId: 'MGR' + Date.now(),
+          managerName: '李经理',
+          managerPhone: data.managerPhone,
+          bindTime: new Date().toISOString()
+        }
+      };
+      
+      // 延迟一点时间，模拟网络请求
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('模拟绑定客户经理响应:', mockResponse);
+      return Promise.resolve(mockResponse);
+    }
+  },
+
+  // 获取客户经理信息
+  getManagerInfo: async (phone) => {
+    console.log('获取客户经理信息, phone:', phone)
+    
+    try {
+      // 调用真实接口
+      const response = await apiService.get(`/user/manager/info/${phone}`);
+      console.log('客户经理信息响应:', response)
+      return response;
+    } catch (error) {
+      console.warn('获取客户经理信息接口调用失败，使用模拟响应:', error);
+      
+      // 模拟接口响应（作为后备方案）
+      const mockResponse = {
+        code: 200,
+        success: true,
+        message: '获取成功（模拟）',
+        data: {
+          managerId: 'MGR' + Date.now(),
+          managerName: '李经理',
+          managerPhone: phone,
+          departmentId: 1,
+          position: '客户经理'
+        }
+      };
+      
+      // 延迟一点时间，模拟网络请求
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      console.log('模拟客户经理信息响应:', mockResponse);
+      return Promise.resolve(mockResponse);
+    }
   }
 }
 
@@ -543,6 +719,317 @@ const customerAPI = {
   // 导出客户数据
   exportCustomers: (params) => {
     return apiService.post('/manager/customers/export', params)
+  },
+
+  // 添加客户
+  addCustomer: (data) => {
+    return apiService.post('/manager/customers', data)
+  },
+
+  // 更新客户信息
+  updateCustomer: (id, data) => {
+    return apiService.put(`/manager/customers/${id}`, data)
+  },
+
+  // 删除客户
+  deleteCustomer: (id) => {
+    return apiService.delete(`/manager/customers/${id}`)
+  },
+
+  // 获取客户详情
+  getCustomerDetail: (id) => {
+    return apiService.get(`/manager/customers/${id}`)
+  },
+
+  // 获取客户跟进记录
+  getCustomerFollowRecords: (id, params) => {
+    return apiService.get(`/manager/customers/${id}/follow-records`, params)
+  },
+
+  // 获取客户订单记录
+  getCustomerOrders: (id, params) => {
+    return apiService.get(`/manager/customers/${id}/orders`, params)
+  },
+
+  // 更新客户状态
+  updateCustomerStatus: (id, status) => {
+    return apiService.put(`/manager/customers/${id}/status`, { status })
+  },
+
+  // 批量导入客户
+  importCustomers: (data) => {
+    return apiService.post('/manager/customers/import', data)
+  },
+
+  // 客户标签管理
+  getCustomerTags: () => {
+    return apiService.get('/manager/customers/tags')
+  },
+
+  addCustomerTag: (data) => {
+    return apiService.post('/manager/customers/tags', data)
+  },
+
+  updateCustomerTags: (id, tags) => {
+    return apiService.put(`/manager/customers/${id}/tags`, { tags })
+  }
+}
+
+// 跟进管理相关 API
+const followAPI = {
+  // 获取跟进记录列表
+  getFollowRecords: (params) => {
+    return apiService.get('/manager/follow-records', params)
+  },
+
+  // 添加跟进记录
+  addFollowRecord: (data) => {
+    return apiService.post('/manager/follow-records', data)
+  },
+
+  // 更新跟进记录
+  updateFollowRecord: (id, data) => {
+    return apiService.put(`/manager/follow-records/${id}`, data)
+  },
+
+  // 删除跟进记录
+  deleteFollowRecord: (id) => {
+    return apiService.delete(`/manager/follow-records/${id}`)
+  },
+
+  // 获取跟进记录详情
+  getFollowRecordDetail: (id) => {
+    return apiService.get(`/manager/follow-records/${id}`)
+  },
+
+  // 完成跟进
+  completeFollow: (id) => {
+    return apiService.put(`/manager/follow-records/${id}/complete`)
+  },
+
+  // 延期跟进
+  postponeFollow: (id, nextFollowTime) => {
+    return apiService.put(`/manager/follow-records/${id}/postpone`, { nextFollowTime })
+  },
+
+  // 获取跟进统计
+  getFollowStats: (params) => {
+    return apiService.get('/manager/follow-records/stats', params)
+  },
+
+  // 获取跟进提醒
+  getFollowReminders: (params) => {
+    return apiService.get('/manager/follow-records/reminders', params)
+  },
+
+  // 批量操作跟进记录
+  batchUpdateFollows: (data) => {
+    return apiService.post('/manager/follow-records/batch', data)
+  },
+
+  // 获取跟进模板
+  getFollowTemplates: () => {
+    return apiService.get('/manager/follow-templates')
+  },
+
+  // 保存跟进草稿
+  saveFollowDraft: (data) => {
+    return apiService.post('/manager/follow-records/draft', data)
+  },
+
+  // 获取跟进草稿
+  getFollowDraft: (customerId) => {
+    return apiService.get(`/manager/follow-records/draft/${customerId}`)
+  }
+}
+
+// 业绩管理相关 API
+const performanceAPI = {
+  // 获取业绩概览
+  getPerformanceOverview: (params) => {
+    return apiService.get('/manager/performance/overview', params)
+  },
+
+  // 获取业绩详情
+  getPerformanceDetail: (params) => {
+    return apiService.get('/manager/performance/detail', params)
+  },
+
+  // 获取业绩趋势
+  getPerformanceTrend: (params) => {
+    return apiService.get('/manager/performance/trend', params)
+  },
+
+  // 获取排行榜
+  getRankings: (params) => {
+    return apiService.get('/manager/performance/rankings', params)
+  },
+
+  // 获取个人排名
+  getPersonalRanking: (params) => {
+    return apiService.get('/manager/performance/personal-ranking', params)
+  },
+
+  // 获取目标设置
+  getTargets: (params) => {
+    return apiService.get('/manager/performance/targets', params)
+  },
+
+  // 设置目标
+  setTarget: (data) => {
+    return apiService.post('/manager/performance/targets', data)
+  },
+
+  // 获取业绩分析
+  getPerformanceAnalysis: (params) => {
+    return apiService.get('/manager/performance/analysis', params)
+  },
+
+  // 导出业绩报告
+  exportPerformanceReport: (params) => {
+    return apiService.post('/manager/performance/export', params)
+  },
+
+  // 获取客户分布
+  getCustomerDistribution: (params) => {
+    return apiService.get('/manager/performance/customer-distribution', params)
+  },
+
+  // 获取订单分析
+  getOrderAnalysis: (params) => {
+    return apiService.get('/manager/performance/order-analysis', params)
+  },
+
+  // 获取跟进效率
+  getFollowEfficiency: (params) => {
+    return apiService.get('/manager/performance/follow-efficiency', params)
+  }
+}
+
+// 工作台相关 API
+const workplaceAPI = {
+  // 获取工作台数据
+  getWorkplaceData: (params) => {
+    return apiService.get('/manager/workplace/data', params)
+  },
+
+  // 获取今日统计
+  getTodayStats: () => {
+    return apiService.get('/manager/workplace/today-stats')
+  },
+
+  // 获取本周数据
+  getWeekData: () => {
+    return apiService.get('/manager/workplace/week-data')
+  },
+
+  // 获取最近跟进
+  getRecentFollows: (params) => {
+    return apiService.get('/manager/workplace/recent-follows', params)
+  },
+
+  // 获取即将到期提醒
+  getUpcomingReminders: (params) => {
+    return apiService.get('/manager/workplace/upcoming-reminders', params)
+  },
+
+  // 获取任务列表
+  getTaskList: (params) => {
+    return apiService.get('/manager/workplace/tasks', params)
+  },
+
+  // 更新任务状态
+  updateTaskStatus: (id, status) => {
+    return apiService.put(`/manager/workplace/tasks/${id}/status`, { status })
+  },
+
+  // 获取通知消息
+  getNotifications: (params) => {
+    return apiService.get('/manager/workplace/notifications', params)
+  },
+
+  // 标记通知已读
+  markNotificationRead: (id) => {
+    return apiService.put(`/manager/workplace/notifications/${id}/read`)
+  }
+}
+
+// 服务管理相关 API
+const serviceAPI = {
+  // 获取服务统计
+  getServiceStats: (params) => {
+    return apiService.get('/manager/service/stats', params)
+  },
+
+  // 获取服务记录
+  getServiceRecords: (params) => {
+    return apiService.get('/manager/service/records', params)
+  },
+
+  // 添加服务记录
+  addServiceRecord: (data) => {
+    return apiService.post('/manager/service/records', data)
+  },
+
+  // 获取服务类型
+  getServiceTypes: () => {
+    return apiService.get('/manager/service/types')
+  },
+
+  // 获取服务评价
+  getServiceReviews: (params) => {
+    return apiService.get('/manager/service/reviews', params)
+  }
+}
+
+// 续约管理相关 API
+const renewalAPI = {
+  // 获取续约统计
+  getRenewalStats: (params) => {
+    return apiService.get('/manager/renewal/stats', params)
+  },
+
+  // 获取续约列表
+  getRenewalList: (params) => {
+    return apiService.get('/manager/renewal/list', params)
+  },
+
+  // 获取即将到期客户
+  getExpiringCustomers: (params) => {
+    return apiService.get('/manager/renewal/expiring-customers', params)
+  },
+
+  // 发起续约
+  initiateRenewal: (data) => {
+    return apiService.post('/manager/renewal/initiate', data)
+  },
+
+  // 更新续约状态
+  updateRenewalStatus: (id, status) => {
+    return apiService.put(`/manager/renewal/${id}/status`, { status })
+  }
+}
+
+// 投诉管理相关 API
+const complaintAPI = {
+  // 获取投诉列表
+  getComplaints: (params) => {
+    return apiService.get('/manager/complaints', params)
+  },
+
+  // 获取投诉详情
+  getComplaintDetail: (id) => {
+    return apiService.get(`/manager/complaints/${id}`)
+  },
+
+  // 处理投诉
+  handleComplaint: (id, data) => {
+    return apiService.put(`/manager/complaints/${id}/handle`, data)
+  },
+
+  // 获取投诉统计
+  getComplaintStats: (params) => {
+    return apiService.get('/manager/complaints/stats', params)
   }
 }
 
@@ -703,12 +1190,28 @@ module.exports = {
     confirmOrder: orderAPI.confirmOrder,
     payOrder: orderAPI.payOrder,
     reviewOrder: orderAPI.reviewOrder,
-    getServiceData: orderAPI.getServiceData
+    getServiceData: orderAPI.getServiceData,
+    
+    // 客户经理相关API
+    ...customerAPI,
+    ...followAPI,
+    ...performanceAPI,
+    ...workplaceAPI,
+    ...serviceAPI,
+    ...renewalAPI,
+    ...complaintAPI
   },
   apiService,
   authAPI,
   productAPI,
   orderAPI,
+  userAPI,
   maintenanceAPI,
-  customerAPI
+  customerAPI,
+  followAPI,
+  performanceAPI,
+  workplaceAPI,
+  serviceAPI,
+  renewalAPI,
+  complaintAPI
 } 

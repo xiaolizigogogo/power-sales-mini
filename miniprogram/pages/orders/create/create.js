@@ -680,6 +680,16 @@ Page({
     }
     console.log('✅ 表单验证通过');
 
+    // 检查企业认证状态
+    console.log('🔍 检查企业认证状态...');
+    const authStatus = await this.checkAuthStatus();
+    if (authStatus !== 'verified') {
+      console.log('❌ 企业认证状态检查失败:', authStatus);
+      this.showAuthRequiredDialog();
+      return;
+    }
+    console.log('✅ 企业认证状态检查通过');
+
     if (!this.data.agreedTerms) {
       console.log('❌ 用户未同意服务条款');
       wx.showToast({
@@ -916,5 +926,64 @@ Page({
     
     // 调用submitOrder函数，统一处理订单提交
     await this.submitOrder();
+  },
+
+  // 检查企业认证状态
+  async checkAuthStatus() {
+    try {
+      const userInfo = wx.getStorageSync('userInfo') || {};
+      const authStatus = userInfo.authStatus || 'unverified';
+      
+      console.log('当前企业认证状态:', authStatus);
+      
+      // 如果本地没有认证状态信息，尝试从服务器获取
+      if (!authStatus || authStatus === 'unverified') {
+        try {
+          const response = await apiService.get('/auth/status');
+          if (response && response.data) {
+            const serverAuthStatus = response.data.authStatus || 'unverified';
+            console.log('从服务器获取的认证状态:', serverAuthStatus);
+            
+            // 更新本地存储
+            userInfo.authStatus = serverAuthStatus;
+            wx.setStorageSync('userInfo', userInfo);
+            
+            return serverAuthStatus;
+          }
+        } catch (error) {
+          console.error('获取服务器认证状态失败:', error);
+        }
+      }
+      
+      return authStatus;
+    } catch (error) {
+      console.error('检查认证状态失败:', error);
+      return 'unverified';
+    }
+  },
+
+  // 显示认证要求弹窗
+  showAuthRequiredDialog() {
+    wx.showModal({
+      title: '企业认证提示',
+      content: '企业未完成认证，无法创建订单。请先完成企业认证。',
+      confirmText: '去认证',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          // 跳转到企业认证页面
+          wx.navigateTo({
+            url: '/pages/profile/auth/auth',
+            fail: (error) => {
+              console.error('跳转到认证页面失败:', error);
+              wx.showToast({
+                title: '跳转失败，请稍后重试',
+                icon: 'none'
+              });
+            }
+          });
+        }
+      }
+    });
   }
 }) 

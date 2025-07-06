@@ -1,0 +1,25 @@
+<!-- 权限守卫组件 -->
+<view class="permission-guard">
+  <!-- 加载中状态 -->
+  <view wx:if="{{isLoading}}" class="loading-container">
+    <view class="loading">
+      <view class="loading-icon"></view>
+      <text class="loading-text">权限验证中...</text>
+    </view>
+  </view>
+
+  <!-- 有权限时显示内容 -->
+  <view wx:elif="{{hasPermission}}" class="content-container">
+    <slot></slot>
+  </view>
+
+  <!-- 无权限时显示提示 -->
+  <view wx:else class="no-permission-container">
+    <view class="no-permission">
+      <image class="no-permission-icon" src="/assets/images/icons/no-permission.png" mode="widthFix"></image>
+      <text class="no-permission-title">访问受限</text>
+      <text class="no-permission-desc">{{tipText}}</text>
+      <button class="retry-btn" bindtap="recheckPermission">重新验证</button>
+    </view>
+  </view>
+</view> 

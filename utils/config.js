@@ -6,7 +6,7 @@ const isDev = true
 // API 配置
 const apiConfig = {
   // API 基础路径 - 小程序端专用路径
-  baseURL: 'http://localhost:8000/api/v1/',
+  baseURL: 'http://localhost:8000/api/v1/mini',
   
   // 请求超时时间（毫秒）
   timeout: 10000,

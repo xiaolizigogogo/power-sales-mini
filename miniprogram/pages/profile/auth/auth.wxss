@@ -25,6 +25,45 @@
   opacity: 0.9;
 }
 
+/* 认证中状态提示 */
+.auth-pending-notice {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbe6 100%);
+  border: 2rpx solid #ffd591;
+  border-radius: 16rpx;
+  margin: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.notice-icon {
+  font-size: 48rpx;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.notice-content {
+  flex: 1;
+}
+
+.notice-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #d48806;
+  margin-bottom: 8rpx;
+}
+
+.notice-desc {
+  font-size: 24rpx;
+  color: #ad6800;
+  line-height: 1.4;
+}
+
 /* 步骤指示器 */
 .step-indicator {
   display: flex;
@@ -160,6 +199,19 @@
   box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
 }
 
+/* 只读状态 */
+.input.readonly {
+  background: #f5f5f5;
+  color: #666;
+  border-color: #d9d9d9;
+}
+
+.input.readonly:focus {
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+  box-shadow: none;
+}
+
 .input-with-unit {
   display: flex;
   align-items: center;
@@ -257,6 +309,18 @@
   background: rgba(102, 126, 234, 0.05);
 }
 
+/* 上传区域禁用状态 */
+.upload-area.disabled {
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.upload-area.disabled .upload-text {
+  color: #999;
+}
+
 .upload-icon {
   font-size: 64rpx;
   margin-bottom: 16rpx;
@@ -334,7 +398,8 @@
 }
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-warning {
   flex: 1;
   height: 88rpx;
   border-radius: 44rpx;
@@ -368,6 +433,17 @@
 
 .btn-secondary:active {
   background: #f8f9fa;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.3);
+}
+
+.btn-warning:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 107, 0.4);
 }
 
 /* 认证须知 */

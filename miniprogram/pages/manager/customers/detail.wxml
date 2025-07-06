@@ -1,0 +1,345 @@
+<!--pages/manager/customers/detail.wxml-->
+<view class="customer-detail-container">
+  <!-- 权限守卫 -->
+  <permission-guard required-user-type="manager" required-page="customer-detail">
+    
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading">
+      <image src="/assets/images/icons/loading.png" class="loading-icon" />
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 客户信息 -->
+    <view wx:else class="customer-info">
+      <!-- 头部信息 -->
+      <view class="customer-header">
+        <view class="customer-avatar">
+          <text class="avatar-text">{{customerInfo.name.charAt(0)}}</text>
+        </view>
+        <view class="customer-basic">
+          <view class="customer-name">{{customerInfo.name}}</view>
+          <view class="customer-company">{{customerInfo.company}}</view>
+          <view class="customer-position">{{customerInfo.position}}</view>
+        </view>
+        <view class="customer-actions">
+          <view class="status-tag" style="background-color: {{getStatusInfo(customerInfo.status).color}}" bindtap="onShowStatusModal">
+            {{getStatusInfo(customerInfo.status).label}}
+          </view>
+          <view class="more-btn" bindtap="onShowMoreMenu">
+            <image src="/assets/images/icons/more.png" />
+          </view>
+        </view>
+      </view>
+      
+      <!-- 统计信息 -->
+      <view class="customer-stats">
+        <view class="stat-item">
+          <view class="stat-value">{{customerInfo.totalOrders}}</view>
+          <view class="stat-label">订单数</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-value">{{formatAmount(customerInfo.totalAmount)}}</view>
+          <view class="stat-label">总金额</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-value">{{formatTime(customerInfo.lastFollowTime)}}</view>
+          <view class="stat-label">最后跟进</view>
+        </view>
+      </view>
+      
+      <!-- 联系方式 -->
+      <view class="contact-info">
+        <view class="contact-item">
+          <image src="/assets/images/icons/phone.png" class="contact-icon" />
+          <text class="contact-text">{{customerInfo.phone}}</text>
+          <view class="contact-actions">
+            <view class="action-btn" data-type="phone" bindtap="onQuickContact">
+              <image src="/assets/images/icons/call.png" />
+            </view>
+            <view class="action-btn" data-type="sms" bindtap="onQuickContact">
+              <image src="/assets/images/icons/message.png" />
+            </view>
+          </view>
+        </view>
+        
+        <view class="contact-item">
+          <image src="/assets/images/icons/email.png" class="contact-icon" />
+          <text class="contact-text">{{customerInfo.email}}</text>
+          <view class="contact-actions">
+            <view class="action-btn" data-type="email" bindtap="onQuickContact">
+              <image src="/assets/images/icons/copy.png" />
+            </view>
+          </view>
+        </view>
+        
+        <view class="contact-item">
+          <image src="/assets/images/icons/wechat.png" class="contact-icon" />
+          <text class="contact-text">{{customerInfo.wechat}}</text>
+          <view class="contact-actions">
+            <view class="action-btn" data-type="wechat" bindtap="onQuickContact">
+              <image src="/assets/images/icons/wechat.png" />
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 详细信息 -->
+      <view class="detail-info">
+        <view class="detail-section">
+          <view class="section-title">基本信息</view>
+          <view class="detail-item">
+            <text class="detail-label">所属行业</text>
+            <text class="detail-value">{{customerInfo.industry}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">企业规模</text>
+            <text class="detail-value">{{customerInfo.scale}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">客户来源</text>
+            <text class="detail-value">{{customerInfo.source}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">地址</text>
+            <text class="detail-value">{{customerInfo.address}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">创建时间</text>
+            <text class="detail-value">{{customerInfo.createTime}}</text>
+          </view>
+        </view>
+        
+        <view class="detail-section">
+          <view class="section-title">客户标签</view>
+          <view class="tags-container">
+            <view wx:for="{{customerInfo.tags}}" wx:key="index" class="customer-tag">
+              {{item}}
+            </view>
+          </view>
+        </view>
+        
+        <view class="detail-section">
+          <view class="section-title">备注信息</view>
+          <view class="remark-content">{{customerInfo.remark}}</view>
+        </view>
+      </view>
+      
+      <!-- 标签栏 -->
+      <view class="tab-bar">
+        <view class="tab-item {{tabIndex === 0 ? 'active' : ''}}" data-index="0" bindtap="onTabChange">
+          <text class="tab-text">跟进记录</text>
+          <text class="tab-count">{{followRecords.length}}</text>
+        </view>
+        <view class="tab-item {{tabIndex === 1 ? 'active' : ''}}" data-index="1" bindtap="onTabChange">
+          <text class="tab-text">订单记录</text>
+          <text class="tab-count">{{orders.length}}</text>
+        </view>
+        <view class="tab-item {{tabIndex === 2 ? 'active' : ''}}" data-index="2" bindtap="onTabChange">
+          <text class="tab-text">活动记录</text>
+          <text class="tab-count">{{activities.length}}</text>
+        </view>
+      </view>
+      
+      <!-- 跟进记录 -->
+      <view wx:if="{{tabIndex === 0}}" class="follow-records">
+        <view wx:if="{{loadingFollows}}" class="loading">
+          <text>加载跟进记录...</text>
+        </view>
+        <view wx:elif="{{followRecords.length === 0}}" class="empty-state">
+          <image src="/assets/images/icons/empty.png" />
+          <text class="empty-text">暂无跟进记录</text>
+          <view class="add-follow-btn" bindtap="onShowFollowModal">添加跟进</view>
+        </view>
+        <view wx:else class="follow-list">
+          <view wx:for="{{followRecords}}" wx:key="id" class="follow-item">
+            <view class="follow-type-icon {{item.type}}">
+              <text class="type-text">
+                {{item.type === 'phone' ? '📞' : item.type === 'visit' ? '🏢' : item.type === 'wechat' ? '💬' : '📧'}}
+              </text>
+            </view>
+            <view class="follow-content">
+              <view class="follow-header">
+                <view class="follow-title">{{item.title}}</view>
+                <view class="follow-status {{item.status}}">
+                  <text class="status-text">{{item.result}}</text>
+                </view>
+              </view>
+              <view class="follow-text">{{item.content}}</view>
+              <view class="follow-meta">
+                <view class="follow-time">{{item.createTime}}</view>
+                <view class="priority priority-{{item.priority}}">{{item.priority === 'high' ? '高优先级' : item.priority === 'medium' ? '中优先级' : '低优先级'}}</view>
+              </view>
+              <view wx:if="{{item.tags && item.tags.length > 0}}" class="follow-tags">
+                <view wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag" class="tag">{{tag}}</view>
+              </view>
+              <view wx:if="{{item.nextFollowTime}}" class="next-follow">
+                下次跟进：{{item.nextFollowTime}}
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 订单记录 -->
+      <view wx:if="{{tabIndex === 1}}" class="order-records">
+        <view wx:if="{{loadingOrders}}" class="loading">
+          <text>加载订单记录...</text>
+        </view>
+        <view wx:elif="{{orders.length === 0}}" class="empty-state">
+          <image src="/assets/images/icons/empty.png" />
+          <text class="empty-text">暂无订单记录</text>
+          <view class="create-order-btn" bindtap="onCreateOrder">创建订单</view>
+        </view>
+        <view wx:else class="order-list">
+          <view wx:for="{{orders}}" wx:key="id" class="order-item" data-order-id="{{item.id}}" bindtap="onViewOrder">
+            <view class="order-header">
+              <view class="order-id">{{item.id}}</view>
+              <view class="order-status {{item.status}}">
+                {{item.status === 'completed' ? '已完成' : item.status === 'pending' ? '进行中' : '已取消'}}
+              </view>
+            </view>
+            <view class="order-content">
+              <view class="order-product">{{item.productName}}</view>
+              <view class="order-details">
+                <text class="order-quantity">数量：{{item.quantity}}</text>
+                <text class="order-price">单价：¥{{item.unitPrice}}</text>
+              </view>
+              <view class="order-amount">总额：¥{{item.totalAmount}}</view>
+            </view>
+            <view class="order-time">
+              <text class="create-time">创建：{{item.createTime}}</text>
+              <text wx:if="{{item.deliveryTime}}" class="delivery-time">交付：{{item.deliveryTime}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 活动记录 -->
+      <view wx:if="{{tabIndex === 2}}" class="activity-records">
+        <view wx:if="{{activities.length === 0}}" class="empty-state">
+          <image src="/assets/images/icons/empty.png" />
+          <text class="empty-text">暂无活动记录</text>
+        </view>
+        <view wx:else class="activity-list">
+          <view wx:for="{{activities}}" wx:key="id" class="activity-item">
+            <view class="activity-icon {{item.type}}">
+              <text class="icon-text">
+                {{item.type === 'follow' ? '📝' : item.type === 'order' ? '📋' : item.type === 'status' ? '🔄' : '📌'}}
+              </text>
+            </view>
+            <view class="activity-content">
+              <view class="activity-title">{{item.title}}</view>
+              <view class="activity-desc">{{item.content}}</view>
+              <view class="activity-meta">
+                <text class="activity-user">{{item.user}}</text>
+                <text class="activity-time">{{formatTime(item.createTime)}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 更多菜单 -->
+    <view wx:if="{{showMoreMenu}}" class="more-menu-modal" bindtap="onHideMoreMenu">
+      <view class="menu-content" catchtap="">
+        <view class="menu-item" bindtap="onEditCustomer">
+          <image src="/assets/images/icons/edit.png" />
+          <text>编辑客户</text>
+        </view>
+        <view class="menu-item" bindtap="onShowFollowModal">
+          <image src="/assets/images/icons/follow.png" />
+          <text>添加跟进</text>
+        </view>
+        <view class="menu-item" bindtap="onCreateOrder">
+          <image src="/assets/images/icons/order.png" />
+          <text>创建订单</text>
+        </view>
+        <view class="menu-item" bindtap="onShareCustomer">
+          <image src="/assets/images/icons/share.png" />
+          <text>分享客户</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 状态修改弹窗 -->
+    <view wx:if="{{showStatusModal}}" class="status-modal" bindtap="onHideStatusModal">
+      <view class="modal-content" catchtap="">
+        <view class="modal-header">
+          <text class="modal-title">修改客户状态</text>
+          <image src="/assets/images/icons/close.png" class="close-btn" bindtap="onHideStatusModal" />
+        </view>
+        <view class="status-options">
+          <view wx:for="{{statusOptions}}" wx:key="value" class="status-option {{customerInfo.status === item.value ? 'selected' : ''}}" 
+                data-value="{{item.value}}" bindtap="onUpdateStatus">
+            <view class="option-color" style="background-color: {{item.color}}"></view>
+            <text class="option-label">{{item.label}}</text>
+            <image wx:if="{{customerInfo.status === item.value}}" src="/assets/images/icons/check.png" class="check-icon" />
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 添加跟进弹窗 -->
+    <view wx:if="{{showFollowModal}}" class="follow-modal" bindtap="onHideFollowModal">
+      <view class="modal-content" catchtap="">
+        <view class="modal-header">
+          <text class="modal-title">添加跟进记录</text>
+          <image src="/assets/images/icons/close.png" class="close-btn" bindtap="onHideFollowModal" />
+        </view>
+        <view class="follow-form">
+          <view class="form-section">
+            <text class="form-label">跟进类型</text>
+            <view class="type-selector">
+              <view wx:for="{{followTypes}}" wx:key="value" class="type-option {{newFollowType === item.value ? 'selected' : ''}}" 
+                    data-field="type" data-value="{{item.value}}" bindtap="onFollowInput">
+                <text class="type-icon">{{item.icon}}</text>
+                <text class="type-label">{{item.label}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <view class="form-section">
+            <text class="form-label">跟进内容</text>
+            <textarea class="form-textarea" placeholder="请输入跟进内容..." maxlength="500" 
+                      data-field="content" bindinput="onFollowInput" value="{{newFollowContent}}" />
+          </view>
+          
+          <view class="form-section">
+            <text class="form-label">优先级</text>
+            <view class="priority-selector">
+              <view wx:for="{{priorities}}" wx:key="value" class="priority-option {{newFollowPriority === item.value ? 'selected' : ''}}" 
+                    data-field="priority" data-value="{{item.value}}" bindtap="onFollowInput">
+                <view class="priority-color" style="background-color: {{item.color}}"></view>
+                <text class="priority-label">{{item.label}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <view class="form-section">
+            <text class="form-label">下次跟进时间</text>
+            <view class="datetime-selector">
+              <picker mode="date" value="{{newFollowDate}}" data-field="date" bindchange="onFollowInput">
+                <view class="datetime-input">{{newFollowDate}}</view>
+              </picker>
+              <picker mode="time" value="{{newFollowTime}}" data-field="time" bindchange="onFollowInput">
+                <view class="datetime-input">{{newFollowTime}}</view>
+              </picker>
+            </view>
+          </view>
+        </view>
+        
+        <view class="modal-footer">
+          <view class="cancel-btn" bindtap="onHideFollowModal">取消</view>
+          <view class="confirm-btn" bindtap="onSubmitFollow">确定</view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 浮动添加按钮 -->
+    <view wx:if="{{tabIndex === 0}}" class="floating-add-btn" bindtap="onShowFollowModal">
+      <image src="/assets/images/icons/add.png" />
+    </view>
+    
+  </permission-guard>
+</view> 

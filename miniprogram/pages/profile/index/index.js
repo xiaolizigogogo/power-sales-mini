@@ -1,5 +1,5 @@
 const app = getApp()
-const { authAPI, orderAPI } = require('../../../utils/api')
+const { authAPI, orderAPI, userAPI } = require('../../../utils/api')
 const auth = require('../../../utils/auth')
 const { checkRoleAccess } = require('../../../utils/auth')
 
@@ -92,6 +92,8 @@ Page({
       }
     ],
     showAuthDialog: false,
+    showManagerDialog: false,
+    managerPhone: '',
     loading: true,
     refreshing: false
   },
@@ -105,6 +107,55 @@ Page({
     if (!this.data.userInfo || !this.data.userInfo.id) {
       this.initPage();
     }
+  },
+
+  // 格式化认证状态
+  formatAuthStatus(status) {
+    console.log('格式化认证状态:', status);
+    
+    // 如果没有状态，默认为未认证
+    if (!status) {
+      return 'unverified';
+    }
+    
+    // 标准化状态值
+    const statusStr = String(status).toLowerCase();
+    
+    // 认证状态映射
+    const statusMap = {
+      // 已认证状态
+      'verified': 'verified',
+      'approved': 'verified',
+      'passed': 'verified',
+      'success': 'verified',
+      '1': 'verified',
+      'true': 'verified',
+      
+      // 认证中状态
+      'pending': 'pending',
+      'reviewing': 'pending',
+      'auditing': 'pending',
+      'processing': 'pending',
+      'in_progress': 'pending',
+      'submitted': 'pending',
+      '2': 'pending',
+      
+      // 未认证状态
+      'unverified': 'unverified',
+      'not_verified': 'unverified',
+      'rejected': 'unverified',
+      'failed': 'unverified',
+      'cancelled': 'unverified',
+      '0': 'unverified',
+      'false': 'unverified',
+      'null': 'unverified',
+      'undefined': 'unverified'
+    };
+    
+    const result = statusMap[statusStr] || 'unverified';
+    console.log('认证状态映射结果:', status, '->', result);
+    
+    return result;
   },
 
   // 初始化页面
@@ -186,14 +237,18 @@ Page({
         openId: rawUserInfo.openId,
         role: rawUserInfo.role,
         status: rawUserInfo.status,
-        authStatus: rawUserInfo.authStatus || rawUserInfo.verifyStatus || 'unverified', // 添加认证状态
+        authStatus: this.formatAuthStatus(rawUserInfo.authStatus || rawUserInfo.verifyStatus || rawUserInfo.status), // 添加认证状态
         userLevel: rawUserInfo.userLevel || rawUserInfo.level,
         companyName: rawUserInfo.companyName || (rawUserInfo.company ? rawUserInfo.company.name : null),
         companyId: rawUserInfo.companyId || (rawUserInfo.company ? rawUserInfo.company.id : null),
         department: rawUserInfo.department,
         position: rawUserInfo.position,
-        createTime: rawUserInfo.createTime || rawUserInfo.createdAt,
-        updateTime: rawUserInfo.updateTime || rawUserInfo.updatedAt
+        createTime: rawUserInfo.createTime || rawUserInfo.createdAt ? this.formatDate(rawUserInfo.createTime || rawUserInfo.createdAt) : '',
+        updateTime: rawUserInfo.updateTime || rawUserInfo.updatedAt,
+        // 客户经理信息
+        managerName: rawUserInfo.managerName || rawUserInfo.manager?.name || '',
+        managerPhone: rawUserInfo.managerPhone || rawUserInfo.manager?.phone || '',
+        managerId: rawUserInfo.managerId || rawUserInfo.manager?.id || ''
       };
       
       console.log('处理后的用户信息:', userInfo);
@@ -245,6 +300,9 @@ Page({
         }
       }
     }
+    
+    // 检查是否需要绑定客户经理
+    this.checkManagerBinding();
   },
 
   // 加载所有数据（不检查登录状态）
@@ -590,26 +648,35 @@ Page({
     try {
       const userInfo = this.data.userInfo;
       if (userInfo.managerPhone) {
-        wx.makePhoneCall({
-          phoneNumber: userInfo.managerPhone,
-          fail: (error) => {
-            console.error('拨打电话失败:', error);
-            wx.showToast({
-              title: '拨打电话失败',
-              icon: 'none'
-            });
+        wx.showActionSheet({
+          itemList: ['拨打电话', '重新绑定'],
+          success: (res) => {
+            switch (res.tapIndex) {
+              case 0: // 拨打电话
+                wx.makePhoneCall({
+                  phoneNumber: userInfo.managerPhone,
+                  fail: (error) => {
+                    console.error('拨打电话失败:', error);
+                    wx.showToast({
+                      title: '拨打电话失败',
+                      icon: 'none'
+                    });
+                  }
+                });
+                break;
+              case 1: // 重新绑定
+                this.showManagerInputDialog();
+                break;
+            }
           }
         });
       } else {
-        wx.showToast({
-          title: '暂无客户经理联系方式',
-          icon: 'none'
-        });
+        this.showManagerBindingDialog();
       }
     } catch (error) {
       console.error('联系客户经理失败:', error);
       wx.showToast({
-        title: '联系客户经理失败',
+        title: '操作失败',
         icon: 'none'
       });
     }
@@ -738,5 +805,172 @@ Page({
     return {
       title: '电力销售服务平台'
     };
+  },
+
+  // 格式化日期
+  formatDate(dateString) {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error('日期格式化失败:', error);
+      return '';
+    }
+  },
+
+  // 检查客户经理绑定
+  checkManagerBinding() {
+    if (!this.data.isLoggedIn) return;
+    
+    const { userInfo } = this.data;
+    const hasManager = userInfo.managerName && userInfo.managerPhone;
+    
+    // 检查是否是第一次登录且没有绑定客户经理
+    const isFirstLogin = wx.getStorageSync('isFirstLogin') !== false;
+    
+    if (isFirstLogin && !hasManager) {
+      setTimeout(() => {
+        this.showManagerBindingDialog();
+      }, 2000); // 延迟2秒显示，让用户先看到界面
+      
+      // 标记为非首次登录
+      wx.setStorageSync('isFirstLogin', false);
+    }
+  },
+
+  // 显示客户经理绑定弹窗
+  showManagerBindingDialog() {
+    wx.showModal({
+      title: '绑定专属经理',
+      content: '为了给您提供更好的服务，建议您绑定专属客户经理。是否现在绑定？',
+      confirmText: '立即绑定',
+      cancelText: '稍后绑定',
+      success: (res) => {
+        if (res.confirm) {
+          this.showManagerInputDialog();
+        }
+      }
+    });
+  },
+
+  // 显示客户经理输入弹窗
+  showManagerInputDialog() {
+    this.setData({
+      showManagerDialog: true,
+      managerPhone: ''
+    });
+  },
+
+  // 关闭客户经理输入弹窗
+  closeManagerDialog() {
+    this.setData({
+      showManagerDialog: false,
+      managerPhone: ''
+    });
+  },
+
+  // 手机号输入事件
+  onManagerPhoneInput(e) {
+    this.setData({
+      managerPhone: e.detail.value
+    });
+  },
+
+  // 阻止事件冒泡
+  stopPropagation() {
+    // 空函数，用于阻止事件冒泡
+  },
+
+  // 验证手机号格式
+  validatePhone(phone) {
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  },
+
+  // 确认绑定客户经理
+  confirmBindManager() {
+    const phone = this.data.managerPhone.trim();
+    
+    if (!phone) {
+      wx.showToast({
+        title: '请输入手机号',
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (!this.validatePhone(phone)) {
+      wx.showToast({
+        title: '请输入正确的手机号',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 关闭弹窗
+    this.closeManagerDialog();
+    
+    // 执行绑定
+    this.bindManager(phone);
+  },
+
+  // 绑定客户经理
+  async bindManager(phone) {
+    try {
+      wx.showLoading({
+        title: '验证中...',
+        mask: true
+      });
+
+      // 调用真实API验证员工是否存在
+      const result = await userAPI.bindManager({ managerPhone: phone });
+
+      wx.hideLoading();
+
+      if (result && (result.success || result.code === 200)) {
+        const managerInfo = result.data || {};
+        
+        // 更新用户信息
+        const userInfo = { ...this.data.userInfo };
+        userInfo.managerName = managerInfo.managerName || managerInfo.name || '客户经理';
+        userInfo.managerPhone = phone;
+        userInfo.managerId = managerInfo.managerId || managerInfo.id || '';
+
+        // 更新本地存储
+        wx.setStorageSync('userInfo', userInfo);
+        
+        // 更新页面数据
+        this.setData({ userInfo });
+
+        wx.showToast({
+          title: '绑定成功',
+          icon: 'success'
+        });
+      } else {
+        throw new Error(result.message || '该手机号对应的客户经理不存在');
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('绑定客户经理失败:', error);
+      
+      // 根据错误类型显示不同提示
+      let errorMessage = '绑定失败，请重试';
+      if (error.message && error.message.includes('不存在')) {
+        errorMessage = '客户经理不存在，请检查手机号是否正确';
+      } else if (error.statusCode === 404) {
+        errorMessage = '客户经理不存在，请联系管理员';
+      }
+      
+      wx.showToast({
+        title: errorMessage,
+        icon: 'none',
+        duration: 3000
+      });
+    }
   }
 }) 

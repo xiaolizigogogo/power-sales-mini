@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "我的",
+  "navigationBarBackgroundColor": "#409EFF",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f5f5",
+  "backgroundColorTop": "#409EFF",
+  "backgroundColorBottom": "#f5f5f5",
+  "usingComponents": {
+    "permission-guard": "/components/permission-guard/index",
+    "van-popup": "@vant/weapp/popup/index"
+  }
+} 

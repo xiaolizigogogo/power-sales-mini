@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "业绩查看",
+  "enablePullDownRefresh": true,
+  "navigationBarBackgroundColor": "#722ed1",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f5f5",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "permission-guard": "/components/permission-guard/index"
+  }
+} 
