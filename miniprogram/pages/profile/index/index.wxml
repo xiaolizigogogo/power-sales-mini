@@ -34,16 +34,37 @@
           <view class="auth-badge {{userInfo.authStatus === 'verified' ? 'verified' : userInfo.authStatus === 'pending' ? 'pending' : 'unverified'}}" 
                 bindtap="{{userInfo.authStatus !== 'verified' ? 'goToAuth' : ''}}"
                 data-status="{{userInfo.authStatus}}">
-            <text class="auth-icon">{{userInfo.authStatus === 'verified' ? '✓' : userInfo.authStatus === 'pending' ? '⏳' : '!'}}</text>
-            <text class="auth-text">
-              {{userInfo.authStatus === 'verified' ? '已认证' : userInfo.authStatus === 'pending' ? '认证中' : '未认证'}}
-            </text>
-            <text class="auth-action" wx:if="{{userInfo.authStatus !== 'verified'}}">点击{{userInfo.authStatus === 'pending' ? '查看' : '认证'}}</text>
+            <view class="auth-main">
+              <text class="auth-icon">{{userInfo.authStatus === 'verified' ? '✓' : userInfo.authStatus === 'pending' ? '⏳' : '!'}}</text>
+              <text class="auth-text">
+                {{userInfo.authStatus === 'verified' ? '企业已认证' : userInfo.authStatus === 'pending' ? '认证审核中' : '企业未认证'}}
+              </text>
+            </view>
+            <view class="auth-action" wx:if="{{userInfo.authStatus !== 'verified'}}">
+              <text class="action-text">{{userInfo.authStatus === 'pending' ? '查看进度' : '立即认证'}}</text>
+              <text class="action-arrow">›</text>
+            </view>
           </view>
         </view>
         <view class="company" wx:if="{{ userInfo.companyName }}">{{ userInfo.companyName }}</view>
         <view class="phone" wx:if="{{ userInfo.phone }}">{{ userInfo.phone }}</view>
-        <view class="phone" wx:if="{{ userInfo.openId && !userInfo.phone }}">ID: {{ userInfo.openId.substring(0, 10) }}...</view>
+        <view class="manager-info" 
+              wx:if="{{ userInfo.managerName }}" 
+              bindtap="contactManager">
+          <text class="manager-label">专属经理：</text>
+          <text class="manager-name">{{ userInfo.managerName }}</text>
+          <text class="manager-action">点击联系</text>
+        </view>
+        <view class="manager-info unbound" 
+              wx:if="{{ !userInfo.managerName && isLoggedIn }}" 
+              bindtap="showManagerInputDialog">
+          <text class="manager-label">专属经理：</text>
+          <text class="manager-bind">点击绑定客户经理</text>
+        </view>
+        <view class="join-date" wx:if="{{ userInfo.createTime }}">
+          <text class="join-label">加入时间：</text>
+          <text class="join-time">{{ userInfo.createTime }}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -167,6 +188,38 @@
       <text>登录后即可使用完整功能</text>
     </view>
   </van-dialog>
+
+  <!-- 绑定客户经理弹窗 -->
+  <view class="manager-dialog-overlay" wx:if="{{showManagerDialog}}" bindtap="closeManagerDialog">
+    <view class="manager-dialog" catchtap="stopPropagation">
+      <view class="dialog-header">
+        <text class="dialog-title">绑定客户经理</text>
+        <view class="dialog-close" bindtap="closeManagerDialog">✕</view>
+      </view>
+      
+      <view class="dialog-content">
+        <view class="input-section">
+          <text class="input-label">客户经理手机号</text>
+          <input class="manager-phone-input" 
+                 type="number"
+                 placeholder="请输入11位手机号码"
+                 value="{{managerPhone}}"
+                 bindinput="onManagerPhoneInput"
+                 maxlength="11" />
+        </view>
+        
+        <view class="dialog-tip">
+          <text class="tip-icon">💡</text>
+          <text class="tip-text">请输入您的专属客户经理手机号，系统将自动验证并绑定</text>
+        </view>
+      </view>
+      
+      <view class="dialog-footer">
+        <button class="cancel-btn" bindtap="closeManagerDialog">取消</button>
+        <button class="confirm-btn" bindtap="confirmBindManager">确认绑定</button>
+      </view>
+    </view>
+  </view>
 
   <!-- 加载状态 -->
   <view class="loading-mask" wx:if="{{loading}}">

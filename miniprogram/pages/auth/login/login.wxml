@@ -1,63 +1,175 @@
-<view class="container">
+<!-- 统一登录页面 -->
+<view class="login-container">
+  <!-- 标题 -->
   <view class="login-header">
     <view class="logo">⚡</view>
-    <text class="title">电力销售平台</text>
+    <text class="title">众益售电平台</text>
     <text class="subtitle">专业的电力销售管理工具</text>
   </view>
 
-  <!-- 微信授权登录按钮 -->
-  <view class="wechat-login">
+  <!-- 用户类型切换 -->
+  <view class="user-type-section">
+    <view class="user-type-tabs">
+      <view 
+        class="user-type-tab {{loginType === 'customer' ? 'active' : ''}}"
+        data-type="customer"
+        bindtap="switchLoginType"
+      >
+        <text>普通客户</text>
+      </view>
+      <view 
+        class="user-type-tab {{loginType === 'manager' ? 'active' : ''}}"
+        data-type="manager"
+        bindtap="switchLoginType"
+      >
+        <text>客户经理</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录方式切换 -->
+  <view class="login-method-section">
+    <view class="method-tabs">
+      <view 
+        class="method-tab {{loginMethod === 'wechat' ? 'active' : ''}}"
+        data-method="wechat"
+        bindtap="switchLoginMethod"
+      >
+        <text class="method-icon">💬</text>
+        <text>微信登录</text>
+      </view>
+      <view 
+        class="method-tab {{loginMethod === 'password' ? 'active' : ''}}"
+        data-method="password"
+        bindtap="switchLoginMethod"
+      >
+        <text class="method-icon">🔒</text>
+        <text>密码登录</text>
+      </view>
+      <view 
+        class="method-tab {{loginMethod === 'sms' ? 'active' : ''}}"
+        data-method="sms"
+        bindtap="switchLoginMethod"
+      >
+        <text class="method-icon">📱</text>
+        <text>验证码登录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="form-section">
+    <!-- 微信登录 -->
+    <view wx:if="{{loginMethod === 'wechat'}}" class="wechat-form">
+      <view class="login-tip">
+        <text>点击下方按钮，使用微信授权登录</text>
+      </view>
+      <button 
+        class="button button-wechat {{isLoading ? 'button-loading' : ''}}" 
+        bindtap="wechatLogin"
+        disabled="{{isLoading}}"
+      >
+        <text class="wechat-icon">💬</text>
+        <text>{{isLoading ? '登录中...' : '微信快速登录'}}</text>
+      </button>
+    </view>
+
+    <!-- 密码登录 -->
+    <view wx:elif="{{loginMethod === 'password'}}" class="password-form">
+      <view class="form-item">
+        <text class="label">手机号</text>
+        <input 
+          type="number" 
+          placeholder="请输入手机号" 
+          data-field="phone"
+          bindinput="onInputChange"
+          value="{{form.phone}}"
+          maxlength="11"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">密码</text>
+        <view class="password-wrapper">
+          <input 
+            type="{{showPassword ? 'text' : 'password'}}" 
+            placeholder="请输入密码" 
+            data-field="password"
+            bindinput="onInputChange"
+            value="{{form.password}}"
+            maxlength="20"
+          />
+          <text 
+            class="password-toggle" 
+            bindtap="togglePassword"
+          >{{showPassword ? '👁' : '🙈'}}</text>
+        </view>
+      </view>
+
+      <view class="forgot-password">
+        <text class="text-primary" bindtap="goToForgotPassword">忘记密码？</text>
+      </view>
+    </view>
+
+    <!-- 短信验证码登录 -->
+    <view wx:elif="{{loginMethod === 'sms'}}" class="sms-form">
+      <view class="form-item">
+        <text class="label">手机号</text>
+        <input 
+          type="number" 
+          placeholder="请输入手机号" 
+          data-field="phone"
+          bindinput="onInputChange"
+          value="{{form.phone}}"
+          maxlength="11"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">验证码</text>
+        <view class="code-wrapper">
+          <input 
+            type="number" 
+            placeholder="请输入验证码" 
+            data-field="code"
+            bindinput="onInputChange"
+            value="{{form.code}}"
+            maxlength="6"
+          />
+          <button 
+            class="code-btn {{codeDisabled ? 'disabled' : ''}}"
+            bindtap="getSmsCode"
+            disabled="{{codeDisabled}}"
+          >
+            {{codeText}}
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 登录按钮 -->
     <button 
-      class="button button-wechat {{loading ? 'button-loading' : ''}}"
-      bindtap="handleWechatLogin"
-      disabled="{{loading}}"
+      class="button button-primary login-button {{isLoading ? 'button-loading' : ''}}" 
+      bindtap="doLogin"
+      disabled="{{isLoading}}"
     >
-      <text class="wechat-icon">💬</text>
-      <text>{{loading ? '登录中...' : '微信一键登录'}}</text>
+      <view class="loading" wx:if="{{isLoading}}"></view>
+      <text>{{isLoading ? '登录中...' : '登录'}}</text>
     </button>
   </view>
 
-  <view class="divider">
-    <text>其他登录方式</text>
+  <!-- 注册链接 -->
+  <view class="register-section" wx:if="{{loginType === 'customer'}}">
+    <text>还没有账号？</text>
+    <text class="text-primary" bindtap="goToRegister">立即注册</text>
   </view>
 
-  <view class="login-form">
-    <view class="form-item">
-      <text class="label">手机号</text>
-      <input 
-        type="number" 
-        placeholder="请输入手机号" 
-        maxlength="11"
-        value="{{phone}}"
-        bindinput="onPhoneInput"
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="label">密码</text>
-      <input 
-        type="password" 
-        placeholder="请输入密码" 
-        value="{{password}}"
-        bindinput="onPasswordInput"
-      />
-    </view>
-
-    <button 
-      class="button button-primary login-button {{loading ? 'button-loading' : ''}}" 
-      bindtap="handleLogin"
-      disabled="{{loading}}"
-    >
-      <view class="loading" wx:if="{{loading}}"></view>
-      <text>{{loading ? '登录中...' : '登录'}}</text>
-    </button>
-
-    <view class="form-footer">
-      <text>还没有账号？</text>
-      <text class="text-primary" bindtap="goToRegister">立即注册</text>
-    </view>
+  <!-- 客户经理说明 -->
+  <view class="manager-tip" wx:if="{{loginType === 'manager'}}">
+    <text class="text-small">客户经理账号由公司统一分配，如有问题请联系管理员</text>
   </view>
 
+  <!-- 用户协议 -->
   <view class="login-tips">
     <text class="text-small">登录即表示同意</text>
     <text class="text-primary text-small">《用户协议》</text>

@@ -1,0 +1,231 @@
+<!--pages/manager/performance/index.wxml-->
+<permission-guard required-user-type="manager" required-page="performance">
+  <view class="performance-container">
+    <!-- 时间周期选择 -->
+    <view class="period-selector">
+      <view 
+        class="period-item {{selectedPeriod === item.value ? 'active' : ''}}"
+        wx:for="{{periodOptions}}" 
+        wx:key="value"
+        data-period="{{item.value}}"
+        bindtap="onPeriodChange"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+
+    <!-- 个人业绩概览 -->
+    <view class="performance-overview">
+      <view class="overview-header">
+        <text class="section-title">个人业绩</text>
+        <view class="ranking-badge">
+          <text class="ranking-text">团队排名 {{personalPerformance.ranking}}/{{personalPerformance.totalEmployees}}</text>
+        </view>
+      </view>
+      
+      <view class="performance-main">
+        <view class="amount-section">
+          <text class="current-amount">¥{{personalPerformance.currentAmount}}</text>
+          <view class="amount-details">
+            <text class="target-text">目标: ¥{{personalPerformance.targetAmount}}</text>
+            <text class="completion-rate {{personalPerformance.completionRate >= 80 ? 'good' : 'warning'}}">
+              完成率 {{personalPerformance.completionRate}}%
+            </text>
+          </view>
+        </view>
+        
+        <view class="growth-section">
+          <view class="growth-indicator {{personalPerformance.growth >= 0 ? 'positive' : 'negative'}}">
+            <text class="growth-icon">{{personalPerformance.growth >= 0 ? '↗' : '↘'}}</text>
+            <text class="growth-text">{{personalPerformance.growth >= 0 ? '+' : ''}}{{personalPerformance.growth}}%</text>
+          </view>
+          <text class="growth-label">较上月</text>
+        </view>
+      </view>
+      
+      <!-- 进度条 -->
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{personalPerformance.completionRate}}%"></view>
+      </view>
+    </view>
+
+    <!-- 月度目标进度 -->
+    <view class="monthly-target">
+      <view class="section-header">
+        <text class="section-title">月度目标进度</text>
+        <text class="target-status {{monthlyTarget.onTrack ? 'on-track' : 'behind'}}">
+          {{monthlyTarget.onTrack ? '进度正常' : '需要加速'}}
+        </text>
+      </view>
+      
+      <view class="target-content">
+        <view class="target-numbers">
+          <view class="target-item">
+            <text class="target-value">¥{{monthlyTarget.remaining}}</text>
+            <text class="target-label">还需完成</text>
+          </view>
+          <view class="target-item">
+            <text class="target-value">{{monthlyTarget.daysLeft}}</text>
+            <text class="target-label">剩余天数</text>
+          </view>
+          <view class="target-item">
+            <text class="target-value">¥{{monthlyTarget.dailyRequired}}</text>
+            <text class="target-label">日均需完成</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 业绩分解 -->
+    <view class="performance-breakdown">
+      <view class="section-header">
+        <text class="section-title">业绩分解</text>
+        <text class="more-btn" bindtap="onViewDetailReport">详细报告</text>
+      </view>
+      
+      <view class="breakdown-grid">
+        <view class="breakdown-item">
+          <text class="breakdown-number">{{performanceBreakdown.newCustomers}}</text>
+          <text class="breakdown-label">新客户</text>
+          <text class="breakdown-amount">¥{{performanceBreakdown.newCustomerAmount}}</text>
+        </view>
+        <view class="breakdown-item">
+          <text class="breakdown-number">{{performanceBreakdown.renewalCustomers}}</text>
+          <text class="breakdown-label">续约客户</text>
+          <text class="breakdown-amount">¥{{performanceBreakdown.renewalAmount}}</text>
+        </view>
+        <view class="breakdown-item">
+          <text class="breakdown-number">¥{{performanceBreakdown.averageOrderValue}}</text>
+          <text class="breakdown-label">平均订单金额</text>
+        </view>
+        <view class="breakdown-item">
+          <text class="breakdown-number">{{performanceBreakdown.conversionRate}}%</text>
+          <text class="breakdown-label">转化率</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 历史趋势图表 -->
+    <view class="trend-chart">
+      <view class="section-header">
+        <text class="section-title">业绩趋势</text>
+        <view class="chart-controls">
+          <text 
+            class="chart-btn {{chartType === 'trend' ? 'active' : ''}}"
+            data-type="trend"
+            bindtap="onChartTypeChange"
+          >趋势</text>
+          <text 
+            class="chart-btn {{chartType === 'breakdown' ? 'active' : ''}}"
+            data-type="breakdown"
+            bindtap="onChartTypeChange"
+          >分解</text>
+        </view>
+      </view>
+      
+      <view class="chart-content">
+        <!-- 简化的趋势图表 -->
+        <view class="trend-list">
+          <view 
+            class="trend-item"
+            wx:for="{{trendData}}" 
+            wx:key="month"
+          >
+            <text class="trend-month">{{item.month}}</text>
+            <view class="trend-bar">
+              <view 
+                class="trend-fill"
+                style="height: {{item.amount / 150000 * 100}}%"
+              ></view>
+            </view>
+            <text class="trend-amount">¥{{item.amount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 团队排行榜 -->
+    <view class="team-ranking">
+      <view class="section-header">
+        <text class="section-title">团队排行榜</text>
+        <text class="more-btn" bindtap="onViewTeamDetail">查看全部</text>
+      </view>
+      
+      <view class="ranking-list">
+        <view 
+          class="ranking-item {{item.isMe ? 'highlight' : ''}}"
+          wx:for="{{teamRanking}}" 
+          wx:key="rank"
+          wx:if="{{index < 5}}"
+        >
+          <view class="ranking-info">
+            <view class="rank-badge rank-{{item.rank <= 3 ? item.rank : 'other'}}">
+              <text class="rank-number">{{item.rank}}</text>
+            </view>
+            <text class="member-name">{{item.name}}</text>
+          </view>
+          
+          <view class="performance-info">
+            <text class="member-amount">¥{{item.amount}}</text>
+            <text class="member-growth {{item.growth >= 0 ? 'positive' : 'negative'}}">
+              {{item.growth >= 0 ? '+' : ''}}{{item.growth}}%
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 业绩分析 -->
+    <view class="performance-analysis">
+      <text class="section-title">业绩分析</text>
+      
+      <view class="analysis-content">
+        <view class="analysis-item">
+          <text class="analysis-label">最佳表现月份</text>
+          <text class="analysis-value">{{performanceAnalysis.bestPerformingMonth}}</text>
+        </view>
+        <view class="analysis-item">
+          <text class="analysis-label">优势领域</text>
+          <text class="analysis-value">{{performanceAnalysis.topCategory}}</text>
+        </view>
+        <view class="analysis-item">
+          <text class="analysis-label">改进建议</text>
+          <view class="improvement-tags">
+            <text 
+              class="improvement-tag"
+              wx:for="{{performanceAnalysis.improvementAreas}}" 
+              wx:key="*this"
+            >{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <view class="action-btn primary" bindtap="onViewHistory">
+        <image src="/assets/images/icons/history.png" mode="aspectFit"></image>
+        <text>历史记录</text>
+      </view>
+      <view class="action-btn secondary" bindtap="onSetTarget">
+        <image src="/assets/images/icons/target.png" mode="aspectFit"></image>
+        <text>设置目标</text>
+      </view>
+      <view class="action-btn secondary" bindtap="onExportReport">
+        <image src="/assets/images/icons/export.png" mode="aspectFit"></image>
+        <text>导出报告</text>
+      </view>
+      <view class="action-btn secondary" bindtap="onSharePerformance">
+        <image src="/assets/images/icons/share.png" mode="aspectFit"></image>
+        <text>分享业绩</text>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-overlay" wx:if="{{loading}}">
+      <view class="loading-spinner">
+        <text>加载中...</text>
+      </view>
+    </view>
+  </view>
+</permission-guard> 

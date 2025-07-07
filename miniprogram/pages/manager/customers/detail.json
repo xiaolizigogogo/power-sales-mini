@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "客户详情",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#f5f5f5",
+  "usingComponents": {
+    "permission-guard": "/components/permission-guard/index"
+  }
+} 

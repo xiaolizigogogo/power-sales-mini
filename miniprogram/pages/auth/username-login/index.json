@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "用户名登录",
+  "navigationBarBackgroundColor": "#409EFF",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f5f5",
+  "backgroundColorTop": "#409EFF",
+  "backgroundColorBottom": "#f5f5f5",
+  "usingComponents": {
+    "van-popup": "@vant/weapp/popup/index"
+  }
+} 

@@ -1,4 +1,5 @@
-.container {
+/* 登录页面样式 */
+.login-container {
   min-height: 100vh;
   padding: 40rpx;
   background-color: #fff;
@@ -8,7 +9,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 80rpx;
+  margin-bottom: 60rpx;
   padding-top: 60rpx;
 }
 
@@ -29,6 +30,7 @@
   font-size: 40rpx;
   font-weight: bold;
   margin-bottom: 10rpx;
+  color: #333;
 }
 
 .subtitle {
@@ -36,50 +38,196 @@
   color: #999;
 }
 
-.login-form {
+/* 用户类型选择 */
+.user-type-section {
+  margin-bottom: 40rpx;
+}
+
+.user-type-tabs {
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 6rpx;
+}
+
+.user-type-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.user-type-tab.active {
+  background-color: #409EFF;
+  color: white;
+  font-weight: 600;
+}
+
+/* 登录方式选择 */
+.login-method-section {
+  margin-bottom: 40rpx;
+}
+
+.method-tabs {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.method-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.method-tab.active {
+  background-color: #e3f2fd;
+  border-color: #409EFF;
+}
+
+.method-icon {
+  font-size: 32rpx;
+  margin-bottom: 8rpx;
+}
+
+.method-tab text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.method-tab.active text {
+  color: #409EFF;
+  font-weight: 600;
+}
+
+/* 登录表单 */
+.form-section {
   margin-bottom: 60rpx;
 }
 
+.wechat-form,
+.password-form,
+.sms-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.login-tip {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #666;
+  font-size: 26rpx;
+}
+
 .form-item {
-  margin-bottom: 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
 }
 
 .label {
-  display: block;
-  margin-bottom: 10rpx;
   font-size: 28rpx;
   color: #333;
+  font-weight: 500;
 }
 
 input {
-  width: 100%;
   height: 88rpx;
   padding: 0 20rpx;
   border: 2rpx solid #e4e7ed;
   border-radius: 8rpx;
   font-size: 28rpx;
   box-sizing: border-box;
+  background-color: #fff;
 }
 
-.login-button {
-  width: 100%;
+input:focus {
+  border-color: #409EFF;
+  outline: none;
+}
+
+.password-wrapper,
+.code-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 80rpx;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 20rpx;
+  font-size: 32rpx;
+  color: #999;
+  cursor: pointer;
+}
+
+.code-wrapper input {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.code-btn {
   height: 88rpx;
-  margin-top: 60rpx;
+  padding: 0 24rpx;
+  background-color: #409EFF;
+  color: white;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  white-space: nowrap;
+}
+
+.code-btn.disabled {
+  background-color: #c0c4cc;
+  color: #999;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 10rpx;
+}
+
+.forgot-password text {
+  font-size: 24rpx;
+  color: #409EFF;
+}
+
+/* 通用按钮样式 */
+.button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #409EFF;
-  color: #fff;
   border: none;
   border-radius: 12rpx;
   font-size: 28rpx;
   font-weight: bold;
   transition: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-button:disabled {
-  opacity: 0.6;
-  background-color: #c0c4cc;
+.button-primary {
+  background-color: #409EFF;
+  color: #fff;
+}
+
+.button-wechat {
+  background: #07C160;
+  color: #FFFFFF;
 }
 
 .button-loading {
@@ -87,15 +235,64 @@ input {
   pointer-events: none;
 }
 
-.form-footer {
-  margin-top: 30rpx;
-  text-align: center;
-  font-size: 28rpx;
+.button:disabled {
+  opacity: 0.6;
+  background-color: #c0c4cc;
 }
 
-.form-footer .text-primary {
+.login-button {
+  width: 100%;
+  height: 88rpx;
+  margin-top: 20rpx;
+}
+
+.wechat-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+/* 加载动画 */
+.loading {
+  width: 32rpx;
+  height: 32rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+  border-top: 3rpx solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 底部区域 */
+.register-section {
+  text-align: center;
+  margin-top: 40rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.register-section .text-primary {
   color: #409EFF;
   margin-left: 10rpx;
+}
+
+.manager-tip {
+  text-align: center;
+  margin-top: 40rpx;
+  padding: 24rpx;
+  background-color: #f8f9fa;
+  border-radius: 8rpx;
+  border-left: 4rpx solid #409EFF;
+}
+
+.manager-tip text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.4;
 }
 
 .login-tips {
@@ -113,64 +310,28 @@ input {
   color: #409EFF;
 }
 
-/* 微信登录按钮 */
-.wechat-login {
-  margin: 40rpx 30rpx;
+.login-tips .text-small {
+  font-size: 22rpx;
 }
 
-.button-wechat {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 88rpx;
-  background: #07C160;
-  color: #FFFFFF;
-  border-radius: 44rpx;
-  border: none;
-  font-size: 32rpx;
-  font-weight: 500;
-  transition: none;
-}
-
-.button-wechat:disabled {
-  opacity: 0.6;
-  background: #c0c4cc;
-}
-
-.wechat-icon {
-  font-size: 32rpx;
-  margin-right: 12rpx;
-}
-
-/* 分隔线 */
-.divider {
-  position: relative;
-  text-align: center;
-  margin: 40rpx 0;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 30%;
-  height: 1px;
-  background: #EEEEEE;
-}
-
-.divider::before {
-  left: 50rpx;
-}
-
-.divider::after {
-  right: 50rpx;
-}
-
-.divider text {
-  color: #999999;
-  font-size: 24rpx;
-  background: #FFFFFF;
-  padding: 0 20rpx;
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .login-container {
+    padding: 30rpx;
+  }
+  
+  .login-header {
+    padding-top: 40rpx;
+    margin-bottom: 40rpx;
+  }
+  
+  .logo {
+    width: 140rpx;
+    height: 140rpx;
+    font-size: 70rpx;
+  }
+  
+  .title {
+    font-size: 36rpx;
+  }
 } 
