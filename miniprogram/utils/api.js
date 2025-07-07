@@ -331,7 +331,7 @@ const authAPI = {
 
   // 退出登录
   logout: (refreshToken) => {
-    return apiService.post(`/mini/auth/logout?refreshToken=${refreshToken}`);
+    return apiService.post(`/auth/logout?refreshToken=${refreshToken}`);
   },
 
   // OCR识别
@@ -345,7 +345,7 @@ const authAPI = {
   // 提交认证申请
   submitAuth: async (authData) => {
     console.log('提交认证申请:', authData)
-    const response = await apiService.post('/mini/auth/submit', authData);
+    const response = await apiService.post('/auth/submit', authData);
     console.log('认证申请响应:', response)
     return response;
   },
@@ -353,7 +353,7 @@ const authAPI = {
   // 搜索企业名称
   searchCompanies: async (keyword) => {
     console.log('搜索企业名称:', keyword)
-    const response = await apiService.get('/mini/auth/companies/search', { keyword });
+    const response = await apiService.get('/auth/companies/search', { keyword });
     console.log('企业名称搜索响应:', response)
     return response;
   },
@@ -361,7 +361,7 @@ const authAPI = {
   // 获取认证状态
   getAuthStatus: async () => {
     console.log('获取认证状态')
-    const response = await apiService.get('/mini/auth/status');
+    const response = await apiService.get('/auth/status');
     console.log('认证状态响应:', response)
     return response;
   }
