@@ -1,5 +1,5 @@
 // pages/manager/follow/list.js
-const roleManager = require('../../../utils/role-manager');
+const { roleManager } = require('../../../utils/role-manager');
 const { showToast, showLoading, hideLoading } = require('../../../utils/common');
 
 Page({
@@ -58,6 +58,7 @@ Page({
     this.checkUserPermission();
     this.loadFollowList();
     this.loadStatistics();
+    this.updateTabBar();
   },
 
   onPullDownRefresh() {
@@ -83,6 +84,32 @@ Page({
       showToast('权限不足', 'error');
       wx.navigateBack();
       return;
+    }
+  },
+
+  /**
+   * 更新自定义tabBar
+   */
+  updateTabBar() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      const tabbar = this.getTabBar();
+      const userType = roleManager.getCurrentUserType();
+      
+      if (userType === 'manager') {
+        // 调用自定义tabBar组件的updateTabBar方法
+        if (typeof tabbar.updateTabBar === 'function') {
+          tabbar.updateTabBar();
+        }
+        
+        // 设置当前选中的tab（跟进管理是第3个，索引为2）
+        if (typeof tabbar.setActiveTab === 'function') {
+          tabbar.setActiveTab(2);
+        } else {
+          tabbar.setData({
+            active: 2
+          });
+        }
+      }
     }
   },
 

@@ -1,5 +1,5 @@
 // pages/manager/performance/index.js
-const roleManager = require('../../../utils/role-manager');
+const { roleManager } = require('../../../utils/role-manager');
 const { showToast, showLoading, hideLoading } = require('../../../utils/common');
 
 Page({
@@ -76,6 +76,7 @@ Page({
   onShow() {
     this.checkUserPermission();
     this.loadPerformanceData();
+    this.updateTabBar();
   },
 
   onPullDownRefresh() {
@@ -99,10 +100,36 @@ Page({
   },
 
   /**
+   * 更新自定义tabBar
+   */
+  updateTabBar() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      const tabbar = this.getTabBar();
+      const userType = roleManager.getCurrentUserType();
+      
+      if (userType === 'manager') {
+        // 调用自定义tabBar组件的updateTabBar方法
+        if (typeof tabbar.updateTabBar === 'function') {
+          tabbar.updateTabBar();
+        }
+        
+        // 设置当前选中的tab（业绩查看是第4个，索引为3）
+        if (typeof tabbar.setActiveTab === 'function') {
+          tabbar.setActiveTab(3);
+        } else {
+          tabbar.setData({
+            active: 3
+          });
+        }
+      }
+    }
+  },
+
+  /**
    * 初始化数据
    */
   initData() {
-    const currentUser = roleManager.getCurrentUser();
+    const currentUser = roleManager.getCurrentUserInfo();
     console.log('当前用户:', currentUser);
   },
 

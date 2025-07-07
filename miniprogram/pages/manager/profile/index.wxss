@@ -2,6 +2,7 @@
 .profile-container {
   background-color: #f5f5f5;
   min-height: 100vh;
+  padding-bottom: calc(200rpx + env(safe-area-inset-bottom)); /* 动态计算底部空间：基础空间 + 安全区域 */
 }
 
 /* 头部用户信息 */
@@ -24,6 +25,16 @@
   border-radius: 50%;
   background-color: #fff;
   border: 4rpx solid rgba(255, 255, 255, 0.2);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-text {
+  font-size: 48rpx;
+  color: #999;
 }
 
 .avatar-edit {
@@ -41,8 +52,7 @@
 }
 
 .avatar-edit .edit-icon {
-  width: 24rpx;
-  height: 24rpx;
+  font-size: 18rpx;
 }
 
 .user-info {
@@ -95,8 +105,7 @@
 }
 
 .user-edit .edit-icon {
-  width: 32rpx;
-  height: 32rpx;
+  font-size: 24rpx;
   opacity: 0.8;
 }
 
@@ -139,9 +148,10 @@
 }
 
 .info-icon {
-  width: 32rpx;
-  height: 32rpx;
+  font-size: 24rpx;
   margin-right: 15rpx;
+  width: 32rpx;
+  text-align: center;
 }
 
 .info-value {
@@ -160,10 +170,10 @@
 }
 
 .arrow-icon {
-  width: 24rpx;
-  height: 24rpx;
+  font-size: 24rpx;
   margin-left: 10rpx;
   opacity: 0.5;
+  color: #999;
 }
 
 /* 业绩统计 */
@@ -233,9 +243,10 @@
 }
 
 .menu-icon {
-  width: 36rpx;
-  height: 36rpx;
+  font-size: 28rpx;
   margin-right: 20rpx;
+  width: 36rpx;
+  text-align: center;
 }
 
 .menu-text {
@@ -247,7 +258,7 @@
 /* 版本信息 */
 .version-section {
   background-color: #fff;
-  margin: 20rpx 0;
+  margin: 20rpx 0 80rpx 0; /* 进一步增加底部margin */
   padding: 30rpx;
 }
 
@@ -268,7 +279,7 @@
 
 /* 退出登录 */
 .logout-section {
-  margin: 30rpx 0;
+  margin: 30rpx 0 100rpx 0; /* 进一步增加底部margin，彻底避免被菜单栏遮挡 */
   padding: 0 30rpx;
 }
 
@@ -313,10 +324,10 @@
 }
 
 .close-icon {
-  width: 32rpx;
-  height: 32rpx;
+  font-size: 28rpx;
   opacity: 0.6;
   padding: 10rpx;
+  color: #999;
 }
 
 .account-info {

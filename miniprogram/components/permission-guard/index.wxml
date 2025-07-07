@@ -16,10 +16,10 @@
   <!-- 无权限时显示提示 -->
   <view wx:else class="no-permission-container">
     <view class="no-permission">
-      <image class="no-permission-icon" src="/assets/images/icons/no-permission.png" mode="widthFix"></image>
+      <van-icon class="no-permission-icon" name="warning-o" size="48px" color="#ff6b35"></van-icon>
       <text class="no-permission-title">访问受限</text>
       <text class="no-permission-desc">{{tipText}}</text>
-      <button class="retry-btn" bindtap="recheckPermission">重新验证</button>
+      <van-button class="retry-btn" type="primary" size="small" bindtap="recheckPermission">重新验证</van-button>
     </view>
   </view>
 </view> 

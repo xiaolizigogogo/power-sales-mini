@@ -101,7 +101,7 @@ Page({
           isWechatBound: loginResult.user.isWechatBound || false
         };
         
-        roleManager.setUserInfo(userInfo, USER_TYPES.MANAGER);
+        roleManager.setCurrentUser(USER_TYPES.MANAGER, userInfo);
         
         this.showSuccess('登录成功');
         

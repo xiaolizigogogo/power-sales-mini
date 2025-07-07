@@ -2,7 +2,542 @@
 .performance-container {
   background-color: #f5f5f5;
   min-height: 100vh;
-  padding-bottom: 100rpx;
+  padding-bottom: 180rpx; /* 为底部菜单栏留出更多空间，避免遮挡 */
+}
+
+/* 时间周期选择器 */
+.period-selector {
+  display: flex;
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 10rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.period-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.period-item.active {
+  background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+  color: white;
+}
+
+/* 业绩概览 */
+.performance-overview {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.ranking-badge {
+  background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+  color: white;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+}
+
+.ranking-text {
+  font-size: 22rpx;
+}
+
+.performance-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.amount-section {
+  flex: 1;
+}
+
+.current-amount {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #722ed1;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.amount-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5rpx;
+}
+
+.target-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.completion-rate {
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.completion-rate.good {
+  color: #52c41a;
+}
+
+.completion-rate.warning {
+  color: #faad14;
+}
+
+.growth-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.growth-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5rpx;
+}
+
+.growth-icon {
+  font-size: 24rpx;
+  margin-right: 5rpx;
+}
+
+.growth-text {
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.growth-indicator.positive {
+  color: #52c41a;
+}
+
+.growth-indicator.negative {
+  color: #ff4d4f;
+}
+
+.growth-label {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8rpx;
+  background: #f0f0f0;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #722ed1 0%, #531dab 100%);
+  transition: width 0.5s ease;
+}
+
+/* 月度目标进度 */
+.monthly-target {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25rpx;
+}
+
+.target-status {
+  font-size: 24rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-weight: bold;
+}
+
+.target-status.on-track {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.target-status.behind {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.target-content {
+  margin-top: 20rpx;
+}
+
+.target-numbers {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.target-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.target-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #722ed1;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.target-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 业绩分解 */
+.performance-breakdown {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.breakdown-item {
+  background: #f8f9fa;
+  padding: 25rpx;
+  border-radius: 12rpx;
+  text-align: center;
+}
+
+.breakdown-number {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #722ed1;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.breakdown-label {
+  font-size: 24rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.breakdown-amount {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #52c41a;
+  display: block;
+}
+
+/* 趋势图表 */
+.trend-chart {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.chart-controls {
+  display: flex;
+  gap: 20rpx;
+}
+
+.chart-btn {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #666;
+  background: #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.chart-btn.active {
+  background: #722ed1;
+  color: white;
+}
+
+.chart-content {
+  margin-top: 25rpx;
+}
+
+.trend-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  height: 200rpx;
+  gap: 10rpx;
+}
+
+.trend-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trend-month {
+  font-size: 20rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.trend-bar {
+  width: 30rpx;
+  height: 120rpx;
+  background: #f0f0f0;
+  border-radius: 4rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.trend-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+  transition: height 0.5s ease;
+}
+
+.trend-amount {
+  font-size: 20rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+/* 团队排行榜 */
+.team-ranking {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.ranking-list {
+  margin-top: 20rpx;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.ranking-item:last-child {
+  border-bottom: none;
+}
+
+.ranking-item.highlight {
+  background: rgba(114, 46, 209, 0.1);
+  border-radius: 8rpx;
+  padding: 20rpx;
+  margin: 5rpx 0;
+}
+
+.ranking-info {
+  display: flex;
+  align-items: center;
+}
+
+.rank-badge {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15rpx;
+  font-size: 20rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.rank-badge.rank-1 {
+  background: #ffd700;
+}
+
+.rank-badge.rank-2 {
+  background: #c0c0c0;
+}
+
+.rank-badge.rank-3 {
+  background: #cd7f32;
+}
+
+.rank-badge.rank-other {
+  background: #d9d9d9;
+  color: #666;
+}
+
+.rank-number {
+  font-size: 20rpx;
+}
+
+.member-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.performance-info {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.member-amount {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #722ed1;
+  margin-bottom: 5rpx;
+}
+
+.member-growth {
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.member-growth.positive {
+  color: #52c41a;
+}
+
+.member-growth.negative {
+  color: #ff4d4f;
+}
+
+/* 业绩分析 */
+.performance-analysis {
+  background: white;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.analysis-content {
+  margin-top: 20rpx;
+}
+
+.analysis-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.analysis-item:last-child {
+  border-bottom: none;
+}
+
+.analysis-label {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.analysis-value {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #722ed1;
+}
+
+.improvement-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.improvement-tag {
+  background: #f0f0f0;
+  color: #666;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+}
+
+.more-btn {
+  font-size: 24rpx;
+  color: #722ed1;
+  font-weight: bold;
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx;
+  background: white;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner text {
+  font-size: 28rpx;
+  color: #722ed1;
+  margin-top: 20rpx;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* 头部总览 */
@@ -618,6 +1153,66 @@
   }
 }
 
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  padding: 30rpx;
+  margin-top: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  min-width: 150rpx;
+  background: white;
+  border-radius: 16rpx;
+  padding: 25rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1rpx solid #f0f0f0;
+}
+
+.action-btn:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 1rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+  color: white;
+  border: none;
+}
+
+.action-btn.primary .btn-icon {
+  color: white;
+}
+
+.action-btn.secondary {
+  background: white;
+  color: #333;
+}
+
+.btn-icon {
+  font-size: 40rpx;
+  margin-bottom: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.action-btn text {
+  font-size: 24rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
   .performance-container {
@@ -639,5 +1234,11 @@
   
   .data-item {
     background: #333333;
+  }
+  
+  .action-btn.secondary {
+    background: #2a2a2a;
+    color: #ffffff;
+    border-color: #333333;
   }
 } 

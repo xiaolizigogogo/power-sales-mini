@@ -7,16 +7,6 @@
   "onReachBottomDistance": 50,
   "backgroundTextStyle": "dark",
   "usingComponents": {
-    "van-tabs": "/miniprogram_npm/@vant/weapp/lib/tabs/index",
-    "van-tab": "/miniprogram_npm/@vant/weapp/lib/tab/index",
-    "van-picker": "/miniprogram_npm/@vant/weapp/lib/picker/index",
-    "van-popup": "/miniprogram_npm/@vant/weapp/lib/popup/index",
-    "van-loading": "/miniprogram_npm/@vant/weapp/lib/loading/index",
-    "van-empty": "/miniprogram_npm/@vant/weapp/lib/empty/index",
-    "van-button": "/miniprogram_npm/@vant/weapp/lib/button/index",
-    "van-field": "/miniprogram_npm/@vant/weapp/lib/field/index",
-    "van-cell": "/miniprogram_npm/@vant/weapp/lib/cell/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/lib/cell-group/index",
-    "van-toast": "/miniprogram_npm/@vant/weapp/lib/toast/index"
+
   }
 } 

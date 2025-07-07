@@ -18,7 +18,7 @@ page {
 .container {
   background-color: var(--bg-color-light);
   min-height: 100vh;
-  padding-bottom: 120rpx;
+  padding-bottom: 180rpx; /* 为底部菜单栏留出更多空间，避免遮挡 */
 }
 
 /* 标签页导航样式 */

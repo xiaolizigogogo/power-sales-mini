@@ -1,4 +1,5 @@
 const { authAPI } = require('../../utils/api')
+const { roleManager } = require('../../utils/role-manager')
 
 Page({
   data: {
@@ -62,14 +63,18 @@ Page({
   },
 
   onShow() {
-    const app = getApp();
-    if (!app.globalData.isLoggedIn) {
+    console.log('首页onShow，检查登录状态')
+    
+    // 使用role-manager检查登录状态
+    if (!roleManager.checkLoginStatus()) {
+      console.log('未登录，跳转到登录页')
       wx.redirectTo({
         url: '/pages/auth/login/login'
-      });
-      return;
+      })
+      return
     }
     
+    console.log('已登录，刷新页面数据')
     // 每次显示页面时刷新用户信息和统计数据
     this.refreshUserInfo()
     this.loadStatistics()
@@ -204,7 +209,8 @@ Page({
   async loadHotProducts() {
     try {
       const app = getApp()
-      console.log('开始加载热门产品，登录状态:', app.globalData.isLoggedIn)
+      const isLoggedIn = roleManager.checkLoginStatus()
+      console.log('开始加载热门产品，登录状态:', isLoggedIn)
       
       const res = await app.request({
         url: '/products/hot',

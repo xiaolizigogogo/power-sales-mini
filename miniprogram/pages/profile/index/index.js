@@ -2,6 +2,7 @@ const app = getApp()
 const { authAPI, orderAPI, userAPI } = require('../../../utils/api')
 const auth = require('../../../utils/auth')
 const { checkRoleAccess } = require('../../../utils/auth')
+const { roleManager } = require('../../../utils/role-manager')
 
 Page({
   data: {
@@ -103,9 +104,23 @@ Page({
   },
 
   onShow() {
-    // 只在未初始化时才调用initPage
-    if (!this.data.userInfo || !this.data.userInfo.id) {
-      this.initPage();
+    console.log('我的页面显示');
+    
+    // 检查是否需要刷新数据
+    const needRefresh = wx.getStorageSync('needRefreshProfile');
+    if (needRefresh) {
+      console.log('检测到需要刷新我的页面数据');
+      wx.removeStorageSync('needRefreshProfile');
+      this.refreshUserInfo();
+    }
+    
+    // 检查登录状态
+    const isLoggedIn = roleManager.checkLoginStatus();
+    this.setData({ isLoggedIn });
+    
+    if (isLoggedIn) {
+      this.refreshUserInfo();
+      this.checkManagerBinding();
     }
   },
 
@@ -165,11 +180,10 @@ Page({
     this.setData({ loading: true });
 
     try {
-      // 检查登录状态
-      const token = wx.getStorageSync('token');
-      const userInfo = wx.getStorageSync('userInfo');
+      // 检查登录状态 - 使用和onShow方法一致的检查逻辑
+      const isLoggedIn = roleManager.checkLoginStatus();
       
-      if (!token) {
+      if (!isLoggedIn) {
         console.log('用户未登录，显示登录按钮');
         this.setData({ 
           isLoggedIn: false,
@@ -192,7 +206,7 @@ Page({
       // 设置登录状态和用户信息
       this.setData({
         isLoggedIn: true,
-        userInfo: userInfo || {}
+        userInfo: roleManager.getCurrentUserInfo() || {}
       });
 
       // 获取最新的用户信息
@@ -929,10 +943,16 @@ Page({
 
       // 调用真实API验证员工是否存在
       const result = await userAPI.bindManager({ managerPhone: phone });
+      console.log('绑定客户经理API响应:', result);
 
       wx.hideLoading();
 
-      if (result && (result.success || result.code === 200)) {
+      // 检查是否为真实API成功响应还是模拟响应
+      const isRealSuccess = result && (result.success || result.code === 200);
+      const isSimulatedResponse = result && result.message && result.message.includes('模拟');
+
+      if (isRealSuccess && !isSimulatedResponse) {
+        // 真实API成功响应
         const managerInfo = result.data || {};
         
         // 更新用户信息
@@ -951,7 +971,15 @@ Page({
           title: '绑定成功',
           icon: 'success'
         });
+      } else if (isSimulatedResponse) {
+        // 模拟响应，说明真实API调用失败
+        wx.showToast({
+          title: '网络异常，请稍后重试',
+          icon: 'none',
+          duration: 3000
+        });
       } else {
+        // API返回错误
         throw new Error(result.message || '该手机号对应的客户经理不存在');
       }
     } catch (error) {
@@ -964,6 +992,8 @@ Page({
         errorMessage = '客户经理不存在，请检查手机号是否正确';
       } else if (error.statusCode === 404) {
         errorMessage = '客户经理不存在，请联系管理员';
+      } else if (error.message && error.message.includes('网络')) {
+        errorMessage = '网络异常，请稍后重试';
       }
       
       wx.showToast({

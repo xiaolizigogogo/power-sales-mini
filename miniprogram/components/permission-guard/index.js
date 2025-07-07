@@ -67,7 +67,7 @@ Component({
         }
 
         // 检查页面访问权限
-        if (this.properties.requiredPage) {
+        if (this.properties.requiredPage && this.properties.requiredPage.trim()) {
           if (!roleManager.checkPagePermission(this.properties.requiredPage)) {
             this.handleNoPermission(`没有页面访问权限: ${this.properties.requiredPage}`)
             return

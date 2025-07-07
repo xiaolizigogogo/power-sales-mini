@@ -1,5 +1,5 @@
 // pages/manager/workplace/workplace.js
-const roleManager = require('../../../utils/role-manager');
+const { roleManager } = require('../../../utils/role-manager');
 const { showToast } = require('../../../utils/common');
 
 Page({
@@ -28,25 +28,25 @@ Page({
       {
         id: 'add-customer',
         name: '添加客户',
-        icon: '/assets/images/icons/add-customer.png',
+        icon: 'plus',
         color: '#1890FF'
       },
       {
         id: 'add-follow',
         name: '添加跟进',
-        icon: '/assets/images/icons/add-follow.png',
+        icon: 'edit',
         color: '#52C41A'
       },
       {
         id: 'customer-list',
         name: '客户列表',
-        icon: '/assets/images/icons/customer-list.png',
+        icon: 'friends-o',
         color: '#FA8C16'
       },
       {
         id: 'performance',
         name: '业绩查看',
-        icon: '/assets/images/icons/performance.png',
+        icon: 'chart-trending-o',
         color: '#722ED1'
       }
     ],
@@ -57,11 +57,13 @@ Page({
   onLoad() {
     this.checkUserPermission();
     this.initData();
+    this.updateTabBar();
   },
 
   onShow() {
     this.checkUserPermission();
     this.loadWorkplaceData();
+    this.updateTabBar();
   },
 
   onPullDownRefresh() {
@@ -87,10 +89,36 @@ Page({
   },
 
   /**
+   * 更新自定义tabBar
+   */
+  updateTabBar() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      const tabbar = this.getTabBar();
+      const userType = roleManager.getCurrentUserType();
+      
+      if (userType === 'manager') {
+        // 调用自定义tabBar组件的updateTabBar方法
+        if (typeof tabbar.updateTabBar === 'function') {
+          tabbar.updateTabBar();
+        }
+        
+        // 设置当前选中的tab（工作台是第1个，索引为0）
+        if (typeof tabbar.setActiveTab === 'function') {
+          tabbar.setActiveTab(0);
+        } else {
+          tabbar.setData({
+            active: 0
+          });
+        }
+      }
+    }
+  },
+
+  /**
    * 初始化数据
    */
   initData() {
-    const userInfo = roleManager.getCurrentUser();
+    const userInfo = roleManager.getCurrentUserInfo();
     const today = new Date();
     const todayDate = `${today.getMonth() + 1}月${today.getDate()}日`;
     this.setData({ userInfo, todayDate });

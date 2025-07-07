@@ -676,12 +676,29 @@ Page({
         userInfo.authStatus = 'pending';
         wx.setStorageSync('userInfo', userInfo);
         
+        // 标记需要刷新我的页面
+        wx.setStorageSync('needRefreshProfile', true);
+        
         wx.showModal({
           title: '提交成功',
           content: '您的认证申请已提交，我们将在1-3个工作日内完成审核，请耐心等待。',
           showCancel: false,
           success: () => {
-            wx.navigateBack();
+            // 通知上一页刷新数据
+            const pages = getCurrentPages();
+            const prevPage = pages[pages.length - 2];
+            if (prevPage && prevPage.route === 'pages/profile/index/index') {
+              // 如果上一页是我的页面，调用其刷新方法
+              if (typeof prevPage.refreshUserInfo === 'function') {
+                prevPage.refreshUserInfo();
+              }
+            }
+            
+            wx.navigateBack({
+              success: () => {
+                console.log('认证提交成功，已返回我的页面');
+              }
+            });
           }
         });
       } else {
@@ -810,6 +827,19 @@ Page({
         
         // 清除认证数据缓存
         wx.removeStorageSync('authData');
+        
+        // 标记需要刷新我的页面
+        wx.setStorageSync('needRefreshProfile', true);
+        
+        // 通知上一页刷新数据
+        const pages = getCurrentPages();
+        const prevPage = pages[pages.length - 2];
+        if (prevPage && prevPage.route === 'pages/profile/index/index') {
+          // 如果上一页是我的页面，调用其刷新方法
+          if (typeof prevPage.refreshUserInfo === 'function') {
+            prevPage.refreshUserInfo();
+          }
+        }
         
         wx.showToast({
           title: '已取消认证',

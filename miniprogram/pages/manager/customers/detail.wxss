@@ -2,7 +2,7 @@
 .customer-detail-container {
   background-color: #f5f5f5;
   min-height: 100vh;
-  padding-bottom: 100rpx;
+  padding-bottom: 180rpx; /* 为底部菜单栏留出更多空间，避免遮挡 */
 }
 
 /* 客户信息 */

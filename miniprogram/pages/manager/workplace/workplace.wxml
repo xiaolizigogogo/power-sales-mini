@@ -3,7 +3,10 @@
   <!-- 头部用户信息 -->
   <view class="header">
     <view class="user-info">
-      <image class="avatar" src="{{userInfo.avatar || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="avatar">
+        <image wx:if="{{userInfo.avatar}}" class="avatar-image" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+        <van-icon wx:else class="avatar-icon" name="user-o" size="32px" color="#999"></van-icon>
+      </view>
       <view class="user-detail">
         <text class="username">{{userInfo.name || '客户经理'}}</text>
         <text class="subtitle">今天也要努力工作哦～</text>
@@ -50,7 +53,7 @@
         bindtap="onQuickActionTap"
         style="--action-color: {{item.color}}"
       >
-        <image class="action-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <van-icon class="action-icon" name="{{item.icon}}" size="24px" color="{{item.color}}"></van-icon>
         <text class="action-name">{{item.name}}</text>
       </view>
     </view>

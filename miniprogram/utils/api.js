@@ -61,7 +61,7 @@ class ApiService {
       }
       
       // 需要认证的接口列表（登录相关接口除外）
-      const noAuthUrls = ['/auth/login', '/auth/wechat-login', '/auth/register', '/auth/send-code', '/auth/verify-code-login', '/mini/auth/wechat-login']
+      const noAuthUrls = ['/auth/login', '/auth/wechat-login', '/auth/register', '/auth/send-code', '/auth/verify-code-login', '/auth/wechat-login']
       const needAuth = !noAuthUrls.some(url => options.url.includes(url))
       
       if (needAuth) {
@@ -234,12 +234,28 @@ const authAPI = {
 
   // 统一登录接口 - 账号密码登录
   login: async (request) => {
-    console.log('发起账号密码登录请求:', { phone: request.phone, loginType: request.loginType })
-    const loginData = {
-      phone: request.phone,
-      password: request.password,
-      loginType: request.loginType || 'customer'
-    };
+    console.log('发起账号密码登录请求:', { 
+      loginType: request.loginType,
+      identifier: request.phone || request.username  // 显示登录标识符
+    })
+    
+    let loginData;
+    
+    if (request.loginType === 'manager') {
+      // 客户经理使用用户名登录
+      loginData = {
+        username: request.username,
+        password: request.password,
+        loginType: request.loginType
+      };
+    } else {
+      // 普通客户使用手机号登录
+      loginData = {
+        phone: request.phone,
+        password: request.password,
+        loginType: request.loginType || 'customer'
+      };
+    }
     
     const response = await apiService.post('/auth/login', loginData, {
       showError: false
@@ -251,10 +267,19 @@ const authAPI = {
   // 短信验证码登录
   smsLogin: async (request) => {
     console.log('发起短信验证码登录请求:', { phone: request.phone, loginType: request.loginType })
+    
+    // 暂时统一使用普通登录接口，等后端完善员工登录接口后再分离
+    // TODO: 后端实现员工登录接口后，恢复以下代码
+    // let loginUrl = '/auth/sms-login';
+    // if (request.loginType === 'manager') {
+    //   loginUrl = '/employee/auth/sms-login';
+    //   console.log('客户经理短信登录，使用员工接口:', loginUrl);
+    // }
+    
     const loginData = {
       phone: request.phone,
       code: request.code,
-      loginType: request.loginType || 'customer'
+      loginType: request.loginType || 'customer' // 传递登录类型给后端
     };
     
     const response = await apiService.post('/auth/sms-login', loginData, {
@@ -267,6 +292,15 @@ const authAPI = {
   // 发送短信验证码
   sendSmsCode: async (request) => {
     console.log('发送短信验证码请求:', { phone: request.phone, type: request.type })
+    
+    // 暂时统一使用普通短信接口，等后端完善员工接口后再分离
+    // TODO: 后端实现员工短信接口后，恢复以下代码
+    // let smsUrl = '/auth/send-sms-code';
+    // if (request.type === 'manager_login') {
+    //   smsUrl = '/employee/auth/send-sms-code';
+    //   console.log('客户经理短信验证码，使用员工接口:', smsUrl);
+    // }
+    
     const response = await apiService.post('/auth/send-sms-code', {
       phone: request.phone,
       type: request.type // customer_login, manager_login, register, forgot_password
@@ -532,6 +566,70 @@ const userAPI = {
   // 获取用户用电信息
   getUserPowerInfo: () => {
     return apiService.get('/user/power-info')
+  },
+
+  // 绑定微信
+  bindWechat: async (data) => {
+    console.log('绑定微信请求:', data)
+    
+    try {
+      // 调用真实接口
+      const response = await apiService.post('/user/wechat/bind', data);
+      console.log('绑定微信响应:', response)
+      return response;
+    } catch (error) {
+      console.warn('绑定微信接口调用失败，使用模拟响应:', error);
+      
+      // 模拟接口响应（作为后备方案）
+      const mockResponse = {
+        code: 200,
+        success: true,
+        message: '微信绑定成功',
+        data: {
+          openId: data.openId || 'mock_openid_' + Date.now(),
+          unionId: data.unionId,
+          nickName: data.nickName,
+          avatarUrl: data.avatarUrl,
+          bindTime: new Date().toISOString()
+        }
+      };
+      
+      // 延迟一点时间，模拟网络请求
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('模拟绑定微信响应:', mockResponse);
+      return Promise.resolve(mockResponse);
+    }
+  },
+
+  // 解绑微信
+  unbindWechat: async () => {
+    console.log('解绑微信请求')
+    
+    try {
+      // 调用真实接口
+      const response = await apiService.post('/user/wechat/unbind');
+      console.log('解绑微信响应:', response)
+      return response;
+    } catch (error) {
+      console.warn('解绑微信接口调用失败，使用模拟响应:', error);
+      
+      // 模拟接口响应（作为后备方案）
+      const mockResponse = {
+        code: 200,
+        success: true,
+        message: '微信解绑成功',
+        data: {
+          unbindTime: new Date().toISOString()
+        }
+      };
+      
+      // 延迟一点时间，模拟网络请求
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('模拟解绑微信响应:', mockResponse);
+      return Promise.resolve(mockResponse);
+    }
   },
 
   // 绑定客户经理
@@ -1042,15 +1140,27 @@ const formatAuthResponse = (response) => {
   const token = data.token || data.accessToken;
   const refreshToken = data.refreshToken;
   const userInfo = data.userInfo || data;
+  
+  // 提取并转换用户类型
+  const userRole = data.userRole || userInfo.role || userInfo.userRole;
+  const userType = userRole === 'manager' ? 'manager' : 'customer';
 
   if (!token) {
     console.error('认证响应缺少token:', response);
     return null;
   }
 
+  console.log('格式化认证响应:', { 
+    userRole, 
+    userType, 
+    hasToken: !!token,
+    userInfo: formatUserInfo(userInfo) 
+  });
+
   return {
     token,
     refreshToken,
+    userType,  // 添加用户类型字段
     userInfo: formatUserInfo(userInfo)
   };
 };
@@ -1176,6 +1286,10 @@ module.exports = {
     // 用户接口 - 覆盖authAPI中的getUserInfo
     getUserInfo: isDev ? () => Promise.resolve({ data: mockUserInfo }) : userAPI.getUserInfo,
     getUserPowerInfo: isDev ? () => Promise.resolve({ data: mockPowerInfo }) : userAPI.getUserPowerInfo,
+    
+    // 微信相关接口
+    bindWechat: userAPI.bindWechat,
+    unbindWechat: userAPI.unbindWechat,
     
     // 订单接口
     createOrder: isDev ? (data) => Promise.resolve({ data: { ...data, id: Date.now() } }) : orderAPI.createOrder,

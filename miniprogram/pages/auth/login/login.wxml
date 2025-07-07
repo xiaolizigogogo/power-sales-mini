@@ -47,6 +47,7 @@
         <text>密码登录</text>
       </view>
       <view 
+        wx:if="{{loginType === 'customer'}}"
         class="method-tab {{loginMethod === 'sms' ? 'active' : ''}}"
         data-method="sms"
         bindtap="switchLoginMethod"
@@ -77,14 +78,14 @@
     <!-- 密码登录 -->
     <view wx:elif="{{loginMethod === 'password'}}" class="password-form">
       <view class="form-item">
-        <text class="label">手机号</text>
+        <text class="label">{{loginType === 'manager' ? '用户名' : '手机号'}}</text>
         <input 
-          type="number" 
-          placeholder="请输入手机号" 
-          data-field="phone"
+          type="{{loginType === 'manager' ? 'text' : 'number'}}" 
+          placeholder="{{loginType === 'manager' ? '请输入用户名' : '请输入手机号'}}" 
+          data-field="{{loginType === 'manager' ? 'username' : 'phone'}}"
           bindinput="onInputChange"
-          value="{{form.phone}}"
-          maxlength="11"
+          value="{{loginType === 'manager' ? form.username : form.phone}}"
+          maxlength="{{loginType === 'manager' ? '20' : '11'}}"
         />
       </view>
 
@@ -106,7 +107,7 @@
         </view>
       </view>
 
-      <view class="forgot-password">
+      <view class="forgot-password" wx:if="{{loginType === 'customer'}}">
         <text class="text-primary" bindtap="goToForgotPassword">忘记密码？</text>
       </view>
     </view>

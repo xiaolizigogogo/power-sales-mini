@@ -1,5 +1,5 @@
 <!--pages/manager/performance/index.wxml-->
-<permission-guard required-user-type="manager" required-page="performance">
+<permission-guard required-user-type="manager" required-page="/pages/manager/performance/index">
   <view class="performance-container">
     <!-- 时间周期选择 -->
     <view class="period-selector">
@@ -204,19 +204,19 @@
     <!-- 操作按钮 -->
     <view class="action-buttons">
       <view class="action-btn primary" bindtap="onViewHistory">
-        <image src="/assets/images/icons/history.png" mode="aspectFit"></image>
+        <view class="btn-icon">📊</view>
         <text>历史记录</text>
       </view>
       <view class="action-btn secondary" bindtap="onSetTarget">
-        <image src="/assets/images/icons/target.png" mode="aspectFit"></image>
+        <view class="btn-icon">🎯</view>
         <text>设置目标</text>
       </view>
       <view class="action-btn secondary" bindtap="onExportReport">
-        <image src="/assets/images/icons/export.png" mode="aspectFit"></image>
+        <view class="btn-icon">📥</view>
         <text>导出报告</text>
       </view>
       <view class="action-btn secondary" bindtap="onSharePerformance">
-        <image src="/assets/images/icons/share.png" mode="aspectFit"></image>
+        <view class="btn-icon">📤</view>
         <text>分享业绩</text>
       </view>
     </view>

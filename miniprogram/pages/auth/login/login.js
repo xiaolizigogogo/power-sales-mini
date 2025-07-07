@@ -3,17 +3,20 @@ const { authAPI, userAPI } = require('../../../utils/api')
 
 Page({
   data: {
-    loginType: 'customer', // customer 或 manager
+    loginType: 'customer', // customer | manager
+    loginMethod: 'wechat', // wechat | password | sms
     form: {
       phone: '',
+      username: '', // 新增用户名字段
       password: '',
       code: ''
     },
-    loginMethod: 'password', // password 或 wechat 或 sms
+    showPassword: false,
     isLoading: false,
+    
+    // 短信验证码相关
     codeText: '获取验证码',
     codeDisabled: false,
-    showPassword: false,
     countdown: 0
   },
 
@@ -26,15 +29,24 @@ Page({
    */
   switchLoginType(e) {
     const type = e.currentTarget.dataset.type
-    this.setData({
+    console.log('切换登录类型:', type)
+    
+    this.setData({ 
       loginType: type,
       form: {
         phone: '',
+        username: '',
         password: '',
         code: ''
       }
     })
-    console.log('切换登录类型:', type)
+    
+    // 客户经理不支持短信验证码登录，自动切换到密码登录
+    if (type === 'manager' && this.data.loginMethod === 'sms') {
+      this.setData({ 
+        loginMethod: 'password'
+      })
+    }
   },
 
   /**
@@ -151,11 +163,14 @@ Page({
    * 微信登录
    */
   async wechatLogin() {
+    console.log('开始微信登录:', { loginType: this.data.loginType })
+    
     try {
       this.setData({ isLoading: true })
 
       // 获取微信授权
       const { code } = await wx.login()
+      console.log('获取微信授权码:', code)
       
       if (!code) {
         throw new Error('微信授权失败')
@@ -167,6 +182,7 @@ Page({
         loginType: this.data.loginType
       })
 
+      console.log('微信登录接口响应:', response)
       await this.handleLoginSuccess(response)
 
     } catch (error) {
@@ -184,35 +200,73 @@ Page({
    * 账号密码登录
    */
   async passwordLogin() {
-    const { phone, password } = this.data.form
+    console.log('开始密码登录:', { loginType: this.data.loginType })
 
-    if (!phone || !password) {
-      wx.showToast({
-        title: '请输入手机号和密码',
-        icon: 'none'
-      })
-      return
-    }
+    // 根据登录类型验证不同的字段
+    if (this.data.loginType === 'manager') {
+      // 客户经理使用用户名登录
+      const { username, password } = this.data.form
+      if (!username || !password) {
+        wx.showToast({
+          title: '请输入用户名和密码',
+          icon: 'none'
+        })
+        return
+      }
+      
+      try {
+        this.setData({ isLoading: true })
 
-    try {
-      this.setData({ isLoading: true })
+        const response = await authAPI.login({
+          username,
+          password,
+          loginType: this.data.loginType
+        })
 
-      const response = await authAPI.login({
-        phone,
-        password,
-        loginType: this.data.loginType
-      })
+        console.log('客户经理密码登录接口响应:', response)
+        await this.handleLoginSuccess(response)
 
-      await this.handleLoginSuccess(response)
+      } catch (error) {
+        console.error('客户经理密码登录失败:', error)
+        wx.showToast({
+          title: error.message || '登录失败',
+          icon: 'none'
+        })
+      } finally {
+        this.setData({ isLoading: false })
+      }
+    } else {
+      // 普通客户使用手机号登录
+      const { phone, password } = this.data.form
+      if (!phone || !password) {
+        wx.showToast({
+          title: '请输入手机号和密码',
+          icon: 'none'
+        })
+        return
+      }
+      
+      try {
+        this.setData({ isLoading: true })
 
-    } catch (error) {
-      console.error('密码登录失败:', error)
-      wx.showToast({
-        title: error.message || '登录失败',
-        icon: 'none'
-      })
-    } finally {
-      this.setData({ isLoading: false })
+        const response = await authAPI.login({
+          phone,
+          password,
+          loginType: this.data.loginType
+        })
+
+        console.log('客户密码登录接口响应:', response)
+        await this.handleLoginSuccess(response)
+
+      } catch (error) {
+        console.error('客户密码登录失败:', error)
+        wx.showToast({
+          title: error.message || '登录失败',
+          icon: 'none'
+        })
+      } finally {
+        this.setData({ isLoading: false })
+      }
     }
   },
 
@@ -221,6 +275,7 @@ Page({
    */
   async smsLogin() {
     const { phone, code } = this.data.form
+    console.log('开始短信登录:', { phone, loginType: this.data.loginType })
 
     if (!phone || !code) {
       wx.showToast({
@@ -239,6 +294,7 @@ Page({
         loginType: this.data.loginType
       })
 
+      console.log('短信登录接口响应:', response)
       await this.handleLoginSuccess(response)
 
     } catch (error) {
@@ -256,14 +312,26 @@ Page({
    * 处理登录成功
    */
   async handleLoginSuccess(response) {
-    const { token, userInfo, userType } = response
+    console.log('登录成功响应:', response)
+    
+    const { token, userInfo, userType, refreshToken } = response
 
     // 存储token
     wx.setStorageSync('token', token)
+    console.log('Token已存储:', token)
 
     // 设置用户信息
     const finalUserType = userType || this.data.loginType
+    console.log('最终用户类型:', finalUserType)
+    console.log('用户信息:', userInfo)
+    
+    // 使用role-manager设置用户信息
     roleManager.setCurrentUser(finalUserType, userInfo)
+    
+    // 同时更新app全局状态，确保兼容性
+    const app = getApp()
+    app.login(userInfo, token, finalUserType, refreshToken)
+    console.log('已更新app全局状态')
 
     wx.showToast({
       title: '登录成功',
@@ -273,6 +341,7 @@ Page({
 
     // 延迟跳转，让用户看到成功提示
     setTimeout(() => {
+      console.log('开始跳转到首页')
       // 跳转到对应的首页
       roleManager.navigateToHomePage()
     }, 1500)

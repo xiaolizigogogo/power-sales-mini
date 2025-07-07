@@ -1,3 +1,5 @@
+const { roleManager } = require('../../utils/role-manager')
+
 Component({
   properties: {
     // 是否需要登录
@@ -25,8 +27,9 @@ Component({
 
   methods: {
     checkAuth() {
-      const app = getApp();
-      const isLoggedIn = app.globalData.isLoggedIn;
+      // 使用role-manager检查登录状态
+      const isLoggedIn = roleManager.checkLoginStatus();
+      console.log('auth-guard检查登录状态:', isLoggedIn);
       
       this.setData({ isLoggedIn });
       

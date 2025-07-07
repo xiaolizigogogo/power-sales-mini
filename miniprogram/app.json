@@ -56,6 +56,26 @@
       {
         "pagePath": "pages/profile/index/index",
         "text": "我的"
+      },
+      {
+        "pagePath": "pages/manager/workplace/workplace",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/manager/customers/list",
+        "text": "客户"
+      },
+      {
+        "pagePath": "pages/manager/follow/list",
+        "text": "跟进"
+      },
+      {
+        "pagePath": "pages/manager/performance/index",
+        "text": "业绩"
+      },
+      {
+        "pagePath": "pages/manager/profile/index",
+        "text": "我的"
       }
     ]
   },
@@ -76,12 +96,18 @@
     "van-slider": "@vant/weapp/dist/slider/index",
     "van-radio": "@vant/weapp/dist/radio/index",
     "van-radio-group": "@vant/weapp/dist/radio-group/index",
-    "van-tag": "@vant/weapp/dist/tag/index",
-    "van-popup": "@vant/weapp/dist/popup/index",
-    "van-picker": "@vant/weapp/dist/picker/index",
-    "van-loading": "@vant/weapp/dist/loading/index",
-    "van-toast": "@vant/weapp/dist/toast/index",
     "van-checkbox": "@vant/weapp/dist/checkbox/index",
-    "van-dialog": "@vant/weapp/dist/dialog/index"
-  }
+    "van-popup": "@vant/weapp/dist/popup/index",
+    "van-overlay": "@vant/weapp/dist/overlay/index",
+    "van-picker": "@vant/weapp/dist/picker/index",
+    "van-tag": "@vant/weapp/dist/tag/index",
+    "van-switch": "@vant/weapp/dist/switch/index",
+    "van-toast": "@vant/weapp/dist/toast/index",
+    "van-dialog": "@vant/weapp/dist/dialog/index",
+    "van-loading": "@vant/weapp/dist/loading/index",
+    "van-empty": "@vant/weapp/dist/empty/index",
+    "van-divider": "@vant/weapp/dist/divider/index",
+    "van-tabs": "@vant/weapp/dist/tabs/index",
+    "van-tab": "@vant/weapp/dist/tab/index"
+    }
 } 

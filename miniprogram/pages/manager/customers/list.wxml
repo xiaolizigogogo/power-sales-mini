@@ -1,5 +1,5 @@
 <!--pages/manager/customers/list.wxml-->
-<permission-guard required-user-type="manager" required-page="customers">
+<permission-guard required-user-type="manager" required-page="/pages/manager/customers/list">
   <view class="customer-list-container">
     <!-- 头部统计信息 -->
     <view class="header-stats">
@@ -20,7 +20,7 @@
     <!-- 搜索和筛选 -->
     <view class="search-filter-bar">
       <view class="search-box">
-        <image class="search-icon" src="/assets/images/icons/search.png" mode="aspectFit"></image>
+        <van-icon class="search-icon" name="search" size="16px" color="#999"></van-icon>
         <input 
           class="search-input" 
           placeholder="搜索客户姓名、公司、电话"
@@ -29,11 +29,11 @@
           confirm-type="search"
         />
         <view class="clear-btn" wx:if="{{searchKeyword}}" bindtap="onClearSearch">
-          <image src="/assets/images/icons/close.png" mode="aspectFit"></image>
+          <van-icon name="clear" size="14px" color="#999"></van-icon>
         </view>
       </view>
       <view class="filter-btn" bindtap="onShowFilter">
-        <image src="/assets/images/icons/filter.png" mode="aspectFit"></image>
+        <van-icon name="filter-o" size="16px" color="#666"></van-icon>
       </view>
     </view>
 
@@ -79,10 +79,10 @@
       </view>
       <view class="action-buttons">
         <view class="action-btn" bindtap="onAddCustomer">
-          <image src="/assets/images/icons/add.png" mode="aspectFit"></image>
+          <van-icon name="plus" size="16px" color="#1890ff"></van-icon>
         </view>
         <view class="action-btn" bindtap="onBatchOperation">
-          <image src="/assets/images/icons/batch.png" mode="aspectFit"></image>
+          <van-icon name="orders-o" size="16px" color="#666"></van-icon>
         </view>
       </view>
     </view>
@@ -97,7 +97,8 @@
         bindtap="onCustomerTap"
       >
         <view class="customer-avatar">
-          <image src="{{item.avatar}}" mode="aspectFill"></image>
+          <image wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill"></image>
+          <van-icon wx:else name="user-o" size="24px" color="#999"></van-icon>
           <view class="status-indicator {{item.status}}"></view>
         </view>
         
@@ -143,7 +144,7 @@
             data-phone="{{item.phone}}"
             bindtap="onQuickContact"
           >
-            <image src="/assets/images/icons/phone.png" mode="aspectFit"></image>
+            <van-icon name="phone-o" size="16px" color="#52c41a"></van-icon>
           </view>
         </view>
       </view>
@@ -160,11 +161,11 @@
       
       <!-- 暂无数据 -->
       <view class="empty-state" wx:if="{{!loading && customerList.length === 0}}">
-        <image src="/assets/images/empty-customers.png" mode="aspectFit"></image>
-        <text class="empty-text">暂无客户数据</text>
-        <view class="add-customer-btn" bindtap="onAddCustomer">
-          <text>添加客户</text>
-        </view>
+        <van-empty description="暂无客户数据">
+          <van-button round type="primary" size="small" bindtap="onAddCustomer">
+            添加客户
+          </van-button>
+        </van-empty>
       </view>
     </view>
 
@@ -175,7 +176,7 @@
         <view class="modal-header">
           <text class="modal-title">筛选条件</text>
           <view class="close-btn" bindtap="onHideFilter">
-            <image src="/assets/images/icons/close.png" mode="aspectFit"></image>
+            <van-icon name="cross" size="16px" color="#999"></van-icon>
           </view>
         </view>
         
@@ -224,7 +225,7 @@
 
     <!-- 浮动添加按钮 -->
     <view class="floating-add-btn" bindtap="onAddCustomer">
-      <image src="/assets/images/icons/add-white.png" mode="aspectFit"></image>
+      <van-icon name="plus" size="20px" color="#fff"></van-icon>
     </view>
   </view>
 </permission-guard> 

@@ -173,6 +173,15 @@ App({
     wx.removeStorageSync('token');
     wx.removeStorageSync('userRole');
     wx.removeStorageSync('refreshToken');
+    wx.removeStorageSync('userType');
+    
+    // 清除roleManager数据
+    try {
+      const { roleManager } = require('./utils/role-manager');
+      roleManager.clearUserInfo();
+    } catch (error) {
+      console.error('清除roleManager数据失败:', error);
+    }
   },
 
   // 检查是否需要登录

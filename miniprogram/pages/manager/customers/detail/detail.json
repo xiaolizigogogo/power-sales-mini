@@ -7,19 +7,7 @@
   "enablePullDownRefresh": true,
   "onReachBottomDistance": 50,
   "usingComponents": {
-    "van-popup": "@vant/weapp/lib/popup/index",
-    "van-overlay": "@vant/weapp/lib/overlay/index",
-    "van-picker": "@vant/weapp/lib/picker/index",
-    "van-datetime-picker": "@vant/weapp/lib/datetime-picker/index",
-    "van-field": "@vant/weapp/lib/field/index",
-    "van-button": "@vant/weapp/lib/button/index",
-    "van-tag": "@vant/weapp/lib/tag/index",
-    "van-switch": "@vant/weapp/lib/switch/index",
-    "van-toast": "@vant/weapp/lib/toast/index",
-    "van-dialog": "@vant/weapp/lib/dialog/index",
-    "van-loading": "@vant/weapp/lib/loading/index",
-    "van-empty": "@vant/weapp/lib/empty/index",
-    "van-divider": "@vant/weapp/lib/divider/index"
+
   },
   "disableScroll": false,
   "style": "v2"

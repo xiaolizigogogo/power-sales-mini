@@ -6,7 +6,6 @@
   "backgroundColorTop": "#409EFF",
   "backgroundColorBottom": "#f5f5f5",
   "usingComponents": {
-    "permission-guard": "/components/permission-guard/index",
-    "van-popup": "@vant/weapp/popup/index"
+    "permission-guard": "/components/permission-guard/index"
   }
 } 

@@ -1,13 +1,15 @@
 <!--pages/manager/profile/index.wxml-->
 <view class="profile-container">
-  <permission-guard allowed-roles="manager">
+  <permission-guard required-user-type="manager">
     
     <!-- 头部用户信息 -->
     <view class="profile-header">
       <view class="user-avatar" bindtap="onChangeAvatar">
-        <image src="{{userInfo.avatar || '/assets/images/default-avatar.png'}}" class="avatar-image" />
+        <view class="avatar-image" style="background-image: url('{{userInfo.avatar}}');">
+          <text class="avatar-text" wx:if="{{!userInfo.avatar}}">👤</text>
+        </view>
         <view class="avatar-edit">
-          <image src="/assets/images/icons/camera.png" class="edit-icon" />
+          <text class="edit-icon">📷</text>
         </view>
       </view>
       
@@ -22,7 +24,7 @@
       </view>
       
       <view class="user-edit" bindtap="onEditProfile">
-        <image src="/assets/images/icons/edit.png" class="edit-icon" />
+        <text class="edit-icon">✏️</text>
       </view>
     </view>
     
@@ -32,35 +34,35 @@
       <view class="info-list">
         <view class="info-item" bindtap="onShowAccountInfo">
           <view class="info-label">
-            <image src="/assets/images/icons/user.png" class="info-icon" />
+            <text class="info-icon">👤</text>
             <text>登录账户</text>
           </view>
           <view class="info-value">
             <text>{{userInfo.username || '未设置'}}</text>
-            <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+            <text class="arrow-icon">›</text>
           </view>
         </view>
         
         <view class="info-item" bindtap="onBindWechat">
           <view class="info-label">
-            <image src="/assets/images/icons/wechat.png" class="info-icon" />
+            <text class="info-icon">💬</text>
             <text>微信绑定</text>
           </view>
           <view class="info-value">
             <text class="{{userInfo.isWechatBound ? 'bound' : 'unbound'}}">
               {{userInfo.isWechatBound ? '已绑定' : '未绑定'}}
             </text>
-            <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+            <text class="arrow-icon">›</text>
           </view>
         </view>
         
         <view class="info-item" bindtap="onChangePassword">
           <view class="info-label">
-            <image src="/assets/images/icons/lock.png" class="info-icon" />
+            <text class="info-icon">🔒</text>
             <text>修改密码</text>
           </view>
           <view class="info-value">
-            <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+            <text class="arrow-icon">›</text>
           </view>
         </view>
       </view>
@@ -94,34 +96,41 @@
       <view class="section-title">功能菜单</view>
       <view class="menu-list">
         <view class="menu-item" bindtap="onViewWorkplace">
-          <image src="/assets/images/icons/workplace.png" class="menu-icon" />
+          <text class="menu-icon">🏢</text>
           <text class="menu-text">工作台</text>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+          <text class="arrow-icon">›</text>
         </view>
         
         <view class="menu-item" bindtap="onViewCustomers">
-          <image src="/assets/images/icons/customers.png" class="menu-icon" />
+          <text class="menu-icon">👥</text>
           <text class="menu-text">客户管理</text>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+          <text class="arrow-icon">›</text>
         </view>
         
         <view class="menu-item" bindtap="onViewFollows">
-          <image src="/assets/images/icons/follow.png" class="menu-icon" />
+          <text class="menu-icon">📝</text>
           <text class="menu-text">跟进管理</text>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+          <text class="arrow-icon">›</text>
         </view>
         
         <view class="menu-item" bindtap="onViewPerformance">
-          <image src="/assets/images/icons/performance.png" class="menu-icon" />
+          <text class="menu-icon">📊</text>
           <text class="menu-text">业绩查看</text>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+          <text class="arrow-icon">›</text>
         </view>
         
         <view class="menu-item" bindtap="onViewSettings">
-          <image src="/assets/images/icons/settings.png" class="menu-icon" />
+          <text class="menu-icon">⚙️</text>
           <text class="menu-text">设置</text>
-          <image src="/assets/images/icons/arrow-right.png" class="arrow-icon" />
+          <text class="arrow-icon">›</text>
         </view>
+      </view>
+    </view>
+    
+    <!-- 退出登录 -->
+    <view class="logout-section">
+      <view class="logout-btn" bindtap="onLogout">
+        <text>退出登录</text>
       </view>
     </view>
     
@@ -133,19 +142,12 @@
       </view>
     </view>
     
-    <!-- 退出登录 -->
-    <view class="logout-section">
-      <view class="logout-btn" bindtap="onLogout">
-        <text>退出登录</text>
-      </view>
-    </view>
-    
     <!-- 账户信息弹窗 -->
     <van-popup show="{{showAccountInfo}}" position="bottom" round bind:close="onCloseAccountInfo">
       <view class="account-popup">
         <view class="popup-header">
           <text class="popup-title">账户信息</text>
-          <image src="/assets/images/icons/close.png" class="close-icon" bindtap="onCloseAccountInfo" />
+          <text class="close-icon" bindtap="onCloseAccountInfo">×</text>
         </view>
         
         <view class="account-info">
