@@ -436,7 +436,7 @@ const authAPI = {
   // 提交认证申请
   submitAuth: async (authData) => {
     console.log('提交认证申请:', authData)
-    const response = await apiService.post('/auth/submit', authData);
+    const response = await apiService.post('/user/auth/submit', authData);
     console.log('认证申请响应:', response)
     return response;
   },
@@ -455,7 +455,7 @@ const authAPI = {
     const params = userId ? { userId } : {};
     
     try {
-      const response = await apiService.get('/auth/status', params);
+      const response = await apiService.get('/user/auth/status', params);
       console.log('认证状态响应:', response)
       
       // 检查响应数据结构并给出建议
@@ -504,7 +504,7 @@ const authAPI = {
   // 取消认证
   cancelAuth: async () => {
     console.log('取消认证')
-    const response = await apiService.post('/auth/cancel');
+    const response = await apiService.post('/user/auth/cancel');
     console.log('取消认证响应:', response)
     return response;
   }

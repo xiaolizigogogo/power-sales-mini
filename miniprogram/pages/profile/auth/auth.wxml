@@ -171,7 +171,7 @@
       <view class="upload-item">
         <view class="upload-header">
           <text class="upload-title">营业执照 <text class="required">*</text></text>
-          <text class="upload-tip">支持OCR自动识别</text>
+          <text class="upload-tip">请上传清晰的营业执照照片</text>
         </view>
         
         <view class="upload-area {{authStatus === 'pending' ? 'disabled' : ''}}" 
@@ -193,11 +193,7 @@
           </view>
         </view>
         
-        <!-- OCR识别结果 -->
-        <view class="ocr-result" wx:if="{{ocrResults.businessLicense}}">
-          <text class="ocr-title">识别结果：</text>
-          <text class="ocr-text">{{ocrResults.businessLicense.companyName}}</text>
-        </view>
+        <!-- OCR识别结果已移除 -->
       </view>
     </view>
 
@@ -260,11 +256,7 @@
           </view>
         </view>
         
-        <!-- OCR识别结果 -->
-        <view class="ocr-result" wx:if="{{ocrResults.idCard}}">
-          <text class="ocr-title">识别结果：</text>
-          <text class="ocr-text">{{ocrResults.idCard.name}}</text>
-        </view>
+        <!-- OCR识别结果已移除 -->
       </view>
     </view>
 

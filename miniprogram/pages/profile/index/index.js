@@ -155,7 +155,7 @@ Page({
       'submitted': 'pending',
       '2': 'pending',
       
-      // 未认证状态
+      // 未认证状态（包括active用户状态）
       'unverified': 'unverified',
       'not_verified': 'unverified',
       'rejected': 'unverified',
@@ -164,7 +164,8 @@ Page({
       '0': 'unverified',
       'false': 'unverified',
       'null': 'unverified',
-      'undefined': 'unverified'
+      'undefined': 'unverified',
+      'active': 'unverified'  // 用户状态为active表示账户正常但企业未认证
     };
     
     const result = statusMap[statusStr] || 'unverified';
@@ -251,7 +252,7 @@ Page({
         openId: rawUserInfo.openId,
         role: rawUserInfo.role,
         status: rawUserInfo.status,
-        authStatus: this.formatAuthStatus(rawUserInfo.authStatus || rawUserInfo.verifyStatus || rawUserInfo.status), // 添加认证状态
+        authStatus: this.formatAuthStatus(rawUserInfo.companyAuthStatus || rawUserInfo.authStatus || rawUserInfo.verifyStatus || rawUserInfo.status), // 优先使用企业认证状态
         userLevel: rawUserInfo.userLevel || rawUserInfo.level,
         companyName: rawUserInfo.companyName || (rawUserInfo.company ? rawUserInfo.company.name : null),
         companyId: rawUserInfo.companyId || (rawUserInfo.company ? rawUserInfo.company.id : null),

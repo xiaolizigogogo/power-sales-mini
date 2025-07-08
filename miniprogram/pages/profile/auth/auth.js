@@ -23,11 +23,18 @@ Page({
     companySuggestions: [],
     showCompanySuggestions: false,
     
-    // 身份认证
+    // 身份认证文件（本地路径，用于显示）
     authFiles: {
       businessLicense: '', // 营业执照
       idCardFront: '',     // 身份证正面
       idCardBack: ''       // 身份证反面
+    },
+    
+    // 身份认证文件服务器路径（用于提交）
+    authFilesServer: {
+      businessLicense: '', // 营业执照服务器路径
+      idCardFront: '',     // 身份证正面服务器路径
+      idCardBack: ''       // 身份证反面服务器路径
     },
     
     // OCR识别结果
@@ -54,6 +61,7 @@ Page({
     }
     
     this.loadUserInfo();
+    this.loadCurrentAuthStatus();
     
     // 如果是认证中状态，加载已提交的认证数据
     if (this.data.authStatus === 'pending') {
@@ -126,6 +134,49 @@ Page({
     }
   },
 
+  // 加载当前认证状态
+  async loadCurrentAuthStatus() {
+    try {
+      console.log('开始加载当前认证状态');
+      
+      // 从服务器获取最新的认证状态
+      const response = await authAPI.getAuthStatus();
+      if (response && response.data) {
+        const serverAuthStatus = response.data.companyAuthStatus || response.data.authStatus || 'unverified';
+        console.log('从服务器获取的最新认证状态:', serverAuthStatus);
+        
+        // 更新页面状态
+        const formattedStatus = this.formatAuthStatus(serverAuthStatus);
+        this.setData({
+          authStatus: formattedStatus,
+          // 如果是认证中状态，默认显示第二步
+          currentStep: formattedStatus === 'pending' ? 2 : this.data.currentStep
+        });
+        
+        // 更新本地存储
+        const userInfo = wx.getStorageSync('userInfo') || {};
+        userInfo.companyAuthStatus = serverAuthStatus;
+        userInfo.authStatus = serverAuthStatus;
+        wx.setStorageSync('userInfo', userInfo);
+        
+        // 如果是认证中状态，加载认证数据
+        if (formattedStatus === 'pending') {
+          this.loadAuthData();
+        }
+      }
+    } catch (error) {
+      console.error('加载当前认证状态失败:', error);
+      // 如果服务器请求失败，尝试从本地存储获取
+      const userInfo = wx.getStorageSync('userInfo') || {};
+      const localAuthStatus = userInfo.companyAuthStatus || userInfo.authStatus || 'unverified';
+      const formattedStatus = this.formatAuthStatus(localAuthStatus);
+      this.setData({
+        authStatus: formattedStatus,
+        currentStep: formattedStatus === 'pending' ? 2 : this.data.currentStep
+      });
+    }
+  },
+
   // 加载已提交的认证数据
   async loadAuthData() {
     try {
@@ -146,7 +197,7 @@ Page({
           throw new Error('用户ID不存在');
         }
         
-        const response = await authAPI.getAuthStatus(userId);
+        const response = await authAPI.getAuthStatus();
         wx.hideLoading();
         
         if (response && response.data) {
@@ -199,6 +250,10 @@ Page({
         
         if (cachedAuthData.authFiles && typeof cachedAuthData.authFiles === 'object') {
           updateData.authFiles = { ...this.data.authFiles, ...cachedAuthData.authFiles };
+        }
+        
+        if (cachedAuthData.authFilesServer && typeof cachedAuthData.authFilesServer === 'object') {
+          updateData.authFilesServer = { ...this.data.authFilesServer, ...cachedAuthData.authFilesServer };
         }
         
         if (cachedAuthData.ocrResults && typeof cachedAuthData.ocrResults === 'object') {
@@ -316,8 +371,8 @@ Page({
       };
     }
     
-    // 映射认证状态
-    const statusMapping = ['authStatus', 'status', 'verifyStatus', 'certificationStatus'];
+    // 映射认证状态（优先使用企业认证状态）
+    const statusMapping = ['companyAuthStatus', 'authStatus', 'status', 'verifyStatus', 'certificationStatus'];
     for (const field of statusMapping) {
       if (serverData[field]) {
         updateData.authStatus = this.formatAuthStatus(serverData[field]);
@@ -522,15 +577,16 @@ Page({
         // 上传文件
         const uploadResult = await this.uploadToServer(tempFilePath, type);
         
-        // 更新文件路径
+        // 更新文件路径：保存服务器URL用于提交，本地路径用于显示
         this.setData({
-          [`authFiles.${type}`]: uploadResult.url
+          [`authFiles.${type}`]: tempFilePath,  // 使用本地临时路径用于显示
+          [`authFilesServer.${type}`]: uploadResult.url  // 保存服务器路径用于提交
         });
         
-        // OCR识别
-        if (type === 'businessLicense' || type.includes('idCard')) {
-          await this.performOCR(uploadResult.url, type);
-        }
+        // 暂时去掉OCR识别功能
+        // if (type === 'businessLicense' || type.includes('idCard')) {
+        //   await this.performOCR(uploadResult.url, type);
+        // }
         
         wx.hideLoading();
         wx.showToast({
@@ -652,7 +708,7 @@ Page({
       
       const authData = {
         basicInfo: this.data.basicInfo,
-        authFiles: this.data.authFiles,
+        authFiles: this.data.authFilesServer,  // 使用服务器路径提交
         ocrResults: this.data.ocrResults
       };
       
@@ -663,10 +719,11 @@ Page({
       wx.hideLoading();
       
       if (result && (result.success || result.code === 200)) {
-        // 缓存认证数据
+        // 缓存认证数据（保存本地路径用于显示）
         const authData = {
           basicInfo: this.data.basicInfo,
-          authFiles: this.data.authFiles,
+          authFiles: this.data.authFiles,  // 保存本地路径用于重新进入时显示
+          authFilesServer: this.data.authFilesServer,  // 保存服务器路径
           ocrResults: this.data.ocrResults
         };
         wx.setStorageSync('authData', authData);
@@ -718,9 +775,9 @@ Page({
 
   // 验证认证文件
   validateAuthFiles() {
-    const { authFiles } = this.data;
+    const { authFilesServer } = this.data;
     
-    if (!authFiles.businessLicense) {
+    if (!authFilesServer.businessLicense) {
       wx.showToast({
         title: '请上传营业执照',
         icon: 'none'
@@ -728,7 +785,7 @@ Page({
       return false;
     }
     
-    if (!authFiles.idCardFront) {
+    if (!authFilesServer.idCardFront) {
       wx.showToast({
         title: '请上传身份证正面',
         icon: 'none'
@@ -736,7 +793,7 @@ Page({
       return false;
     }
     
-    if (!authFiles.idCardBack) {
+    if (!authFilesServer.idCardBack) {
       wx.showToast({
         title: '请上传身份证反面',
         icon: 'none'
@@ -767,11 +824,13 @@ Page({
       content: '确定要删除这张图片吗？',
       success: (res) => {
         if (res.confirm) {
+          // 清除本地路径和服务器路径
           this.setData({
-            [`authFiles.${type}`]: ''
+            [`authFiles.${type}`]: '',
+            [`authFilesServer.${type}`]: ''
           });
           
-          // 清除OCR结果
+          // 清除OCR结果（暂时保留，虽然OCR功能已去掉）
           if (type === 'businessLicense') {
             this.setData({
               'ocrResults.businessLicense': null

@@ -7,7 +7,7 @@ const ENV_TYPES = {
 }
 
 // 当前环境（可以通过修改这个值来切换环境）
-const CURRENT_ENV = ENV_TYPES.DEVELOPMENT
+const CURRENT_ENV = ENV_TYPES.PRODUCTION
 
 // 环境配置
 const envConfigs = {
@@ -19,7 +19,7 @@ const envConfigs = {
     logLevel: 'debug'
   },
   [ENV_TYPES.PRODUCTION]: {
-    apiBaseURL: 'https://dyh.zytcft.com/power/mini',
+    apiBaseURL: 'https://dyh.zytcft.com/power/api/v1/mini',
     uploadBaseURL: 'https://dyh.zytcft.com',
     enableDebug: false,
     enableMock: false,

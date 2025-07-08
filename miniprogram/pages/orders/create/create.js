@@ -683,7 +683,8 @@ Page({
     // 检查企业认证状态
     console.log('🔍 检查企业认证状态...');
     const authStatus = await this.checkAuthStatus();
-    if (authStatus !== 'verified') {
+    // 允许已认证或认证中的状态创建订单
+    if (authStatus !== 'verified' && authStatus !== 'pending') {
       console.log('❌ 企业认证状态检查失败:', authStatus);
       this.showAuthRequiredDialog();
       return;
@@ -932,20 +933,21 @@ Page({
   async checkAuthStatus() {
     try {
       const userInfo = wx.getStorageSync('userInfo') || {};
-      const authStatus = userInfo.authStatus || 'unverified';
+      const authStatus = userInfo.companyAuthStatus || userInfo.authStatus || 'unverified';
       
       console.log('当前企业认证状态:', authStatus);
       
       // 如果本地没有认证状态信息，尝试从服务器获取
       if (!authStatus || authStatus === 'unverified') {
         try {
-          const response = await apiService.get('/auth/status');
+          const response = await apiService.get('/user/auth/status');
           if (response && response.data) {
-            const serverAuthStatus = response.data.authStatus || 'unverified';
+            const serverAuthStatus = response.data.companyAuthStatus || response.data.authStatus || 'unverified';
             console.log('从服务器获取的认证状态:', serverAuthStatus);
             
             // 更新本地存储
             userInfo.authStatus = serverAuthStatus;
+            userInfo.companyAuthStatus = serverAuthStatus;
             wx.setStorageSync('userInfo', userInfo);
             
             return serverAuthStatus;
