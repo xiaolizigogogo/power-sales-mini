@@ -1,6 +1,7 @@
 const app = getApp()
 const auth = require('../../../utils/auth')
 const { productAPI } = require('../../../utils/api')
+const { formatProductItem } = require('../../../utils/product-helper')
 
 Page({
   data: {
@@ -19,7 +20,14 @@ Page({
     loading: false,
     hasMore: true,
     page: 1,
-    pageSize: 10
+    pageSize: 10,
+    
+    // 用户用电信息（用于节省金额计算）
+    userPowerInfo: {
+      monthlyUsage: 1000, // 默认月用电量
+      currentPrice: 0.6,  // 默认当前电价
+      userType: 'commercial' // 用户类型
+    }
   },
 
   onLoad(options) {
@@ -31,6 +39,9 @@ Page({
         activeTab: parseInt(options.categoryId)
       })
     }
+    
+    // 加载用户用电信息
+    this.loadUserPowerInfo()
   },
 
   onShow() {
@@ -44,6 +55,28 @@ Page({
     
     // 页面显示时刷新数据
     this.loadProducts(true);
+  },
+
+  // 加载用户用电信息
+  async loadUserPowerInfo() {
+    try {
+      const userInfo = wx.getStorageSync('userInfo')
+      if (userInfo) {
+        this.setData({
+          'userPowerInfo.userType': userInfo.userType || 'commercial'
+        })
+      }
+      
+      // 这里可以调用API获取用户实际用电信息
+      // const res = await powerAPI.getUserPowerInfo()
+      // if (res.code === 200) {
+      //   this.setData({
+      //     userPowerInfo: res.data
+      //   })
+      // }
+    } catch (error) {
+      console.error('加载用户用电信息失败:', error)
+    }
   },
 
   // 加载产品列表
@@ -66,27 +99,47 @@ Page({
         page,
         pageSize,
         keyword: searchValue,
-        category: categories[activeTab]
+        category: categories[activeTab] !== 'all' ? categories[activeTab] : ''
       }
 
       console.log('🔍 请求产品列表参数:', params)
-      const res = await productAPI.getProducts(params)
-      console.log('📦 产品列表响应:', res)
       
-      // 处理返回的数据结构
       let list = [], total = 0;
       
-      if (res.code === 200 && Array.isArray(res.data)) {
-        list = res.data.map(item => ({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          basePrice: item.basePrice,
-          imageUrl: item.imageUrl,
-          isNew: item.isNew,
-          isHot: item.isHot
-        }));
-        total = list.length; // 由于后端没有返回总数，暂时用列表长度代替
+      try {
+        const res = await productAPI.getProducts(params)
+        console.log('📦 产品列表响应:', res)
+        
+        // 处理返回的数据结构
+        if (res.code === 200 && Array.isArray(res.data)) {
+          list = res.data.map(item => formatProductItem(item, this.data.userPowerInfo));
+          total = list.length;
+        }
+      } catch (error) {
+        console.warn('⚠️ API调用失败，使用测试数据:', error);
+        
+        // 使用测试数据作为后备方案
+        const { generateTestProducts } = require('../../../utils/product-helper');
+        const testProducts = generateTestProducts();
+        
+        // 根据分类过滤测试数据
+        let filteredProducts = testProducts;
+        if (categories[activeTab] !== 'all') {
+          filteredProducts = testProducts.filter(p => p.type === categories[activeTab]);
+        }
+        
+        // 根据搜索关键词过滤
+        if (searchValue) {
+          filteredProducts = filteredProducts.filter(p => 
+            p.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            p.description.toLowerCase().includes(searchValue.toLowerCase())
+          );
+        }
+        
+        list = filteredProducts.map(item => formatProductItem(item, this.data.userPowerInfo));
+        total = list.length;
+        
+        console.log('🧪 使用测试数据，产品数量:', total);
       }
       
       console.log('🎯 处理后的数据:', { list, total })

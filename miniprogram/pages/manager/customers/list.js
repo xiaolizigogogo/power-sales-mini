@@ -1,6 +1,7 @@
 // pages/manager/customers/list.js
 const { roleManager } = require('../../../utils/role-manager');
 const { showToast, showLoading, hideLoading } = require('../../../utils/common');
+const { customerAPI } = require('../../../utils/api');
 
 Page({
   data: {
@@ -152,8 +153,7 @@ Page({
         ...this.data.filterConditions
       };
       
-      // TODO: 替换为实际的API调用
-      const response = await this.mockCustomerList(params);
+      const response = await customerAPI.getMyCustomers(params);
       
       const newList = this.data.page === 1 ? response.data.list : [...this.data.customerList, ...response.data.list];
       
@@ -163,7 +163,9 @@ Page({
         totalCount: response.data.total
       });
       
-      this.updateStatusCounts(response.data.statusCounts);
+      if (response.data.statusCounts) {
+        this.updateStatusCounts(response.data.statusCounts);
+      }
       
     } catch (error) {
       console.error('加载客户列表失败:', error);
@@ -188,8 +190,7 @@ Page({
    */
   async loadStatistics() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockStatistics();
+      const response = await customerAPI.getMyCustomerStatistics();
       this.setData({
         todayAddCount: response.data.todayAddCount,
         weekContactCount: response.data.weekContactCount

@@ -1,6 +1,6 @@
-<view class="container">
-  <!-- 商品轮播图 -->
-  <swiper class="product-swiper" indicator-dots indicator-active-color="#e93b3d" circular>
+<view class="container" wx:if="{{!loading}}">
+  <!-- 产品轮播图 -->
+  <swiper class="product-swiper" indicator-dots indicator-active-color="#409EFF" circular>
     <swiper-item wx:for="{{product.images}}" wx:key="*this">
       <image 
         src="{{item}}" 
@@ -12,142 +12,310 @@
     </swiper-item>
   </swiper>
 
-  <!-- 商品主要信息 -->
-  <view class="main-info">
-    <!-- 价格区域 -->
-    <view class="price-box">
-      <text class="currency">¥</text>
-      <text class="price">{{product.basePrice}}</text>
-      <text class="unit">/度</text>
+  <!-- 产品基本信息 -->
+  <view class="product-info">
+    <view class="product-header">
+      <view class="product-name">{{product.name}}</view>
+      <view class="product-type">{{product.userTypeText}}</view>
     </view>
-
-    <!-- 商品标题 -->
-    <view class="title">{{product.name}}</view>
-
-    <!-- 商品卖点 -->
-    <view class="subtitle">{{product.description}}</view>
-
-    <!-- 服务标签 -->
-    <view class="service-tags">
-      <view class="tag-item">
-        <icon type="success" size="12" color="#07c160"/>
-        <text>正品保证</text>
-      </view>
-      <view class="tag-item">
-        <icon type="success" size="12" color="#07c160"/>
-        <text>专业服务</text>
-      </view>
-      <view class="tag-item">
-        <icon type="success" size="12" color="#07c160"/>
-        <text>售后无忧</text>
+    
+    <view class="price-section">
+      <view class="price-range">{{product.priceRange}}</view>
+      <view class="estimated-savings" wx:if="{{product.estimatedSavings > 0}}">
+        <text class="savings-label">预估月节省</text>
+        <text class="savings-amount">¥{{product.estimatedSavings}}</text>
       </view>
     </view>
-  </view>
-
-  <!-- 选择规格区域 -->
-  <view class="select-section" bindtap="showSpecPopup">
-    <view class="section-title">选择</view>
-    <view class="section-content">
-      <text class="selected-text">{{product.voltage}}V / {{product.phase}}相</text>
-      <icon type="arrow" size="12" color="#999"/>
-    </view>
-  </view>
-
-  <!-- 参数信息区域 -->
-  <view class="params-section" bindtap="showParamsPopup">
-    <view class="section-title">参数</view>
-    <view class="section-content">
-      <text class="param-text">电压: {{product.voltage}}V</text>
-      <text class="param-text">相数: {{product.phase}}相</text>
-      <icon type="arrow" size="12" color="#999"/>
-    </view>
-  </view>
-
-  <!-- 商品详情 -->
-  <view class="detail-section">
-    <view class="detail-tabs">
+    
+    <view class="product-desc">{{product.description}}</view>
+    
+    <!-- 产品标签 -->
+    <view class="tags-section" wx:if="{{product.tags.length > 0}}">
       <view 
-        class="tab-item {{activeTab === 0 ? 'active' : ''}}" 
-        bindtap="switchTab" 
-        data-tab="0"
-      >商品介绍</view>
-      <view 
-        class="tab-item {{activeTab === 1 ? 'active' : ''}}" 
-        bindtap="switchTab" 
-        data-tab="1"
-      >规格参数</view>
+        class="product-tag tag-{{tag.type}}" 
+        wx:for="{{product.tags}}" 
+        wx:key="type"
+        wx:for-item="tag"
+      >
+        {{tag.text}}
+      </view>
     </view>
+    
+    <!-- 快速操作 -->
+    <view class="quick-actions">
+      <button class="action-btn secondary" bindtap="goToCalculator">
+        <icon type="search" size="16"/>
+        电费计算
+      </button>
+      <button class="action-btn secondary" bindtap="contactService">
+        <icon type="info" size="16"/>
+        咨询客服
+      </button>
+      <button class="action-btn secondary" bindtap="toggleFavorite">
+        <icon type="{{product.isFavorite ? 'success' : 'circle'}}" size="16"/>
+        {{product.isFavorite ? '已收藏' : '收藏'}}
+      </button>
+    </view>
+  </view>
 
-    <!-- 商品介绍内容 -->
-    <view class="detail-content" hidden="{{activeTab !== 0}}">
-      <view class="content-block">
-        <view class="block-title">产品特点</view>
+  <!-- 标签页导航 -->
+  <view class="tab-nav">
+    <scroll-view scroll-x class="tab-scroll">
+      <view class="tab-list">
+        <view 
+          class="tab-item {{activeTab === index ? 'active' : ''}}"
+          wx:for="{{tabList}}"
+          wx:key="key"
+          bindtap="onTabChange"
+          data-index="{{index}}"
+        >
+          {{item.name}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 标签页内容 -->
+  <view class="tab-content">
+    <!-- 产品介绍 -->
+    <view class="content-section" wx:if="{{activeTab === 0}}">
+      <view class="intro-section">
+        <view class="section-title">产品特点</view>
         <view class="feature-list">
           <view class="feature-item" wx:for="{{product.features}}" wx:key="*this">
-            <icon type="success" size="14" color="#07c160"/>
-            <text>{{item}}</text>
+            <view class="feature-icon">
+              <icon type="success" size="16" color="#409EFF"/>
+            </view>
+            <view class="feature-text">{{item}}</view>
           </view>
         </view>
       </view>
-
-      <view class="content-block">
-        <view class="block-title">价格说明</view>
-        <view class="price-list">
-          <view class="price-item" wx:for="{{product.priceTiers}}" wx:key="tier">
-            <view class="price-range">{{item.range}}</view>
-            <view class="price-value">¥{{item.price}}/度</view>
-            <view class="price-note">{{item.note}}</view>
-          </view>
+      
+      <view class="intro-section">
+        <view class="section-title">适用范围</view>
+        <view class="applicable-range">
+          <text>{{product.applicableRange}}</text>
         </view>
       </view>
-
-      <view class="content-block">
-        <view class="block-title">使用说明</view>
-        <view class="step-list">
-          <view class="step-item" wx:for="{{product.instructions}}" wx:key="*this">
-            <text class="step-num">{{index + 1}}</text>
-            <text class="step-text">{{item}}</text>
+      
+      <view class="intro-section">
+        <view class="section-title">技术规格</view>
+        <view class="spec-list">
+          <view class="spec-item">
+            <text class="spec-label">产品类型</text>
+            <text class="spec-value">{{product.userTypeText}}</text>
+          </view>
+          <view class="spec-item">
+            <text class="spec-label">基础价格</text>
+            <text class="spec-value">{{product.basePrice}}元/kWh</text>
+          </view>
+          <view class="spec-item" wx:if="{{product.minCapacity && product.maxCapacity}}">
+            <text class="spec-label">容量范围</text>
+            <text class="spec-value">{{product.minCapacity}}-{{product.maxCapacity}}kW</text>
+          </view>
+          <view class="spec-item">
+            <text class="spec-label">状态</text>
+            <text class="spec-value">{{product.status === 'active' ? '正常供应' : '暂停供应'}}</text>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 规格参数内容 -->
-    <view class="detail-content" hidden="{{activeTab !== 1}}">
-      <view class="param-list">
-        <view class="param-item">
-          <text class="param-label">产品类型</text>
-          <text class="param-value">{{product.category === 'industrial' ? '工业用电' : 
-            product.category === 'commercial' ? '商业用电' : '民用电力'}}</text>
+    <!-- 价格构成 -->
+    <view class="content-section" wx:if="{{activeTab === 1}}">
+      <view class="price-analysis">
+        <view class="section-title">电价构成分析</view>
+        <view class="chart-container">
+          <view class="chart-legend">
+            <view class="legend-item" wx:for="{{chartData.priceComposition}}" wx:key="label">
+              <view class="legend-color" style="background-color: {{item.color}}"></view>
+              <text class="legend-label">{{item.label}}</text>
+              <text class="legend-value">{{item.valueFormatted}}元</text>
+            </view>
+          </view>
+          
+          <view class="price-breakdown">
+            <view class="breakdown-item" wx:for="{{chartData.priceComposition}}" wx:key="label">
+              <view class="breakdown-bar">
+                <view 
+                  class="breakdown-fill" 
+                  style="width: {{item.widthPercent}}%; background-color: {{item.color}}"
+                ></view>
+              </view>
+              <view class="breakdown-info">
+                <text class="breakdown-label">{{item.label}}</text>
+                <text class="breakdown-percent">{{item.percentage}}%</text>
+              </view>
+            </view>
+          </view>
         </view>
-        <view class="param-item">
-          <text class="param-label">电压等级</text>
-          <text class="param-value">{{product.voltage}}V</text>
+        
+        <view class="price-summary">
+          <view class="summary-item">
+            <text class="summary-label">总电价</text>
+            <text class="summary-value">{{product.basePrice}}元/kWh</text>
+          </view>
+          <view class="summary-item">
+            <text class="summary-label">预估月费用</text>
+            <text class="summary-value">¥{{estimatedMonthlyCost}}</text>
+          </view>
         </view>
-        <view class="param-item">
-          <text class="param-label">相数</text>
-          <text class="param-value">{{product.phase}}相</text>
+      </view>
+    </view>
+
+    <!-- 结算方式 -->
+    <view class="content-section" wx:if="{{activeTab === 2}}">
+      <view class="settlement-section">
+        <view class="section-title">结算方式说明</view>
+        <view class="method-list">
+          <view class="method-item" wx:for="{{settlementMethods}}" wx:key="name">
+            <view class="method-header">
+              <image class="method-icon" src="{{item.icon}}" mode="aspectFit"/>
+              <view class="method-info">
+                <text class="method-name">{{item.name}}</text>
+                <text class="method-desc">{{item.description}}</text>
+              </view>
+            </view>
+            
+            <view class="method-features">
+              <view class="feature-tag" wx:for="{{item.features}}" wx:key="*this" wx:for-item="feature">
+                {{feature}}
+              </view>
+            </view>
+            
+            <view class="method-applicable">
+              <text class="applicable-label">适用场景：</text>
+              <text class="applicable-text">{{item.applicable}}</text>
+            </view>
+          </view>
         </view>
-        <view class="param-item">
-          <text class="param-label">适用范围</text>
-          <text class="param-value">{{product.applicableRange || '暂无数据'}}</text>
+      </view>
+    </view>
+
+    <!-- 服务内容 -->
+    <view class="content-section" wx:if="{{activeTab === 3}}">
+      <view class="service-section">
+        <view class="section-title">服务内容清单</view>
+        <view class="service-categories">
+          <view class="category-item" wx:for="{{serviceContents}}" wx:key="category">
+            <view class="category-header">
+              <text class="category-name">{{item.category}}</text>
+            </view>
+            <view class="service-items">
+              <view class="service-item" wx:for="{{item.items}}" wx:key="name" wx:for-item="service">
+                <view class="service-header">
+                  <view class="service-dot"></view>
+                  <text class="service-name">{{service.name}}</text>
+                </view>
+                <view class="service-desc">{{service.description}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 风险提示 -->
+    <view class="content-section" wx:if="{{activeTab === 4}}">
+      <view class="risk-section">
+        <view class="section-title">风险提示信息</view>
+        <view class="warning-list">
+          <view class="warning-item" wx:for="{{riskWarnings}}" wx:key="type">
+            <view class="warning-header">
+              <view class="warning-icon level-{{item.level}}">
+                <icon type="warn" size="16" color="#fff"/>
+              </view>
+              <text class="warning-type">{{item.type}}</text>
+              <text class="warning-level">{{item.level === 'high' ? '高风险' : item.level === 'medium' ? '中风险' : '低风险'}}</text>
+            </view>
+            <view class="warning-content">{{item.content}}</view>
+            <view class="warning-suggestion">
+              <text class="suggestion-label">建议：</text>
+              <text class="suggestion-text">{{item.suggestion}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 客户案例 -->
+    <view class="content-section" wx:if="{{activeTab === 5}}">
+      <view class="cases-section">
+        <view class="section-title">客户案例展示</view>
+        <view class="case-list">
+          <view class="case-item" wx:for="{{customerCases}}" wx:key="id">
+            <view class="case-header">
+              <image class="case-avatar" src="{{item.avatar}}" mode="aspectFit"/>
+              <view class="case-info">
+                <text class="case-company">{{item.companyName}}</text>
+                <text class="case-industry">{{item.industry}}</text>
+              </view>
+            </view>
+            
+            <view class="case-data">
+              <view class="data-item">
+                <text class="data-label">月用电量</text>
+                <text class="data-value">{{item.monthlyUsage}}kWh</text>
+              </view>
+              <view class="data-item">
+                <text class="data-label">节省金额</text>
+                <text class="data-value">¥{{item.savingsAmount}}</text>
+              </view>
+              <view class="data-item">
+                <text class="data-label">节省比例</text>
+                <text class="data-value">{{item.savingsRate}}%</text>
+              </view>
+            </view>
+            
+            <view class="case-desc">{{item.description}}</view>
+          </view>
         </view>
       </view>
     </view>
   </view>
 
   <!-- 底部操作栏 -->
-  <view class="footer-bar">
+  <view class="footer-actions">
     <view class="price-info">
       <text class="price-label">单价</text>
-      <text class="price-value">¥{{product.unitPrice}}</text>
+      <text class="price-value">{{product.priceRange}}</text>
     </view>
     <view class="action-buttons">
-      <button class="contact-btn" open-type="contact">
-        <van-icon name="service" size="40rpx" />
-        <text>客服咨询</text>
+      <button class="btn-secondary" bindtap="contactService">
+        <icon type="info" size="16"/>
+        <text>咨询</text>
       </button>
-      <button class="order-btn" bindtap="goToCreateOrder">立即购买</button>
+      <button class="btn-primary" bindtap="createOrder">
+        <text>立即购买</text>
+      </button>
     </view>
+  </view>
+
+  <!-- 分享面板 -->
+  <view class="share-panel" wx:if="{{showShare}}" bindtap="hideSharePanel">
+    <view class="share-content" catchtap="">
+      <view class="share-header">
+        <text class="share-title">分享产品</text>
+        <icon type="cancel" size="20" bindtap="hideSharePanel"/>
+      </view>
+      <view class="share-options">
+        <button class="share-btn" open-type="share">
+          <icon type="share" size="24"/>
+          <text>分享给朋友</text>
+        </button>
+        <button class="share-btn" bindtap="copyLink">
+          <icon type="download" size="24"/>
+          <text>复制链接</text>
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-container" wx:if="{{loading}}">
+  <view class="loading-content">
+    <icon type="loading" size="32"/>
+    <text>加载中...</text>
   </view>
 </view> 

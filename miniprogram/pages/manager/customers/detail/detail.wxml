@@ -4,7 +4,7 @@
   <view class="info-card">
     <view class="customer-header">
       <view class="avatar-section">
-        <image class="avatar" src="{{customerInfo.avatar_url || '/images/default-avatar.png'}}" mode="aspectFill"/>
+        <image class="avatar" src="{{customerInfo.avatar_url || '/assets/images/default-avatar.png'}}" mode="aspectFill"/>
         <view class="status-dot {{customerInfo.status}}"></view>
       </view>
       <view class="basic-info">

@@ -40,42 +40,68 @@
   >
     <view class="product-grid">
       <view 
-        class="product-item"
+        class="product-card"
         wx:for="{{products.list}}"
         wx:key="id"
         bindtap="onProductTap"
         data-id="{{item.id}}"
       >
-        <!-- 商品图片 -->
-        <image 
-          class="product-image" 
-          src="{{item.imageUrl || '/assets/images/icons/business.png'}}"
-          mode="aspectFill"
-          lazy-load
-        />
+        <!-- 产品图片 -->
+        <view class="product-image-container">
+          <image 
+            class="product-image" 
+            src="{{item.imageUrl || '/assets/images/icons/business.png'}}"
+            mode="aspectFill"
+            lazy-load
+          />
+          
+          <!-- 推荐标签 -->
+          <view class="recommend-badge" wx:if="{{item.isRecommended}}">
+            <text class="recommend-text">推荐</text>
+          </view>
+        </view>
         
-        <!-- 商品信息 -->
+        <!-- 产品信息 -->
         <view class="product-info">
-          <!-- 商品名称 -->
-          <view class="product-name">{{item.name}}</view>
+          <!-- 产品名称和类型 -->
+          <view class="product-header">
+            <view class="product-name">{{item.name}}</view>
+            <view class="product-type">{{item.userTypeText}}</view>
+          </view>
           
-          <!-- 商品描述 -->
-          <view class="product-desc">{{item.description || '暂无描述'}}</view>
+          <!-- 价格区间 -->
+          <view class="price-section">
+            <view class="price-range">{{item.priceRange}}</view>
+          </view>
           
-          <!-- 价格和标签区域 -->
-          <view class="product-bottom">
-            <!-- 价格区域 -->
-            <view class="price-area">
-              <text class="price-symbol">¥</text>
-              <text class="price-value">{{item.basePrice || '询价'}}</text>
-              <text class="price-unit">/度</text>
+          <!-- 预估节省金额 -->
+          <view class="savings-section" wx:if="{{item.estimatedSavings > 0}}">
+            <view class="savings-label">预估月节省</view>
+            <view class="savings-amount">¥{{item.estimatedSavings}}</view>
+          </view>
+          
+          <!-- 产品描述 -->
+          <view class="product-desc" wx:if="{{item.description}}">
+            {{item.description}}
+          </view>
+          
+          <!-- 标签区域 -->
+          <view class="tags-section" wx:if="{{item.tags.length > 0}}">
+            <view 
+              class="product-tag tag-{{tag.type}}" 
+              wx:for="{{item.tags}}" 
+              wx:key="type"
+              wx:for-item="tag"
+            >
+              {{tag.text}}
             </view>
-            
-            <!-- 标签区域 -->
-            <view class="tag-area">
-              <view class="tag" wx:if="{{item.isNew}}">新品</view>
-              <view class="tag" wx:if="{{item.isHot}}">热销</view>
-            </view>
+          </view>
+        </view>
+        
+        <!-- 操作区域 -->
+        <view class="product-actions">
+          <view class="action-btn detail-btn">
+            <text>查看详情</text>
           </view>
         </view>
       </view>
@@ -89,8 +115,14 @@
           <text>加载中...</text>
         </view>
       </block>
-      <block wx:elif="{{!hasMore}}">
+      <block wx:elif="{{!hasMore && products.list.length > 0}}">
         <view class="no-more">已经到底啦</view>
+      </block>
+      <block wx:elif="{{!loading && products.list.length === 0}}">
+        <view class="empty-state">
+          <icon type="info" size="40" color="#ccc"/>
+          <text>暂无产品数据</text>
+        </view>
       </block>
     </view>
   </scroll-view>
@@ -98,6 +130,7 @@
   <!-- 电费计算器入口 -->
   <view class="calculator-entry" bindtap="goToCalculator">
     <icon type="search" size="24" color="#409EFF"/>
+    <text class="calculator-text">电费计算器</text>
   </view>
 
   <!-- Toast 组件 -->

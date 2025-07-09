@@ -1,0 +1,32 @@
+<view class="test-container">
+  <view class="header">
+    <text class="title">API测试工具</text>
+    <button class="retest-btn" bindtap="onRetestTap" disabled="{{testing}}">
+      {{testing ? '测试中...' : '重新测试'}}
+    </button>
+  </view>
+
+  <view class="actions">
+    <button class="action-btn" bindtap="onMockLoginTap">模拟登录</button>
+    <button class="action-btn" bindtap="onClearStorageTap">清除存储</button>
+  </view>
+
+  <view class="results">
+    <block wx:for="{{testResults}}" wx:key="test">
+      <view class="result-item {{item.status}}">
+        <view class="result-header">
+          <text class="result-title">{{item.test}}</text>
+          <text class="result-status">{{item.status === 'success' ? '✅' : '❌'}}</text>
+        </view>
+        <view class="result-content">
+          <text wx:if="{{item.data}}">{{item.data}}</text>
+          <text wx:if="{{item.error}}" class="error">{{item.error}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{testing}}" class="loading">
+    <text>正在测试API...</text>
+  </view>
+</view> 

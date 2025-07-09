@@ -139,6 +139,31 @@ Page({
         consumption 
       } = options;
       
+      console.log('🔍 获取到的产品参数:', {
+        productId,
+        productName,
+        currentPrice,
+        productType,
+        voltage,
+        phase,
+        consumption
+      });
+      
+      // 检查productId是否为空
+      if (!productId) {
+        console.error('❌ productId 为空，尝试使用默认值');
+        // 如果productId为空，设置一个默认值或者显示错误
+        wx.showModal({
+          title: '参数错误',
+          content: '产品ID不能为空，请重新选择产品',
+          showCancel: false,
+          success: () => {
+            wx.navigateBack();
+          }
+        });
+        return;
+      }
+      
       // 如果有传入的产品信息，先设置基础信息
       if (productId && productName) {
         const decodedName = decodeURIComponent(productName);
@@ -164,12 +189,19 @@ Page({
           'orderForm.usageType': productType || 'commercial'
         });
         
-        console.log('设置基础产品信息:', baseProductInfo);
+        console.log('✅ 设置基础产品信息:', baseProductInfo);
+        console.log('✅ 设置orderForm.productId:', productId);
         
         // 如果有预估用电量，计算费用
         if (consumption) {
           this.calculateAmount();
         }
+      } else if (productId) {
+        // 如果只有productId，设置基础信息
+        this.setData({
+          'orderForm.productId': productId
+        });
+        console.log('✅ 只设置productId:', productId);
       }
       
       // 加载详细产品信息（如果有productId）
@@ -181,7 +213,11 @@ Page({
       this.loadCustomerInfo();
       
     } catch (error) {
-      console.error('页面加载失败:', error);
+      console.error('❌ 页面加载失败:', error);
+      wx.showToast({
+        title: '页面加载失败',
+        icon: 'none'
+      });
     } finally {
       // 设置页面为已加载状态
       const today = new Date();
@@ -731,9 +767,30 @@ Page({
     });
     
     try {
+      // 检查必要的数据
+      const productId = this.data.orderForm.productId || this.data.product?.id;
+      console.log('🔍 检查产品ID:', {
+        'orderForm.productId': this.data.orderForm.productId,
+        'product.id': this.data.product?.id,
+        'final productId': productId
+      });
+      
+      if (!productId) {
+        console.error('❌ 产品ID为空，无法提交订单');
+        wx.showModal({
+          title: '提交失败',
+          content: '产品ID不能为空，请重新选择产品后再试',
+          showCancel: false,
+          success: () => {
+            wx.navigateBack();
+          }
+        });
+        return;
+      }
+      
       // 构建提交数据
       const submitData = {
-        productId: this.data.orderForm.productId,
+        productId: productId,
         assignedEmployeeId: this.data.customerInfo.assignedEmployeeId || 1, // 默认分配员工ID为1
         servicePeriod: this.data.servicePeriod,
         serviceAddress: this.data.serviceAddress,
@@ -742,6 +799,20 @@ Page({
       };
 
       console.log('📦 准备提交的订单数据:', submitData);
+      
+      // 验证必要字段
+      const requiredFields = ['productId', 'servicePeriod', 'serviceAddress'];
+      const missingFields = requiredFields.filter(field => !submitData[field]);
+      
+      if (missingFields.length > 0) {
+        console.error('❌ 缺少必要字段:', missingFields);
+        wx.showToast({
+          title: `请填写: ${missingFields.join(', ')}`,
+          icon: 'none'
+        });
+        return;
+      }
+      
       console.log('🔑 当前token状态:', wx.getStorageSync('token') ? '已设置' : '未设置');
       console.log('🌐 开始调用API...');
 

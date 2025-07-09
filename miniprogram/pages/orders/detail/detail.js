@@ -420,31 +420,63 @@ Page({
     try {
       wx.showLoading({ title: '取消中...' });
       
+      console.log('🚀 开始取消订单，订单ID:', this.data.orderId);
+      
       const response = await api.cancelOrder(this.data.orderId);
       
-      if (response.success) {
+      console.log('📡 取消订单API响应:', response);
+      console.log('📡 响应类型:', typeof response);
+      console.log('📡 响应结构:', {
+        hasCode: response && 'code' in response,
+        hasSuccess: response && 'success' in response,
+        hasData: response && 'data' in response,
+        hasMessage: response && 'message' in response,
+        responseKeys: response ? Object.keys(response) : 'null'
+      });
+      
+      // 兼容不同的响应格式
+      const isSuccess = response && (
+        response.code === 200 || 
+        response.code === 0 || 
+        response.success === true
+      );
+      
+      console.log('✅ 判断结果:', { isSuccess, code: response?.code, success: response?.success });
+      
+      if (isSuccess) {
         wx.showToast({
           title: '订单已取消',
           icon: 'success'
         });
         
+        console.log('🔄 开始刷新订单信息');
         // 刷新订单信息
         await this.loadOrderDetail();
         
+        console.log('🔄 触发父页面刷新');
         // 触发父页面刷新
         const pages = getCurrentPages();
         const prevPage = pages[pages.length - 2];
         if (prevPage) {
-          prevPage.refreshOrderList && prevPage.refreshOrderList();
+          console.log('🔄 父页面存在，调用刷新方法');
+          if (typeof prevPage.refreshOrderList === 'function') {
+            prevPage.refreshOrderList();
+          } else if (typeof prevPage.loadOrders === 'function') {
+            prevPage.loadOrders(true);
+          } else if (typeof prevPage.onShow === 'function') {
+            prevPage.onShow();
+          }
         }
       } else {
+        const errorMessage = response?.message || '取消失败';
+        console.error('❌ 取消订单失败:', errorMessage);
         wx.showToast({
-          title: response.message || '取消失败',
+          title: errorMessage,
           icon: 'none'
         });
       }
     } catch (error) {
-      console.error('取消订单失败:', error);
+      console.error('❌ 取消订单异常:', error);
       wx.showToast({
         title: '网络错误，请重试',
         icon: 'none'

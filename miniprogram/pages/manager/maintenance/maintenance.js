@@ -194,7 +194,7 @@ Page({
   async loadCustomerOptions() {
     try {
       const res = await app.request({
-        url: '/customers/my-customers',
+        url: '/customers/list',
         data: { page: 1, pageSize: 50 }
       })
       

@@ -410,7 +410,7 @@ const orderAPI = {
 const customerAPI = {
   // 获取我的客户列表
   getMyCustomers: (params) => {
-    return apiService.get('/customers/my-customers', params)
+    return apiService.get('/customers/list', params)
   },
 
   // 获取客户详情

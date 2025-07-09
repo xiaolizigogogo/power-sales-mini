@@ -169,6 +169,8 @@ const errorConfig = {
   }
 }
 
+const DEFAULT_AVATAR = '/assets/images/default-avatar.png';
+
 // 导出所有配置
 module.exports = {
   isDev,
@@ -178,5 +180,6 @@ module.exports = {
   appConfig,
   businessConfig,
   regexConfig,
-  errorConfig
+  errorConfig,
+  defaultAvatar: DEFAULT_AVATAR
 } 

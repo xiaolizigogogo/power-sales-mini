@@ -1,0 +1,19 @@
+{
+  "navigationBarTitleText": "产品列表",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f5f7fa",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "van-toast": "@vant/weapp/dist/toast/index",
+    "van-dialog": "@vant/weapp/dist/dialog/index",
+    "van-loading": "@vant/weapp/dist/loading/index",
+    "van-empty": "@vant/weapp/dist/empty/index",
+    "van-icon": "@vant/weapp/dist/icon/index",
+    "van-button": "@vant/weapp/dist/button/index",
+    "van-search": "@vant/weapp/dist/search/index",
+    "van-tab": "@vant/weapp/dist/tab/index",
+    "van-tabs": "@vant/weapp/dist/tabs/index",
+    "van-tag": "@vant/weapp/dist/tag/index"
+  }
+} 

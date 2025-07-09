@@ -802,74 +802,56 @@ const maintenanceAPI = {
   }
 }
 
-// 客户管理相关 API
+// 客户管理API
 const customerAPI = {
-  // 获取我的客户列表
-  getMyCustomers: (params) => {
-    return apiService.get('/manager/customers/my', params)
-  },
-
-  // 获取客户统计数据
-  getStatistics: () => {
-    return apiService.get('/manager/customers/statistics')
-  },
-
-  // 导出客户数据
-  exportCustomers: (params) => {
-    return apiService.post('/manager/customers/export', params)
-  },
-
-  // 添加客户
-  addCustomer: (data) => {
-    return apiService.post('/manager/customers', data)
-  },
-
-  // 更新客户信息
-  updateCustomer: (id, data) => {
-    return apiService.put(`/manager/customers/${id}`, data)
-  },
-
-  // 删除客户
-  deleteCustomer: (id) => {
-    return apiService.delete(`/manager/customers/${id}`)
+  // 获取客户列表
+  async getCustomers(params = {}) {
+    return apiService.get('/customer/list', params)
   },
 
   // 获取客户详情
-  getCustomerDetail: (id) => {
-    return apiService.get(`/manager/customers/${id}`)
+  async getCustomerDetail(id) {
+    return apiService.get(`/customer/${id}`)
   },
 
-  // 获取客户跟进记录
-  getCustomerFollowRecords: (id, params) => {
-    return apiService.get(`/manager/customers/${id}/follow-records`, params)
+  // 创建客户
+  async createCustomer(data) {
+    return apiService.post('/customer', data)
   },
 
-  // 获取客户订单记录
-  getCustomerOrders: (id, params) => {
-    return apiService.get(`/manager/customers/${id}/orders`, params)
+  // 更新客户
+  async updateCustomer(id, data) {
+    return apiService.put(`/customer/${id}`, data)
   },
 
-  // 更新客户状态
-  updateCustomerStatus: (id, status) => {
-    return apiService.put(`/manager/customers/${id}/status`, { status })
+  // 删除客户
+  async deleteCustomer(id) {
+    return apiService.delete(`/customer/${id}`)
   },
 
-  // 批量导入客户
-  importCustomers: (data) => {
-    return apiService.post('/manager/customers/import', data)
+  // 获取客户统计
+  async getStatistics() {
+    return apiService.get('/customer/statistics')
   },
-
-  // 客户标签管理
-  getCustomerTags: () => {
-    return apiService.get('/manager/customers/tags')
+  
+  // 客户经理专用 - 获取我的客户列表
+  async getMyCustomers(params = {}) {
+    return apiService.get('/customers/list', params)
   },
-
-  addCustomerTag: (data) => {
-    return apiService.post('/manager/customers/tags', data)
+  
+  // 客户经理专用 - 获取客户统计
+  async getMyCustomerStatistics() {
+    return apiService.get('/manager/customers/statistics')
   },
-
-  updateCustomerTags: (id, tags) => {
-    return apiService.put(`/manager/customers/${id}/tags`, { tags })
+  
+  // 客户经理专用 - 更新客户状态
+  async updateCustomerStatus(id, statusData) {
+    return apiService.put(`/manager/customers/${id}/status`, statusData)
+  },
+  
+  // 客户经理专用 - 删除客户
+  async deleteMyCustomer(id) {
+    return apiService.delete(`/manager/customers/${id}`)
   }
 }
 

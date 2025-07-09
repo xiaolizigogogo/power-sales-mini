@@ -210,6 +210,18 @@ Page({
     const { currentTab, searchKeyword, selectedIndustry, selectedScale, sortBy, sortOrder, pageSize } = this.data
     let { page } = this.data
 
+    console.log('🚀 loadCustomers 开始执行', {
+      refresh,
+      currentTab,
+      searchKeyword,
+      selectedIndustry,
+      selectedScale,
+      sortBy,
+      sortOrder,
+      pageSize,
+      page
+    })
+
     if (refresh) {
       page = 1
       this.setData({
@@ -245,55 +257,75 @@ Page({
         params.scale = selectedScale
       }
 
-      console.log('准备请求客户数据:', app.globalData.baseUrl + '/manager/customers', params)
+      console.log('📋 API请求参数:', params)
+      console.log('🔍 准备调用 customerAPI.getMyCustomers')
 
-      const result = await app.request({
-        url: '/manager/customers',
-        method: 'GET',
-        data: params
+      // 使用新的API
+      const result = await customerAPI.getMyCustomers(params)
+      
+      console.log('✅ API调用成功，响应数据:', result)
+      console.log('📊 响应数据结构:', {
+        code: result.code,
+        hasData: !!result.data,
+        dataType: typeof result.data,
+        dataKeys: result.data ? Object.keys(result.data) : null
       })
-
-      console.log('客户数据请求成功:', result)
 
       // 根据后端返回的数据结构解析
-      const responseData = result.data?.data || result.data || result
-      const customers = responseData.items || responseData.content || []
-      const hasMore = responseData.has_more || responseData.hasMore || (customers.length === pageSize)
+      if (result.code === 200 && result.data && result.data.data) {
+        const responseData = result.data.data
+        const customers = responseData.items || []
+        const hasMore = responseData.has_more || false
 
-      // 处理客户数据
-      const processedCustomers = customers.map(customer => ({
-        ...customer,
-        avatar_url: customer.avatar_url || customer.avatarUrl || '',
-        last_contact_time_text: customer.last_contact_time || customer.lastContactTime ? 
-          util.formatDate(customer.last_contact_time || customer.lastContactTime) : '暂无联系',
-        status_config: this.data.statusConfig[customer.status] || { text: '待审核', color: '#909399' },
-        contact_count_text: customer.contact_count || customer.contactCount ? 
-          `已联系${customer.contact_count || customer.contactCount}次` : '未联系',
-        order_count_text: customer.order_count || customer.orderCount ? 
-          `${customer.order_count || customer.orderCount}个订单` : '暂无订单',
-        total_amount_text: customer.total_amount || customer.totalAmount ? 
-          util.formatMoney(customer.total_amount || customer.totalAmount) : '￥0'
-      }))
+        console.log('📦 解析后的数据:', {
+          customers: customers.length,
+          hasMore,
+          firstCustomer: customers[0] || 'no customers'
+        })
 
-      console.log('处理后的客户数据:', processedCustomers)
+        // 处理客户数据，添加状态配置
+        const processedCustomers = customers.map(customer => ({
+          ...customer,
+          avatar_url: customer.avatar_url || '',
+          last_contact_time_text: customer.last_contact_time || '暂无联系',
+          status_config: this.data.statusConfig[customer.status] || { text: '待审核', color: '#909399' },
+          contact_count_text: customer.contact_count ? `已联系${customer.contact_count}次` : '未联系',
+          order_count_text: customer.order_count ? `${customer.order_count}个订单` : '暂无订单',
+          total_amount_text: customer.total_amount ? util.formatMoney(customer.total_amount) : '￥0'
+        }))
 
-      this.setData({
-        customers: refresh ? processedCustomers : [...this.data.customers, ...processedCustomers],
-        page,
-        hasMore,
-        loading: false,
-        loadingMore: false
-      })
+        console.log('✨ 处理后的客户数据:', {
+          count: processedCustomers.length,
+          sample: processedCustomers.slice(0, 2)
+        })
+
+        this.setData({
+          customers: refresh ? processedCustomers : [...this.data.customers, ...processedCustomers],
+          page,
+          hasMore,
+          loading: false,
+          loadingMore: false
+        })
+
+        console.log('🎯 页面数据更新完成')
+      } else {
+        console.error('❌ API返回数据格式错误:', result)
+        throw new Error(result.message || '获取客户数据失败')
+      }
 
     } catch (error) {
-      console.error('加载客户列表失败:', error)
+      console.error('❌ 加载客户列表失败:', error)
+      console.error('❌ 错误详情:', {
+        message: error.message,
+        stack: error.stack
+      })
       
       // 只有在没有客户数据且是首次加载时才使用模拟数据
       if (this.data.customers.length === 0 && refresh) {
-        console.log('API请求失败且无现有数据，使用模拟客户数据')
+        console.log('🧪 API请求失败且无现有数据，使用模拟客户数据')
         this.loadMockCustomers()
       } else {
-        console.log('API请求失败:', error)
+        console.log('⚠️ API请求失败，显示错误提示')
         wx.showToast({
           title: '加载失败，请重试',
           icon: 'none'
@@ -310,16 +342,17 @@ Page({
   // 加载统计数据
   async loadStatistics() {
     try {
-      const res = await customerAPI.getStatistics()
+      const res = await customerAPI.getMyCustomerStatistics()
       
-      if (res.data) {
+      if (res.code === 200 && res.data) {
+        const statistics = res.data
         this.setData({ 
-          statistics: res.data,
-          'tabs[0].count': res.data.totalCustomers || 0,
-          'tabs[1].count': res.data.potentialCustomers || 0,
-          'tabs[2].count': res.data.activeCustomers || 0,
-          'tabs[3].count': res.data.signedCustomers || 0,
-          'tabs[4].count': res.data.lostCustomers || 0
+          statistics: statistics,
+          'tabs[0].count': statistics.totalCustomers || 0,
+          'tabs[1].count': statistics.potentialCustomers || 0,
+          'tabs[2].count': statistics.activeCustomers || 0,
+          'tabs[3].count': statistics.signedCustomers || 0,
+          'tabs[4].count': statistics.lostCustomers || 0
         })
       }
     } catch (error) {
@@ -738,37 +771,50 @@ Page({
     })
   },
 
-  // 修改客户状态
+  // 更新客户状态
   async changeCustomerStatus(customerId, newStatus) {
     try {
-      wx.showLoading({
-        title: '修改中...',
-        mask: true
+      wx.showLoading({ title: '更新中...' })
+      
+      // 使用新的API
+      const result = await customerAPI.updateCustomerStatus(customerId, {
+        status: newStatus,
+        remark: '客户经理更新状态'
       })
       
-      await app.request({
-        url: `/manager/customers/${customerId}/status`,
-        method: 'PUT',
-        data: { status: newStatus }
-      })
-      
-      wx.hideLoading()
-      wx.showToast({
-        title: '状态修改成功',
-        icon: 'success'
-      })
-      
-      // 刷新列表
-      this.loadCustomers(true)
-      this.loadStatistics()
-      
+      if (result.code === 200) {
+        wx.showToast({
+          title: '状态更新成功',
+          icon: 'success'
+        })
+        
+        // 更新本地数据
+        const customers = this.data.customers.map(customer => {
+          if (customer.id === customerId) {
+            return {
+              ...customer,
+              status: newStatus,
+              status_config: this.data.statusConfig[newStatus] || { text: '待审核', color: '#909399' }
+            }
+          }
+          return customer
+        })
+        
+        this.setData({ customers })
+        
+        // 刷新统计数据
+        this.loadStatistics()
+      } else {
+        throw new Error(result.message || '更新失败')
+      }
     } catch (error) {
-      wx.hideLoading()
-      console.error('修改客户状态失败:', error)
+      console.error('更新客户状态失败:', error)
       wx.showToast({
-        title: '修改失败，请重试',
+        title: '更新失败',
         icon: 'none'
       })
+    } finally {
+      wx.hideLoading()
     }
   },
 
@@ -790,33 +836,34 @@ Page({
   // 删除客户
   async deleteCustomer(customerId) {
     try {
-      wx.showLoading({
-        title: '删除中...',
-        mask: true
-      })
+      wx.showLoading({ title: '删除中...' })
       
-      await app.request({
-        url: `/manager/customers/${customerId}`,
-        method: 'DELETE'
-      })
+      // 使用新的API
+      const result = await customerAPI.deleteMyCustomer(customerId)
       
-      wx.hideLoading()
-      wx.showToast({
-        title: '删除成功',
-        icon: 'success'
-      })
-      
-      // 刷新列表
-      this.loadCustomers(true)
-      this.loadStatistics()
-      
+      if (result.code === 200) {
+        wx.showToast({
+          title: '删除成功',
+          icon: 'success'
+        })
+        
+        // 从本地数据中移除
+        const customers = this.data.customers.filter(customer => customer.id !== customerId)
+        this.setData({ customers })
+        
+        // 刷新统计数据
+        this.loadStatistics()
+      } else {
+        throw new Error(result.message || '删除失败')
+      }
     } catch (error) {
-      wx.hideLoading()
       console.error('删除客户失败:', error)
       wx.showToast({
-        title: '删除失败，请重试',
+        title: '删除失败',
         icon: 'none'
       })
+    } finally {
+      wx.hideLoading()
     }
   },
 
