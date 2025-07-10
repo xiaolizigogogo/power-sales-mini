@@ -62,7 +62,8 @@ const ROLE_PERMISSIONS = {
       '/pages/manager/workplace/workplace',
       '/pages/manager/customers/customers',
       '/pages/manager/customers/list',
-      '/pages/manager/customers/detail/detail',
+      '/pages/manager/customers/detail',
+      '/pages/manager/customers/detail/index',
       '/pages/manager/customers/add',
       '/pages/manager/customer-add/customer-add',
       '/pages/manager/follow/follow',
@@ -85,7 +86,8 @@ const ROLE_PERMISSIONS = {
       '/pages/orders/index/index',
       '/pages/orders/create/create',
       '/pages/orders/detail/detail',
-      '/pages/profile/index/index'
+      '/pages/profile/index/index',
+      'customer-detail'  // 添加简短路径匹配
     ],
     tabbar: [
       {

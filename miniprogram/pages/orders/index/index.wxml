@@ -2,7 +2,7 @@
 <view class="container">
   <!-- 自定义导航栏 -->
   <view class="custom-navbar">
-    <view class="navbar-title">我的订单</view>
+    <view class="navbar-title">{{customerName ? customerName + '的订单' : '我的订单'}}</view>
   </view>
 
   <!-- 搜索栏 -->

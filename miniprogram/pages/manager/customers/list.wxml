@@ -96,56 +96,118 @@
         data-id="{{item.id}}"
         bindtap="onCustomerTap"
       >
-        <view class="customer-avatar">
-          <image wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill"></image>
-          <van-icon wx:else name="user-o" size="24px" color="#999"></van-icon>
-          <view class="status-indicator {{item.status}}"></view>
+        <!-- 卡片头部 -->
+        <view class="card-header">
+          <view class="customer-avatar">
+            <image wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill"></image>
+            <view wx:else class="avatar-placeholder">
+              <text class="avatar-text">{{item.name.charAt(0)}}</text>
+            </view>
+            <view class="status-indicator {{item.status}}"></view>
+          </view>
+          
+          <view class="customer-basic">
+            <view class="customer-header">
+              <view class="customer-name">{{item.name}}</view>
+              <view class="customer-status {{item.status}}">{{item.statusText}}</view>
+            </view>
+            <view class="customer-company">
+              <van-icon name="buildings-o" size="12px" color="#999"></van-icon>
+              <text class="company-text">{{item.company}}</text>
+            </view>
+          </view>
+          
+          <view class="potential-value">
+            <text class="potential-amount">¥{{item.potential}}</text>
+            <text class="potential-label">预估价值</text>
+          </view>
         </view>
         
-        <view class="customer-info">
-          <view class="customer-header">
-            <view class="customer-name">{{item.name}}</view>
-            <view class="customer-status {{item.status}}">{{item.statusText}}</view>
+        <!-- 订单信息区域 -->
+        <view class="info-section">
+          <view class="info-left">
+            <!-- 订单信息行 -->
+            <view class="info-row">
+              <view class="info-icon">
+                <van-icon name="orders-o" size="16px" color="#1890ff"></van-icon>
+              </view>
+              <text class="info-label">订单情况</text>
+              <text class="info-value">{{item.orderSummary.totalOrders}}个订单</text>
+            </view>
+            <!-- 跟进信息行 -->
+            <view class="info-row">
+              <view class="info-icon">
+                <van-icon name="contact" size="16px" color="#52c41a"></van-icon>
+              </view>
+              <text class="info-label">跟进记录</text>
+              <text class="info-value">{{item.followUpCount}}次跟进</text>
+            </view>
           </view>
           
-          <view class="customer-company">{{item.company}}</view>
-          
-          <view class="customer-details">
-            <text class="detail-item">{{item.industry}}</text>
-            <text class="detail-separator">|</text>
-            <text class="detail-item">{{item.region}}</text>
-            <text class="detail-separator">|</text>
-            <text class="detail-item">跟进{{item.followUpCount}}次</text>
+          <!-- 待付款金额 -->
+          <view class="pending-payment">
+            <text class="payment-label">待付款</text>
+            <view class="payment-amount">
+              <text class="amount-symbol">¥</text>
+              <text class="amount-value">{{item.orderSummary.latestOrder.amount || '0.00'}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 详细信息区域 -->
+        <view class="card-details">
+          <view class="detail-row">
+            <view class="detail-item">
+              <van-icon name="location-o" size="12px" color="#faad14"></van-icon>
+              <text class="detail-text">{{item.region}}</text>
+            </view>
+            <view class="detail-item">
+              <van-icon name="shop-o" size="12px" color="#722ed1"></van-icon>
+              <text class="detail-text">{{item.industry}}</text>
+            </view>
           </view>
           
-          <view class="customer-tags" wx:if="{{item.tags.length > 0}}">
-            <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-          </view>
-          
-          <view class="customer-footer">
-            <text class="create-time">创建: {{item.createTime}}</text>
-            <text class="last-contact" wx:if="{{item.lastContact}}">最近联系: {{item.lastContact}}</text>
+          <view class="time-info">
+            <text class="time-item">创建: {{item.createTime}}</text>
+            <text class="time-item" wx:if="{{item.lastContact}}">最近联系: {{item.lastContact}}</text>
           </view>
           
           <view class="next-follow" wx:if="{{item.nextFollowUp}}">
-            <text class="follow-label">下次跟进:</text>
-            <text class="follow-time">{{item.nextFollowUp}}</text>
+            <van-icon name="clock-o" size="12px" color="#ff4d4f"></van-icon>
+            <text class="follow-text">下次跟进: {{item.nextFollowUp}}</text>
           </view>
         </view>
         
-        <view class="customer-actions">
-          <view class="potential-value">
-            <text class="potential-label">预估价值</text>
-            <text class="potential-amount">¥{{item.potential}}</text>
-          </view>
-          <view 
-            class="contact-btn"
+        <!-- 操作按钮区域 -->
+        <view class="card-actions">
+          <button 
+            class="action-btn primary" 
+            wx:if="{{item.orderSummary && item.orderSummary.totalOrders > 0}}"
+            data-id="{{item.id}}"
+            catchtap="onViewOrders"
+          >
+            <van-icon name="orders-o" size="32rpx" />
+            <text>查看订单</text>
+          </button>
+          
+          <button 
+            class="action-btn success"
             data-id="{{item.id}}"
             data-phone="{{item.phone}}"
-            bindtap="onQuickContact"
+            catchtap="onQuickContact"
           >
-            <van-icon name="phone-o" size="16px" color="#52c41a"></van-icon>
-          </view>
+            <van-icon name="phone-o" size="32rpx" />
+            <text>联系客户</text>
+          </button>
+          
+          <button 
+            class="action-btn info"
+            data-id="{{item.id}}"
+            catchtap="onViewDetail"
+          >
+            <van-icon name="description" size="32rpx" />
+            <text>查看详情</text>
+          </button>
         </view>
       </view>
       
@@ -226,6 +288,70 @@
     <!-- 浮动添加按钮 -->
     <view class="floating-add-btn" bindtap="onAddCustomer">
       <van-icon name="plus" size="20px" color="#fff"></van-icon>
+    </view>
+
+    <!-- 订单状态更新弹窗 -->
+    <view class="order-status-modal" wx:if="{{showOrderStatusModal}}">
+      <view class="modal-mask" bindtap="onHideOrderStatusModal"></view>
+      <view class="modal-content">
+        <view class="modal-header">
+          <text class="modal-title">更新订单状态</text>
+          <view class="close-btn" bindtap="onHideOrderStatusModal">
+            <van-icon name="cross" size="16px" color="#999"></van-icon>
+          </view>
+        </view>
+        
+        <view class="order-info" wx:if="{{selectedOrder}}">
+          <view class="order-item">
+            <text class="label">订单编号：</text>
+            <text class="value">{{selectedOrder.id}}</text>
+          </view>
+          <view class="order-item">
+            <text class="label">客户：</text>
+            <text class="value">{{selectedOrder.customerName}}</text>
+          </view>
+          <view class="order-item">
+            <text class="label">金额：</text>
+            <text class="value amount">¥{{selectedOrder.amount}}</text>
+          </view>
+          <view class="order-item">
+            <text class="label">当前状态：</text>
+            <text class="value status {{selectedOrder.status}}">{{selectedOrder.statusText}}</text>
+          </view>
+        </view>
+        
+        <view class="status-options">
+          <text class="section-title">选择新状态</text>
+          <view class="status-list">
+            <view 
+              class="status-option {{item.value === selectedOrderStatus ? 'active' : ''}}"
+              wx:for="{{orderStatusOptions}}"
+              wx:key="value"
+              data-status="{{item.value}}"
+              bindtap="onSelectOrderStatus"
+            >
+              <view class="status-dot {{item.value}}"></view>
+              <text class="status-text">{{item.label}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="remark-section">
+          <text class="section-title">备注说明</text>
+          <textarea 
+            class="remark-input"
+            placeholder="请输入状态更新说明（可选）"
+            value="{{orderStatusRemark}}"
+            bindinput="onOrderStatusRemarkInput"
+            maxlength="200"
+          ></textarea>
+        </view>
+        
+        <view class="modal-footer">
+          <view class="cancel-btn" bindtap="onHideOrderStatusModal">取消</view>
+          <view class="confirm-btn" bindtap="onConfirmUpdateOrderStatus">确定更新</view>
+        </view>
+      </view>
     </view>
   </view>
 </permission-guard> 

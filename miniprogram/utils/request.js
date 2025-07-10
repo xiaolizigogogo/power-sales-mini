@@ -1,8 +1,11 @@
-// API 工具类
-const config = require('./config')
-const { showToast, showLoading, hideLoading } = require('./common')
+const config = require('./config');
+const { getToken } = require('./auth');
 
-// 基础请求函数
+/**
+ * 统一请求处理
+ * @param {Object} options 请求配置
+ * @returns {Promise} 请求结果
+ */
 const request = (options) => {
   const { url, method = 'GET', data = {}, header = {}, ...rest } = options;
 
@@ -11,7 +14,7 @@ const request = (options) => {
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
 
   // 获取token
-  const token = wx.getStorageSync('user_token');
+  const token = getToken();
   const defaultHeader = {
     'Content-Type': 'application/json',
     'Authorization': token ? `Bearer ${token}` : ''
@@ -54,54 +57,6 @@ const request = (options) => {
   });
 };
 
-// 客户管理相关接口
-const customerAPI = {
-  // 获取客户详情
-  getCustomerInfo: (customerId) => {
-    return request({
-      url: `/api/customer/${customerId}`,
-      method: 'GET'
-    });
-  },
-
-  // 获取客户跟进记录
-  getFollowRecords: (customerId, params = {}) => {
-    return request({
-      url: `/api/customer/${customerId}/follow-records`,
-      method: 'GET',
-      data: params
-    });
-  },
-
-  // 添加跟进记录
-  addFollowRecord: (data) => {
-    return request({
-      url: `/api/customer/follow-record`,
-      method: 'POST',
-      data
-    });
-  },
-
-  // 获取客户订单列表
-  getOrders: (customerId, params = {}) => {
-    return request({
-      url: `/api/customer/${customerId}/orders`,
-      method: 'GET',
-      data: params
-    });
-  },
-
-  // 获取客户活动记录
-  getActivities: (customerId, params = {}) => {
-    return request({
-      url: `/api/customer/${customerId}/activities`,
-      method: 'GET',
-      data: params
-    });
-  }
-};
-
-// 导出所有API
 module.exports = {
-  customer: customerAPI
+  request
 }; 

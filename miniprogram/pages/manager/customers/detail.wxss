@@ -2,7 +2,7 @@
 .customer-detail-container {
   background-color: #f5f5f5;
   min-height: 100vh;
-  padding-bottom: 180rpx; /* 为底部菜单栏留出更多空间，避免遮挡 */
+  padding-bottom: 180rpx;
 }
 
 /* 客户信息 */
@@ -85,12 +85,6 @@
   justify-content: center;
 }
 
-.more-btn image {
-  width: 32rpx;
-  height: 32rpx;
-  opacity: 0.6;
-}
-
 /* 统计信息 */
 .customer-stats {
   background: white;
@@ -138,17 +132,11 @@
   border-bottom: none;
 }
 
-.contact-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-right: 20rpx;
-  opacity: 0.6;
-}
-
 .contact-text {
   flex: 1;
   font-size: 28rpx;
   color: #333;
+  margin: 0 20rpx;
 }
 
 .contact-actions {
@@ -167,26 +155,15 @@
   margin-left: 10rpx;
 }
 
-.action-btn image {
-  width: 32rpx;
-  height: 32rpx;
-  opacity: 0.6;
-}
-
 /* 详细信息 */
 .detail-info {
-  background: white;
-  padding: 30rpx;
+  background: #fff;
+  padding: 20rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .detail-section {
-  margin-bottom: 40rpx;
-}
-
-.detail-section:last-child {
-  margin-bottom: 0;
+  margin-bottom: 30rpx;
 }
 
 .section-title {
@@ -194,57 +171,54 @@
   font-weight: bold;
   color: #333;
   margin-bottom: 20rpx;
-  padding-bottom: 10rpx;
-  border-bottom: 2rpx solid #52c41a;
+  padding-left: 20rpx;
+  border-left: 8rpx solid #07c160;
 }
 
 .detail-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.detail-item:last-child {
-  border-bottom: none;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
 }
 
 .detail-label {
-  font-size: 28rpx;
   color: #666;
-  min-width: 150rpx;
+  font-size: 28rpx;
+  flex: 0 0 160rpx;
 }
 
 .detail-value {
-  font-size: 28rpx;
   color: #333;
-  text-align: right;
+  font-size: 28rpx;
   flex: 1;
+  text-align: right;
 }
 
+/* 标签 */
 .tags-container {
   display: flex;
   flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 10rpx 0;
 }
 
 .customer-tag {
-  background: #f6ffed;
-  color: #52c41a;
-  padding: 8rpx 15rpx;
-  border-radius: 15rpx;
-  font-size: 22rpx;
-  margin-right: 15rpx;
-  margin-bottom: 15rpx;
-  border: 1rpx solid #b7eb8f;
+  background: #f6f6f6;
+  color: #666;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
 }
 
+/* 备注 */
 .remark-content {
-  font-size: 28rpx;
   color: #666;
+  font-size: 28rpx;
   line-height: 1.6;
-  background: #f8f9fa;
   padding: 20rpx;
+  background: #f8f8f8;
   border-radius: 8rpx;
 }
 
@@ -1034,3 +1008,123 @@
     font-size: 32rpx;
   }
 } 
+
+/* 跟进记录列表样式 */
+.follow-records {
+  background: #fff;
+  min-height: 400rpx;
+}
+
+.follow-list {
+  padding: 20rpx;
+}
+
+.follow-item {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.follow-type-icon {
+  flex: 0 0 80rpx;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10rpx;
+}
+
+.follow-content {
+  flex: 1;
+}
+
+.follow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.follow-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.follow-text {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+}
+
+.next-follow {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #07c160;
+}
+
+/* 浮动按钮 */
+.fab-button {
+  position: fixed;
+  right: 40rpx;
+  bottom: 40rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background: #07c160;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 8rpx rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+/* 表单样式 */
+.follow-form {
+  padding: 30rpx;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.form-title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.form-content {
+  margin-bottom: 30rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.form-footer {
+  padding: 30rpx 0;
+}
+
+/* 加载状态 */
+.loading {
+  padding: 32rpx;
+  text-align: center;
+  color: #999;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 32rpx;
+  text-align: center;
+}
+
+.loading text {
+  margin-top: 20rpx;
+}

@@ -1,6 +1,7 @@
 const app = getApp();
 const { formatDate, formatMoney } = require('../../../utils/common');
 const { orderAPI } = require('../../../utils/api');
+const { customerAPI } = require('../../../utils/api'); // Added customerAPI
 
 Page({
   data: {
@@ -10,6 +11,10 @@ Page({
     loadingMore: false,
     hasMore: true,
     isEmpty: false,
+    
+    // 客户信息
+    customerId: null,
+    customerName: '',
     
     // 筛选状态
     activeTab: 0,
@@ -85,6 +90,16 @@ Page({
     }
     
     console.log('✅ onLoad: 登录状态检查通过');
+    
+    // 保存客户ID
+    if (options.customerId) {
+      this.setData({ 
+        customerId: options.customerId
+      });
+      
+      // 获取客户信息
+      this.loadCustomerInfo(options.customerId);
+    }
     
     // 从参数获取状态筛选
     if (options.status) {
@@ -175,6 +190,25 @@ Page({
     console.log('✅ 页面初始化完成');
   },
 
+  // 加载客户信息
+  async loadCustomerInfo(customerId) {
+    try {
+      const response = await customerAPI.getCustomerInfo(customerId);
+      if (response && response.data) {
+        this.setData({
+          customerName: response.data.name || '未知客户'
+        });
+        
+        // 更新导航栏标题
+        wx.setNavigationBarTitle({
+          title: `${this.data.customerName}的订单`
+        });
+      }
+    } catch (error) {
+      console.error('获取客户信息失败:', error);
+    }
+  },
+
   // 加载订单列表
   async loadOrderList(refresh = false) {
     console.log('🔍 loadOrderList 方法被调用，参数:', { refresh });
@@ -182,7 +216,8 @@ Page({
       loading: this.data.loading,
       loadingMore: this.data.loadingMore,
       page: this.data.page,
-      orderListLength: this.data.orderList.length
+      orderListLength: this.data.orderList.length,
+      customerId: this.data.customerId
     });
 
     if (refresh) {
@@ -196,113 +231,52 @@ Page({
       });
     }
 
-    // 修正逻辑：先确定页面信息，再检查和设置状态
-    const isFirstPage = this.data.page === 1;
-    console.log('📄 页面信息:', { isFirstPage, currentPage: this.data.page });
-
-    // 检查是否正在加载（排除刷新情况）
-    if (!refresh && (this.data.loading || this.data.loadingMore)) {
-      console.log('⏸️ 方法提前返回：loading=' + this.data.loading + ', loadingMore=' + this.data.loadingMore);
-      return;
-    }
-
-    console.log('⏳ 设置加载状态...');
-    this.setData({
-      loading: isFirstPage,
-      loadingMore: !isFirstPage
-    });
-
     try {
       const params = {
-        page: this.data.page - 1,
-        size: this.data.pageSize,
+        page: this.data.page,
+        pageSize: this.data.pageSize,
         status: this.data.tabList[this.data.activeTab].key === 'all' ? '' : this.data.tabList[this.data.activeTab].key,
         keyword: this.data.searchKeyword
       };
 
-      // 添加筛选参数
-      if (this.data.filterData.status) {
-        params.status = this.data.filterData.status;
-      }
-      if (this.data.filterData.amountRange) {
-        const [minAmount, maxAmount] = this.data.filterData.amountRange.split('-');
-        params.minAmount = minAmount;
-        params.maxAmount = maxAmount;
-      }
-
-      console.log('📋 请求订单列表参数:', params);
-      console.log('🔑 当前token:', wx.getStorageSync('token') ? '已设置' : '未设置');
-
-      console.log('🌐 开始调用API...');
-      const response = await orderAPI.getMyOrders(params);
-      console.log('✅ 订单列表响应:', response);
-
-      if (response && response.code === 200) {
-        let content = [];
-        let totalElements = 0;
-
-        // 处理后端返回的真实数据结构
-        if (response.data && Array.isArray(response.data.records)) {
-          content = response.data.records;
-          totalElements = response.data.total || content.length;
-          console.log('📦 数据结构：分页对象(records)，内容长度:', content.length, '总数:', totalElements);
-        } else if (response.data && Array.isArray(response.data.content)) {
-          content = response.data.content;
-          totalElements = response.data.totalElements || content.length;
-          console.log('📦 数据结构：分页对象(content)，内容长度:', content.length, '总数:', totalElements);
-        } else if (response.data && Array.isArray(response.data)) {
-          content = response.data;
-          totalElements = response.data.length;
-          console.log('📦 数据结构：直接数组，长度:', content.length);
-        }
-
-        // 格式化订单数据
-        console.log('🔧 开始格式化订单数据...');
-        const formattedOrders = content.map(order => this.formatOrderData(order));
-
-        console.log('✨ 格式化后的订单列表:', formattedOrders);
-        
-        const newOrderList = refresh ? formattedOrders : [...this.data.orderList, ...formattedOrders];
-        console.log('📝 更新页面数据:', {
-          新订单列表长度: newOrderList.length,
-          总数: totalElements,
-          是否还有更多: content.length === this.data.pageSize,
-          是否为空: isFirstPage && content.length === 0,
-          下一页页码: this.data.page + 1
-        });
-
-        this.setData({
-          orderList: newOrderList,
-          total: totalElements,
-          hasMore: content.length === this.data.pageSize,
-          isEmpty: isFirstPage && content.length === 0,
-          loading: false,
-          loadingMore: false,
-          page: this.data.page + 1
-        });
-        
-        console.log('✅ 订单列表数据更新完成');
+      // 根据是否有customerId使用不同的API
+      let response;
+      if (this.data.customerId) {
+        console.log('📋 加载指定客户的订单:', this.data.customerId);
+        response = await orderAPI.getCustomerOrders(this.data.customerId, params);
       } else {
-        throw new Error(response?.message || '获取订单列表失败');
+        console.log('📋 加载所有订单');
+        response = await orderAPI.getOrderList(params);
       }
-    } catch (error) {
-      console.error('❌ 加载订单列表失败:', error);
-      console.error('❌ 错误详情:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
+
+      const { list = [], total = 0 } = response.data || {};
+      
+      // 格式化订单数据
+      const formattedList = list.map(order => this.formatOrderData(order));
+      
+      this.setData({
+        orderList: refresh ? formattedList : [...this.data.orderList, ...formattedList],
+        total,
+        hasMore: formattedList.length === this.data.pageSize,
+        isEmpty: refresh && formattedList.length === 0,
+        loading: false,
+        loadingMore: false
       });
 
+      console.log('✅ 订单列表加载完成:', {
+        总数: total,
+        当前页数据: formattedList.length,
+        是否还有更多: this.data.hasMore
+      });
+
+      // 加载完成后更新状态统计
+      this.loadOrderStats();
+    } catch (error) {
+      console.error('❌ 加载订单列表失败:', error);
       this.setData({
         loading: false,
         loadingMore: false,
-        isEmpty: this.data.orderList.length === 0
-      });
-      
-      wx.showToast({
-        title: error.message || '加载失败',
-        icon: 'none',
-        duration: 3000
+        hasMore: false
       });
     }
   },
@@ -392,33 +366,18 @@ Page({
   // 加载订单统计
   async loadOrderStats() {
     try {
-      console.log('📊 开始加载我的订单统计数据');
+      const response = await orderAPI.getOrderStats();
+      const stats = response.data || {};
       
-      const response = await orderAPI.getMyOrderStats();
-      console.log('✅ 我的订单统计响应:', response);
-
-      if (response && response.code === 200 && response.data) {
-        const stats = response.data;
-        const updatedTabList = this.data.tabList.map(tab => ({
-          ...tab,
-          count: stats[tab.key] || 0
-        }));
-        
-        console.log('📊 更新标签统计:', updatedTabList);
-        this.setData({ tabList: updatedTabList });
-      } else {
-        throw new Error(response?.message || '获取统计数据失败');
-      }
-    } catch (error) {
-      console.error('❌ 加载我的订单统计失败:', error);
-      
-      // 设置默认统计值
-      const defaultTabList = this.data.tabList.map(tab => ({
+      // 更新tab计数
+      const updatedTabList = this.data.tabList.map(tab => ({
         ...tab,
-        count: 0
+        count: stats[`${tab.key}Count`] || 0
       }));
       
-      this.setData({ tabList: defaultTabList });
+      this.setData({ tabList: updatedTabList });
+    } catch (error) {
+      console.error('加载订单统计失败:', error);
     }
   },
 
