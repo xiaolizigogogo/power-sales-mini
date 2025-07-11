@@ -96,68 +96,71 @@ const USER_ROLES = {
   MANAGER: 'manager'       // 客户经理
 };
 
-// 获取用户信息
-function getUserInfo() {
-  try {
-    return wx.getStorageSync('userInfo') || null
-  } catch (error) {
-    console.error('获取用户信息失败:', error)
-    return null
-  }
-}
+// Token 存储键名
+const TOKEN_KEY = 'user_token';
+const USER_INFO_KEY = 'user_info';
 
-// 设置用户信息
-function setUserInfo(userInfo) {
-  try {
-    wx.setStorageSync('userInfo', userInfo)
-    return true
-  } catch (error) {
-    console.error('保存用户信息失败:', error)
-    return false
-  }
-}
+/**
+ * 获取存储的token
+ * @returns {string|null} token
+ */
+const getToken = () => {
+  return wx.getStorageSync(TOKEN_KEY);
+};
 
-// 获取登录令牌
-function getToken() {
-  try {
-    return wx.getStorageSync('token') || ''
-  } catch (error) {
-    console.error('获取令牌失败:', error)
-    return ''
-  }
-}
+/**
+ * 设置token
+ * @param {string} token 
+ */
+const setToken = (token) => {
+  wx.setStorageSync(TOKEN_KEY, token);
+};
 
-// 设置登录令牌
-function setToken(token) {
-  try {
-    wx.setStorageSync('token', token)
-    return true
-  } catch (error) {
-    console.error('保存令牌失败:', error)
-    return false
-  }
-}
+/**
+ * 清除token
+ */
+const clearToken = () => {
+  wx.removeStorageSync(TOKEN_KEY);
+};
 
-// 获取刷新令牌
-function getRefreshToken() {
-  try {
-    return wx.getStorageSync('refreshToken') || ''
-  } catch (error) {
-    console.error('获取刷新令牌失败:', error)
-    return ''
-  }
-}
+/**
+ * 获取用户信息
+ * @returns {Object|null} 用户信息
+ */
+const getUserInfo = () => {
+  return wx.getStorageSync(USER_INFO_KEY);
+};
 
-// 设置刷新令牌
-function setRefreshToken(refreshToken) {
-  try {
-    wx.setStorageSync('refreshToken', refreshToken)
-    return true
-  } catch (error) {
-    console.error('保存刷新令牌失败:', error)
-    return false
-  }
-}
+/**
+ * 设置用户信息
+ * @param {Object} userInfo 
+ */
+const setUserInfo = (userInfo) => {
+  wx.setStorageSync(USER_INFO_KEY, userInfo);
+};
+
+/**
+ * 清除用户信息
+ */
+const clearUserInfo = () => {
+  wx.removeStorageSync(USER_INFO_KEY);
+};
+
+/**
+ * 检查是否已登录
+ * @returns {boolean}
+ */
+const isLoggedIn = () => {
+  return !!getToken();
+};
+
+/**
+ * 登出
+ */
+const logout = () => {
+  clearToken();
+  clearUserInfo();
+};
 
 // 获取用户角色
 function getUserRole() {
@@ -462,12 +465,14 @@ module.exports = {
   ROLE_PERMISSIONS,
   
   // 基础认证
-  getUserInfo,
-  setUserInfo,
   getToken,
   setToken,
-  getRefreshToken,
-  setRefreshToken,
+  clearToken,
+  getUserInfo,
+  setUserInfo,
+  clearUserInfo,
+  isLoggedIn,
+  logout,
   
   // 登录状态
   isLoggedIn,

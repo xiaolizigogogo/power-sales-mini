@@ -132,27 +132,48 @@ Component({
      * 更新当前选中的tab
      */
     updateActiveTab() {
-      const page = getCurrentPages().pop();
-      const route = page ? `/${page.route}` : '';
-      console.log('updateActiveTab - 当前页面路径:', route);
+      const pages = getCurrentPages();
+      const page = pages.length > 0 ? pages[pages.length - 1] : null;
+      let currentPath = page ? `/${page.route}` : '';
+      
+      console.log('updateActiveTab - 当前页面路径:', currentPath);
       console.log('updateActiveTab - tabbar列表 (长度=' + this.data.list.length + '):', this.data.list);
+      
+      // 如果页面路径为空，尝试从URL获取
+      if (!currentPath && typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        const path = url.pathname;
+        if (path) {
+          currentPath = path;
+        }
+      }
+      
+      // 如果还是没有路径，使用默认值
+      if (!currentPath) {
+        const userType = wx.getStorageSync('userType') || roleManager.getCurrentUserType();
+        if (userType === USER_TYPES.MANAGER || userType === 'manager') {
+          currentPath = '/pages/manager/workplace/workplace';
+        } else {
+          currentPath = '/pages/index/index';
+        }
+      }
       
       let active = -1;
       
       for (let i = 0; i < this.data.list.length; i++) {
         const item = this.data.list[i];
-        console.log('updateActiveTab - 检查索引', i, ':', item.url, 'vs', route);
+        console.log('updateActiveTab - 检查索引', i, ':', item.url, 'vs', currentPath);
         
         // 精确匹配
-        if (item.url === route) {
-          console.log('精确匹配 - 索引', i, ':', item.url, '===', route);
+        if (item.url === currentPath) {
+          console.log('精确匹配 - 索引', i, ':', item.url, '===', currentPath);
           active = i;
           break;
         }
         
         // 针对不同页面的特殊匹配规则
-        if (this.matchesPage(route, item.url)) {
-          console.log('页面匹配 - 索引', i, ':', item.url, 'matches', route);
+        if (this.matchesPage(currentPath, item.url)) {
+          console.log('页面匹配 - 索引', i, ':', item.url, 'matches', currentPath);
           active = i;
           break;
         }
@@ -167,10 +188,10 @@ Component({
     /**
      * 检查页面是否匹配
      */
-    matchesPage(currentRoute, tabUrl) {
+    matchesPage(currentPath, tabUrl) {
       // 标准化路径：移除开头的斜杠
       const normalizeRoute = (path) => path.startsWith('/') ? path.substring(1) : path;
-      const normalizedCurrent = normalizeRoute(currentRoute);
+      const normalizedCurrent = normalizeRoute(currentPath);
       const normalizedTab = normalizeRoute(tabUrl);
       
       console.log('matchesPage - 检查:', normalizedCurrent, 'vs', normalizedTab);
