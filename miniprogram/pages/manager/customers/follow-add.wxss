@@ -1,0 +1,51 @@
+.follow-add-container {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+  padding-bottom: 120rpx;
+}
+
+.page-header {
+  background-color: #ffffff;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+}
+
+.customer-info .label {
+  color: #666;
+  margin-right: 20rpx;
+}
+
+.customer-info .value {
+  color: #333;
+  font-weight: 500;
+}
+
+.form-content {
+  background-color: #ffffff;
+}
+
+.form-section {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  color: #333;
+  padding: 20rpx 30rpx;
+  background-color: #f7f8fa;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx;
+  background-color: #ffffff;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+} 

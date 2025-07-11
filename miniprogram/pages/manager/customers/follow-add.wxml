@@ -1,0 +1,75 @@
+<!--pages/manager/customers/follow-add.wxml-->
+<view class="follow-add-container">
+  <view class="page-header">
+    <view class="customer-info">
+      <text class="label">客户名称：</text>
+      <text class="value">{{customerName}}</text>
+    </view>
+  </view>
+
+  <view class="form-content">
+    <!-- 跟进类型 -->
+    <view class="form-section">
+      <view class="section-title">跟进类型</view>
+      <van-radio-group value="{{newFollowType}}" bind:change="onFollowInput" data-field="type">
+        <van-cell-group>
+          <van-cell wx:for="{{followTypes}}" wx:key="value" title="{{item.icon}} {{item.label}}">
+            <van-radio slot="right-icon" name="{{item.value}}" checked-color="#07c160" />
+          </van-cell>
+        </van-cell-group>
+      </van-radio-group>
+    </view>
+    
+    <!-- 优先级 -->
+    <view class="form-section">
+      <view class="section-title">优先级</view>
+      <van-radio-group value="{{newFollowPriority}}" bind:change="onFollowInput" data-field="priority">
+        <van-cell-group>
+          <van-cell wx:for="{{priorities}}" wx:key="value" title="{{item.label}}">
+            <van-radio slot="right-icon" name="{{item.value}}" checked-color="{{item.color}}" />
+          </van-cell>
+        </van-cell-group>
+      </van-radio-group>
+    </view>
+    
+    <!-- 跟进内容 -->
+    <view class="form-section">
+      <view class="section-title">跟进内容</view>
+      <van-field
+        type="textarea"
+        value="{{newFollowContent}}"
+        placeholder="请输入跟进内容"
+        autosize="{{ {minHeight: 100} }}"
+        bind:input="onFollowInput"
+        data-field="content"
+        border="{{ true }}"
+        custom-style="background-color: #ffffff;"
+      />
+    </view>
+    
+    <!-- 下次跟进时间 -->
+    <view class="form-section">
+      <view class="section-title">下次跟进时间</view>
+      <van-cell-group>
+        <picker mode="date" value="{{newFollowDate}}" start="2024-01-01" bindchange="onFollowInput" data-field="date">
+          <van-cell title="日期" is-link value="{{newFollowDate || '请选择日期'}}" />
+        </picker>
+        <picker mode="time" value="{{newFollowTime}}" bindchange="onFollowInput" data-field="time">
+          <van-cell title="时间" is-link value="{{newFollowTime || '请选择时间'}}" />
+        </picker>
+      </van-cell-group>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="footer">
+    <van-row gutter="20">
+      <van-col span="12">
+        <van-button type="default" block bind:tap="onCancel">取消</van-button>
+      </van-col>
+      <van-col span="12">
+        <van-button type="primary" block bind:tap="submitFollow" loading="{{submitting}}">确定</van-button>
+      </van-col>
+    </van-row>
+  </view>
+</view> 

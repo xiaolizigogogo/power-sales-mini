@@ -303,20 +303,43 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
-  padding: 20rpx 30rpx;
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 20rpx;
   display: flex;
+  justify-content: flex-end;
   gap: 20rpx;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
   z-index: 100;
 }
 
 .bottom-bar .van-button {
-  flex: 1;
-  border-radius: 25rpx !important;
-  font-size: 28rpx !important;
-  height: 80rpx !important;
-  line-height: 80rpx !important;
+  min-width: 180rpx;
+}
+
+.bottom-bar .van-button--info {
+  background: #2b85e4;
+  border-color: #2b85e4;
+}
+
+.bottom-bar .van-button--success {
+  background: #19be6b;
+  border-color: #19be6b;
+}
+
+.bottom-bar .van-button--primary {
+  background: #1989fa;
+  border-color: #1989fa;
+}
+
+.bottom-bar .van-button--danger {
+  background: #fa3534;
+  border-color: #fa3534;
+}
+
+.bottom-bar .van-button--default {
+  color: #666;
+  background: #f5f5f5;
+  border-color: #ddd;
 }
 
 /* 商务洽谈弹窗 */

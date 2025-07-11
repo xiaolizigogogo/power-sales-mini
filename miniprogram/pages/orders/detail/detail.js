@@ -1058,5 +1058,103 @@ Page({
     }
     
     console.log('=== API测试完成 ===');
-  }
+  },
+
+  // 开通服务
+  async startService() {
+    try {
+      wx.showLoading({ title: '正在处理' });
+      const res = await api.startOrderService(this.data.orderId);
+      if (res.success) {
+        wx.showToast({ title: '服务开通成功' });
+        this.refreshOrderDetail();
+      } else {
+        wx.showToast({ title: res.message || '开通失败', icon: 'error' });
+      }
+    } catch (error) {
+      console.error('开通服务失败:', error);
+      wx.showToast({ title: '开通失败', icon: 'error' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 查看服务报告
+  async viewServiceReport() {
+    try {
+      wx.showLoading({ title: '加载报告' });
+      const res = await api.getServiceReport(this.data.orderId);
+      if (res.success && res.data) {
+        // 这里假设返回的是报告文件的URL
+        wx.downloadFile({
+          url: res.data.reportUrl,
+          success(res) {
+            wx.openDocument({
+              filePath: res.tempFilePath,
+              success() {
+                console.log('打开服务报告成功');
+              },
+              fail() {
+                wx.showToast({ title: '打开报告失败', icon: 'error' });
+              }
+            });
+          },
+          fail() {
+            wx.showToast({ title: '下载报告失败', icon: 'error' });
+          }
+        });
+      } else {
+        wx.showToast({ title: '获取报告失败', icon: 'error' });
+      }
+    } catch (error) {
+      console.error('查看服务报告失败:', error);
+      wx.showToast({ title: '获取报告失败', icon: 'error' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 发送续约提醒
+  async sendRenewalNotice() {
+    try {
+      wx.showLoading({ title: '发送提醒' });
+      const res = await api.sendRenewalNotice(this.data.orderId);
+      if (res.success) {
+        wx.showToast({ title: '续约提醒已发送' });
+      } else {
+        wx.showToast({ title: res.message || '发送失败', icon: 'error' });
+      }
+    } catch (error) {
+      console.error('发送续约提醒失败:', error);
+      wx.showToast({ title: '发送失败', icon: 'error' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 查看用电报告
+  async viewUsageReport() {
+    try {
+      wx.showLoading({ title: '加载报告' });
+      const res = await api.getUsageReport(this.data.orderId);
+      if (res.success && res.data) {
+        // 这里假设返回的是用电报告数据
+        wx.navigateTo({
+          url: `/pages/reports/usage-detail/index?id=${this.data.orderId}`,
+          success: () => {
+            // 将报告数据传递给下一个页面
+            const eventChannel = this.getOpenerEventChannel();
+            eventChannel.emit('reportData', { data: res.data });
+          }
+        });
+      } else {
+        wx.showToast({ title: '获取报告失败', icon: 'error' });
+      }
+    } catch (error) {
+      console.error('查看用电报告失败:', error);
+      wx.showToast({ title: '获取报告失败', icon: 'error' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
 }); 

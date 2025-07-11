@@ -62,7 +62,10 @@ const ROLE_PERMISSIONS = {
       '/pages/manager/workplace/workplace',
       '/pages/manager/customers/customers',
       '/pages/manager/customers/list',
+      '/pages/manager/customers/detail',
       '/pages/manager/customers/detail/detail',
+      '/pages/manager/customers/detail/index',
+      'customer-detail',  // 添加简化路径格式
       '/pages/manager/customers/add',
       '/pages/manager/customer-add/customer-add',
       '/pages/manager/follow/follow',

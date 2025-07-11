@@ -1,6 +1,22 @@
 // pages/manager/customers/detail.js
 const app = getApp();
-const API = require('../../../utils/api');
+const apiService = require('../../../utils/api').apiService;
+const { formatTime } = require('../../../utils/date');
+
+const formatDateTime = (dateTimeStr) => {
+  if (!dateTimeStr) return '';
+  const date = new Date(dateTimeStr);
+  if (isNaN(date.getTime())) return '';
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
 Page({
   data: {
@@ -119,53 +135,31 @@ Page({
     try {
       this.setData({ loadingFollows: true });
       
-      // 模拟API调用
-      const followRecords = [
-        {
-          id: 1,
-          type: 'phone',
-          title: '电话沟通产品需求',
-          content: '与客户电话沟通了产品需求，客户表示对A型号产品很感兴趣，希望能够提供详细的报价方案。',
-          createTime: '2024-07-01 14:20:00',
-          nextFollowTime: '2024-07-05 10:00:00',
-          status: 'completed',
-          priority: 'high',
-          result: '积极',
-          tags: ['需求确认', '报价']
-        },
-        {
-          id: 2,
-          type: 'visit',
-          title: '实地拜访客户',
-          content: '到客户公司进行实地拜访，参观了生产车间，了解了客户的实际需求。',
-          createTime: '2024-06-28 09:00:00',
-          nextFollowTime: '2024-07-02 15:00:00',
-          status: 'completed',
-          priority: 'high',
-          result: '积极',
-          tags: ['实地调研', '需求分析']
-        },
-        {
-          id: 3,
-          type: 'wechat',
-          title: '微信发送产品资料',
-          content: '通过微信向客户发送了产品手册和案例资料，客户表示会仔细研究。',
-          createTime: '2024-06-25 16:30:00',
-          nextFollowTime: '2024-06-28 09:00:00',
-          status: 'completed',
-          priority: 'medium',
-          result: '中性',
-          tags: ['资料提供']
-        }
-      ];
-      
-      this.setData({
-        followRecords,
-        loadingFollows: false
+      const employeeId = wx.getStorageSync('userInfo').data.id;
+      const res = await apiService.get(`/customers/${this.data.customerId}/follows`, {
+        page: 1,
+        pageSize: 50
       });
+      
+      if (res.code === 200) {
+        const records = res.data.records.map(record => ({
+          ...record,
+          createdAt: formatDateTime(record.createdAt),
+          nextFollowDate: formatDateTime(record.nextFollowDate)
+        }));
+        
+        this.setData({
+          followRecords: records,
+          loadingFollows: false
+        });
+      }
     } catch (error) {
       console.error('加载跟进记录失败:', error);
       this.setData({ loadingFollows: false });
+      wx.showToast({
+        title: '加载跟进记录失败',
+        icon: 'none'
+      });
     }
   },
 
@@ -174,38 +168,98 @@ Page({
     try {
       this.setData({ loadingOrders: true });
       
-      // 模拟API调用
-      const orders = [
-        {
-          id: 'ORD202407001',
-          productName: 'A型号产品',
-          quantity: 100,
-          unitPrice: 1200,
-          totalAmount: 120000,
-          status: 'completed',
-          createTime: '2024-06-15 10:00:00',
-          deliveryTime: '2024-06-20 14:00:00'
-        },
-        {
-          id: 'ORD202406001',
-          productName: 'B型号产品',
-          quantity: 50,
-          unitPrice: 800,
-          totalAmount: 40000,
-          status: 'completed',
-          createTime: '2024-05-20 15:30:00',
-          deliveryTime: '2024-05-25 09:00:00'
-        }
-      ];
-      
-      this.setData({
-        orders,
-        loadingOrders: false
+      const res = await apiService.get(`/customers/${this.data.customerId}/orders`, {
+        page: 1,
+        pageSize: 50
       });
+      
+      if (res.code === 200) {
+        const orders = res.data.records.map(order => {
+          // 保留原始状态，不做映射转换
+          const status = order.status || 'pending';
+          return {
+            ...order,
+            statusText: this.getOrderStatusText(status),
+            statusDesc: this.getOrderStatusDesc(status),
+            statusColor: this.getOrderStatusColor(status),
+            createTime: formatDateTime(order.createTime),
+            deliveryTime: formatDateTime(order.deliveryTime),
+            // 计算单价
+            unitPrice: order.quantity > 0 ? (order.totalAmount / order.quantity).toFixed(2) : '0.00',
+            // 格式化金额
+            totalAmount: order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'
+          };
+        });
+        
+        this.setData({
+          orders,
+          loadingOrders: false
+        });
+
+        console.log('订单数据:', orders);
+      }
     } catch (error) {
       console.error('加载订单记录失败:', error);
       this.setData({ loadingOrders: false });
+      wx.showToast({
+        title: '加载订单记录失败',
+        icon: 'none'
+      });
     }
+  },
+
+  // 获取订单状态文本
+  getOrderStatusText(status) {
+    const statusMap = {
+      'pending': '待处理',
+      'negotiating': '商务洽谈中',
+      'confirmed': '已确认',
+      'paid': '已支付',
+      'service': '服务中',
+      'completed': '已完成',
+      'cancelled': '已取消',
+      'rejected': '已拒绝',
+      'contract': '待签约',
+      'active': '服务中'
+    };
+    // 如果状态不在映射中，直接显示原始状态
+    return statusMap[status] || status;
+  },
+
+  // 获取订单状态说明
+  getOrderStatusDesc(status) {
+    const statusDescMap = {
+      'pending': '订单待处理，等待客户经理确认',
+      'negotiating': '正在进行商务洽谈，请等待',
+      'confirmed': '订单已确认，等待支付',
+      'paid': '订单已支付，等待开通服务',
+      'service': '服务已开通，正常使用中',
+      'completed': '服务已完成',
+      'cancelled': '订单已取消',
+      'rejected': '订单已被拒绝',
+      'contract': '等待签署合同',
+      'active': '服务正常使用中'
+    };
+    // 如果状态不在映射中，返回空字符串
+    return statusDescMap[status] || '';
+  },
+
+  // 获取订单状态颜色
+  getOrderStatusColor(status) {
+    const statusColorMap = {
+      'pending': '#fa8c16',
+      'negotiating': '#1890ff',
+      'confirmed': '#52c41a',
+      'paid': '#2b85e4',
+      'service': '#1890ff',
+      'completed': '#52c41a',
+      'cancelled': '#ff4d4f',
+      'rejected': '#ff4d4f',
+      'contract': '#1890ff',
+      'active': '#1890ff'
+    };
+    // 如果状态不在映射中，返回默认颜色
+    return statusColorMap[status] || '#999999';
   },
 
   // 加载活动记录
@@ -245,10 +299,12 @@ Page({
     }
   },
 
-  // 切换标签页
+  // Tab切换事件
   onTabChange(e) {
-    const { index } = e.currentTarget.dataset;
-    this.setData({ tabIndex: index });
+    const index = e.detail.index;
+    this.setData({
+      tabIndex: index || 0  // 确保有默认值
+    });
   },
 
   // 显示更多菜单
@@ -348,88 +404,11 @@ Page({
     }
   },
 
-  // 显示添加跟进弹窗
-  onShowFollowModal() {
-    const now = new Date();
-    const date = now.toISOString().split('T')[0];
-    const time = now.toTimeString().split(' ')[0].slice(0, 5);
-    
-    this.setData({ 
-      showFollowModal: true,
-      showMoreMenu: false,
-      newFollowDate: date,
-      newFollowTime: time
+  // 跳转到添加跟进页面
+  onAddFollow() {
+    wx.navigateTo({
+      url: `/pages/manager/customers/follow-add?id=${this.data.customerId}&name=${this.data.customerInfo.name}`
     });
-  },
-
-  // 隐藏添加跟进弹窗
-  onHideFollowModal() {
-    this.setData({ 
-      showFollowModal: false,
-      newFollowContent: '',
-      newFollowType: 'phone',
-      newFollowPriority: 'medium'
-    });
-  },
-
-  // 跟进表单输入
-  onFollowInput(e) {
-    const { field } = e.currentTarget.dataset;
-    const { value } = e.detail;
-    this.setData({
-      [`newFollow${field.charAt(0).toUpperCase() + field.slice(1)}`]: value
-    });
-  },
-
-  // 提交跟进记录
-  async onSubmitFollow() {
-    const { newFollowContent, newFollowType, newFollowPriority, newFollowDate, newFollowTime } = this.data;
-    
-    if (!newFollowContent.trim()) {
-      wx.showToast({
-        title: '请输入跟进内容',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newFollow = {
-        id: Date.now(),
-        type: newFollowType,
-        title: newFollowContent.slice(0, 20) + '...',
-        content: newFollowContent,
-        createTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
-        nextFollowTime: `${newFollowDate} ${newFollowTime}:00`,
-        status: 'pending',
-        priority: newFollowPriority,
-        result: '待处理',
-        tags: ['新增']
-      };
-      
-      this.setData({
-        followRecords: [newFollow, ...this.data.followRecords],
-        showFollowModal: false,
-        newFollowContent: ''
-      });
-      
-      wx.showToast({
-        title: '跟进记录添加成功',
-        icon: 'success'
-      });
-      
-      // 刷新活动记录
-      this.loadActivities();
-    } catch (error) {
-      console.error('添加跟进记录失败:', error);
-      wx.showToast({
-        title: '添加跟进记录失败',
-        icon: 'none'
-      });
-    }
   },
 
   // 编辑客户信息
@@ -442,7 +421,7 @@ Page({
 
   // 查看订单详情
   onViewOrder(e) {
-    const { orderId } = e.currentTarget.dataset;
+    const orderId = e.currentTarget.dataset.id;
     wx.navigateTo({
       url: `/pages/orders/detail/detail?id=${orderId}`
     });
@@ -465,6 +444,41 @@ Page({
     this.setData({ showMoreMenu: false });
   },
 
+  // 开始商务洽谈
+  async onNegotiate(e) {
+    const orderId = e.currentTarget.dataset.id;
+    
+    try {
+      wx.showLoading({
+        title: '处理中...',
+        mask: true
+      });
+      
+      const res = await apiService.put(`/manager/orders/${orderId}/negotiate`, {
+        remark: '开始商务洽谈',
+        operationType: 'negotiate'
+      });
+      
+      if (res.code === 200) {
+        wx.showToast({
+          title: '已开始商务洽谈',
+          icon: 'success'
+        });
+        
+        // 重新加载订单列表
+        await this.loadOrders();
+      }
+    } catch (error) {
+      console.error('商务洽谈失败:', error);
+      wx.showToast({
+        title: '操作失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
   // 获取状态显示信息
   getStatusInfo(status) {
     const statusInfo = this.data.statusOptions.find(item => item.value === status);
@@ -480,19 +494,26 @@ Page({
   formatTime(time) {
     if (!time) return '';
     const date = new Date(time);
-    const now = new Date();
-    const diff = now - date;
+    if (isNaN(date.getTime())) return '';
     
-    if (diff < 60000) { // 1分钟内
-      return '刚刚';
-    } else if (diff < 3600000) { // 1小时内
-      return Math.floor(diff / 60000) + '分钟前';
-    } else if (diff < 86400000) { // 1天内
-      return Math.floor(diff / 3600000) + '小时前';
-    } else if (diff < 2592000000) { // 30天内
-      return Math.floor(diff / 86400000) + '天前';
-    } else {
-      return date.toLocaleDateString();
-    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${month}-${day} ${hours}:${minutes}`;
+  },
+
+  // 格式化时间
+  formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return ''
+    const date = new Date(dateTimeStr)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hour = String(date.getHours()).padStart(2, '0')
+    const minute = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day} ${hour}:${minute}`
   }
 }); 

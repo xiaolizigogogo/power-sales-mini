@@ -16,6 +16,7 @@
     "pages/manager/workplace/workplace",
     "pages/manager/customers/list",
     "pages/manager/customers/detail",
+    "pages/manager/customers/follow-add",
     "pages/manager/customers/add",
     "pages/manager/customers/customers",
     "pages/manager/customers/test-api",

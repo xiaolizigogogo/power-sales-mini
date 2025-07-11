@@ -79,8 +79,9 @@
             <text class="order-number">{{item.orderNumber || '订单号：' + item.id}}</text>
             <text class="order-date">{{item.createTime || item.createdAt}}</text>
           </view>
-          <view class="order-status {{item.status || 'pending'}}">
-            <text class="status-text">{{item.statusText || '待处理'}}</text>
+          <view class="order-status" style="color: {{statusMap[item.status].color}}">
+            <text class="status-text">{{statusMap[item.status].text}}</text>
+            <text class="status-desc" wx:if="{{statusDescMap[item.status]}}">{{statusDescMap[item.status]}}</text>
           </view>
         </view>
 

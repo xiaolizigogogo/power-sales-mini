@@ -781,6 +781,14 @@ const orderAPI = {
   // 获取订单服务数据
   getServiceData: (id) => {
     return apiService.get(`/orders/${id}/service`)
+  },
+
+  // 开始商务洽谈
+  startOrderNegotiation: (orderId) => {
+    return apiService.put(`manager/orders/${orderId}/negotiate`, {
+      remark: '开始商务洽谈',  // 添加备注，将记录到状态日志中
+      operationType: 'negotiate'  // 操作类型
+    });
   }
 }
 
@@ -839,7 +847,7 @@ const customerAPI = {
     return apiService.get('/customers/list', params)
   },
   
-  // 客户经理专用 - 获取客户统计
+  // 客户经理专用 - 获取我的客户统计
   async getMyCustomerStatistics() {
     return apiService.get('/manager/customers/statistics')
   },
@@ -1287,6 +1295,7 @@ module.exports = {
     payOrder: orderAPI.payOrder,
     reviewOrder: orderAPI.reviewOrder,
     getServiceData: orderAPI.getServiceData,
+    startOrderNegotiation: orderAPI.startOrderNegotiation,
     
     // 客户经理相关API
     ...customerAPI,

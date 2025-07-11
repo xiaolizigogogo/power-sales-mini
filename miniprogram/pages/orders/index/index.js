@@ -66,12 +66,30 @@ Page({
     
     // 状态映射
     statusMap: {
-      'pending': { text: '待确认', color: '#fa8c16' },
+      'pending': { text: '待处理', color: '#fa8c16' },
+      'negotiating': { text: '商务洽谈中', color: '#1890ff' },
       'confirmed': { text: '已确认', color: '#52c41a' },
-      'contract': { text: '待签约', color: '#1890ff' },
-      'active': { text: '服务中', color: '#1890ff' },
+      'paid': { text: '已支付', color: '#2b85e4' },
+      'service': { text: '服务中', color: '#1890ff' },
       'completed': { text: '已完成', color: '#52c41a' },
-      'cancelled': { text: '已取消', color: '#ff4d4f' }
+      'cancelled': { text: '已取消', color: '#ff4d4f' },
+      'rejected': { text: '已拒绝', color: '#ff4d4f' },
+      'contract': { text: '待签约', color: '#1890ff' },
+      'active': { text: '服务中', color: '#1890ff' }
+    },
+
+    // 状态说明
+    statusDescMap: {
+      'pending': '订单待处理，等待客户经理确认',
+      'negotiating': '正在进行商务洽谈，请等待',
+      'confirmed': '订单已确认，等待支付',
+      'paid': '订单已支付，等待开通服务',
+      'service': '服务已开通，正常使用中',
+      'completed': '服务已完成',
+      'cancelled': '订单已取消',
+      'rejected': '订单已被拒绝',
+      'contract': '等待签署合同',
+      'active': '服务正常使用中'
     }
   },
 
@@ -437,58 +455,39 @@ Page({
 
   // 格式化订单数据
   formatOrderData(order) {
-    // 映射后端状态到前端状态
-    const statusMapping = {
-      'completed': 'completed',
-      'activated': 'active', 
-      'negotiating': 'confirmed',
-      'pending': 'pending',
-      'cancelled': 'cancelled'
-    };
+    if (!order) return null;
 
-    const mappedStatus = statusMapping[order.status] || order.status;
+    // 格式化日期
+    const createTime = order.createTime || order.createdAt;
+    const formattedCreateTime = createTime ? formatDate(new Date(createTime), 'YYYY-MM-DD HH:mm') : '';
+
+    // 处理金额显示
+    const amount = order.amount || 0;
+    const formattedAmount = formatMoney(amount);
+
+    // 获取状态信息
+    const status = order.status || 'pending';
+    const statusInfo = this.data.statusMap[status] || { text: '待处理', color: '#fa8c16' };
 
     return {
       ...order,
-      // 字段名映射
-      orderNumber: order.orderNo || order.orderNumber,
-      createTime: formatDate(order.createdAt || order.createTime),
-      amount: formatMoney(order.amount || 0),
-      status: mappedStatus,
-      statusText: this.data.statusMap[mappedStatus]?.text || order.statusDesc || '未知状态',
-      statusClass: mappedStatus || 'pending',
+      createTime: formattedCreateTime,
+      amount: formattedAmount,
+      status: status,
+      statusText: statusInfo.text,
+      statusColor: statusInfo.color,
       
-      // 员工信息重构
-      assignedEmployee: order.employeeName ? {
-        name: order.employeeName,
-        phone: order.employeePhone,
-        department: order.employeeDepartment,
-        avatar: '/assets/images/default-avatar.png' // 默认头像
-      } : order.assignedEmployee,
+      // 订单操作权限
+      canCancel: ['pending', 'confirmed'].includes(status),
+      canPay: status === 'confirmed' && !order.isPaid,
+      canViewContract: ['service', 'completed'].includes(status),
+      canConfirm: status === 'paid',
       
-      // 设置操作权限
-      canCancel: ['pending', 'confirmed'].includes(mappedStatus),
-      canPay: mappedStatus === 'confirmed',
-      canViewContract: ['contract', 'active', 'completed'].includes(mappedStatus),
-      canConfirm: mappedStatus === 'active',
-      
-      // 设置进度信息
-      showProgress: ['confirmed', 'contract', 'active', 'completed'].includes(mappedStatus),
-      progressSteps: ['下单', '确认', '签约', '服务中', '完成'],
-      currentStep: this.getProgressStep(mappedStatus),
-      progressPercent: this.getProgressPercent(mappedStatus),
-      
-      // 产品信息处理
-      productName: order.productName || '节电产品',
-      productDesc: order.productDescription || order.productDesc || '高效节能设备',
-      capacity: order.capacity || '待确定',
-      servicePeriod: order.servicePeriod || this.calculateServicePeriod(order.serviceStartDate, order.serviceEndDate),
-      
-      // 其他字段保持不变或设置默认值
-      customerName: order.customerName,
-      customerPhone: order.customerPhone,
-      companyName: order.companyName,
-      remark: order.remark
+      // 显示进度
+      showProgress: !['cancelled', 'rejected'].includes(status),
+      progressSteps: this.getProgressStep(status),
+      progressPercent: this.getProgressPercent(status),
+      currentStep: this.getProgressStep(status).findIndex(step => step === statusInfo.text)
     };
   },
 

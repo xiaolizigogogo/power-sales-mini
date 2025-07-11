@@ -5,7 +5,7 @@
     
     <!-- 加载状态 -->
     <view wx:if="{{loading}}" class="loading">
-      <image src="/assets/images/icons/loading.png" class="loading-icon" />
+      <van-loading size="24px" />
       <text class="loading-text">加载中...</text>
     </view>
     
@@ -14,25 +14,25 @@
       <!-- 头部信息 -->
       <view class="customer-header">
         <view class="customer-avatar">
-          <text class="avatar-text">{{customerInfo.name.charAt(0)}}</text>
+          <text class="avatar-text">{{customerInfo.name ? customerInfo.name.charAt(0) : '未'}}</text>
         </view>
         <view class="customer-basic">
           <view class="customer-name">{{customerInfo.name}}</view>
-          <view class="customer-company">{{customerInfo.company}}</view>
-          <view class="customer-position">{{customerInfo.position}}</view>
+          <view class="customer-company" wx:if="{{customerInfo.company !== '未知'}}">{{customerInfo.company}}</view>
+          <view class="customer-position" wx:if="{{customerInfo.position !== '未设置'}}">{{customerInfo.position}}</view>
         </view>
         <view class="customer-actions">
           <view class="status-tag" style="background-color: {{getStatusInfo(customerInfo.status).color}}" bindtap="onShowStatusModal">
             {{getStatusInfo(customerInfo.status).label}}
           </view>
           <view class="more-btn" bindtap="onShowMoreMenu">
-            <image src="/assets/images/icons/more.png" />
+            <van-icon name="ellipsis" size="18px" />
           </view>
         </view>
       </view>
       
       <!-- 统计信息 -->
-      <view class="customer-stats">
+      <view class="customer-stats" wx:if="{{customerInfo.totalOrders > 0 || customerInfo.totalAmount > 0}}">
         <view class="stat-item">
           <view class="stat-value">{{customerInfo.totalOrders}}</view>
           <view class="stat-label">订单数</view>
@@ -49,35 +49,35 @@
       
       <!-- 联系方式 -->
       <view class="contact-info">
-        <view class="contact-item">
-          <image src="/assets/images/icons/phone.png" class="contact-icon" />
+        <view class="contact-item" wx:if="{{customerInfo.phone}}">
+          <van-icon name="phone-o" size="16px" color="#1890ff" />
           <text class="contact-text">{{customerInfo.phone}}</text>
           <view class="contact-actions">
             <view class="action-btn" data-type="phone" bindtap="onQuickContact">
-              <image src="/assets/images/icons/call.png" />
+              <van-icon name="phone" size="16px" color="#52c41a" />
             </view>
             <view class="action-btn" data-type="sms" bindtap="onQuickContact">
-              <image src="/assets/images/icons/message.png" />
+              <van-icon name="chat-o" size="16px" color="#1890ff" />
             </view>
           </view>
         </view>
         
-        <view class="contact-item">
-          <image src="/assets/images/icons/email.png" class="contact-icon" />
+        <view class="contact-item" wx:if="{{customerInfo.email !== '未设置'}}">
+          <van-icon name="envelop-o" size="16px" color="#1890ff" />
           <text class="contact-text">{{customerInfo.email}}</text>
           <view class="contact-actions">
             <view class="action-btn" data-type="email" bindtap="onQuickContact">
-              <image src="/assets/images/icons/copy.png" />
+              <van-icon name="notes-o" size="16px" color="#faad14" />
             </view>
           </view>
         </view>
         
-        <view class="contact-item">
-          <image src="/assets/images/icons/wechat.png" class="contact-icon" />
+        <view class="contact-item" wx:if="{{customerInfo.wechat !== '未设置'}}">
+          <van-icon name="wechat" size="16px" color="#52c41a" />
           <text class="contact-text">{{customerInfo.wechat}}</text>
           <view class="contact-actions">
             <view class="action-btn" data-type="wechat" bindtap="onQuickContact">
-              <image src="/assets/images/icons/wechat.png" />
+              <van-icon name="wechat" size="16px" color="#52c41a" />
             </view>
           </view>
         </view>
@@ -88,28 +88,44 @@
         <view class="detail-section">
           <view class="section-title">基本信息</view>
           <view class="detail-item">
-            <text class="detail-label">所属行业</text>
-            <text class="detail-value">{{customerInfo.industry}}</text>
+            <text class="detail-label">认证状态</text>
+            <text class="detail-value">{{customerInfo.authStatus === 'pending' ? '待认证' : customerInfo.authStatus === 'approved' ? '已认证' : '未认证'}}</text>
           </view>
           <view class="detail-item">
-            <text class="detail-label">企业规模</text>
-            <text class="detail-value">{{customerInfo.scale}}</text>
-          </view>
-          <view class="detail-item">
-            <text class="detail-label">客户来源</text>
-            <text class="detail-value">{{customerInfo.source}}</text>
+            <text class="detail-label">联系电话</text>
+            <text class="detail-value">{{customerInfo.phone}}</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">地址</text>
-            <text class="detail-value">{{customerInfo.address}}</text>
+            <text class="detail-value">{{customerInfo.formattedAddress}}</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">创建时间</text>
-            <text class="detail-value">{{customerInfo.createTime}}</text>
+            <text class="detail-value">{{formatTime(customerInfo.createdAt)}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">更新时间</text>
+            <text class="detail-value">{{formatTime(customerInfo.updatedAt)}}</text>
+          </view>
+        </view>
+
+        <view class="detail-section" wx:if="{{customerInfo.industry !== '未设置' || customerInfo.scale !== '未设置' || customerInfo.source !== '未设置'}}">
+          <view class="section-title">企业信息</view>
+          <view class="detail-item" wx:if="{{customerInfo.industry !== '未设置'}}">
+            <text class="detail-label">所属行业</text>
+            <text class="detail-value">{{customerInfo.industry}}</text>
+          </view>
+          <view class="detail-item" wx:if="{{customerInfo.scale !== '未设置'}}">
+            <text class="detail-label">企业规模</text>
+            <text class="detail-value">{{customerInfo.scale}}</text>
+          </view>
+          <view class="detail-item" wx:if="{{customerInfo.source !== '未设置'}}">
+            <text class="detail-label">客户来源</text>
+            <text class="detail-value">{{customerInfo.source}}</text>
           </view>
         </view>
         
-        <view class="detail-section">
+        <view class="detail-section" wx:if="{{customerInfo.tags.length > 0}}">
           <view class="section-title">客户标签</view>
           <view class="tags-container">
             <view wx:for="{{customerInfo.tags}}" wx:key="index" class="customer-tag">
@@ -118,76 +134,138 @@
           </view>
         </view>
         
-        <view class="detail-section">
+        <view class="detail-section" wx:if="{{customerInfo.remark}}">
           <view class="section-title">备注信息</view>
           <view class="remark-content">{{customerInfo.remark}}</view>
         </view>
       </view>
       
-      <!-- 标签栏 -->
-      <view class="tab-bar">
-        <view class="tab-item {{tabIndex === 0 ? 'active' : ''}}" data-index="0" bindtap="onTabChange">
-          <text class="tab-text">跟进记录</text>
-          <text class="tab-count">{{followRecords.length}}</text>
-        </view>
-        <view class="tab-item {{tabIndex === 1 ? 'active' : ''}}" data-index="1" bindtap="onTabChange">
-          <text class="tab-text">订单记录</text>
-          <text class="tab-count">{{orders.length}}</text>
-        </view>
-        <view class="tab-item {{tabIndex === 2 ? 'active' : ''}}" data-index="2" bindtap="onTabChange">
-          <text class="tab-text">活动记录</text>
-          <text class="tab-count">{{activities.length}}</text>
-        </view>
-      </view>
-      
-      <!-- 跟进记录 -->
-      <view wx:if="{{tabIndex === 0}}" class="follow-records">
-        <view wx:if="{{loadingFollows}}" class="loading">
-          <text>加载跟进记录...</text>
-        </view>
-        <view wx:elif="{{followRecords.length === 0}}" class="empty-state">
-          <image src="/assets/images/icons/empty.png" />
-          <text class="empty-text">暂无跟进记录</text>
-          <view class="add-follow-btn" bindtap="onShowFollowModal">添加跟进</view>
-        </view>
-        <view wx:else class="follow-list">
-          <view wx:for="{{followRecords}}" wx:key="id" class="follow-item">
-            <view class="follow-type-icon {{item.type}}">
-              <text class="type-text">
-                {{item.type === 'phone' ? '📞' : item.type === 'visit' ? '🏢' : item.type === 'wechat' ? '💬' : '📧'}}
-              </text>
-            </view>
-            <view class="follow-content">
-              <view class="follow-header">
-                <view class="follow-title">{{item.title}}</view>
-                <view class="follow-status {{item.status}}">
-                  <text class="status-text">{{item.result}}</text>
+      <!-- 标签页 -->
+      <van-tabs active="{{tabIndex}}" bind:change="onTabChange" sticky>
+        <van-tab title="跟进记录">
+          <!-- 跟进记录列表 -->
+          <view class="follow-records">
+            <view class="follow-list">
+              <block wx:if="{{followRecords.length > 0}}">
+                <view class="follow-item" wx:for="{{followRecords}}" wx:key="id">
+                  <view class="follow-left">
+                    <view class="follow-type">
+                      <text class="type-icon">{{item.followType === 'phone' ? '📞' : item.followType === 'visit' ? '🏢' : item.followType === 'wechat' ? '💬' : '📧'}}</text>
+                      <text class="type-text">{{item.followType === 'phone' ? '电话跟进' : item.followType === 'visit' ? '实地拜访' : item.followType === 'wechat' ? '微信沟通' : '邮件联系'}}</text>
+                    </view>
+                    <view class="employee-info">
+                      <van-icon name="manager-o" size="14px" color="#666666" />
+                      <text class="employee-name">{{item.employeeName}}</text>
+                    </view>
+                  </view>
+                  
+                  <view class="follow-middle">
+                    <text class="follow-content">{{item.content}}</text>
+                  </view>
+                  
+                  <view class="follow-right">
+                    <view class="time-info">
+                      <view class="time-row">
+                        <van-icon name="clock-o" size="12px" color="#666666" />
+                        <text class="time-value">{{item.createdAt}}</text>
+                      </view>
+                      <view class="time-row">
+                        <van-icon name="underway-o" size="12px" color="#666666" />
+                        <text class="time-value">{{item.nextFollowDate}}</text>
+                      </view>
+                    </view>
+                  </view>
                 </view>
-              </view>
-              <view class="follow-text">{{item.content}}</view>
-              <view class="follow-meta">
-                <view class="follow-time">{{item.createTime}}</view>
-                <view class="priority priority-{{item.priority}}">{{item.priority === 'high' ? '高优先级' : item.priority === 'medium' ? '中优先级' : '低优先级'}}</view>
-              </view>
-              <view wx:if="{{item.tags && item.tags.length > 0}}" class="follow-tags">
-                <view wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag" class="tag">{{tag}}</view>
-              </view>
-              <view wx:if="{{item.nextFollowTime}}" class="next-follow">
-                下次跟进：{{item.nextFollowTime}}
-              </view>
+              </block>
+              <view wx:else class="empty-tip">暂无跟进记录</view>
             </view>
           </view>
-        </view>
-      </view>
+          <!-- 新增跟进记录浮动按钮 - 只在跟进记录标签页显示 -->
+          <view class="float-button" bindtap="onAddFollow">
+            <text class="icon">+</text>
+            <text>添加跟进</text>
+          </view>
+        </van-tab>
+        
+        <van-tab title="订单记录">
+          <view class="order-records">
+            <view wx:if="{{loadingOrders}}" class="loading">
+              <van-loading size="24px" />
+              <text>加载订单记录...</text>
+            </view>
+            <view wx:elif="{{orders.length === 0}}" class="empty-state">
+              <van-empty description="暂无订单记录" />
+              <view class="create-order-btn" bindtap="onCreateOrder">创建订单</view>
+            </view>
+            <block wx:else>
+              <view class="order-item" wx:for="{{orders}}" wx:key="id">
+                <view class="order-header">
+                  <text class="order-id">订单号：{{item.orderNo || item.id}}</text>
+                  <view class="order-status-wrapper">
+                    <text class="order-status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
+                    <text class="order-status-desc" wx:if="{{item.statusDesc}}">{{item.statusDesc}}</text>
+                  </view>
+                </view>
+                
+                <view class="order-content">
+                  <view class="product-info">
+                    <text class="product-name">{{item.productName || '未知产品'}}</text>
+                    <text class="product-spec" wx:if="{{item.quantity}}">数量：{{item.quantity}}件</text>
+                  </view>
+                  
+                  <view class="price-info">
+                    <text class="unit-price" wx:if="{{item.unitPrice}}">单价：¥{{item.unitPrice}}</text>
+                    <text class="total-amount">总额：¥{{item.totalAmount || '0.00'}}</text>
+                  </view>
+                </view>
+                
+                <view class="order-footer">
+                  <view class="time-info">
+                    <text class="create-time">创建：{{item.createTime || '未知'}}</text>
+                    <text class="delivery-time" wx:if="{{item.deliveryTime}}">交付：{{item.deliveryTime}}</text>
+                  </view>
+                  <view class="order-actions">
+                    <button class="action-btn" size="mini" bindtap="onViewOrder" data-id="{{item.id}}">查看详情</button>
+                    <button 
+                      class="action-btn negotiate" 
+                      size="mini" 
+                      bindtap="onNegotiate" 
+                      data-id="{{item.id}}"
+                      wx:if="{{item.status === 'pending'}}">
+                      商务洽谈
+                    </button>
+                  </view>
+                </view>
+              </view>
+            </block>
+          </view>
+        </van-tab>
+        
+        <van-tab title="活动记录">
+          <view class="activity-records">
+            <!-- 活动记录内容 -->
+          </view>
+        </van-tab>
+      </van-tabs>
+      
+      <!-- 日期时间选择器 -->
+      <van-datetime-picker
+        wx:if="{{showDatePicker}}"
+        type="datetime"
+        value="{{currentDate}}"
+        min-date="{{minDate}}"
+        bind:confirm="onDateTimeConfirm"
+        bind:cancel="hideDateTimePicker"
+      />
       
       <!-- 订单记录 -->
       <view wx:if="{{tabIndex === 1}}" class="order-records">
         <view wx:if="{{loadingOrders}}" class="loading">
+          <van-loading size="24px" />
           <text>加载订单记录...</text>
         </view>
         <view wx:elif="{{orders.length === 0}}" class="empty-state">
-          <image src="/assets/images/icons/empty.png" />
-          <text class="empty-text">暂无订单记录</text>
+          <van-empty description="暂无订单记录" />
           <view class="create-order-btn" bindtap="onCreateOrder">创建订单</view>
         </view>
         <view wx:else class="order-list">
@@ -217,8 +295,7 @@
       <!-- 活动记录 -->
       <view wx:if="{{tabIndex === 2}}" class="activity-records">
         <view wx:if="{{activities.length === 0}}" class="empty-state">
-          <image src="/assets/images/icons/empty.png" />
-          <text class="empty-text">暂无活动记录</text>
+          <van-empty description="暂无活动记录" />
         </view>
         <view wx:else class="activity-list">
           <view wx:for="{{activities}}" wx:key="id" class="activity-item">
@@ -244,19 +321,19 @@
     <view wx:if="{{showMoreMenu}}" class="more-menu-modal" bindtap="onHideMoreMenu">
       <view class="menu-content" catchtap="">
         <view class="menu-item" bindtap="onEditCustomer">
-          <image src="/assets/images/icons/edit.png" />
+          <van-icon name="edit" size="18px" />
           <text>编辑客户</text>
         </view>
         <view class="menu-item" bindtap="onShowFollowModal">
-          <image src="/assets/images/icons/follow.png" />
+          <van-icon name="plus" size="18px" />
           <text>添加跟进</text>
         </view>
         <view class="menu-item" bindtap="onCreateOrder">
-          <image src="/assets/images/icons/order.png" />
+          <van-icon name="shopping-cart-o" size="18px" />
           <text>创建订单</text>
         </view>
         <view class="menu-item" bindtap="onShareCustomer">
-          <image src="/assets/images/icons/share.png" />
+          <van-icon name="share-o" size="18px" />
           <text>分享客户</text>
         </view>
       </view>
@@ -267,14 +344,14 @@
       <view class="modal-content" catchtap="">
         <view class="modal-header">
           <text class="modal-title">修改客户状态</text>
-          <image src="/assets/images/icons/close.png" class="close-btn" bindtap="onHideStatusModal" />
+          <van-icon name="close" size="20px" class="close-btn" bindtap="onHideStatusModal" />
         </view>
         <view class="status-options">
           <view wx:for="{{statusOptions}}" wx:key="value" class="status-option {{customerInfo.status === item.value ? 'selected' : ''}}" 
                 data-value="{{item.value}}" bindtap="onUpdateStatus">
             <view class="option-color" style="background-color: {{item.color}}"></view>
             <text class="option-label">{{item.label}}</text>
-            <image wx:if="{{customerInfo.status === item.value}}" src="/assets/images/icons/check.png" class="check-icon" />
+            <van-icon wx:if="{{customerInfo.status === item.value}}" name="check" size="16px" class="check-icon" />
           </view>
         </view>
       </view>
@@ -285,7 +362,7 @@
       <view class="modal-content" catchtap="">
         <view class="modal-header">
           <text class="modal-title">添加跟进记录</text>
-          <image src="/assets/images/icons/close.png" class="close-btn" bindtap="onHideFollowModal" />
+          <van-icon name="close" size="20px" class="close-btn" bindtap="onHideFollowModal" />
         </view>
         <view class="follow-form">
           <view class="form-section">
@@ -334,11 +411,6 @@
           <view class="confirm-btn" bindtap="onSubmitFollow">确定</view>
         </view>
       </view>
-    </view>
-    
-    <!-- 浮动添加按钮 -->
-    <view wx:if="{{tabIndex === 0}}" class="floating-add-btn" bindtap="onShowFollowModal">
-      <image src="/assets/images/icons/add.png" />
     </view>
     
   </permission-guard>

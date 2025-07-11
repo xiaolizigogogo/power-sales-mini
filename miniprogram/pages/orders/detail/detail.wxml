@@ -179,6 +179,22 @@
             data-status="confirmed"
           >确认订单</van-button>
         </block>
+        <block wx:elif="{{ orderInfo.status === 'paid' }}">
+          <van-button 
+            type="primary" 
+            bind:click="startService"
+          >开通服务</van-button>
+        </block>
+        <block wx:elif="{{ orderInfo.status === 'service' }}">
+          <van-button 
+            type="info" 
+            bind:click="viewServiceReport"
+          >服务报告</van-button>
+          <van-button 
+            type="primary" 
+            bind:click="sendRenewalNotice"
+          >续约提醒</van-button>
+        </block>
       </block>
       <block wx:else>
         <block wx:if="{{ orderInfo.status === 'pending' }}">
@@ -193,7 +209,24 @@
             bind:click="onPayOrder"
           >立即支付</van-button>
         </block>
-        <block wx:elif="{{ orderInfo.status === 'service' || orderInfo.status === 'completed' }}">
+        <block wx:elif="{{ orderInfo.status === 'paid' }}">
+          <view class="status-tip">服务开通中，请耐心等待</view>
+        </block>
+        <block wx:elif="{{ orderInfo.status === 'service' }}">
+          <van-button 
+            type="default" 
+            bind:click="onViewContract"
+          >查看合同</van-button>
+          <van-button 
+            type="info" 
+            bind:click="viewUsageReport"
+          >用电报告</van-button>
+          <van-button 
+            type="primary" 
+            bind:click="onContactManager"
+          >联系客服</van-button>
+        </block>
+        <block wx:elif="{{ orderInfo.status === 'completed' }}">
           <van-button 
             type="default" 
             bind:click="onViewContract"
