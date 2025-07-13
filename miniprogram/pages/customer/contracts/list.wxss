@@ -1,0 +1,249 @@
+.contracts-list {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+}
+
+/* 页面头部 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #ebedf0;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.header-actions {
+  display: flex;
+  gap: 30rpx;
+}
+
+.header-actions .van-icon {
+  font-size: 40rpx;
+  color: #646566;
+}
+
+/* 搜索栏 */
+.search-section {
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #ebedf0;
+}
+
+.search-bar {
+  background-color: #f7f8fa;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+}
+
+/* 合同容器 */
+.contract-container {
+  padding: 20rpx;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #969799;
+}
+
+/* 空状态 */
+.empty-container {
+  padding: 100rpx 0;
+}
+
+/* 合同列表 */
+.contract-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 合同卡片 */
+.contract-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.contract-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 合同头部 */
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f2f3f5;
+}
+
+.contract-no {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.contract-status {
+  font-size: 28rpx;
+  font-weight: 500;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  background-color: rgba(25, 137, 250, 0.1);
+}
+
+/* 合同信息 */
+.contract-info {
+  margin-bottom: 30rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f7f8fa;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item .label {
+  font-size: 28rpx;
+  color: #646566;
+  min-width: 140rpx;
+  flex-shrink: 0;
+}
+
+.info-item .value {
+  font-size: 28rpx;
+  color: #323233;
+  flex: 1;
+}
+
+.info-item .value.highlight {
+  color: #ee0a24;
+  font-weight: 600;
+}
+
+/* 时间信息 */
+.contract-time {
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background-color: #f7f8fa;
+  border-radius: 8rpx;
+}
+
+.time-item {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.time-item .label {
+  font-size: 24rpx;
+  color: #969799;
+  min-width: 120rpx;
+  flex-shrink: 0;
+}
+
+.time-item .value {
+  font-size: 24rpx;
+  color: #646566;
+  flex: 1;
+}
+
+/* 状态说明 */
+.status-desc {
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background-color: #e8f4fd;
+  border-radius: 8rpx;
+  border-left: 4rpx solid #1989fa;
+}
+
+.desc-text {
+  font-size: 26rpx;
+  color: #1989fa;
+  line-height: 1.5;
+}
+
+/* 操作按钮 */
+.contract-actions {
+  display: flex;
+  gap: 20rpx;
+  justify-content: flex-end;
+}
+
+.contract-actions .van-button {
+  min-width: 160rpx;
+}
+
+/* 加载更多 */
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+/* 没有更多 */
+.no-more {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #969799;
+}
+
+/* 标签页样式 */
+.van-tabs__content {
+  background-color: #f7f8fa;
+}
+
+.van-tab__pane {
+  padding: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 750rpx) {
+  .contract-card {
+    padding: 20rpx;
+  }
+  
+  .contract-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10rpx;
+  }
+  
+  .contract-actions {
+    flex-direction: column;
+  }
+  
+  .contract-actions .van-button {
+    width: 100%;
+  }
+} 

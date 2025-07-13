@@ -109,14 +109,21 @@ Page({
     
     console.log('✅ onLoad: 登录状态检查通过');
     
-    // 保存客户ID
+    // 保存客户ID和客户名
     if (options.customerId) {
       this.setData({ 
-        customerId: options.customerId
+        customerId: options.customerId,
+        customerName: options.customerName || ''
       });
-      
-      // 获取客户信息
-      this.loadCustomerInfo(options.customerId);
+      // 如果有客户名，直接设置标题
+      if (options.customerName) {
+        wx.setNavigationBarTitle({
+          title: `${options.customerName}的订单`
+        });
+      } else {
+        // 获取客户信息
+        this.loadCustomerInfo(options.customerId);
+      }
     }
     
     // 从参数获取状态筛选
@@ -133,13 +140,25 @@ Page({
   },
 
   onShow() {
-    console.log('👁️ onShow 方法被调用');
+    // tabBar页面：优先从Storage读取筛选参数
+    const filter = wx.getStorageSync('orderListFilter');
+    if (filter && filter.customerId) {
+      this.setData({
+        customerId: filter.customerId,
+        customerName: filter.customerName || ''
+      });
+      if (filter.customerName) {
+        wx.setNavigationBarTitle({
+          title: `${filter.customerName}的订单`
+        });
+      }
+      wx.removeStorageSync('orderListFilter');
+    }
     // 检查登录状态
     if (!this.checkLoginStatus()) {
       console.log('❌ 登录状态检查失败，跳转登录页');
       return;
     }
-    
     console.log('✅ 登录状态检查通过，开始刷新订单列表');
     // 每次显示时刷新订单列表
     this.refreshOrderList();
@@ -250,23 +269,21 @@ Page({
     }
 
     try {
+      // 查询参数
       const params = {
         page: this.data.page,
         pageSize: this.data.pageSize,
         status: this.data.tabList[this.data.activeTab].key === 'all' ? '' : this.data.tabList[this.data.activeTab].key,
-        keyword: this.data.searchKeyword
+        keyword: this.data.searchKeyword,
+        ...this.data.filterData
       };
-
-      // 根据是否有customerId使用不同的API
-      let response;
+      // 如果有customerId，带上
       if (this.data.customerId) {
-        console.log('📋 加载指定客户的订单:', this.data.customerId);
-        response = await orderAPI.getCustomerOrders(this.data.customerId, params);
-      } else {
-        console.log('📋 加载所有订单');
-        response = await orderAPI.getOrderList(params);
+        params.customerId = this.data.customerId;
       }
 
+      // 订单接口调用时传递params
+      const response = await orderAPI.getOrderList(params);
       const { list = [], total = 0 } = response.data || {};
       
       // 格式化订单数据

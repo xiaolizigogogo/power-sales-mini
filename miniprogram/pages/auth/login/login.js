@@ -163,19 +163,33 @@ Page({
    * 微信登录
    */
   async wechatLogin() {
+    console.log('=== 微信登录方法被调用 ===')
     console.log('开始微信登录:', { loginType: this.data.loginType })
     
     try {
+      console.log('设置加载状态为true')
       this.setData({ isLoading: true })
 
+      console.log('开始获取微信授权码...')
       // 获取微信授权
-      const { code } = await wx.login()
-      console.log('获取微信授权码:', code)
-      
-      if (!code) {
-        throw new Error('微信授权失败')
+      let code
+      try {
+        const loginResult = await wx.login()
+        console.log('wx.login 返回结果:', loginResult)
+        
+        if (!loginResult || !loginResult.code) {
+          console.error('微信授权码为空或获取失败:', loginResult)
+          throw new Error('微信授权失败：无法获取授权码')
+        }
+        
+        code = loginResult.code
+        console.log('获取微信授权码成功:', code)
+      } catch (loginError) {
+        console.error('wx.login 调用失败:', loginError)
+        throw new Error(`微信授权失败：${loginError.errMsg || loginError.message || '未知错误'}`)
       }
 
+      console.log('开始调用后端微信登录接口...')
       // 调用后端微信登录接口
       const response = await authAPI.wechatLogin({
         code,
@@ -187,11 +201,28 @@ Page({
 
     } catch (error) {
       console.error('微信登录失败:', error)
-      wx.showToast({
-        title: error.message || '微信登录失败',
-        icon: 'none'
-      })
+      
+      // 如果是网络问题，提供备选方案
+      if (error.message && error.message.includes('Failed to fetch')) {
+        wx.showModal({
+          title: '网络连接问题',
+          content: '微信登录暂时不可用，是否使用模拟登录进行测试？',
+          confirmText: '模拟登录',
+          cancelText: '取消',
+          success: (res) => {
+            if (res.confirm) {
+              this.mockLogin()
+            }
+          }
+        })
+      } else {
+        wx.showToast({
+          title: error.message || '微信登录失败',
+          icon: 'none'
+        })
+      }
     } finally {
+      console.log('设置加载状态为false')
       this.setData({ isLoading: false })
     }
   },
@@ -329,9 +360,17 @@ Page({
     roleManager.setCurrentUser(finalUserType, userInfo)
     
     // 同时更新app全局状态，确保兼容性
-    const app = getApp()
-    app.login(userInfo, token, finalUserType, refreshToken)
-    console.log('已更新app全局状态')
+    try {
+      const app = getApp()
+      if (app && typeof app.login === 'function') {
+        app.login(userInfo, token, finalUserType, refreshToken)
+        console.log('已更新app全局状态')
+      } else {
+        console.warn('app.login 方法不可用，跳过app状态更新')
+      }
+    } catch (error) {
+      console.error('更新app全局状态失败:', error)
+    }
 
     wx.showToast({
       title: '登录成功',
@@ -389,5 +428,45 @@ Page({
     wx.navigateTo({
       url: '/pages/auth/forgot-password/forgot-password'
     })
+  },
+
+  /**
+   * 模拟登录（用于测试）
+   */
+  async mockLogin() {
+    console.log('开始模拟登录')
+    
+    try {
+      this.setData({ isLoading: true })
+      
+      // 模拟登录响应
+      const mockResponse = {
+        token: 'mock_token_' + Date.now(),
+        refreshToken: 'mock_refresh_token_' + Date.now(),
+        userType: this.data.loginType,
+        userInfo: {
+          id: 1,
+          name: this.data.loginType === 'manager' ? '李经理' : '张三',
+          phone: '13800138000',
+          role: this.data.loginType,
+          avatar: '',
+          companyName: this.data.loginType === 'manager' ? '众益售电公司' : '测试公司',
+          department: this.data.loginType === 'manager' ? '销售部' : '',
+          position: this.data.loginType === 'manager' ? '客户经理' : '客户'
+        }
+      }
+      
+      console.log('模拟登录响应:', mockResponse)
+      await this.handleLoginSuccess(mockResponse)
+      
+    } catch (error) {
+      console.error('模拟登录失败:', error)
+      wx.showToast({
+        title: '模拟登录失败',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ isLoading: false })
+    }
   }
 }) 

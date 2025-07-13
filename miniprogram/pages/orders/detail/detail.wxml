@@ -179,6 +179,29 @@
             data-status="confirmed"
           >确认订单</van-button>
         </block>
+        <block wx:elif="{{ orderInfo.status === 'confirmed' }}">
+          <van-button 
+            type="primary" 
+            bind:click="updateOrderStatus" 
+            data-status="contract"
+          >准备签约</van-button>
+          <van-button 
+            type="success" 
+            bind:click="updateOrderStatus" 
+            data-status="active"
+          >直接开通服务</van-button>
+        </block>
+        <block wx:elif="{{ orderInfo.status === 'contract' }}">
+          <van-button 
+            type="primary" 
+            bind:click="generateContract"
+          >生成合同</van-button>
+          <van-button 
+            type="success" 
+            bind:click="updateOrderStatus" 
+            data-status="active"
+          >确认签约</van-button>
+        </block>
         <block wx:elif="{{ orderInfo.status === 'paid' }}">
           <van-button 
             type="primary" 

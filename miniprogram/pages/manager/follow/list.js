@@ -1,6 +1,7 @@
 // pages/manager/follow/list.js
 const { roleManager } = require('../../../utils/role-manager');
 const { showToast, showLoading, hideLoading } = require('../../../utils/common');
+const { api } = require('../../../utils/api');
 
 Page({
   data: {
@@ -46,15 +47,44 @@ Page({
       status: '', // pending, completed, cancelled
       priority: '', // high, medium, low
       dateRange: ''
-    }
+    },
+    customerId: '',
+    customerName: '',
   },
 
-  onLoad() {
+  onLoad(options) {
+    console.log('进入跟进列表页面', options);
+    // 接收客户参数
+    if (options.customerId) {
+      this.setData({
+        customerId: options.customerId,
+        customerName: options.customerName || ''
+      });
+      if (options.customerName) {
+        wx.setNavigationBarTitle({
+          title: `${options.customerName}的跟进记录`
+        });
+      }
+    }
     this.checkUserPermission();
     this.initData();
   },
 
   onShow() {
+    // tabBar页面：优先从Storage读取筛选参数
+    const filter = wx.getStorageSync('followListFilter');
+    if (filter && filter.customerId) {
+      this.setData({
+        customerId: filter.customerId,
+        customerName: filter.customerName || ''
+      });
+      if (filter.customerName) {
+        wx.setNavigationBarTitle({
+          title: `${filter.customerName}的跟进记录`
+        });
+      }
+      wx.removeStorageSync('followListFilter');
+    }
     this.checkUserPermission();
     this.loadFollowList();
     this.loadStatistics();
@@ -146,26 +176,25 @@ Page({
       const params = {
         page: this.data.page,
         pageSize: this.data.pageSize,
-        tab: this.data.activeTab,
+        status: this.data.activeTab === 'all' ? '' : this.data.activeTab,
         keyword: this.data.searchKeyword,
         sortBy: this.data.sortBy,
         sortOrder: this.data.sortOrder,
         ...this.data.filterConditions
       };
-      
-      // TODO: 替换为实际的API调用
-      const response = await this.mockFollowList(params);
-      
+      // 如果有customerId，带上
+      if (this.data.customerId) {
+        params.customerId = this.data.customerId;
+      }
+      const response = await api.getFollowupList(params);
       const newList = this.data.page === 1 ? response.data.list : [...this.data.followList, ...response.data.list];
-      
       this.setData({
         followList: newList,
-        hasMore: response.data.hasMore,
+        hasMore: (response.data.list && response.data.list.length >= this.data.pageSize),
         totalCount: response.data.total
       });
-      
-      this.updateTabCounts(response.data.tabCounts);
-      
+      // 可选：更新tab统计
+      // this.updateTabCounts(response.data.tabCounts);
     } catch (error) {
       console.error('加载跟进列表失败:', error);
       showToast('加载跟进列表失败', 'error');
@@ -189,12 +218,11 @@ Page({
    */
   async loadStatistics() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockStatistics();
+      const response = await api.getFollowupStatistics();
       this.setData({
-        todayCount: response.data.todayCount,
-        weekCount: response.data.weekCount,
-        overdueCount: response.data.overdueCount
+        todayCount: response.data.todayFollow,
+        weekCount: response.data.weekFollow,
+        overdueCount: response.data.overdueFollow
       });
     } catch (error) {
       console.error('加载统计数据失败:', error);

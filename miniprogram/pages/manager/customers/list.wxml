@@ -101,7 +101,7 @@
           <view class="customer-avatar">
             <image wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill"></image>
             <view wx:else class="avatar-placeholder">
-              <text class="avatar-text">{{item.name.charAt(0)}}</text>
+              <text class="avatar-text">{{item.nameFirstChar}}</text>
             </view>
             <view class="status-indicator {{item.status}}"></view>
           </view>

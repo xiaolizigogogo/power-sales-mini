@@ -17,8 +17,13 @@ Page({
 
   onShow() {
     // 刷新登录状态
+    const userInfo = app.globalData.userInfo;
+    if (userInfo && userInfo.name) {
+      userInfo.nameFirstChar = userInfo.name.charAt(0);
+    }
+    
     this.setData({
-      userInfo: app.globalData.userInfo,
+      userInfo: userInfo,
       userRole: app.globalData.userRole,
       isLogin: app.globalData.isLogin
     });

@@ -1,0 +1,118 @@
+<view class="contract-preview">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-left">
+      <van-icon name="arrow-left" bind:click="goBack" />
+      <text class="header-title">合同预览</text>
+    </view>
+    <view class="header-actions">
+      <van-icon name="share" bind:click="shareContract" />
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{ loading }}">
+    <van-loading type="spinner" color="#1989fa" />
+    <text class="loading-text">加载合同中...</text>
+  </view>
+
+  <!-- 合同内容 -->
+  <view class="contract-content" wx:else>
+    <!-- 合同头部 -->
+    <view class="contract-header">
+      <view class="contract-title">电力服务合同</view>
+      <view class="contract-no">合同编号：{{ contractData.contractNo }}</view>
+    </view>
+
+    <!-- 合同基本信息 -->
+    <view class="contract-info">
+      <view class="info-section">
+        <view class="section-title">合同基本信息</view>
+        <view class="info-item">
+          <text class="label">订单编号：</text>
+          <text class="value">{{ contractData.orderNo }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">客户名称：</text>
+          <text class="value">{{ contractData.customerName }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务地址：</text>
+          <text class="value">{{ contractData.serviceAddress }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务期限：</text>
+          <text class="value">{{ contractData.servicePeriod }}个月</text>
+        </view>
+        <view class="info-item">
+          <text class="label">合同金额：</text>
+          <text class="value highlight">¥{{ contractData.totalAmount }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务开始：</text>
+          <text class="value">{{ contractData.startDate }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务结束：</text>
+          <text class="value">{{ contractData.endDate }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 合同条款 -->
+    <view class="contract-terms">
+      <view class="section-title">合同条款</view>
+      <view class="terms-list">
+        <view 
+          class="term-item"
+          wx:for="{{ contractData.terms }}"
+          wx:key="index"
+        >
+          <text class="term-number">{{ index + 1 }}.</text>
+          <text class="term-content">{{ item }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 签署信息 -->
+    <view class="contract-signature">
+      <view class="section-title">签署信息</view>
+      <view class="signature-info">
+        <view class="signature-item">
+          <text class="label">甲方（客户）：</text>
+          <text class="value">{{ contractData.customerName }}</text>
+          <view class="signature-line"></view>
+        </view>
+        <view class="signature-item">
+          <text class="label">乙方（服务商）：</text>
+          <text class="value">电力销售平台</text>
+          <view class="signature-line"></view>
+        </view>
+        <view class="signature-item">
+          <text class="label">签署日期：</text>
+          <text class="value">{{ contractInfo.generatedAt || '待签署' }}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <van-button 
+      type="default" 
+      size="large" 
+      bind:click="previewContract"
+      wx:if="{{ contractInfo.contractUrl }}"
+    >
+      预览合同
+    </van-button>
+    <van-button 
+      type="primary" 
+      size="large" 
+      bind:click="downloadContract"
+      wx:if="{{ contractInfo.contractUrl }}"
+    >
+      下载合同
+    </van-button>
+  </view>
+</view> 

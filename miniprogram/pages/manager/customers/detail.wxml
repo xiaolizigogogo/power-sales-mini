@@ -14,7 +14,7 @@
       <!-- 头部信息 -->
       <view class="customer-header">
         <view class="customer-avatar">
-          <text class="avatar-text">{{customerInfo.name ? customerInfo.name.charAt(0) : '未'}}</text>
+                        <text class="avatar-text">{{customerInfo.nameFirstChar || '未'}}</text>
         </view>
         <view class="customer-basic">
           <view class="customer-name">{{customerInfo.name}}</view>
@@ -143,6 +143,11 @@
       <!-- 标签页 -->
       <van-tabs active="{{tabIndex}}" bind:change="onTabChange" sticky>
         <van-tab title="跟进记录">
+          <!-- 查看全部跟进记录按钮 -->
+          <view class="view-all-follows" bindtap="onViewAllFollows">
+            <text class="view-all-text">查看全部跟进记录</text>
+            <van-icon name="arrow" size="16px" color="#1890ff" />
+          </view>
           <!-- 跟进记录列表 -->
           <view class="follow-records">
             <view class="follow-list">
@@ -164,7 +169,7 @@
                   </view>
                   
                   <view class="follow-right">
-                    <view class="time-info">
+                    <view class="follow-time-info">
                       <view class="time-row">
                         <van-icon name="clock-o" size="12px" color="#666666" />
                         <text class="time-value">{{item.createdAt}}</text>
@@ -188,6 +193,11 @@
         </van-tab>
         
         <van-tab title="订单记录">
+          <!-- 查看全部订单按钮 -->
+          <view class="view-all-orders" bindtap="onViewAllOrders">
+            <text class="view-all-text">查看全部订单</text>
+            <van-icon name="arrow" size="16px" color="#1890ff" />
+          </view>
           <view class="order-records">
             <view wx:if="{{loadingOrders}}" class="loading">
               <van-loading size="24px" />
@@ -209,18 +219,22 @@
                 
                 <view class="order-content">
                   <view class="product-info">
-                    <text class="product-name">{{item.productName || '未知产品'}}</text>
-                    <text class="product-spec" wx:if="{{item.quantity}}">数量：{{item.quantity}}件</text>
+                    <text class="product-name">{{item.serviceAddress || '未知服务地址'}}</text>
+                    <text class="product-spec">期限：{{item.servicePeriod}}个月</text>
                   </view>
                   
                   <view class="price-info">
-                    <text class="unit-price" wx:if="{{item.unitPrice}}">单价：¥{{item.unitPrice}}</text>
-                    <text class="total-amount">总额：¥{{item.totalAmount || '0.00'}}</text>
+                    <text class="unit-price">单价：¥{{item.unitPrice}}</text>
+                    <text class="total-amount">总额：¥{{item.totalAmount}}</text>
+                  </view>
+                  
+                  <view class="usage-info">
+                    <text class="usage-label">每月用电量：{{item.monthlyUsage}}</text>
                   </view>
                 </view>
                 
                 <view class="order-footer">
-                  <view class="time-info">
+                  <view class="order-time-info">
                     <text class="create-time">创建：{{item.createTime || '未知'}}</text>
                     <text class="delivery-time" wx:if="{{item.deliveryTime}}">交付：{{item.deliveryTime}}</text>
                   </view>
@@ -241,9 +255,99 @@
           </view>
         </van-tab>
         
-        <van-tab title="活动记录">
-          <view class="activity-records">
-            <!-- 活动记录内容 -->
+        <van-tab title="合同记录">
+          <view class="contract-records">
+            <!-- 查看全部合同按钮 -->
+            <view class="view-all-contracts" bindtap="onViewAllContracts">
+              <text class="view-all-text">查看全部合同</text>
+              <van-icon name="arrow" size="16px" color="#1890ff" />
+            </view>
+            
+            <view wx:if="{{loadingContracts}}" class="loading">
+              <van-loading size="24px" />
+              <text>加载合同记录...</text>
+            </view>
+            <view wx:elif="{{contracts.length === 0}}" class="empty-state">
+              <van-empty description="暂无合同记录" />
+            </view>
+            <block wx:else>
+              <view class="contract-item" wx:for="{{contracts}}" wx:key="id">
+                <view class="contract-header">
+                  <text class="contract-no">{{item.contractNo}}</text>
+                  <view class="contract-status-wrapper">
+                    <text class="contract-status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
+                  </view>
+                </view>
+                
+                <view class="contract-content">
+                  <view class="contract-title">{{item.productName}}</view>
+                  
+                  <view class="contract-info">
+                    <view class="info-row">
+                      <text class="info-label">订单编号：</text>
+                      <text class="info-value">{{item.orderNo}}</text>
+                    </view>
+                    <view class="info-row">
+                      <text class="info-label">服务地址：</text>
+                      <text class="info-value">{{item.serviceAddress}}</text>
+                    </view>
+                    <view class="info-row">
+                      <text class="info-label">服务期限：</text>
+                      <text class="info-value">{{item.servicePeriod}}个月</text>
+                    </view>
+                    <view class="info-row">
+                      <text class="info-label">合同金额：</text>
+                      <text class="info-value amount">{{item.amountText}}</text>
+                    </view>
+                  </view>
+                  
+                  <view class="contract-time">
+                    <view class="time-row">
+                      <text class="time-label">创建时间：</text>
+                      <text class="time-value">{{item.createTime}}</text>
+                    </view>
+                    <view class="time-row" wx:if="{{item.signTime}}">
+                      <text class="time-label">签署时间：</text>
+                      <text class="time-value">{{item.signTime}}</text>
+                    </view>
+                    <view class="time-row" wx:if="{{item.completeTime}}">
+                      <text class="time-label">完成时间：</text>
+                      <text class="time-value">{{item.completeTime}}</text>
+                    </view>
+                    <view class="time-row" wx:if="{{item.expireTime}}">
+                      <text class="time-label">过期时间：</text>
+                      <text class="time-value">{{item.expireTime}}</text>
+                    </view>
+                  </view>
+                  
+                  <view class="contract-remark" wx:if="{{item.remarks}}">
+                    <text class="remark-label">备注：</text>
+                    <text class="remark-content">{{item.remarks}}</text>
+                  </view>
+                </view>
+                
+                <view class="contract-footer">
+                  <view class="contract-actions">
+                    <button class="action-btn" size="mini" bindtap="onViewContract" data-id="{{item.id}}">查看详情</button>
+                    <button class="action-btn download" size="mini" bindtap="onDownloadContract" data-id="{{item.id}}" data-contract-no="{{item.contractNo}}">下载</button>
+                    <button 
+                      class="action-btn sign" 
+                      size="mini" 
+                      bindtap="onSignContract" 
+                      data-id="{{item.id}}"
+                      data-contract-no="{{item.contractNo}}"
+                      wx:if="{{item.status === 'pending'}}">
+                      签署
+                    </button>
+                  </view>
+                </view>
+              </view>
+            </block>
+          </view>
+          <!-- 新增合同浮动按钮 -->
+          <view class="float-button contract" bindtap="onCreateContract">
+            <text class="icon">+</text>
+            <text>创建合同</text>
           </view>
         </van-tab>
       </van-tabs>
@@ -259,6 +363,7 @@
       />
       
       <!-- 订单记录 -->
+      <!--
       <view wx:if="{{tabIndex === 1}}" class="order-records">
         <view wx:if="{{loadingOrders}}" class="loading">
           <van-loading size="24px" />
@@ -291,30 +396,9 @@
           </view>
         </view>
       </view>
+      -->
       
-      <!-- 活动记录 -->
-      <view wx:if="{{tabIndex === 2}}" class="activity-records">
-        <view wx:if="{{activities.length === 0}}" class="empty-state">
-          <van-empty description="暂无活动记录" />
-        </view>
-        <view wx:else class="activity-list">
-          <view wx:for="{{activities}}" wx:key="id" class="activity-item">
-            <view class="activity-icon {{item.type}}">
-              <text class="icon-text">
-                {{item.type === 'follow' ? '📝' : item.type === 'order' ? '📋' : item.type === 'status' ? '🔄' : '📌'}}
-              </text>
-            </view>
-            <view class="activity-content">
-              <view class="activity-title">{{item.title}}</view>
-              <view class="activity-desc">{{item.content}}</view>
-              <view class="activity-meta">
-                <text class="activity-user">{{item.user}}</text>
-                <text class="activity-time">{{formatTime(item.createTime)}}</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
+
     </view>
     
     <!-- 更多菜单 -->

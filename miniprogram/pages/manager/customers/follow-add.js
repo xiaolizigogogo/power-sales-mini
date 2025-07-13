@@ -85,9 +85,22 @@ Page({
     try {
       this.setData({ submitting: true })
 
+      // 安全获取用户信息
+      const userInfo = wx.getStorageSync('userInfo');
+      const employeeId = userInfo && userInfo.id ? userInfo.id : 
+                        (userInfo && userInfo.data && userInfo.data.id ? userInfo.data.id : null);
+      
+      if (!employeeId) {
+        wx.showToast({
+          title: '无法获取用户信息',
+          icon: 'none'
+        });
+        return;
+      }
+      
       const followData = {
         userId: customerId,
-        employeeId: wx.getStorageSync('userInfo').data.id,
+        employeeId: employeeId,
         content: newFollowContent.trim(),
         followType: newFollowType,
         priority: newFollowPriority,

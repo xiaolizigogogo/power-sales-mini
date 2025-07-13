@@ -30,8 +30,16 @@ Page({
       { value: 'low', label: '低优先级', color: '#52c41a' }
     ],
     commonTags: [
-      '产品咨询', '价格议价', '技术支持', '售后服务', '合同签订',
-      '需求确认', '方案讨论', '竞品分析', '客户拜访', '关系维护'
+      { text: '产品咨询', isSelected: false },
+      { text: '价格议价', isSelected: false },
+      { text: '技术支持', isSelected: false },
+      { text: '售后服务', isSelected: false },
+      { text: '合同签订', isSelected: false },
+      { text: '需求确认', isSelected: false },
+      { text: '方案讨论', isSelected: false },
+      { text: '竞品分析', isSelected: false },
+      { text: '客户拜访', isSelected: false },
+      { text: '关系维护', isSelected: false }
     ],
     newTag: '',
     showTagInput: false,
@@ -74,6 +82,11 @@ Page({
         phone: '13812345678',
         status: 'interested'
       };
+      
+      // 添加nameFirstChar属性
+      if (customerInfo.name) {
+        customerInfo.nameFirstChar = customerInfo.name.charAt(0);
+      }
       
       this.setData({ customerInfo });
     } catch (error) {
@@ -164,18 +177,26 @@ Page({
   // 添加标签
   onAddTag(e) {
     const { tag } = e.currentTarget.dataset;
-    const { followForm } = this.data;
+    const { followForm, commonTags } = this.data;
+    
+    // 更新标签选中状态
+    const updatedCommonTags = commonTags.map(item => ({
+      ...item,
+      isSelected: item.text === tag ? !item.isSelected : item.isSelected
+    }));
     
     if (followForm.tags.includes(tag)) {
       // 移除标签
       const newTags = followForm.tags.filter(t => t !== tag);
       this.setData({
-        'followForm.tags': newTags
+        'followForm.tags': newTags,
+        commonTags: updatedCommonTags
       });
     } else {
       // 添加标签
       this.setData({
-        'followForm.tags': [...followForm.tags, tag]
+        'followForm.tags': [...followForm.tags, tag],
+        commonTags: updatedCommonTags
       });
     }
   },

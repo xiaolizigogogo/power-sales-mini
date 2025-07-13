@@ -144,7 +144,15 @@ Page({
       dailyTarget: 0,
       predictedCompletion: 0
     },
-    chartData: []
+    chartData: [],
+    
+    // 计算属性
+    revenueTrendAbs: 0,
+    ordersTrendAbs: 0,
+    customersTrendAbs: 0,
+    conversionTrendAbs: 0,
+    completionRateWidth: 0,
+    myRankingCompletionRateWidth: 0
   },
 
   onLoad(options) {
@@ -526,6 +534,7 @@ Page({
       console.error('初始化页面数据失败:', error);
     } finally {
       this.setData({ loading: false });
+      this.updateComputedValues();
     }
   },
 
@@ -872,5 +881,26 @@ Page({
       'cancelled': 'danger'
     };
     return typeMap[status] || 'default';
+  },
+
+  // 更新计算属性
+  updateComputedValues() {
+    const { performanceData, rankingList, myRanking } = this.data;
+    
+    // 处理排行榜数据的completionRateWidth
+    const processedRankingList = rankingList.map(item => ({
+      ...item,
+      completionRateWidth: Math.min(item.completionRate || 0, 100)
+    }));
+    
+    this.setData({
+      revenueTrendAbs: Math.abs(performanceData.revenueTrend || 0),
+      ordersTrendAbs: Math.abs(performanceData.ordersTrend || 0),
+      customersTrendAbs: Math.abs(performanceData.customersTrend || 0),
+      conversionTrendAbs: Math.abs(performanceData.conversionTrend || 0),
+      completionRateWidth: Math.min(performanceData.completionRate || 0, 100),
+      myRankingCompletionRateWidth: myRanking ? Math.min(myRanking.completionRate || 0, 100) : 0,
+      rankingList: processedRankingList
+    });
   }
 }); 

@@ -65,7 +65,7 @@
           </view>
           <view class="stat-trend {{performanceData.revenueTrend >= 0 ? 'up' : 'down'}}">
             <van-icon name="{{performanceData.revenueTrend >= 0 ? 'arrow-up' : 'arrow-down'}}" />
-            <text>{{Math.abs(performanceData.revenueTrend)}}%</text>
+            <text>{{revenueTrendAbs}}%</text>
           </view>
         </view>
         <view class="stat-content">
@@ -81,7 +81,7 @@
           </view>
           <view class="stat-trend {{performanceData.ordersTrend >= 0 ? 'up' : 'down'}}">
             <van-icon name="{{performanceData.ordersTrend >= 0 ? 'arrow-up' : 'arrow-down'}}" />
-            <text>{{Math.abs(performanceData.ordersTrend)}}%</text>
+            <text>{{ordersTrendAbs}}%</text>
           </view>
         </view>
         <view class="stat-content">
@@ -97,7 +97,7 @@
           </view>
           <view class="stat-trend {{performanceData.customersTrend >= 0 ? 'up' : 'down'}}">
             <van-icon name="{{performanceData.customersTrend >= 0 ? 'arrow-up' : 'arrow-down'}}" />
-            <text>{{Math.abs(performanceData.customersTrend)}}%</text>
+            <text>{{customersTrendAbs}}%</text>
           </view>
         </view>
         <view class="stat-content">
@@ -113,7 +113,7 @@
           </view>
           <view class="stat-trend {{performanceData.conversionTrend >= 0 ? 'up' : 'down'}}">
             <van-icon name="{{performanceData.conversionTrend >= 0 ? 'arrow-up' : 'arrow-down'}}" />
-            <text>{{Math.abs(performanceData.conversionTrend)}}%</text>
+            <text>{{conversionTrendAbs}}%</text>
           </view>
         </view>
         <view class="stat-content">
@@ -148,7 +148,7 @@
       <view class="progress-bar">
         <view 
           class="progress-fill"
-          style="width: {{Math.min(performanceData.completionRate, 100)}}%"
+          style="width: {{completionRateWidth}}%"
         ></view>
       </view>
       
@@ -277,7 +277,7 @@
           <view class="progress-mini">
             <view 
               class="progress-mini-fill"
-              style="width: {{Math.min(item.completionRate, 100)}}%"
+              style="width: {{item.completionRateWidth}}%"
             ></view>
           </view>
         </view>
@@ -309,7 +309,7 @@
           <view class="progress-mini">
             <view 
               class="progress-mini-fill"
-              style="width: {{Math.min(myRanking.completionRate, 100)}}%"
+              style="width: {{myRankingCompletionRateWidth}}%"
             ></view>
           </view>
         </view>

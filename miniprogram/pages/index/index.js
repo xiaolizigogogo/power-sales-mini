@@ -1,4 +1,3 @@
-const { authAPI } = require('../../utils/api')
 const { roleManager } = require('../../utils/role-manager')
 
 Page({
@@ -102,6 +101,7 @@ Page({
   // 刷新用户信息
   async refreshUserInfo() {
     try {
+      const { authAPI } = require('../../utils/api')
       const userInfo = await authAPI.getUserInfo()
       console.log('获取用户信息成功:', userInfo)
       
@@ -128,6 +128,7 @@ Page({
   async loadStatistics() {
     try {
       // 获取用户统计数据
+      const { authAPI } = require('../../utils/api')
       const stats = await authAPI.getUserStats();
       console.log('用户统计数据:', stats);
 

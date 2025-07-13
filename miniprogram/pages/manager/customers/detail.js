@@ -24,10 +24,11 @@ Page({
     customerInfo: {},
     followRecords: [],
     orders: [],
-    activities: [],
+    contracts: [], // 改为合同列表
     loading: true,
     loadingFollows: false,
     loadingOrders: false,
+    loadingContracts: false, // 添加合同加载状态
     showMoreMenu: false,
     showStatusModal: false,
     showFollowModal: false,
@@ -54,7 +55,15 @@ Page({
       { value: 'signed', label: '已签约', color: '#52c41a' },
       { value: 'lost', label: '已流失', color: '#ff4d4f' }
     ],
-    tabIndex: 0, // 0: 跟进记录, 1: 订单记录, 2: 活动记录
+    // 合同状态配置
+    contractStatusConfig: {
+      'pending': { text: '待签署', color: '#faad14' },
+      'signed': { text: '已签署', color: '#52c41a' },
+      'completed': { text: '已完成', color: '#52c41a' },
+      'expired': { text: '已过期', color: '#ff4d4f' },
+      'cancelled': { text: '已取消', color: '#ff4d4f' }
+    },
+    tabIndex: 0, // 0: 跟进记录, 1: 订单记录, 2: 合同记录
     refreshing: false
   },
 
@@ -65,7 +74,7 @@ Page({
     this.loadCustomerInfo();
     this.loadFollowRecords();
     this.loadOrders();
-    this.loadActivities();
+    this.loadContracts(); // 改为加载合同
   },
 
   onShow: function () {
@@ -81,7 +90,7 @@ Page({
       this.loadCustomerInfo(),
       this.loadFollowRecords(),
       this.loadOrders(),
-      this.loadActivities()
+      this.loadContracts() // 改为加载合同
     ]).finally(() => {
       this.setData({ refreshing: false });
       wx.stopPullDownRefresh();
@@ -116,6 +125,11 @@ Page({
         remark: '该客户对我们的产品很感兴趣，已经进行了多次沟通，预计本月可以签约。'
       };
       
+      // 添加nameFirstChar属性
+      if (customerInfo.name) {
+        customerInfo.nameFirstChar = customerInfo.name.charAt(0);
+      }
+      
       this.setData({
         customerInfo,
         loading: false
@@ -135,7 +149,20 @@ Page({
     try {
       this.setData({ loadingFollows: true });
       
-      const employeeId = wx.getStorageSync('userInfo').data.id;
+      // 安全获取用户信息
+      const userInfo = wx.getStorageSync('userInfo');
+      const employeeId = userInfo && userInfo.id ? userInfo.id : 
+                        (userInfo && userInfo.data && userInfo.data.id ? userInfo.data.id : null);
+      
+      if (!employeeId) {
+        console.warn('无法获取员工ID，跳过加载跟进记录');
+        this.setData({ 
+          followRecords: [],
+          loadingFollows: false 
+        });
+        return;
+      }
+      
       const res = await apiService.get(`/customers/${this.data.customerId}/follows`, {
         page: 1,
         pageSize: 50
@@ -175,27 +202,26 @@ Page({
       
       if (res.code === 200) {
         const orders = res.data.records.map(order => {
-          // 保留原始状态，不做映射转换
           const status = order.status || 'pending';
           return {
             ...order,
+            // 字段映射，保证前端展示字段有值
+            serviceAddress: order.serviceAddress || '',
+            servicePeriod: order.servicePeriod || '',
+            unitPrice: order.amount ? order.amount.toFixed(2) : '0.00',
+            totalAmount: order.amount ? order.amount.toFixed(2) : '0.00',
+            monthlyUsage: order.specialRequirements || '0', // 每月用电量，暂时用 specialRequirements 字段
+            createTime: formatDateTime(order.createdAt),
             statusText: this.getOrderStatusText(status),
             statusDesc: this.getOrderStatusDesc(status),
             statusColor: this.getOrderStatusColor(status),
-            createTime: formatDateTime(order.createTime),
-            deliveryTime: formatDateTime(order.deliveryTime),
-            // 计算单价
-            unitPrice: order.quantity > 0 ? (order.totalAmount / order.quantity).toFixed(2) : '0.00',
-            // 格式化金额
-            totalAmount: order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'
+            // 不再映射 productName，不展示交付时间
           };
         });
-        
         this.setData({
           orders,
           loadingOrders: false
         });
-
         console.log('订单数据:', orders);
       }
     } catch (error) {
@@ -262,41 +288,176 @@ Page({
     return statusColorMap[status] || '#999999';
   },
 
-  // 加载活动记录
-  async loadActivities() {
+  // 加载合同记录
+  async loadContracts() {
     try {
-      // 模拟API调用
-      const activities = [
+      this.setData({ loadingContracts: true });
+      // 获取当前登录人id
+      const userInfo = wx.getStorageSync('userInfo');
+      const managerId = userInfo && userInfo.id ? userInfo.id : (userInfo && userInfo.data && userInfo.data.id ? userInfo.data.id : null);
+      // 调用合同API - 更新为经理端接口
+      const res = await apiService.get(`/manager/customers/${this.data.customerId}/contracts`, {
+        page: 1,
+        pageSize: 50,
+        managerId // 新增managerId参数
+      });
+      
+      if (res.code === 200) {
+        const contracts = res.data.records.map(contract => {
+          const status = contract.status || 'pending';
+          return {
+            ...contract,
+            // 根据PostgreSQL表结构映射字段
+            contractNo: contract.contract_no,
+            orderNo: contract.order_no,
+            orderId: contract.order_id,
+            customerId: contract.customer_id,
+            customerName: contract.customer_name,
+            productName: contract.product_name,
+            servicePeriod: contract.service_period,
+            amount: contract.amount,
+            status: status,
+            serviceAddress: contract.service_address,
+            contractUrl: contract.contract_url,
+            signedFileUrl: contract.signed_file_url,
+            signedFileName: contract.signed_file_name,
+            remarks: contract.remarks,
+            signedAt: contract.signed_at,
+            signedBy: contract.signed_by,
+            completedAt: contract.completed_at,
+            completedBy: contract.completed_by,
+            expireAt: contract.expire_at,
+            createdAt: contract.created_at,
+            updatedAt: contract.updated_at,
+            // 格式化显示字段
+            createTime: formatDateTime(contract.created_at),
+            signTime: formatDateTime(contract.signed_at),
+            completeTime: formatDateTime(contract.completed_at),
+            expireTime: formatDateTime(contract.expire_at),
+            statusText: this.getContractStatusText(status),
+            statusColor: this.getContractStatusColor(status),
+            amountText: this.formatMoney(contract.amount || 0)
+          };
+        });
+        
+        this.setData({
+          contracts,
+          loadingContracts: false
+        });
+      }
+    } catch (error) {
+      console.error('加载合同记录失败:', error);
+      this.setData({ loadingContracts: false });
+      
+      // 使用模拟数据，基于PostgreSQL表结构
+      const mockContracts = [
         {
           id: 1,
-          type: 'follow',
-          title: '添加了跟进记录',
-          content: '电话沟通产品需求',
-          createTime: '2024-07-01 14:20:00',
-          user: '李经理'
+          contractNo: 'CONTRACT_2025001',
+          orderNo: 'ORDER_2025001',
+          orderId: 1,
+          customerId: this.data.customerId,
+          customerName: this.data.customerInfo.name || '测试企业',
+          productName: '企业电力优化服务',
+          servicePeriod: 12,
+          amount: 50000.00,
+          status: 'pending',
+          statusText: '待签署',
+          statusColor: '#faad14',
+          amountText: '¥50,000.00',
+          serviceAddress: '北京市朝阳区测试地址',
+          contractUrl: 'https://example.com/contracts/CONTRACT_2025001.pdf',
+          remarks: '测试合同',
+          createTime: '2025-01-15 10:30:00',
+          signTime: '',
+          completeTime: '',
+          expireTime: '2026-01-15 10:30:00'
         },
         {
           id: 2,
-          type: 'order',
-          title: '创建了新订单',
-          content: '订单号：ORD202407001',
-          createTime: '2024-06-15 10:00:00',
-          user: '李经理'
+          contractNo: 'CONTRACT_2025002',
+          orderNo: 'ORDER_2025002',
+          orderId: 2,
+          customerId: this.data.customerId,
+          customerName: this.data.customerInfo.name || '测试企业',
+          productName: '工业用电优化方案',
+          servicePeriod: 24,
+          amount: 120000.00,
+          status: 'signed',
+          statusText: '已签署',
+          statusColor: '#52c41a',
+          amountText: '¥120,000.00',
+          serviceAddress: '上海市浦东新区测试地址',
+          contractUrl: 'https://example.com/contracts/CONTRACT_2025002.pdf',
+          signedFileUrl: 'https://example.com/signed/CONTRACT_2025002_signed.pdf',
+          signedFileName: 'CONTRACT_2025002_signed.pdf',
+          remarks: '已签署的测试合同',
+          createTime: '2025-01-10 09:15:00',
+          signTime: '2025-01-12 14:20:00',
+          completeTime: '',
+          expireTime: '2027-01-10 09:15:00'
         },
         {
           id: 3,
-          type: 'status',
-          title: '更新了客户状态',
-          content: '从"已联系"更新为"有意向"',
-          createTime: '2024-06-10 16:00:00',
-          user: '李经理'
+          contractNo: 'CONTRACT_2025003',
+          orderNo: 'ORDER_2025003',
+          orderId: 3,
+          customerId: this.data.customerId,
+          customerName: this.data.customerInfo.name || '测试企业',
+          productName: '商业用电管理服务',
+          servicePeriod: 6,
+          amount: 30000.00,
+          status: 'completed',
+          statusText: '已完成',
+          statusColor: '#52c41a',
+          amountText: '¥30,000.00',
+          serviceAddress: '广州市天河区测试地址',
+          contractUrl: 'https://example.com/contracts/CONTRACT_2025003.pdf',
+          signedFileUrl: 'https://example.com/signed/CONTRACT_2025003_signed.pdf',
+          signedFileName: 'CONTRACT_2025003_signed.pdf',
+          remarks: '已完成的测试合同',
+          createTime: '2024-12-20 16:30:00',
+          signTime: '2024-12-25 10:15:00',
+          completeTime: '2025-06-20 16:30:00',
+          expireTime: '2025-06-20 16:30:00'
         }
       ];
       
-      this.setData({ activities });
-    } catch (error) {
-      console.error('加载活动记录失败:', error);
+      this.setData({
+        contracts: mockContracts,
+        loadingContracts: false
+      });
     }
+  },
+
+  // 获取合同状态文本
+  getContractStatusText(status) {
+    const statusMap = {
+      'pending': '待签署',
+      'signed': '已签署',
+      'completed': '已完成',
+      'expired': '已过期',
+      'cancelled': '已取消'
+    };
+    return statusMap[status] || status;
+  },
+
+  // 获取合同状态颜色
+  getContractStatusColor(status) {
+    const statusColorMap = {
+      'pending': '#faad14',
+      'signed': '#52c41a',
+      'completed': '#52c41a',
+      'expired': '#ff4d4f',
+      'cancelled': '#ff4d4f'
+    };
+    return statusColorMap[status] || '#999999';
+  },
+
+  // 格式化金额
+  formatMoney(amount) {
+    if (!amount) return '¥0';
+    return '¥' + amount.toLocaleString('zh-CN');
   },
 
   // Tab切换事件
@@ -394,7 +555,7 @@ Page({
       });
       
       // 刷新活动记录
-      this.loadActivities();
+      // this.loadActivities(); // 移除此行，因为活动记录已改为合同记录
     } catch (error) {
       console.error('更新状态失败:', error);
       wx.showToast({
@@ -515,5 +676,125 @@ Page({
     const hour = String(date.getHours()).padStart(2, '0')
     const minute = String(date.getMinutes()).padStart(2, '0')
     return `${year}-${month}-${day} ${hour}:${minute}`
+  },
+
+  // 查看合同详情
+  onViewContract(e) {
+    const contractId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: `/pages/manager/contracts/detail?id=${contractId}`
+    });
+  },
+
+  // 创建新合同
+  onCreateContract() {
+    wx.navigateTo({
+      url: `/pages/manager/contracts/create?customerId=${this.data.customerId}&customerName=${this.data.customerInfo.name}`
+    });
+  },
+
+  // 查看全部合同
+  onViewAllContracts() {
+    wx.navigateTo({
+      url: `/pages/manager/customers/contracts?customerId=${this.data.customerId}&customerName=${this.data.customerInfo.name}`
+    });
+  },
+
+  // 下载合同文件
+  onDownloadContract(e) {
+    const contractId = e.currentTarget.dataset.id;
+    const contractNo = e.currentTarget.dataset.contractNo;
+    
+    wx.showLoading({
+      title: '下载中...',
+      mask: true
+    });
+    
+    // 模拟下载过程
+    setTimeout(() => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '下载成功',
+        icon: 'success'
+      });
+    }, 2000);
+  },
+
+  // 签署合同
+  onSignContract(e) {
+    const contractId = e.currentTarget.dataset.id;
+    const contractNo = e.currentTarget.dataset.contractNo;
+    
+    wx.showModal({
+      title: '确认签署',
+      content: `确定要签署合同 ${contractNo} 吗？`,
+      success: (res) => {
+        if (res.confirm) {
+          this.signContract(contractId);
+        }
+      }
+    });
+  },
+
+  // 签署合同API调用
+  async signContract(contractId) {
+    try {
+      wx.showLoading({
+        title: '签署中...',
+        mask: true
+      });
+      
+      // 获取当前用户信息
+      const userInfo = wx.getStorageSync('userInfo');
+      const signedBy = userInfo && userInfo.id ? userInfo.id : 
+                      (userInfo && userInfo.data && userInfo.data.id ? userInfo.data.id : null);
+      
+      const res = await apiService.put(`/manager/contracts/${contractId}/sign`, {
+        signed_at: new Date().toISOString(),
+        signed_by: signedBy
+      });
+      
+      if (res.code === 200) {
+        wx.showToast({
+          title: '签署成功',
+          icon: 'success'
+        });
+        
+        // 重新加载合同列表
+        await this.loadContracts();
+      }
+    } catch (error) {
+      console.error('签署合同失败:', error);
+      wx.showToast({
+        title: '签署失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 查看全部跟进记录
+  onViewAllFollows() {
+    console.log('点击了 查看全部跟进记录', this.data.customerId, this.data.customerInfo.name);
+    wx.setStorageSync('followListFilter', {
+      customerId: this.data.customerId,
+      customerName: this.data.customerInfo.name
+    });
+    wx.switchTab({
+      url: '/pages/manager/follow/list'
+    });
+  },
+
+  // 查看全部订单
+  onViewAllOrders() {
+    console.log('点击了 查看全部订单', this.data.customerId, this.data.customerInfo.name);
+    wx.setStorageSync('orderListFilter', {
+      customerId: this.data.customerId,
+      customerName: this.data.customerInfo.name
+    });
+    wx.switchTab({
+      url: '/pages/orders/index/index'
+    });
   }
 }); 

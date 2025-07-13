@@ -1,6 +1,7 @@
 // pages/manager/performance/index.js
 const { roleManager } = require('../../../utils/role-manager');
 const { showToast, showLoading, hideLoading } = require('../../../utils/common');
+const { api } = require('../../../utils/api');
 
 Page({
   data: {
@@ -160,8 +161,7 @@ Page({
    */
   async loadPersonalPerformance() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockPersonalPerformance();
+      const response = await api.getPersonalPerformance({ period: this.data.selectedPeriod });
       this.setData({
         personalPerformance: response.data
       });
@@ -175,8 +175,7 @@ Page({
    */
   async loadMonthlyTarget() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockMonthlyTarget();
+      const response = await api.getMonthlyTarget({ period: this.data.selectedPeriod });
       this.setData({
         monthlyTarget: response.data
       });
@@ -190,8 +189,7 @@ Page({
    */
   async loadPerformanceBreakdown() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockPerformanceBreakdown();
+      const response = await api.getPerformanceBreakdown({ period: this.data.selectedPeriod });
       this.setData({
         performanceBreakdown: response.data
       });
@@ -205,8 +203,7 @@ Page({
    */
   async loadTrendData() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockTrendData();
+      const response = await api.getTrendData({ period: this.data.selectedPeriod });
       this.setData({
         trendData: response.data
       });
@@ -220,8 +217,7 @@ Page({
    */
   async loadTeamRanking() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockTeamRanking();
+      const response = await api.getTeamRanking({ period: this.data.selectedPeriod });
       this.setData({
         teamRanking: response.data
       });
@@ -235,8 +231,7 @@ Page({
    */
   async loadPerformanceAnalysis() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockPerformanceAnalysis();
+      const response = await api.getPerformanceAnalysis({ period: this.data.selectedPeriod });
       this.setData({
         performanceAnalysis: response.data
       });

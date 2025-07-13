@@ -1,4 +1,4 @@
-const { api } = require('../../../utils/api');
+const { api, apiService } = require('../../../utils/api');
 const util = require('../../../utils/common');
 const app = getApp();
 
@@ -25,10 +25,11 @@ Page({
     // 订单状态流程配置
     statusFlow: [
       { key: 'pending', name: '待确认', icon: 'pending' },
-      { key: 'confirmed', name: '商务洽谈', icon: 'chat' },
+      { key: 'negotiating', name: '商务洽谈', icon: 'chat' },
+      { key: 'confirmed', name: '已确认', icon: 'success' },
       { key: 'contract', name: '合同签署', icon: 'contract' },
-      { key: 'service', name: '服务开通', icon: 'service' },
-      { key: 'completed', name: '服务中', icon: 'completed' }
+      { key: 'active', name: '服务中', icon: 'service' },
+      { key: 'completed', name: '已完成', icon: 'completed' }
     ],
 
     // 服务数据
@@ -85,8 +86,10 @@ Page({
       'pending': '待处理',
       'negotiating': '商务洽谈中',
       'confirmed': '已确认',
+      'contract': '待签约',
       'paid': '已支付',
       'service': '服务中',
+      'active': '服务中',
       'completed': '已完成',
       'cancelled': '已取消',
       'rejected': '已拒绝'
@@ -872,15 +875,15 @@ Page({
         uploadedFiles.push(res.data)
       }
 
-      // 提交洽谈记录
-      await app.request({
-        url: `/orders/${this.data.orderInfo.id}/negotiations`,
-        method: 'POST',
-        data: {
-          content,
-          files: uploadedFiles
-        }
+      // 提交洽谈记录 - 使用 manager 接口
+      const res = await apiService.post(`/manager/orders/${this.data.orderInfo.id}/negotiations`, {
+        content,
+        files: uploadedFiles
       })
+      
+      if (res.code !== 200) {
+        throw new Error(res.message || '提交失败')
+      }
 
       wx.showToast({
         title: '提交成功',
@@ -907,19 +910,20 @@ Page({
     const { status } = e.currentTarget.dataset
     
     try {
-      await app.request({
-        url: `/orders/${this.data.orderInfo.id}/status`,
-        method: 'PUT',
-        data: { status }
-      })
+      // 使用 manager 接口更新订单状态
+      const res = await apiService.put(`/manager/orders/${this.data.orderInfo.id}/status`, { status })
+      
+      if (res.code === 200) {
+        wx.showToast({
+          title: '更新成功',
+          icon: 'success'
+        })
 
-      wx.showToast({
-        title: '更新成功',
-        icon: 'success'
-      })
-
-      // 重新加载订单详情
-      this.loadOrderDetail()
+        // 重新加载订单详情
+        this.loadOrderDetail()
+      } else {
+        throw new Error(res.message || '更新失败')
+      }
 
     } catch (error) {
       console.error('更新订单状态失败:', error)
@@ -1074,6 +1078,43 @@ Page({
     } catch (error) {
       console.error('开通服务失败:', error);
       wx.showToast({ title: '开通失败', icon: 'error' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 生成合同
+  async generateContract() {
+    try {
+      wx.showLoading({ title: '生成合同中' });
+      
+      // 这里调用生成合同的API
+      const res = await apiService.post(`/manager/orders/${this.data.orderInfo.id}/contract`, {
+        type: 'standard',
+        generateDate: new Date().toISOString()
+      });
+      
+      if (res.code === 200) {
+        wx.showToast({ 
+          title: '合同生成成功', 
+          icon: 'success' 
+        });
+        
+        // 可以跳转到合同预览页面
+        setTimeout(() => {
+          wx.navigateTo({
+            url: `/pages/contract/preview?orderId=${this.data.orderInfo.id}`
+          });
+        }, 1500);
+      } else {
+        throw new Error(res.message || '生成合同失败');
+      }
+    } catch (error) {
+      console.error('生成合同失败:', error);
+      wx.showToast({ 
+        title: error.message || '生成合同失败', 
+        icon: 'none' 
+      });
     } finally {
       wx.hideLoading();
     }

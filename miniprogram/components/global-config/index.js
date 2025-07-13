@@ -1,7 +1,7 @@
 // 全局配置组件
-const api = require('../../utils/api.js')
-const storage = require('../../utils/storage.js')
-const common = require('../../utils/common.js')
+const api = require('../../utils/api')
+const storage = require('../../utils/storage')
+const common = require('../../utils/common')
 
 Component({
   properties: {},

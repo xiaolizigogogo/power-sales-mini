@@ -1,0 +1,67 @@
+<view class="test-container">
+  <view class="header">
+    <text class="title">合同列表API测试</text>
+    <button class="retest-btn" bindtap="onRetestTap" disabled="{{loading}}">
+      {{loading ? '测试中...' : '重新测试'}}
+    </button>
+  </view>
+
+  <view class="results">
+    <block wx:for="{{testResults}}" wx:key="test">
+      <view class="result-item {{item.status}}">
+        <view class="result-header">
+          <text class="result-title">{{item.test}}</text>
+          <text class="result-status">{{item.status === 'success' ? '✅' : '❌'}}</text>
+        </view>
+        <view class="result-content">
+          <text wx:if="{{item.data}}">{{item.data}}</text>
+          <text wx:if="{{item.error}}" class="error">{{item.error}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 合同列表展示 -->
+  <view class="contracts-section" wx:if="{{contracts.length > 0}}">
+    <view class="section-title">合同列表</view>
+    <view class="contract-list">
+      <view class="contract-item" wx:for="{{contracts}}" wx:key="id">
+        <view class="contract-header">
+          <text class="contract-no">{{item.contract_no}}</text>
+          <text class="contract-status" style="color: {{item.status === 'pending' ? '#faad14' : item.status === 'signed' ? '#52c41a' : '#666'}}">
+            {{item.status === 'pending' ? '待签署' : item.status === 'signed' ? '已签署' : item.status}}
+          </text>
+        </view>
+        
+        <view class="contract-content">
+          <view class="contract-title">{{item.product_name}}</view>
+          <view class="contract-info">
+            <text class="info-item">订单号: {{item.order_no}}</text>
+            <text class="info-item">金额: ¥{{item.amount}}</text>
+            <text class="info-item">期限: {{item.service_period}}个月</text>
+          </view>
+          <view class="contract-address" wx:if="{{item.service_address}}">
+            服务地址: {{item.service_address}}
+          </view>
+        </view>
+        
+        <view class="contract-actions">
+          <button class="action-btn" size="mini" bindtap="onViewContract" data-id="{{item.id}}">查看详情</button>
+          <button 
+            class="action-btn sign" 
+            size="mini" 
+            bindtap="onSignContract" 
+            data-id="{{item.id}}"
+            data-contract-no="{{item.contract_no}}"
+            wx:if="{{item.status === 'pending'}}">
+            签署
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">
+    <text>正在测试API...</text>
+  </view>
+</view> 

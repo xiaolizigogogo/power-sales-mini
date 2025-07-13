@@ -47,6 +47,9 @@ class ApiService {
 
   // 基础请求方法
   request(options) {
+    console.log('=== apiService.request 被调用 ===')
+    console.log('请求选项:', options)
+    
     return new Promise((resolve, reject) => {
       // 添加 loading
       if (options.showLoading !== false) {
@@ -136,7 +139,19 @@ class ApiService {
         },
         fail: (err) => {
           hideLoading()
-          const message = err.errMsg || '网络请求失败'
+          console.error('网络请求失败详情:', err)
+          
+          let message = '网络请求失败'
+          if (err.errMsg) {
+            if (err.errMsg.includes('Failed to fetch')) {
+              message = '无法连接到服务器，请检查网络连接或联系管理员'
+            } else if (err.errMsg.includes('timeout')) {
+              message = '请求超时，请稍后重试'
+            } else {
+              message = err.errMsg
+            }
+          }
+          
           if (options.showError !== false) {
             showToast(message, 'error')
           }
@@ -163,6 +178,11 @@ class ApiService {
 
   // POST 请求
   post(url, data = {}, options = {}) {
+    console.log('=== apiService.post 被调用 ===')
+    console.log('URL:', url)
+    console.log('数据:', data)
+    console.log('选项:', options)
+    
     return this.request({
       url,
       method: 'POST',
@@ -198,6 +218,7 @@ const apiService = new ApiService()
 const authAPI = {
   // 微信登录 - 新版本支持用户类型
   wechatLogin: async (request) => {
+    console.log('=== authAPI.wechatLogin 被调用 ===')
     console.log('发起微信登录请求:', request)
     
     // 兼容新旧调用方式
@@ -225,6 +246,7 @@ const authAPI = {
     console.log('loginType值: customer(普通客户) 或 manager(客户经理)');
     console.log('=== 微信登录数据结构结束 ===');
     
+    console.log('准备调用 apiService.post...')
     const response = await apiService.post('/auth/wechat-login', loginData, {
       showError: false
     });
@@ -860,6 +882,36 @@ const customerAPI = {
   // 客户经理专用 - 删除客户
   async deleteMyCustomer(id) {
     return apiService.delete(`/manager/customers/${id}`)
+  },
+  
+  // 客户经理专用 - 获取用户合同列表
+  async getUserContracts(userId, params = {}) {
+    return apiService.get(`/manager/customers/${userId}/contracts`, params)
+  },
+
+  // 客户经理专用 - 获取今日统计数据
+  async getManagerTodayStats() {
+    return apiService.get('/manager/stats/today');
+  },
+  // 客户经理专用 - 获取本周统计数据
+  async getManagerWeeklyStats() {
+    return apiService.get('/manager/stats/weekly');
+  },
+  // 客户经理专用 - 获取最近跟进记录
+  async getManagerRecentFollowUps() {
+    return apiService.get('/manager/followups/recent');
+  },
+  // 客户经理专用 - 获取即将到期提醒
+  async getManagerUpcomingReminders() {
+    return apiService.get('/manager/reminders/upcoming');
+  },
+  // 客户经理专用 - 获取本月业绩进度
+  async getManagerMonthlyPerformance() {
+    return apiService.get('/manager/performance/monthly');
+  },
+  // 客户经理专用 - 订单列表
+  async getManagerOrderList(params = {}) {
+    return apiService.get('/manager/orders', params);
   }
 }
 
@@ -991,6 +1043,25 @@ const performanceAPI = {
   // 获取跟进效率
   getFollowEfficiency: (params) => {
     return apiService.get('/manager/performance/follow-efficiency', params)
+  },
+  // 业绩相关接口
+  async getPersonalPerformance(params = {}) {
+    return apiService.get('/manager/performance/overview', params);
+  },
+  async getMonthlyTarget(params = {}) {
+    return apiService.get('/manager/performance/monthly-target', params);
+  },
+  async getPerformanceBreakdown(params = {}) {
+    return apiService.get('/manager/performance/breakdown', params);
+  },
+  async getTrendData(params = {}) {
+    return apiService.get('/manager/performance/trend', params);
+  },
+  async getTeamRanking(params = {}) {
+    return apiService.get('/manager/performance/team-ranking', params);
+  },
+  async getPerformanceAnalysis(params = {}) {
+    return apiService.get('/manager/performance/analysis', params);
   }
 }
 
@@ -1176,6 +1247,15 @@ const formatUserInfo = (userInfo) => {
     createTime: userInfo.createTime || userInfo.createdAt || userInfo.createAt
   };
 
+  // 为缺失的基本字段提供默认值
+  if (!result.name) {
+    result.name = result.role === 'manager' ? '客户经理' : '用户'
+  }
+  
+  if (!result.position) {
+    result.position = result.role === 'manager' ? '客户经理' : '客户'
+  }
+
   // 移除undefined的字段
   Object.keys(result).forEach(key => {
     if (result[key] === undefined) {
@@ -1183,6 +1263,7 @@ const formatUserInfo = (userInfo) => {
     }
   });
 
+  console.log('格式化后的用户信息:', result)
   return result;
 };
 
@@ -1304,7 +1385,35 @@ module.exports = {
     ...workplaceAPI,
     ...serviceAPI,
     ...renewalAPI,
-    ...complaintAPI
+    ...complaintAPI,
+    // 跟进统计接口
+    async getFollowupStatistics() {
+      return apiService.get('/manager/followups/statistics');
+    },
+    // 跟进列表接口
+    async getFollowupList(params = {}) {
+      return apiService.get('/manager/followups', params);
+    },
+    // 跟进详情接口
+    async getFollowupDetail(id) {
+      return apiService.get(`/manager/followups/${id}`);
+    },
+    // 添加跟进接口
+    async addFollowup(data) {
+      return apiService.post('/manager/followups', data);
+    },
+    // 编辑跟进接口
+    async editFollowup(id, data) {
+      return apiService.put(`/manager/followups/${id}`, data);
+    },
+    // 完成跟进接口
+    async completeFollowup(id, data) {
+      return apiService.post(`/manager/followups/${id}/complete`, data);
+    },
+    // 延期跟进接口
+    async postponeFollowup(id, data) {
+      return apiService.post(`/manager/followups/${id}/postpone`, data);
+    }
   },
   apiService,
   authAPI,

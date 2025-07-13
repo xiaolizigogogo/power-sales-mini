@@ -1,0 +1,169 @@
+<view class="contract-sign">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-left">
+      <van-icon name="arrow-left" bind:click="goBack" />
+      <text class="header-title">合同签署</text>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{ loading }}">
+    <van-loading type="spinner" color="#1989fa" />
+    <text class="loading-text">加载合同中...</text>
+  </view>
+
+  <!-- 签署内容 -->
+  <view class="sign-content" wx:else>
+    <!-- 合同信息卡片 -->
+    <view class="contract-card">
+      <view class="card-header">
+        <text class="card-title">合同信息</text>
+        <van-button 
+          type="primary" 
+          size="small" 
+          bind:click="previewContract"
+        >
+          预览合同
+        </van-button>
+      </view>
+      
+      <view class="contract-info">
+        <view class="info-item">
+          <text class="label">合同编号</text>
+          <text class="value">{{ contractInfo.contractNo }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">订单编号</text>
+          <text class="value">{{ contractInfo.orderNo }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">产品名称</text>
+          <text class="value">{{ contractInfo.productName }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务期限</text>
+          <text class="value">{{ contractInfo.servicePeriod }}个月</text>
+        </view>
+        <view class="info-item">
+          <text class="label">合同金额</text>
+          <text class="value highlight">¥{{ contractInfo.amount }}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务地址</text>
+          <text class="value">{{ contractInfo.serviceAddress }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 签署说明 -->
+    <view class="sign-instructions">
+      <view class="instructions-header">
+        <van-icon name="info-o" color="#1989fa" />
+        <text class="instructions-title">签署说明</text>
+      </view>
+      <view class="instructions-list">
+        <view 
+          class="instruction-item"
+          wx:for="{{ signInstructions }}"
+          wx:key="index"
+        >
+          <text class="instruction-number">{{ index + 1 }}.</text>
+          <text class="instruction-text">{{ item }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 签署文件上传 -->
+    <view class="sign-upload">
+      <view class="upload-header">
+        <text class="upload-title">上传签署文件</text>
+        <text class="upload-required">*</text>
+      </view>
+      
+      <view class="upload-area" wx:if="{{ !signInfo.signedFile }}">
+        <view class="upload-placeholder" bind:click="chooseSignedFile">
+          <van-icon name="plus" size="60rpx" color="#969799" />
+          <text class="upload-text">点击选择签署文件</text>
+          <text class="upload-hint">支持PDF、JPG、PNG格式，最大10MB</text>
+        </view>
+      </view>
+      
+      <view class="upload-file" wx:else>
+        <view class="file-info">
+          <van-icon name="description" size="40rpx" color="#1989fa" />
+          <view class="file-details">
+            <text class="file-name">{{ signInfo.signedFileName }}</text>
+            <text class="file-size">{{ fileSizeText }}MB</text>
+          </view>
+        </view>
+        <view class="file-actions">
+          <van-button 
+            type="default" 
+            size="small" 
+            bind:click="previewSignedFile"
+          >
+            预览
+          </van-button>
+          <van-button 
+            type="danger" 
+            size="small" 
+            bind:click="deleteSignedFile"
+          >
+            删除
+          </van-button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注信息 -->
+    <view class="sign-remarks">
+      <view class="remarks-header">
+        <text class="remarks-title">备注信息</text>
+        <text class="remarks-optional">（可选）</text>
+      </view>
+      <van-field
+        value="{{ signInfo.remarks }}"
+        type="textarea"
+        placeholder="请输入备注信息（如签署日期、特殊要求等）"
+        autosize="{{ {minHeight: 100} }}"
+        border="{{ false }}"
+        bind:change="onRemarksInput"
+      />
+    </view>
+
+    <!-- 上传进度 -->
+    <view class="upload-progress" wx:if="{{ uploading }}">
+      <view class="progress-header">
+        <text class="progress-title">上传进度</text>
+        <text class="progress-percent">{{ uploadProgress }}%</text>
+      </view>
+      <van-progress 
+        percentage="{{ uploadProgress }}" 
+        color="#1989fa"
+        stroke-width="8"
+      />
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <van-button 
+      type="default" 
+      size="large" 
+      bind:click="goBack"
+      disabled="{{ submitting }}"
+    >
+      取消
+    </van-button>
+    <van-button 
+      type="primary" 
+      size="large" 
+      bind:click="submitSign"
+      loading="{{ submitting }}"
+      disabled="{{ !formValid || submitting }}"
+    >
+      {{ submitting ? '提交中...' : '提交签署' }}
+    </van-button>
+  </view>
+</view> 

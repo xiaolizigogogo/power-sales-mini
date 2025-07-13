@@ -1,0 +1,20 @@
+<!--pages/manager/customers/contracts-test.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">合同列表API测试</text>
+    <text class="subtitle">客户ID: {{customerId}}</text>
+  </view>
+  
+  <view class="test-section">
+    <button class="test-btn" bindtap="onRetry" disabled="{{loading}}">
+      {{loading ? '测试中...' : '重新测试'}}
+    </button>
+  </view>
+  
+  <view class="result-section">
+    <text class="result-title">测试结果:</text>
+    <scroll-view class="result-content" scroll-y>
+      <text class="result-text">{{testResult}}</text>
+    </scroll-view>
+  </view>
+</view> 

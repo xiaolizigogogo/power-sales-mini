@@ -32,7 +32,13 @@
     "pages/manager/profile/index",
     "pages/manager/profile/edit",
     "pages/manager/profile/change-password",
-    "pages/auth/username-login/index"
+    "pages/auth/username-login/index",
+    "pages/contract/preview",
+    "pages/customer/contracts/list",
+    "pages/customer/contracts/sign",
+    "pages/manager/customers/contracts",
+    "pages/manager/customers/contracts-test",
+    "pages/manager/orders/list"
   ],
   "window": {
     "backgroundTextStyle": "light",

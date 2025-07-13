@@ -1,14 +1,11 @@
 {
-  "navigationBarTitleText": "客户详情",
+  "navigationBarTitleText": "客户合同",
   "navigationBarBackgroundColor": "#667eea",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#f5f5f5",
-  "backgroundTextStyle": "dark",
   "enablePullDownRefresh": true,
   "onReachBottomDistance": 50,
   "usingComponents": {
 
-  },
-  "disableScroll": false,
-  "style": "v2"
+  }
 } 

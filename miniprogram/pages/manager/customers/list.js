@@ -222,6 +222,7 @@ Page({
           const processed = {
             id: customer.id,
             name: customer.name || customer.contactPerson || '未知客户',
+            nameFirstChar: (customer.name || customer.contactPerson || '未').charAt(0),
             company: customer.companyName || customer.company || '未知公司',
             avatar: customer.avatar || '',
             status: customer.status || 'potential',

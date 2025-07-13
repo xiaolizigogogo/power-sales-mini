@@ -1,0 +1,50 @@
+<view class="manager-order-list-container">
+  <!-- 筛选栏 -->
+  <view class="search-bar">
+    <van-search
+      value="{{searchKeyword}}"
+      placeholder="搜索订单号/客户名/产品"
+      bind:change="onSearchInput"
+      bind:clear="onClearSearch"
+      show-action
+    />
+  </view>
+
+  <!-- 状态tab -->
+  <van-tabs active="{{activeTab}}" bind:change="onTabChange">
+    <van-tab wx:for="{{tabList}}" wx:key="key" title="{{item.name}}" />
+  </van-tabs>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block wx:if="{{orderList.length > 0}}">
+      <view class="order-item" wx:for="{{orderList}}" wx:key="id">
+        <view class="order-header">
+          <text class="order-id">订单号：{{item.orderNo || item.id}}</text>
+          <text class="order-status" style="color: {{statusMap[item.status].color}}">{{statusMap[item.status].text}}</text>
+        </view>
+        <view class="order-content">
+          <text class="customer-name">客户：{{item.customerName}}</text>
+          <text class="product-name">产品：{{item.productName}}</text>
+          <text class="amount">金额：¥{{item.amount}}</text>
+        </view>
+        <view class="order-footer">
+          <text class="create-time">创建：{{item.createTime}}</text>
+          <button class="action-btn" size="mini" bindtap="viewOrderDetail" data-id="{{item.id}}">查看详情</button>
+        </view>
+      </view>
+    </block>
+    <view wx:else class="empty-state">
+      <van-empty description="暂无订单数据" />
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && !loading}}">
+    <text>上拉加载更多</text>
+  </view>
+  <view class="loading" wx:if="{{loading}}">
+    <van-loading size="24px" />
+    <text>加载中...</text>
+  </view>
+</view> 

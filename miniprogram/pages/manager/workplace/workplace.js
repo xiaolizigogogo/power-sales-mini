@@ -1,6 +1,7 @@
 // pages/manager/workplace/workplace.js
 const { roleManager } = require('../../../utils/role-manager');
 const { showToast } = require('../../../utils/common');
+const { api } = require('../../../utils/api');
 
 Page({
   data: {
@@ -150,8 +151,7 @@ Page({
    */
   async loadTodayStats() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockTodayStats();
+      const response = await api.getManagerTodayStats();
       this.setData({
         todayStats: response.data
       });
@@ -165,8 +165,7 @@ Page({
    */
   async loadWeeklyStats() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockWeeklyStats();
+      const response = await api.getManagerWeeklyStats();
       this.setData({
         weeklyStats: response.data
       });
@@ -180,8 +179,7 @@ Page({
    */
   async loadRecentFollowUps() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockRecentFollowUps();
+      const response = await api.getManagerRecentFollowUps();
       this.setData({
         recentFollowUps: response.data
       });
@@ -195,8 +193,7 @@ Page({
    */
   async loadUpcomingReminders() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockUpcomingReminders();
+      const response = await api.getManagerUpcomingReminders();
       this.setData({
         upcomingReminders: response.data
       });
@@ -210,8 +207,7 @@ Page({
    */
   async loadPerformanceData() {
     try {
-      // TODO: 替换为实际的API调用
-      const response = await this.mockPerformanceData();
+      const response = await api.getManagerMonthlyPerformance();
       this.setData({
         performanceData: response.data
       });

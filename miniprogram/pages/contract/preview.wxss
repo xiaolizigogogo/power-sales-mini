@@ -1,0 +1,212 @@
+.contract-preview {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+  padding-bottom: 120rpx;
+}
+
+/* 页面头部 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #ebedf0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.header-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.header-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #969799;
+}
+
+/* 合同内容 */
+.contract-content {
+  padding: 30rpx;
+}
+
+/* 合同头部 */
+.contract-header {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.contract-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #323233;
+  margin-bottom: 20rpx;
+}
+
+.contract-no {
+  font-size: 28rpx;
+  color: #969799;
+}
+
+/* 合同信息 */
+.contract-info {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.info-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f2f3f5;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f7f8fa;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #646566;
+  min-width: 160rpx;
+  flex-shrink: 0;
+}
+
+.value {
+  font-size: 28rpx;
+  color: #323233;
+  flex: 1;
+}
+
+.value.highlight {
+  color: #ee0a24;
+  font-weight: 600;
+}
+
+/* 合同条款 */
+.contract-terms {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.terms-list {
+  margin-top: 20rpx;
+}
+
+.term-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f7f8fa;
+}
+
+.term-item:last-child {
+  border-bottom: none;
+}
+
+.term-number {
+  font-size: 28rpx;
+  color: #1989fa;
+  font-weight: 600;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.term-content {
+  font-size: 28rpx;
+  color: #323233;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* 签署信息 */
+.contract-signature {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.signature-info {
+  margin-top: 20rpx;
+}
+
+.signature-item {
+  margin-bottom: 40rpx;
+}
+
+.signature-item:last-child {
+  margin-bottom: 0;
+}
+
+.signature-line {
+  height: 2rpx;
+  background-color: #ebedf0;
+  margin-top: 20rpx;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #ebedf0;
+  display: flex;
+  gap: 20rpx;
+  z-index: 100;
+}
+
+.bottom-actions .van-button {
+  flex: 1;
+} 

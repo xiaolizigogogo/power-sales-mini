@@ -1,0 +1,338 @@
+.contract-sign {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+  padding-bottom: 120rpx;
+}
+
+/* 页面头部 */
+.page-header {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #ebedf0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.header-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #969799;
+}
+
+/* 签署内容 */
+.sign-content {
+  padding: 30rpx;
+}
+
+/* 合同卡片 */
+.contract-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f2f3f5;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.contract-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.info-item .label {
+  font-size: 28rpx;
+  color: #646566;
+  min-width: 140rpx;
+  flex-shrink: 0;
+}
+
+.info-item .value {
+  font-size: 28rpx;
+  color: #323233;
+  flex: 1;
+}
+
+.info-item .value.highlight {
+  color: #ee0a24;
+  font-weight: 600;
+}
+
+/* 签署说明 */
+.sign-instructions {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.instructions-header {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.instructions-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.instructions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15rpx;
+}
+
+.instruction-number {
+  font-size: 26rpx;
+  color: #1989fa;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.instruction-text {
+  font-size: 26rpx;
+  color: #646566;
+  line-height: 1.5;
+  flex: 1;
+}
+
+/* 签署文件上传 */
+.sign-upload {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.upload-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.upload-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.upload-required {
+  font-size: 30rpx;
+  color: #ee0a24;
+  margin-left: 5rpx;
+}
+
+.upload-area {
+  border: 2rpx dashed #dcdee0;
+  border-radius: 8rpx;
+  background-color: #fafafa;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 20rpx;
+  cursor: pointer;
+}
+
+.upload-text {
+  font-size: 28rpx;
+  color: #323233;
+  margin-top: 20rpx;
+  margin-bottom: 10rpx;
+}
+
+.upload-hint {
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.upload-file {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #f7f8fa;
+  border-radius: 8rpx;
+  border: 1rpx solid #ebedf0;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  flex: 1;
+}
+
+.file-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5rpx;
+}
+
+.file-name {
+  font-size: 28rpx;
+  color: #323233;
+  font-weight: 500;
+}
+
+.file-size {
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.file-actions {
+  display: flex;
+  gap: 15rpx;
+}
+
+/* 备注信息 */
+.sign-remarks {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.remarks-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.remarks-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.remarks-optional {
+  font-size: 26rpx;
+  color: #969799;
+  margin-left: 10rpx;
+}
+
+/* 上传进度 */
+.upload-progress {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.progress-title {
+  font-size: 28rpx;
+  color: #323233;
+  font-weight: 500;
+}
+
+.progress-percent {
+  font-size: 28rpx;
+  color: #1989fa;
+  font-weight: 600;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #ebedf0;
+  display: flex;
+  gap: 20rpx;
+  z-index: 100;
+}
+
+.bottom-actions .van-button {
+  flex: 1;
+}
+
+/* 响应式设计 */
+@media (max-width: 750rpx) {
+  .sign-content {
+    padding: 20rpx;
+  }
+  
+  .contract-card,
+  .sign-instructions,
+  .sign-upload,
+  .sign-remarks,
+  .upload-progress {
+    padding: 20rpx;
+  }
+  
+  .file-actions {
+    flex-direction: column;
+    gap: 10rpx;
+  }
+  
+  .bottom-actions {
+    flex-direction: column;
+    gap: 15rpx;
+  }
+} 

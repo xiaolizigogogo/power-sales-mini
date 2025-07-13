@@ -6,7 +6,7 @@
     <!-- 客户信息卡片 -->
     <view class="customer-card">
       <view class="customer-avatar">
-        <text class="avatar-text">{{customerInfo.name ? customerInfo.name.charAt(0) : '客'}}</text>
+                      <text class="avatar-text">{{customerInfo.nameFirstChar || '客'}}</text>
       </view>
       <view class="customer-info">
         <view class="customer-name">{{customerInfo.name || '客户名称'}}</view>
@@ -132,9 +132,9 @@
         <!-- 常用标签 -->
         <view class="common-tags">
           <view wx:for="{{commonTags}}" wx:key="index"
-                class="tag-item {{followForm.tags.includes(item) ? 'selected' : ''}}"
-                data-tag="{{item}}" bindtap="onAddTag">
-            {{item}}
+                class="tag-item {{item.isSelected ? 'selected' : ''}}"
+                data-tag="{{item.text}}" bindtap="onAddTag">
+            {{item.text}}
           </view>
           <view class="tag-item add-tag" bindtap="onShowTagInput">
             <image src="/assets/images/icons/add.png" class="add-icon" />

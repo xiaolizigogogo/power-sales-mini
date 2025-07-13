@@ -124,6 +124,14 @@ const clearToken = () => {
 };
 
 /**
+ * 设置刷新token
+ * @param {string} refreshToken 
+ */
+const setRefreshToken = (refreshToken) => {
+  wx.setStorageSync('refreshToken', refreshToken);
+};
+
+/**
  * 获取用户信息
  * @returns {Object|null} 用户信息
  */
@@ -155,9 +163,9 @@ const isLoggedIn = () => {
 };
 
 /**
- * 登出
+ * 简单登出
  */
-const logout = () => {
+const simpleLogout = () => {
   clearToken();
   clearUserInfo();
 };
@@ -172,8 +180,8 @@ function getUserRole() {
   }
 }
 
-// 检查登录状态
-function isLoggedIn() {
+// 检查登录状态（重新定义）
+function checkLoginStatus() {
   const token = wx.getStorageSync('token')
   const userInfo = wx.getStorageSync('userInfo')
   return !!(token && userInfo)
@@ -181,7 +189,7 @@ function isLoggedIn() {
 
 // 检查登录并跳转
 function checkLogin() {
-  if (!isLoggedIn()) {
+  if (!checkLoginStatus()) {
     wx.redirectTo({
       url: '/pages/auth/login/login'
     })
@@ -468,17 +476,18 @@ module.exports = {
   getToken,
   setToken,
   clearToken,
+  setRefreshToken,
   getUserInfo,
   setUserInfo,
   clearUserInfo,
   isLoggedIn,
+  simpleLogout,
   logout,
   
   // 登录状态
-  isLoggedIn,
+  checkLoginStatus,
   checkLogin,
   login,
-  logout,
   updateUserInfo,
   isTokenExpired,
   
