@@ -241,8 +241,8 @@ Page({
             customerManagerName: customer.customerManagerName || '',
             tags: customer.tags || [],
             potential: this.formatMoney(customer.potentialValue || 0),
-            // 添加订单摘要信息 - 暂时使用模拟数据
-            orderSummary: this.processOrderSummary(customer.orderSummary || customer.orders || this.generateMockOrderSummary(customer.id))
+            // 处理订单摘要信息
+            orderSummary: this.processOrderSummary(customer.orderSummary || customer.orders || null)
           };
           
           console.log(`处理完成第${index + 1}个客户数据:`, processed);
@@ -509,10 +509,7 @@ Page({
    * 查看客户详情
    */
   onViewDetail(e) {
-    // 阻止事件冒泡
-    if (e && e.detail && typeof e.detail.x !== 'undefined') {
-      return;
-    }
+    console.log('onViewDetail 被调用', e);
     
     const customerId = e.currentTarget.dataset.id;
     if (!customerId) {
@@ -520,9 +517,18 @@ Page({
       return;
     }
     
+    console.log('跳转到客户详情页面，客户ID:', customerId);
+    
     // 跳转到客户详情页面
     wx.navigateTo({
-      url: `/pages/manager/customers/detail?id=${customerId}`
+      url: `/pages/manager/customers/detail?id=${customerId}`,
+      success: () => {
+        console.log('跳转成功');
+      },
+      fail: (err) => {
+        console.error('跳转失败:', err);
+        showToast('页面跳转失败', 'error');
+      }
     });
   },
 
@@ -530,20 +536,11 @@ Page({
    * 查看客户订单
    */
   onViewOrders(e) {
-    // 阻止事件冒泡
-    if (e && e.detail && typeof e.detail.x !== 'undefined') {
-      return;
-    }
-    
+    console.log('onViewOrders 被调用', e);
     const customerId = e.currentTarget.dataset.id;
-    if (!customerId) {
-      showToast('客户ID不能为空', 'error');
-      return;
-    }
-    
-    // 跳转到订单列表页面
+    console.log('跳转到客户经理订单页面，客户ID:', customerId);
     wx.navigateTo({
-      url: `/pages/orders/index/index?customerId=${customerId}`
+      url: `/pages/manager/orders/index?customerId=${customerId}`
     });
   },
 
@@ -551,10 +548,7 @@ Page({
    * 快速联系客户
    */
   onQuickContact(e) {
-    // 阻止事件冒泡
-    if (e && e.detail && typeof e.detail.x !== 'undefined') {
-      return;
-    }
+    console.log('onQuickContact 被调用', e);
     
     const { id: customerId, phone } = e.currentTarget.dataset;
     if (!customerId) {
@@ -562,10 +556,13 @@ Page({
       return;
     }
 
+    console.log('联系客户，客户ID:', customerId, '电话:', phone);
+
     // 显示联系方式选择
     wx.showActionSheet({
       itemList: ['拨打电话', '发送短信', '复制手机号'],
       success: (res) => {
+        console.log('用户选择了:', res.tapIndex);
         switch (res.tapIndex) {
           case 0:
             this.makePhoneCall(phone);
@@ -582,6 +579,9 @@ Page({
             });
             break;
         }
+      },
+      fail: (err) => {
+        console.error('显示操作菜单失败:', err);
       }
     });
   },
@@ -891,27 +891,57 @@ Page({
   processOrderSummary(orders) {
     console.log('处理订单摘要信息，输入数据:', orders);
     
-    if (!orders || orders.length === 0) {
+    if (!orders) {
       console.log('没有订单数据，返回null');
       return null;
     }
 
-    const totalOrders = orders.length;
-    const latestOrder = orders[orders.length - 1];
+    // 如果是数组格式（旧格式）
+    if (Array.isArray(orders)) {
+      if (orders.length === 0) {
+        return null;
+      }
+      
+      const totalOrders = orders.length;
+      const latestOrder = orders[orders.length - 1];
+      
+      const result = {
+        totalOrders: totalOrders,
+        latestOrder: latestOrder ? {
+          id: latestOrder.id,
+          date: this.formatDate(latestOrder.date),
+          amount: this.formatMoney(latestOrder.amount || latestOrder.total),
+          status: this.getOrderStatusKey(latestOrder.status),
+          statusText: latestOrder.statusText || latestOrder.status
+        } : null
+      };
+      
+      console.log('处理后的订单摘要:', result);
+      return result;
+    }
     
-    const result = {
-      totalOrders: totalOrders,
-      latestOrder: latestOrder ? {
-        id: latestOrder.id,
-        date: this.formatDate(latestOrder.date),
-        amount: this.formatMoney(latestOrder.amount || latestOrder.total),
-        status: this.getOrderStatusKey(latestOrder.status),
-        statusText: latestOrder.statusText || latestOrder.status
-      } : null
-    };
+    // 如果是对象格式（新格式）
+    if (typeof orders === 'object') {
+      const result = {
+        totalOrders: orders.totalOrders || 0,
+        totalAmount: orders.totalAmount || 0,
+        pendingAmount: orders.pendingAmount || 0,
+        pendingCount: orders.pendingCount || 0,
+        latestOrder: orders.latestOrder ? {
+          id: orders.latestOrder.id,
+          orderNo: orders.latestOrder.orderNo,
+          date: this.formatDate(orders.latestOrder.date || orders.latestOrder.createdAt),
+          amount: this.formatMoney(orders.latestOrder.amount),
+          status: orders.latestOrder.status,
+          statusText: orders.latestOrder.statusText || this.getOrderStatusText(orders.latestOrder.status)
+        } : null
+      };
+      
+      console.log('处理后的订单摘要:', result);
+      return result;
+    }
     
-    console.log('处理后的订单摘要:', result);
-    return result;
+    return null;
   },
 
   /**
@@ -926,5 +956,19 @@ Page({
       '已取消': 'cancelled'
     };
     return statusMap[statusText] || 'pending';
+  },
+
+  /**
+   * 获取订单状态文本
+   */
+  getOrderStatusText(status) {
+    const statusMap = {
+      'pending': '待付款',
+      'confirmed': '已付款',
+      'negotiating': '商务洽谈',
+      'signed': '已完成',
+      'cancelled': '已取消'
+    };
+    return statusMap[status] || '未知状态';
   }
 });

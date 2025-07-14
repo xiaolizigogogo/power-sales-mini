@@ -140,6 +140,15 @@ Page({
   },
 
   onShow() {
+    // 调试：打印 userInfo 和 token
+    console.log('订单页 onShow userInfo:', wx.getStorageSync('userInfo'));
+    console.log('订单页 onShow token:', wx.getStorageSync('token'));
+    // 登录校验：userInfo 必须存在且有 id
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo || !userInfo.id) {
+      wx.reLaunch({ url: '/pages/auth/login/login' });
+      return;
+    }
     // tabBar页面：优先从Storage读取筛选参数
     const filter = wx.getStorageSync('orderListFilter');
     if (filter && filter.customerId) {
@@ -178,10 +187,8 @@ Page({
 
   // 检查登录状态
   checkLoginStatus() {
-    const app = getApp();
     const token = wx.getStorageSync('token');
-    
-    if (!app.globalData.isLoggedIn || !token) {
+    if (!token) {
       wx.redirectTo({
         url: '/pages/auth/login/login'
       });

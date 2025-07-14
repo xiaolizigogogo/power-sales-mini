@@ -1,0 +1,65 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+/target/
+/.classpath
+/.project
+/.settings/
+
+# Maven
+/logs/
+*.log
+
+# Gradle
+/.gradle/
+build/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vite
+/dist/
+
+# VSCode
+.vscode/
+
+# WebStorm/IntelliJ IDEA
+.idea/
+*.iml
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mini Program
+miniprogram_npm/
+
+# Others
+.env
+.env.*
+*.local
+
+# Log files
+*.log
+*.gz
+
+# Package locks
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Backup files
+*~
+*.swp
+*.swo
+
+# Compiled output
+out/ 

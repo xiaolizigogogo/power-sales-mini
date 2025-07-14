@@ -2,6 +2,7 @@
 const app = getApp();
 const apiService = require('../../../utils/api').apiService;
 const { formatTime } = require('../../../utils/date');
+const { api } = require('../../../utils/api');
 
 const formatDateTime = (dateTimeStr) => {
   if (!dateTimeStr) return '';
@@ -101,39 +102,21 @@ Page({
   async loadCustomerInfo() {
     try {
       this.setData({ loading: true });
-      
-      // 模拟API调用
-      const customerInfo = {
-        id: this.data.customerId,
-        name: '张三',
-        company: '北京科技有限公司',
-        position: '采购经理',
-        phone: '13812345678',
-        email: 'zhangsan@example.com',
-        wechat: 'zhangsan_wechat',
-        address: '北京市朝阳区建国门外大街1号',
-        industry: '制造业',
-        scale: '中型企业',
-        status: 'interested',
-        source: '网络推广',
-        createTime: '2024-01-15 10:30:00',
-        lastFollowTime: '2024-07-01 14:20:00',
-        totalOrders: 5,
-        totalAmount: 128600,
-        tags: ['VIP客户', '重点关注', '决策快'],
-        manager: '李经理',
-        remark: '该客户对我们的产品很感兴趣，已经进行了多次沟通，预计本月可以签约。'
-      };
-      
-      // 添加nameFirstChar属性
-      if (customerInfo.name) {
-        customerInfo.nameFirstChar = customerInfo.name.charAt(0);
+      // 调用后端接口获取客户详情
+      const res = await api.getManagerCustomerDetail(this.data.customerId);
+      if (res.code === 200 && res.data) {
+        const customerInfo = res.data;
+        // 添加nameFirstChar属性
+        if (customerInfo.name) {
+          customerInfo.nameFirstChar = customerInfo.name.charAt(0);
+        }
+        this.setData({
+          customerInfo,
+          loading: false
+        });
+      } else {
+        throw new Error(res.message || '获取客户信息失败');
       }
-      
-      this.setData({
-        customerInfo,
-        loading: false
-      });
     } catch (error) {
       console.error('加载客户信息失败:', error);
       this.setData({ loading: false });

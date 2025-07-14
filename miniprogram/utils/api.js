@@ -912,6 +912,10 @@ const customerAPI = {
   // 客户经理专用 - 订单列表
   async getManagerOrderList(params = {}) {
     return apiService.get('/manager/orders', params);
+  },
+  // 客户经理专用 - 获取客户基础信息（客户详情页）
+  async getManagerCustomerDetail(customerId) {
+    return apiService.get(`/manager/customers/${customerId}/detail`);
   }
 }
 
@@ -1192,6 +1196,30 @@ const complaintAPI = {
   }
 }
 
+// 客户经理个人中心相关API
+const managerAPI = {
+  // 获取客户经理个人信息
+  getProfileInfo: () => apiService.get('/manager/profile/info'),
+
+  // 获取本月业绩统计
+  getProfileStats: () => apiService.get('/manager/profile/stats'),
+
+  // 修改头像
+  changeAvatar: (data) => apiService.post('/manager/profile/avatar', data),
+
+  // 编辑个人信息
+  editProfile: (data) => apiService.post('/manager/profile/edit', data),
+
+  // 绑定微信
+  bindWechat: (data) => apiService.post('/manager/profile/bind-wechat', data),
+
+  // 解绑微信
+  unbindWechat: () => apiService.post('/manager/profile/unbind-wechat'),
+
+  // 修改密码
+  changePassword: (data) => apiService.post('/manager/profile/change-password', data)
+};
+
 // 格式化认证响应
 const formatAuthResponse = (response) => {
   if (!response || !response.data) return null;
@@ -1413,7 +1441,9 @@ module.exports = {
     // 延期跟进接口
     async postponeFollowup(id, data) {
       return apiService.post(`/manager/followups/${id}/postpone`, data);
-    }
+    },
+    // 客户经理个人中心相关API
+    ...managerAPI
   },
   apiService,
   authAPI,

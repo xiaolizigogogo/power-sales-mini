@@ -74,143 +74,24 @@ Page({
   // 加载用户信息
   async loadUserInfo() {
     try {
-      const currentUser = roleManager.getCurrentUserInfo();
-      
-      // 从后台API获取完整用户信息
-      console.log('正在从后台获取用户信息...');
-      const response = await api.getUserInfo();
-      
-      console.log('后台用户信息响应:', response);
-      
-      // 格式化用户信息
-      const serverUserInfo = response.data || response;
-      
-      // 详细调试微信绑定状态
-      console.log('服务器返回的微信绑定相关字段:', {
-        isWechatBound: serverUserInfo.isWechatBound,
-        wechatBound: serverUserInfo.wechatBound,
-        openId: serverUserInfo.openId,
-        wechatOpenId: serverUserInfo.wechatOpenId,
-        openid: serverUserInfo.openid, // 可能是小写的openid
-        wechat_bound: serverUserInfo.wechat_bound, // 可能是下划线格式
-        bindStatus: serverUserInfo.bindStatus,
-        wechatBindStatus: serverUserInfo.wechatBindStatus
-      });
-      
-      // 优先检查后台明确返回的绑定状态字段，然后检查openId是否存在
-      let wechatBoundStatus = false;
-      let wechatOpenId = '';
-      
-      // 先尝试获取openId
-      wechatOpenId = serverUserInfo.openId || 
-                    serverUserInfo.wechatOpenId || 
-                    serverUserInfo.openid || 
-                    '';
-      
-      // 判断绑定状态：优先使用明确的绑定状态字段，否则根据openId判断
-      if (serverUserInfo.isWechatBound !== undefined) {
-        wechatBoundStatus = serverUserInfo.isWechatBound;
-      } else if (serverUserInfo.wechatBound !== undefined) {
-        wechatBoundStatus = serverUserInfo.wechatBound;
-      } else if (serverUserInfo.wechat_bound !== undefined) {
-        wechatBoundStatus = serverUserInfo.wechat_bound;
-      } else if (serverUserInfo.bindStatus !== undefined) {
-        wechatBoundStatus = serverUserInfo.bindStatus;
-      } else if (serverUserInfo.wechatBindStatus !== undefined) {
-        wechatBoundStatus = serverUserInfo.wechatBindStatus;
-      } else {
-        // 如果没有明确的绑定状态字段，根据openId判断
-        wechatBoundStatus = wechatOpenId && wechatOpenId.trim() !== '';
-      }
-      
-      console.log('微信绑定状态判断结果:', {
-        wechatBoundStatus,
-        wechatOpenId,
-        hasOpenId: !!wechatOpenId && wechatOpenId.trim() !== ''
-      });
-      
-      const fullUserInfo = {
-        id: serverUserInfo.id || currentUser.id || 'manager001',
-        username: serverUserInfo.username || serverUserInfo.employeeNo || currentUser.username || '经理001',
-        name: serverUserInfo.name || serverUserInfo.realName || currentUser.name || '张经理',
-        phone: serverUserInfo.phone || serverUserInfo.phoneNumber || currentUser.phone || '13800138000',
-        email: serverUserInfo.email || currentUser.email || '',
-        avatar: serverUserInfo.avatar || serverUserInfo.avatarUrl || currentUser.avatar || '',
-        company: serverUserInfo.company || serverUserInfo.companyName || currentUser.company || '某某电力公司',
-        position: serverUserInfo.position || serverUserInfo.jobTitle || currentUser.position || '客户经理',
-        department: serverUserInfo.department || serverUserInfo.departmentName || '',
-        isOnline: true,
-        isWechatBound: wechatBoundStatus,
-        openId: wechatOpenId,
-        registerTime: serverUserInfo.registerTime || serverUserInfo.createTime || '2024-01-01',
-        lastLoginTime: serverUserInfo.lastLoginTime || serverUserInfo.lastLogin || '2025-01-11 10:00:00'
-      };
-
-      console.log('格式化后的用户信息:', fullUserInfo);
-      
-      this.setData({ userInfo: fullUserInfo });
-      
-      // 更新本地存储的用户信息
-      roleManager.setCurrentUser('manager', fullUserInfo);
-      
+      const response = await api.getProfileInfo();
+      const userInfo = response.data || {};
+      // 微信绑定判定：只要 openId 有值就算已绑定
+      userInfo.isWechatBound = !!userInfo.openId;
+      this.setData({ userInfo });
     } catch (error) {
-      console.error('加载用户信息失败:', error);
-      
-      // 如果API调用失败，使用本地存储的用户信息作为后备
-      const localUserInfo = roleManager.getCurrentUserInfo();
-      
-      // 判断本地存储的微信绑定状态
-      let localWechatBound = false;
-      const localOpenId = localUserInfo.openId || localUserInfo.openid || '';
-      
-      if (localUserInfo.isWechatBound !== undefined) {
-        localWechatBound = localUserInfo.isWechatBound;
-      } else if (localUserInfo.wechatBound !== undefined) {
-        localWechatBound = localUserInfo.wechatBound;
-      } else {
-        localWechatBound = localOpenId && localOpenId.trim() !== '';
-      }
-      
-      const fallbackUserInfo = {
-        id: localUserInfo.id || 'manager001',
-        username: localUserInfo.username || '经理001',
-        name: localUserInfo.name || '张经理',
-        phone: localUserInfo.phone || '13800138000',
-        email: localUserInfo.email || '',
-        avatar: localUserInfo.avatar || '',
-        company: localUserInfo.company || '某某电力公司',
-        position: localUserInfo.position || '客户经理',
-        isOnline: true,
-        isWechatBound: localWechatBound,
-        openId: localOpenId,
-        registerTime: localUserInfo.registerTime || '2024-01-01',
-        lastLoginTime: localUserInfo.lastLoginTime || '2025-01-11 10:00:00'
-      };
-      
-      this.setData({ userInfo: fallbackUserInfo });
-      console.log('使用本地用户信息作为后备:', fallbackUserInfo);
-      console.log('本地用户信息微信绑定状态:', {
-        localWechatBound,
-        localOpenId,
-        originalLocalInfo: localUserInfo
-      });
+      console.error('获取客户经理信息失败:', error);
     }
   },
 
   // 加载统计数据
   async loadStats() {
     try {
-      // 模拟API调用
-      const stats = {
-        customerCount: 156,
-        followCount: 89,
-        orderCount: 23,
-        revenue: 125.6
-      };
-
+      const response = await api.getProfileStats();
+      const stats = response.data || {};
       this.setData({ stats });
     } catch (error) {
-      console.error('加载统计数据失败:', error);
+      console.error('获取业绩统计失败:', error);
     }
   },
 
