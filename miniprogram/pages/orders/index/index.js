@@ -171,6 +171,10 @@ Page({
     console.log('✅ 登录状态检查通过，开始刷新订单列表');
     // 每次显示时刷新订单列表
     this.refreshOrderList();
+    // 保证tabbar高亮同步
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().updateActiveTab();
+    }
   },
 
   onPullDownRefresh() {
@@ -291,26 +295,24 @@ Page({
 
       // 订单接口调用时传递params
       const response = await orderAPI.getOrderList(params);
-      const { list = [], total = 0 } = response.data || {};
-      
+      // 适配后端返回结构
+      const records = response.data && response.data.records ? response.data.records : [];
+      const total = response.data && response.data.total ? response.data.total : 0;
       // 格式化订单数据
-      const formattedList = list.map(order => this.formatOrderData(order));
-      
+      const formattedList = records.map(order => this.formatOrderData(order));
       this.setData({
         orderList: refresh ? formattedList : [...this.data.orderList, ...formattedList],
         total,
-        hasMore: formattedList.length === this.data.pageSize,
+        hasMore: (refresh ? formattedList.length : this.data.orderList.length + formattedList.length) < total,
         isEmpty: refresh && formattedList.length === 0,
         loading: false,
         loadingMore: false
       });
-
       console.log('✅ 订单列表加载完成:', {
         总数: total,
         当前页数据: formattedList.length,
         是否还有更多: this.data.hasMore
       });
-
       // 加载完成后更新状态统计
       this.loadOrderStats();
     } catch (error) {
@@ -452,6 +454,11 @@ Page({
     const status = order.status || 'pending';
     const statusInfo = this.data.statusMap[status] || { text: '待处理', color: '#fa8c16' };
 
+    // 进度步骤数组
+    const progressSteps = this.getProgressStep(status);
+    // 当前步骤索引
+    const currentStep = progressSteps.findIndex(step => step === statusInfo.text);
+
     return {
       ...order,
       createTime: formattedCreateTime,
@@ -468,9 +475,9 @@ Page({
       
       // 显示进度
       showProgress: !['cancelled', 'rejected'].includes(status),
-      progressSteps: this.getProgressStep(status),
+      progressSteps,
       progressPercent: this.getProgressPercent(status),
-      currentStep: this.getProgressStep(status).findIndex(step => step === statusInfo.text)
+      currentStep
     };
   },
 
@@ -499,14 +506,8 @@ Page({
 
   // 获取进度步骤
   getProgressStep(status) {
-    const stepMap = {
-      'pending': 0,
-      'confirmed': 1,
-      'contract': 2,
-      'active': 3,
-      'completed': 4
-    };
-    return stepMap[status] || 0;
+    // 返回进度步骤数组，供进度条和 findIndex 使用
+    return ['待处理', '已确认', '待签约', '服务中', '已完成'];
   },
 
   // 获取进度百分比

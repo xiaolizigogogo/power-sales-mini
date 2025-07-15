@@ -1198,4 +1198,78 @@ Page({
       wx.hideLoading();
     }
   },
+
+  onSignContract(e) {
+    const orderId = this.data.orderId || (e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id);
+    if (!orderId) {
+      wx.showToast({ title: '订单ID缺失', icon: 'none' });
+      return;
+    }
+    wx.chooseImage({
+      count: 5,
+      success: (chooseRes) => {
+        wx.showLoading({ title: '上传中...', mask: true });
+        const uploadPromises = chooseRes.tempFilePaths.map(path => {
+          return new Promise((resolve, reject) => {
+            wx.uploadFile({
+              url: 'http://localhost:8000/api/v1/mini/manager/oss/upload', // 替换为你的后端地址
+              filePath: path,
+              name: 'file',
+              header: {
+                'Authorization': 'Bearer ' + (wx.getStorageSync('token') || '')
+              },
+              success: (res) => {
+                try {
+                  const data = JSON.parse(res.data);
+                  if (data.code === 0 && data.data) {
+                    resolve(data.data);
+                  } else {
+                    reject(data.msg || '上传失败');
+                  }
+                } catch (err) {
+                  reject('上传返回解析失败');
+                }
+              },
+              fail: reject
+            });
+          });
+        });
+        Promise.all(uploadPromises)
+          .then(urls => {
+            wx.hideLoading();
+            // 上传成功后，保存图片URL到订单合同表
+            wx.request({
+              url: `http://localhost:8000/api/v1/mini/manager/orders/${orderId}/contracts`,
+              method: 'POST',
+              header: {
+                'content-type': 'application/json',
+                'Authorization': wx.getStorageSync('token') || ''
+              },
+              data: {
+                files: urls
+              },
+              success: (res) => {
+                if (res.data && res.data.code === 0) {
+                  wx.showToast({ title: '合同图片已上传', icon: 'success' });
+                  // 可选：调用签约API或刷新页面
+                  // this.updateOrderStatus({ currentTarget: { dataset: { status: 'active' } } });
+                } else {
+                  wx.showToast({ title: res.data.msg || '保存失败', icon: 'none' });
+                }
+              },
+              fail: () => {
+                wx.showToast({ title: '网络错误', icon: 'none' });
+              }
+            });
+          })
+          .catch(err => {
+            wx.hideLoading();
+            wx.showToast({ title: err.toString(), icon: 'none' });
+          });
+      },
+      fail: () => {
+        wx.showToast({ title: '未选择图片', icon: 'none' });
+      }
+    });
+  },
 }); 

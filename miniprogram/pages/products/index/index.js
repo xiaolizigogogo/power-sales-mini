@@ -156,6 +156,10 @@ Page({
   onShow() {
     // 刷新用户信息和产品推荐
     this.getUserInfo()
+    // 保证tabbar高亮同步
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().updateActiveTab();
+    }
   },
 
   onPullDownRefresh() {

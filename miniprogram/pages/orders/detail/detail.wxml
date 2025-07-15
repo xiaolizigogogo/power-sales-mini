@@ -198,7 +198,7 @@
           >生成合同</van-button>
           <van-button 
             type="success" 
-            bind:click="updateOrderStatus" 
+            bind:click="onSignContract" 
             data-status="active"
           >确认签约</van-button>
         </block>

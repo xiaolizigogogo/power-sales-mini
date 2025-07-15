@@ -77,6 +77,10 @@ Page({
     // 每次显示页面时刷新用户信息和统计数据
     this.refreshUserInfo()
     this.loadStatistics()
+    // 保证tabbar高亮同步
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().updateActiveTab();
+    }
   },
 
   // 初始化页面数据

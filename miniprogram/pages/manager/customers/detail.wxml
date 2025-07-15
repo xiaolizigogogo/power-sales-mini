@@ -344,11 +344,6 @@
               </view>
             </block>
           </view>
-          <!-- 新增合同浮动按钮 -->
-          <view class="float-button contract" bindtap="onCreateContract">
-            <text class="icon">+</text>
-            <text>创建合同</text>
-          </view>
         </van-tab>
       </van-tabs>
       

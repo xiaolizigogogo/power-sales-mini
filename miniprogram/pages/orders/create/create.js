@@ -795,7 +795,13 @@ Page({
         servicePeriod: this.data.servicePeriod,
         serviceAddress: this.data.serviceAddress,
         remark: this.data.orderForm.remarks || '',
-        specialRequirements: this.data.specialRequirements || ''
+        specialRequirements: this.data.specialRequirements || '',
+        // 新增字段
+        estimatedUsage: this.data.orderForm.estimatedUsage || '',
+        unitPrice: this.data.product?.unitPrice || this.data.product?.price || '',
+        totalAmount: this.data.totalAmount || '',
+        actualAmount: this.data.actualAmount || '',
+        quantity: this.data.quantity || 1
       };
 
       console.log('📦 准备提交的订单数据:', submitData);

@@ -122,6 +122,10 @@ Page({
       this.refreshUserInfo();
       this.checkManagerBinding();
     }
+    // 保证tabbar高亮同步
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().updateActiveTab();
+    }
   },
 
   // 格式化认证状态
@@ -482,13 +486,15 @@ Page({
         title: '正在退出...',
         mask: true
       });
-      
       await app.logout();
-      
       wx.showToast({
         title: '已退出登录',
         icon: 'success'
       });
+      // 退出后跳转到登录页
+      setTimeout(() => {
+        wx.reLaunch({ url: '/pages/auth/login/login' });
+      }, 800);
     } catch (error) {
       console.error('退出登录失败:', error);
       wx.showToast({

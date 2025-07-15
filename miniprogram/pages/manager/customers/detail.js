@@ -707,13 +707,60 @@ Page({
   onSignContract(e) {
     const contractId = e.currentTarget.dataset.id;
     const contractNo = e.currentTarget.dataset.contractNo;
-    
     wx.showModal({
       title: '确认签署',
       content: `确定要签署合同 ${contractNo} 吗？`,
       success: (res) => {
         if (res.confirm) {
-          this.signContract(contractId);
+          // 新增：弹出图片选择
+          wx.chooseImage({
+            count: 5,
+            success: (chooseRes) => {
+              wx.showLoading({ title: '上传中...', mask: true });
+              const uploadPromises = chooseRes.tempFilePaths.map(path => {
+                return new Promise((resolve, reject) => {
+                  wx.uploadFile({
+                    url: 'http://localhost:8000/api/v1/mini/manager/oss/upload', // 替换为你的后端地址
+                    filePath: path,
+                    name: 'file',
+                    success: (uploadRes) => {
+                      try {
+                        const data = JSON.parse(uploadRes.data);
+                        if (data.code === 200) {
+                          resolve(data.data); // 图片URL
+                        } else {
+                          reject(data.message || '上传失败');
+                        }
+                      } catch (e) {
+                        reject('上传失败');
+                      }
+                    },
+                    fail: () => reject('上传失败')
+                  });
+                });
+              });
+              Promise.all(uploadPromises).then(urls => {
+                // 上传成功后，保存到订单合同表
+                wx.request({
+                  url: `http://localhost:8000/api/v1/mini/manager/orders/${contractId}/contracts`,
+                  method: 'POST',
+                  header: { 'content-type': 'application/json' },
+                  data: urls.map(url => ({ fileUrl: url, fileType: 'image' })),
+                  success: (saveRes) => {
+                    // 调用原有签署API
+                    this.signContract(contractId);
+                  },
+                  fail: () => {
+                    wx.hideLoading();
+                    wx.showToast({ title: '合同图片保存失败', icon: 'none' });
+                  }
+                });
+              }).catch(() => {
+                wx.hideLoading();
+                wx.showToast({ title: '图片上传失败', icon: 'none' });
+              });
+            }
+          });
         }
       }
     });
