@@ -1,0 +1,91 @@
+.container {
+  padding: 24rpx;
+}
+.upload-section {
+  margin-bottom: 32rpx;
+}
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+.image-item {
+  position: relative;
+}
+.preview-img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #eee;
+}
+.delete-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #f44;
+  background: #fff;
+  border-radius: 50%;
+}
+.title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 12rpx;
+}
+.desc {
+  font-size: 24rpx;
+  color: #888;
+  margin-bottom: 24rpx;
+}
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18rpx;
+  margin-bottom: 24rpx;
+}
+.image-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #f7f8fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12rpx;
+}
+.delete-btn {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  background: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  z-index: 2;
+  padding: 4rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+}
+.add-btn {
+  border: 2rpx dashed #bbb;
+  color: #bbb;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.add-text {
+  font-size: 24rpx;
+  color: #bbb;
+  margin-top: 8rpx;
+}
+.submit-btn {
+  width: 100%;
+  margin-top: 32rpx;
+  font-size: 32rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+} 

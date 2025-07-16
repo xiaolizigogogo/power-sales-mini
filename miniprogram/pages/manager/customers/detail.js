@@ -65,7 +65,8 @@ Page({
       'cancelled': { text: '已取消', color: '#ff4d4f' }
     },
     tabIndex: 0, // 0: 跟进记录, 1: 订单记录, 2: 合同记录
-    refreshing: false
+    refreshing: false,
+    ordersWithContracts: [] // 新增：订单与合同分组数据
   },
 
   onLoad: function (options) {
@@ -220,195 +221,73 @@ Page({
   // 获取订单状态文本
   getOrderStatusText(status) {
     const statusMap = {
-      'pending': '待处理',
-      'negotiating': '商务洽谈中',
+      'pending': '待确认',
+      'negotiating': '商务洽谈',
       'confirmed': '已确认',
-      'paid': '已支付',
-      'service': '服务中',
+      'contract': '合同签署',
+      'signed': '已签约',
+      'active': '服务中',
       'completed': '已完成',
       'cancelled': '已取消',
-      'rejected': '已拒绝',
-      'contract': '待签约',
-      'active': '服务中'
+      'rejected': '已拒绝'
     };
-    // 如果状态不在映射中，直接显示原始状态
     return statusMap[status] || status;
   },
 
   // 获取订单状态说明
   getOrderStatusDesc(status) {
     const statusDescMap = {
-      'pending': '订单待处理，等待客户经理确认',
-      'negotiating': '正在进行商务洽谈，请等待',
-      'confirmed': '订单已确认，等待支付',
-      'paid': '订单已支付，等待开通服务',
-      'service': '服务已开通，正常使用中',
-      'completed': '服务已完成',
-      'cancelled': '订单已取消',
-      'rejected': '订单已被拒绝',
-      'contract': '等待签署合同',
-      'active': '服务正常使用中'
+      'pending': '用户下单后，订单初始状态，待客户经理处理',
+      'negotiating': '客户经理与客户沟通需求、价格等',
+      'confirmed': '洽谈达成一致，订单确认',
+      'contract': '进入合同签署流程，需上传合同',
+      'signed': '合同已签署，等待服务开通',
+      'active': '服务已开通，订单执行中',
+      'completed': '服务全部完成，订单闭环',
+      'cancelled': '订单被用户或管理员取消',
+      'rejected': '客户经理或系统拒绝订单'
     };
-    // 如果状态不在映射中，返回空字符串
     return statusDescMap[status] || '';
   },
 
   // 获取订单状态颜色
   getOrderStatusColor(status) {
     const statusColorMap = {
-      'pending': '#fa8c16',
+      'pending': '#faad14',
       'negotiating': '#1890ff',
       'confirmed': '#52c41a',
-      'paid': '#2b85e4',
-      'service': '#1890ff',
+      'contract': '#2b85e4',
+      'signed': '#34c759',
+      'active': '#1890ff',
       'completed': '#52c41a',
       'cancelled': '#ff4d4f',
-      'rejected': '#ff4d4f',
-      'contract': '#1890ff',
-      'active': '#1890ff'
+      'rejected': '#ff4d4f'
     };
-    // 如果状态不在映射中，返回默认颜色
     return statusColorMap[status] || '#999999';
   },
 
-  // 加载合同记录
+  // 加载合同记录（改为订单+合同分组）
   async loadContracts() {
     try {
       this.setData({ loadingContracts: true });
-      // 获取当前登录人id
-      const userInfo = wx.getStorageSync('userInfo');
-      const managerId = userInfo && userInfo.id ? userInfo.id : (userInfo && userInfo.data && userInfo.data.id ? userInfo.data.id : null);
-      // 调用合同API - 更新为经理端接口
-      const res = await apiService.get(`/manager/customers/${this.data.customerId}/contracts`, {
-        page: 1,
-        pageSize: 50,
-        managerId // 新增managerId参数
-      });
-      
+      const res = await apiService.get(`/manager/customers/${this.data.customerId}/orders-contracts`);
       if (res.code === 200) {
-        const contracts = res.data.records.map(contract => {
-          const status = contract.status || 'pending';
-          return {
-            ...contract,
-            // 根据PostgreSQL表结构映射字段
-            contractNo: contract.contract_no,
-            orderNo: contract.order_no,
-            orderId: contract.order_id,
-            customerId: contract.customer_id,
-            customerName: contract.customer_name,
-            productName: contract.product_name,
-            servicePeriod: contract.service_period,
-            amount: contract.amount,
-            status: status,
-            serviceAddress: contract.service_address,
-            contractUrl: contract.contract_url,
-            signedFileUrl: contract.signed_file_url,
-            signedFileName: contract.signed_file_name,
-            remarks: contract.remarks,
-            signedAt: contract.signed_at,
-            signedBy: contract.signed_by,
-            completedAt: contract.completed_at,
-            completedBy: contract.completed_by,
-            expireAt: contract.expire_at,
-            createdAt: contract.created_at,
-            updatedAt: contract.updated_at,
-            // 格式化显示字段
-            createTime: formatDateTime(contract.created_at),
-            signTime: formatDateTime(contract.signed_at),
-            completeTime: formatDateTime(contract.completed_at),
-            expireTime: formatDateTime(contract.expire_at),
-            statusText: this.getContractStatusText(status),
-            statusColor: this.getContractStatusColor(status),
-            amountText: this.formatMoney(contract.amount || 0)
-          };
-        });
-        
+        // 结构：[{order, contracts: [...]}, ...]
+        const ordersWithContracts = (res.data || []).map(item => ({
+          ...item,
+          contractImgUrls: (item.contracts || []).map(c => c.fileUrl)
+        }));
         this.setData({
-          contracts,
+          ordersWithContracts,
           loadingContracts: false
         });
       }
     } catch (error) {
       console.error('加载合同记录失败:', error);
       this.setData({ loadingContracts: false });
-      
-      // 使用模拟数据，基于PostgreSQL表结构
-      const mockContracts = [
-        {
-          id: 1,
-          contractNo: 'CONTRACT_2025001',
-          orderNo: 'ORDER_2025001',
-          orderId: 1,
-          customerId: this.data.customerId,
-          customerName: this.data.customerInfo.name || '测试企业',
-          productName: '企业电力优化服务',
-          servicePeriod: 12,
-          amount: 50000.00,
-          status: 'pending',
-          statusText: '待签署',
-          statusColor: '#faad14',
-          amountText: '¥50,000.00',
-          serviceAddress: '北京市朝阳区测试地址',
-          contractUrl: 'https://example.com/contracts/CONTRACT_2025001.pdf',
-          remarks: '测试合同',
-          createTime: '2025-01-15 10:30:00',
-          signTime: '',
-          completeTime: '',
-          expireTime: '2026-01-15 10:30:00'
-        },
-        {
-          id: 2,
-          contractNo: 'CONTRACT_2025002',
-          orderNo: 'ORDER_2025002',
-          orderId: 2,
-          customerId: this.data.customerId,
-          customerName: this.data.customerInfo.name || '测试企业',
-          productName: '工业用电优化方案',
-          servicePeriod: 24,
-          amount: 120000.00,
-          status: 'signed',
-          statusText: '已签署',
-          statusColor: '#52c41a',
-          amountText: '¥120,000.00',
-          serviceAddress: '上海市浦东新区测试地址',
-          contractUrl: 'https://example.com/contracts/CONTRACT_2025002.pdf',
-          signedFileUrl: 'https://example.com/signed/CONTRACT_2025002_signed.pdf',
-          signedFileName: 'CONTRACT_2025002_signed.pdf',
-          remarks: '已签署的测试合同',
-          createTime: '2025-01-10 09:15:00',
-          signTime: '2025-01-12 14:20:00',
-          completeTime: '',
-          expireTime: '2027-01-10 09:15:00'
-        },
-        {
-          id: 3,
-          contractNo: 'CONTRACT_2025003',
-          orderNo: 'ORDER_2025003',
-          orderId: 3,
-          customerId: this.data.customerId,
-          customerName: this.data.customerInfo.name || '测试企业',
-          productName: '商业用电管理服务',
-          servicePeriod: 6,
-          amount: 30000.00,
-          status: 'completed',
-          statusText: '已完成',
-          statusColor: '#52c41a',
-          amountText: '¥30,000.00',
-          serviceAddress: '广州市天河区测试地址',
-          contractUrl: 'https://example.com/contracts/CONTRACT_2025003.pdf',
-          signedFileUrl: 'https://example.com/signed/CONTRACT_2025003_signed.pdf',
-          signedFileName: 'CONTRACT_2025003_signed.pdf',
-          remarks: '已完成的测试合同',
-          createTime: '2024-12-20 16:30:00',
-          signTime: '2024-12-25 10:15:00',
-          completeTime: '2025-06-20 16:30:00',
-          expireTime: '2025-06-20 16:30:00'
-        }
-      ];
-      
-      this.setData({
-        contracts: mockContracts,
-        loadingContracts: false
+      wx.showToast({
+        title: '加载合同记录失败',
+        icon: 'none'
       });
     }
   },
@@ -623,6 +502,34 @@ Page({
     }
   },
 
+  // 开通服务
+  async onActivateOrder(e) {
+    const orderId = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '确认开通服务',
+      content: '确定要为该订单开通服务吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '开通中...', mask: true });
+          try {
+            // 调用后端接口
+            const apiRes = await apiService.put(`/manager/orders/${orderId}/activate`);
+            if (apiRes.code === 200) {
+              wx.showToast({ title: '服务已开通', icon: 'success' });
+              await this.loadOrders();
+            } else {
+              wx.showToast({ title: apiRes.message || '开通失败', icon: 'none' });
+            }
+          } catch (err) {
+            wx.showToast({ title: '开通失败', icon: 'none' });
+          } finally {
+            wx.hideLoading();
+          }
+        }
+      }
+    });
+  },
+
   // 获取状态显示信息
   getStatusInfo(status) {
     const statusInfo = this.data.statusOptions.find(item => item.value === status);
@@ -825,6 +732,16 @@ Page({
     });
     wx.switchTab({
       url: '/pages/orders/index/index'
+    });
+  },
+
+  // 合同图片预览
+  onPreviewContractImg(e) {
+    const urls = e.currentTarget.dataset.urls;
+    const index = e.currentTarget.dataset.index;
+    wx.previewImage({
+      urls: urls,
+      current: urls[index]
     });
   }
 }); 

@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="upload-section">
+    <view class="title">上传合同图片</view>
+    <view class="desc">请上传清晰的合同扫描件，最多可选9张，支持长按预览大图。</view>
+    <view class="image-grid">
+      <block wx:for="{{fileList}}" wx:key="index">
+        <view class="image-item">
+          <image src="{{item.previewUrl}}" mode="aspectFill" class="preview-img" bindtap="previewImage" data-url="{{item.previewUrl}}" />
+          <view class="delete-btn" bindtap="removeImage" data-index="{{index}}">
+            <van-icon name="cross" size="20" />
+          </view>
+        </view>
+      </block>
+      <view class="image-item add-btn" wx:if="{{fileList.length < 9}}" bindtap="chooseImage">
+        <van-icon name="plus" size="40" />
+        <view class="add-text">添加</view>
+      </view>
+    </view>
+  </view>
+  <button type="primary" class="submit-btn" bindtap="submitContracts" disabled="{{fileList.length === 0}}">提交</button>
+</view> 

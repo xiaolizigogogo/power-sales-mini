@@ -11,6 +11,7 @@
     "pages/profile/index/index",
     "pages/orders/create/create",
     "pages/orders/detail/detail",
+    "pages/orders/contract-upload/contract-upload",
     "pages/products/calculator/calculator",
     "pages/profile/auth/auth",
     "pages/manager/workplace/workplace",

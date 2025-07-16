@@ -148,5 +148,55 @@ App({
   // 检查是否已登录
   isLoggedIn() {
     return this.globalData.isLogin
+  },
+
+  request({ url, method = 'GET', data = {}, header = {}, showLoading = true }) {
+    if (showLoading) wx.showLoading({ title: '加载中...' });
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url,
+        method,
+        data,
+        header: {
+          'Authorization': 'Bearer ' + (this.globalData.token || wx.getStorageSync('token') || ''),
+          'content-type': 'application/json',
+          ...header
+        },
+        success: res => {
+          if (showLoading) wx.hideLoading();
+          resolve(res);
+        },
+        fail: err => {
+          if (showLoading) wx.hideLoading();
+          wx.showToast({ title: '网络错误', icon: 'none' });
+          reject(err);
+        }
+      });
+    });
+  },
+
+  uploadFile({ url, filePath, name = 'file', formData = {}, header = {} }) {
+    wx.showLoading({ title: '上传中...' });
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url,
+        filePath,
+        name,
+        formData,
+        header: {
+          'Authorization': 'Bearer ' + (this.globalData.token || wx.getStorageSync('token') || ''),
+          ...header
+        },
+        success: res => {
+          wx.hideLoading();
+          resolve(res);
+        },
+        fail: err => {
+          wx.hideLoading();
+          wx.showToast({ title: '上传失败', icon: 'none' });
+          reject(err);
+        }
+      });
+    });
   }
 }) 

@@ -47,42 +47,6 @@
         </view>
       </view>
       
-      <!-- 联系方式 -->
-      <view class="contact-info">
-        <view class="contact-item" wx:if="{{customerInfo.phone}}">
-          <van-icon name="phone-o" size="16px" color="#1890ff" />
-          <text class="contact-text">{{customerInfo.phone}}</text>
-          <view class="contact-actions">
-            <view class="action-btn" data-type="phone" bindtap="onQuickContact">
-              <van-icon name="phone" size="16px" color="#52c41a" />
-            </view>
-            <view class="action-btn" data-type="sms" bindtap="onQuickContact">
-              <van-icon name="chat-o" size="16px" color="#1890ff" />
-            </view>
-          </view>
-        </view>
-        
-        <view class="contact-item" wx:if="{{customerInfo.email !== '未设置'}}">
-          <van-icon name="envelop-o" size="16px" color="#1890ff" />
-          <text class="contact-text">{{customerInfo.email}}</text>
-          <view class="contact-actions">
-            <view class="action-btn" data-type="email" bindtap="onQuickContact">
-              <van-icon name="notes-o" size="16px" color="#faad14" />
-            </view>
-          </view>
-        </view>
-        
-        <view class="contact-item" wx:if="{{customerInfo.wechat !== '未设置'}}">
-          <van-icon name="wechat" size="16px" color="#52c41a" />
-          <text class="contact-text">{{customerInfo.wechat}}</text>
-          <view class="contact-actions">
-            <view class="action-btn" data-type="wechat" bindtap="onQuickContact">
-              <van-icon name="wechat" size="16px" color="#52c41a" />
-            </view>
-          </view>
-        </view>
-      </view>
-      
       <!-- 详细信息 -->
       <view class="detail-info">
         <view class="detail-section">
@@ -248,6 +212,15 @@
                       wx:if="{{item.status === 'pending'}}">
                       商务洽谈
                     </button>
+                    <!-- 新增：开通服务按钮 -->
+                    <button 
+                      class="action-btn activate" 
+                      size="mini" 
+                      bindtap="onActivateOrder" 
+                      data-id="{{item.id}}"
+                      wx:if="{{item.status === 'signed'}}">
+                      开通服务
+                    </button>
                   </view>
                 </view>
               </view>
@@ -267,81 +240,25 @@
               <van-loading size="24px" />
               <text>加载合同记录...</text>
             </view>
-            <view wx:elif="{{contracts.length === 0}}" class="empty-state">
+            <view wx:elif="{{ordersWithContracts.length === 0}}" class="empty-state">
               <van-empty description="暂无合同记录" />
             </view>
             <block wx:else>
-              <view class="contract-item" wx:for="{{contracts}}" wx:key="id">
-                <view class="contract-header">
-                  <text class="contract-no">{{item.contractNo}}</text>
-                  <view class="contract-status-wrapper">
-                    <text class="contract-status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
+              <block wx:for="{{ordersWithContracts}}" wx:key="order.id">
+                <view class="order-contract-block">
+                  <view class="order-header">订单号：{{item.order.orderNo}} | 服务地址：{{item.order.serviceAddress}} | 金额：¥{{item.order.amount}}</view>
+                  <view class="contract-img-list">
+                    <block wx:for="{{item.contracts}}" wx:key="contract.id">
+                      <image class="contract-img"
+                             src="{{contract.fileUrl}}"
+                             mode="aspectFill"
+                             bindtap="onPreviewContractImg"
+                             data-urls="{{item.contractImgUrls}}"
+                             data-index="{{index}}" />
+                    </block>
                   </view>
                 </view>
-                
-                <view class="contract-content">
-                  <view class="contract-title">{{item.productName}}</view>
-                  
-                  <view class="contract-info">
-                    <view class="info-row">
-                      <text class="info-label">订单编号：</text>
-                      <text class="info-value">{{item.orderNo}}</text>
-                    </view>
-                    <view class="info-row">
-                      <text class="info-label">服务地址：</text>
-                      <text class="info-value">{{item.serviceAddress}}</text>
-                    </view>
-                    <view class="info-row">
-                      <text class="info-label">服务期限：</text>
-                      <text class="info-value">{{item.servicePeriod}}个月</text>
-                    </view>
-                    <view class="info-row">
-                      <text class="info-label">合同金额：</text>
-                      <text class="info-value amount">{{item.amountText}}</text>
-                    </view>
-                  </view>
-                  
-                  <view class="contract-time">
-                    <view class="time-row">
-                      <text class="time-label">创建时间：</text>
-                      <text class="time-value">{{item.createTime}}</text>
-                    </view>
-                    <view class="time-row" wx:if="{{item.signTime}}">
-                      <text class="time-label">签署时间：</text>
-                      <text class="time-value">{{item.signTime}}</text>
-                    </view>
-                    <view class="time-row" wx:if="{{item.completeTime}}">
-                      <text class="time-label">完成时间：</text>
-                      <text class="time-value">{{item.completeTime}}</text>
-                    </view>
-                    <view class="time-row" wx:if="{{item.expireTime}}">
-                      <text class="time-label">过期时间：</text>
-                      <text class="time-value">{{item.expireTime}}</text>
-                    </view>
-                  </view>
-                  
-                  <view class="contract-remark" wx:if="{{item.remarks}}">
-                    <text class="remark-label">备注：</text>
-                    <text class="remark-content">{{item.remarks}}</text>
-                  </view>
-                </view>
-                
-                <view class="contract-footer">
-                  <view class="contract-actions">
-                    <button class="action-btn" size="mini" bindtap="onViewContract" data-id="{{item.id}}">查看详情</button>
-                    <button class="action-btn download" size="mini" bindtap="onDownloadContract" data-id="{{item.id}}" data-contract-no="{{item.contractNo}}">下载</button>
-                    <button 
-                      class="action-btn sign" 
-                      size="mini" 
-                      bindtap="onSignContract" 
-                      data-id="{{item.id}}"
-                      data-contract-no="{{item.contractNo}}"
-                      wx:if="{{item.status === 'pending'}}">
-                      签署
-                    </button>
-                  </view>
-                </view>
-              </view>
+              </block>
             </block>
           </view>
         </van-tab>
