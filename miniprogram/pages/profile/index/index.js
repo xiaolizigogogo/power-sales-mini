@@ -32,7 +32,8 @@ Page({
         icon: '📄',
         title: '我的合同',
         subtitle: '合同管理',
-        badge: 0
+        badge: 0,
+         url: '/pages/customer/contracts/list'
       },
       {
         id: 'renewal-notice',
@@ -569,7 +570,7 @@ Page({
         break;
       case 'contracts':
         // 合同页面暂未实现
-        wx.navigateTo({ url: '/pages/profile/contracts/contracts' });
+        wx.navigateTo({ url: '/pages/customer/contracts/list' });
         break;
       case 'renewal-notice':
         // 续约提醒页面暂未实现
@@ -742,7 +743,6 @@ Page({
     }
     
     console.log('统计数据点击:', type);
-    
     switch (type) {
       case 'orders':
         // 订单页面是tabbar页面，使用switchTab
@@ -751,7 +751,7 @@ Page({
         });
         break;
       case 'contracts':
-        wx.navigateTo({ url: '/pages/profile/contracts/contracts' });
+        wx.navigateTo({ url: '/pages/customer/contracts/list' });
         break;
       case 'power-points':
         wx.showToast({

@@ -77,23 +77,7 @@
       />
     </van-tabs>
 
-    <!-- 高级筛选 -->
-    <view class="advanced-filter">
-      <van-dropdown-menu active-color="#1989fa">
-        <van-dropdown-item
-          value="{{ filters.priceRange }}"
-          options="{{ priceRanges }}"
-          bind:change="onPriceRangeChange"
-          title="价格区间"
-        />
-        <van-dropdown-item
-          value="{{ filters.suitable }}"
-          options="{{ suitableOptions }}"
-          bind:change="onSuitableChange"
-          title="适用性"
-        />
-      </van-dropdown-menu>
-    </view>
+
   </view>
 
   <!-- 产品列表 -->

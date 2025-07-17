@@ -181,7 +181,33 @@
   border-radius: 8rpx;
   border-left: 4rpx solid #1989fa;
 }
-
+.order-contract-block {
+  margin-bottom: 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  padding: 24rpx;
+}
+.order-header {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+.contract-img-list {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  overflow-x: auto;
+}
+.contract-img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 8rpx;
+  background: #f7f7f7;
+  border: 1rpx solid #eee;
+  object-fit: cover;
+}
 .desc-text {
   font-size: 26rpx;
   color: #1989fa;

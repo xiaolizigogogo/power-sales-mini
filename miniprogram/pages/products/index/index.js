@@ -81,9 +81,9 @@ const mockProducts = [
 Page({
   data: {
     // 产品列表
-    products: mockProducts, // 直接使用模拟数据
+    products: [], // 初始化为空，接口获取
     loading: false,
-    hasMore: false, // 由于使用模拟数据，设置为false
+    hasMore: true,
     page: 1,
     pageSize: 10,
     
@@ -134,22 +134,13 @@ Page({
   },
 
   onLoad(options) {
-    console.log('产品页面加载开始')
-    
-    // 获取搜索历史
-    this.loadSearchHistory()
-    
-    // 获取用户信息
-    this.getUserInfo()
-    
-    // 不再调用 loadProducts，因为已经使用模拟数据
-    console.log('初始产品数据：', this.data.products)
-    
-    // 处理分享参数
+    this.loadSearchHistory();
+    this.getUserInfo();
+    this.loadProducts(true);
     if (options.category) {
       this.setData({
         'filters.category': options.category
-      })
+      });
     }
   },
 
@@ -180,7 +171,41 @@ Page({
       imageUrl: '/assets/images/share-products.png'
     }
   },
-
+  async loadProducts(refresh = false) {
+    if (this.data.loading && !refresh) return;
+    this.setData({ loading: true, error: null });
+    try {
+      const params = {
+        page: refresh ? 1 : this.data.page,
+        pageSize: this.data.pageSize,
+        category: this.data.filters.category,
+        keyword: this.data.searchKeyword,
+        priceRange: this.data.filters.priceRange,
+        suitable: this.data.filters.suitable
+      };
+      const res = await api.getProducts(params);
+      const list = Array.isArray(res.data) ? res.data : [];
+      const formattedProducts = list.map(product => ({
+        ...product,
+        tags: this.getProductTags(product)
+      }));
+      this.setData({
+        products: refresh ? formattedProducts : [...this.data.products, ...formattedProducts],
+        page: params.page + 1,
+        hasMore: list.length === this.data.pageSize,
+        loading: false,
+        refreshing: false
+      });
+      if (refresh) wx.stopPullDownRefresh();
+    } catch (error) {
+      this.setData({
+        loading: false,
+        refreshing: false,
+        error: error.message || '加载失败，请重试'
+      });
+      if (refresh) wx.stopPullDownRefresh();
+    }
+  },
   // 获取用户信息
   async getUserInfo() {
     try {

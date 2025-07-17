@@ -7,15 +7,13 @@ Page({
     refreshing: false,
     loadingMore: false,
     hasMore: true,
-    
+    ordersWithContracts:[],
     // 筛选状态
     activeTab: 'all',
     tabs: [
       { key: 'all', name: '全部', count: 0 },
-      { key: 'pending', name: '待签署', count: 0 },
-      { key: 'signed', name: '已签署', count: 0 },
+      { key: 'signed', name: '进行中', count: 0 },
       { key: 'completed', name: '已完成', count: 0 },
-      { key: 'expired', name: '已过期', count: 0 }
     ],
     
     // 合同数据
@@ -28,10 +26,8 @@ Page({
     
     // 状态映射
     statusMap: {
-      'pending': { text: '待签署', color: '#1989fa' },
-      'signed': { text: '已签署', color: '#07c160' },
+      'signed': { text: '进行中', color: '#07c160' },
       'completed': { text: '已完成', color: '#52c41a' },
-      'expired': { text: '已过期', color: '#ff4d4f' },
       'cancelled': { text: '已取消', color: '#969799' }
     },
     
@@ -46,7 +42,7 @@ Page({
   },
 
   onLoad(options) {
-    this.loadContracts(true);
+   
   },
 
   onShow() {
@@ -55,7 +51,6 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadContracts(true);
   },
 
   onReachBottom() {
@@ -64,8 +59,7 @@ Page({
     }
   },
 
-  // 加载合同列表
-  async loadContracts(refresh = false) {
+ async loadContracts(refresh = false) {
     if (refresh) {
       this.setData({
         page: 1,
@@ -89,35 +83,46 @@ Page({
         status: activeTab === 'all' ? '' : activeTab,
         keyword: searchKeyword
       };
-
-      const res = await apiService.get('/customer/contracts', params);
-      
-      if (res.code === 200 && res.data) {
-        const { content = [], totalElements = 0 } = res.data;
-        const hasMore = page * pageSize < totalElements;
-
+      const customerId = wx.getStorageSync('userInfo').id;
+      const res = await apiService.get(`/manager/customers/${customerId}/orders-contracts`, params);
+      // 适配新接口数据结构
+      if (res.code === 200 && Array.isArray(res.data)) {
+        // 订单+合同图片结构
+        const ordersWithContracts = res.data.map(orderObj => {
+          const order = orderObj.order || {};
+          const contracts = Array.isArray(orderObj.contracts) ? orderObj.contracts.map(contractFile => ({
+            id: contractFile.id,
+            fileUrl: contractFile.fileUrl,
+            fileType: contractFile.fileType,
+            uploadedAt: contractFile.uploadedAt
+          })) : [];
+          const contractImgUrls = contracts.filter(c => c.fileType === 'image').map(c => c.fileUrl);
+          return {
+            order,
+            contracts,
+            contractImgUrls
+          };
+        });
+        const hasMore = false;
         this.setData({
-          contracts: refresh ? content : this.data.contracts.concat(content),
+          ordersWithContracts: refresh ? ordersWithContracts : this.data.ordersWithContracts.concat(ordersWithContracts),
           hasMore,
           page: hasMore ? page + 1 : page,
           loading: false,
           loadingMore: false
         });
-
-        this.updateTabCounts();
+        console.log('ordersWithContracts', this.data.ordersWithContracts);
       } else {
         throw new Error(res.message || '获取合同列表失败');
       }
     } catch (error) {
       console.error('加载合同列表失败:', error);
-      
       // 使用模拟数据
       this.loadMockContracts();
       this.setData({ 
         loading: false,
         loadingMore: false 
       });
-      
       wx.showToast({
         title: '已使用离线数据',
         icon: 'none'
@@ -126,7 +131,18 @@ Page({
       wx.stopPullDownRefresh();
     }
   },
-
+  onPreviewContractImg(e) {
+    const url = e.currentTarget.dataset.url;
+    console.log('url', e.currentTarget.dataset);
+    if (!url) {
+      wx.showToast({ title: '没有可预览的图片', icon: 'none' });
+      return;
+    }
+    wx.previewImage({
+      urls: [url],
+      current: url
+    });
+  },
   // 加载更多合同
   async loadMoreContracts() {
     await this.loadContracts(false);
