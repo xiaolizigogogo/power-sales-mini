@@ -31,7 +31,7 @@ Page({
       if (data && data.data) {
         this.setData({
           fileList: this.data.fileList.concat({
-            dbUrl: data.data.dbUrl,
+            storageUrl: data.data.storageUrl || data.data.dbUrl, // 兼容后端字段
             previewUrl: data.data.previewUrl,
             status: 'done'
           })
@@ -60,7 +60,7 @@ Page({
       wx.showToast({ title: '订单ID缺失', icon: 'none' });
       return;
     }
-    const urls = this.data.fileList.map(item => item.dbUrl);
+    const urls = this.data.fileList.map(item => item.storageUrl); // 只提交storageUrl
     if (urls.length === 0) {
       wx.showToast({ title: '请先上传图片', icon: 'none' });
       return;

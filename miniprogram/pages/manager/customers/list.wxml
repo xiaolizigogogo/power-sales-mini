@@ -198,25 +198,7 @@
         
         <!-- 操作按钮区域 -->
         <view class="card-actions">
-          <button 
-            class="action-btn primary" 
-            wx:if="{{item.orderSummary && item.orderSummary.totalOrders > 0}}"
-            data-id="{{item.id}}"
-            catchtap="onViewOrders"
-          >
-            <van-icon name="orders-o" size="32rpx" />
-            <text>查看订单</text>
-          </button>
-          <button 
-            class="action-btn primary" 
-            wx:else
-            data-id="{{item.id}}"
-            catchtap="onViewOrders"
-          >
-            <van-icon name="orders-o" size="32rpx" />
-            <text>暂无订单</text>
-          </button>
-          
+    
           <button 
             class="action-btn success"
             data-id="{{item.id}}"
@@ -226,7 +208,6 @@
             <van-icon name="phone-o" size="32rpx" />
             <text>联系客户</text>
           </button>
-          
           <button 
             class="action-btn info"
             data-id="{{item.id}}"

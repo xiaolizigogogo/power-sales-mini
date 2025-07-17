@@ -174,54 +174,37 @@
             <block wx:else>
               <view class="order-item" wx:for="{{orders}}" wx:key="id">
                 <view class="order-header">
-                  <text class="order-id">订单号：{{item.orderNo || item.id}}</text>
-                  <view class="order-status-wrapper">
-                    <text class="order-status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
-                    <text class="order-status-desc" wx:if="{{item.statusDesc}}">{{item.statusDesc}}</text>
+                  <view class="order-id-status">
+                    <text class="order-id-label">订单号：</text>
+                    <text class="order-id-full" bindtap="onShowOrderNo" data-order-no="{{item.orderNo || item.id}}">{{item.orderNo || item.id}}</text>
+                    <view class="order-status-badge" style="background:{{item.statusColor}}">{{item.statusText}}</view>
                   </view>
+                  <view class="order-status-desc" wx:if="{{item.statusDesc}}">{{item.statusDesc}}</view>
                 </view>
-                
-                <view class="order-content">
-                  <view class="product-info">
-                    <text class="product-name">{{item.serviceAddress || '未知服务地址'}}</text>
-                    <text class="product-spec">期限：{{item.servicePeriod}}个月</text>
-                  </view>
-                  
-                  <view class="price-info">
-                    <text class="unit-price">单价：¥{{item.unitPrice}}</text>
-                    <text class="total-amount">总额：¥{{item.totalAmount}}</text>
-                  </view>
-                  
-                  <view class="usage-info">
-                    <text class="usage-label">每月用电量：{{item.monthlyUsage}}</text>
-                  </view>
+                <view class="order-info-row">
+                  <text class="order-info-label">服务地址：</text>
+                  <text class="order-info-value">{{item.serviceAddress || '未知服务地址'}}</text>
                 </view>
-                
-                <view class="order-footer">
-                  <view class="order-time-info">
-                    <text class="create-time">创建：{{item.createTime || '未知'}}</text>
-                    <text class="delivery-time" wx:if="{{item.deliveryTime}}">交付：{{item.deliveryTime}}</text>
-                  </view>
-                  <view class="order-actions">
-                    <button class="action-btn" size="mini" bindtap="onViewOrder" data-id="{{item.id}}">查看详情</button>
-                    <button 
-                      class="action-btn negotiate" 
-                      size="mini" 
-                      bindtap="onNegotiate" 
-                      data-id="{{item.id}}"
-                      wx:if="{{item.status === 'pending'}}">
-                      商务洽谈
-                    </button>
-                    <!-- 新增：开通服务按钮 -->
-                    <button 
-                      class="action-btn activate" 
-                      size="mini" 
-                      bindtap="onActivateOrder" 
-                      data-id="{{item.id}}"
-                      wx:if="{{item.status === 'signed'}}">
-                      开通服务
-                    </button>
-                  </view>
+                <view class="order-info-row">
+                  <text class="order-info-label">期限：</text>
+                  <text class="order-info-value">{{item.servicePeriod}}个月</text>
+                </view>
+                <view class="order-info-row">
+                  <text class="order-info-label">单价：</text>
+                  <text class="order-info-value">¥{{item.unitPrice}}</text>
+                  <text class="order-info-label" style="margin-left:24rpx;">总额：</text>
+                  <text class="order-info-value order-amount">¥{{item.totalAmount}}</text>
+                </view>
+                <view class="order-info-row">
+                  <text class="order-info-label">每月用电量：</text>
+                  <text class="order-info-value">{{item.monthlyUsage}}</text>
+                </view>
+                <view class="order-info-row">
+                  <text class="order-info-label">创建时间：</text>
+                  <text class="order-info-value">{{item.createTime || '未知'}}</text>
+                </view>
+                <view class="order-actions">
+                  <button class="action-btn" size="mini" bindtap="onViewOrder" data-id="{{item.id}}">查看详情</button>
                 </view>
               </view>
             </block>

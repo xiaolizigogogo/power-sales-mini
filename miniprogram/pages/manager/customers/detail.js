@@ -275,7 +275,7 @@ Page({
         // 结构：[{order, contracts: [...]}, ...]
         const ordersWithContracts = (res.data || []).map(item => ({
           ...item,
-          contractImgUrls: (item.contracts || []).map(c => c.fileUrl)
+          contractImgUrls: (item.contracts || []).map(c => c.fileUrl || c.previewUrl || c.storageUrl).filter(Boolean)
         }));
         this.setData({
           ordersWithContracts,
@@ -737,11 +737,61 @@ Page({
 
   // 合同图片预览
   onPreviewContractImg(e) {
-    const urls = e.currentTarget.dataset.urls;
-    const index = e.currentTarget.dataset.index;
+    let urls = e.currentTarget.dataset.urls;
+    let index = e.currentTarget.dataset.index;
+    // 修复：如果urls未传递，则自动从this.data.contracts组装
+    if (!urls || !Array.isArray(urls) || !urls.length) {
+      // 尝试从ordersWithContracts中查找
+      if (this.data.ordersWithContracts && this.data.ordersWithContracts.length > 0) {
+        for (const group of this.data.ordersWithContracts) {
+          if (group.contractImgUrls && group.contractImgUrls.length > 0) {
+            urls = group.contractImgUrls;
+            break;
+          }
+        }
+      }
+      // 兜底：从contracts字段组装
+      if (!urls || !urls.length) {
+        urls = (this.data.contracts || []).map(item => item.fileUrl || item.previewUrl || item.storageUrl).filter(Boolean);
+      }
+    }
+    if (typeof index !== 'number') {
+      index = 0;
+    }
     wx.previewImage({
       urls: urls,
-      current: urls[index]
+      current: urls && urls[index] ? urls[index] : (urls[0] || '')
+    });
+  },
+
+  // 订单号一键复制
+  onCopyOrderNo(e) {
+    wx.setClipboardData({
+      data: e.currentTarget.dataset.orderNo,
+      success: () => {
+        wx.showToast({ title: '订单号已复制', icon: 'success' });
+      }
+    });
+  },
+
+  // 点击订单号弹窗显示并可复制
+  onShowOrderNo(e) {
+    const orderNo = e.currentTarget.dataset.orderNo;
+    wx.showModal({
+      title: '订单号',
+      content: orderNo,
+      showCancel: true,
+      confirmText: '复制',
+      success: (res) => {
+        if (res.confirm) {
+          wx.setClipboardData({
+            data: orderNo,
+            success: () => {
+              wx.showToast({ title: '已复制', icon: 'success' });
+            }
+          });
+        }
+      }
     });
   }
 }); 

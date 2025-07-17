@@ -1298,174 +1298,178 @@
   padding: 40rpx 0;
 }
 
-/* 订单记录 */
-.order-records {
-  padding: 20rpx;
+/* 订单记录卡片美化升级 */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
-
 .order-item {
-  background: white;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(24,144,255,0.06);
+  padding: 32rpx 28rpx 24rpx 28rpx;
+  margin-bottom: 0;
+  border: 1rpx solid #e6f4ff;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
 }
-
+.order-item:active {
+  box-shadow: 0 8rpx 32rpx rgba(24,144,255,0.12);
+}
 .order-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-  padding-bottom: 16rpx;
+  align-items: flex-start;
+  margin-bottom: 18rpx;
+  padding-bottom: 12rpx;
   border-bottom: 1rpx solid #f0f0f0;
+  gap: 12rpx;
 }
-
 .order-id {
-  font-size: 26rpx;
-  color: #666;
+  font-size: 30rpx;
+  color: #1890ff;
+  font-weight: 600;
+  min-width: 0;
+  word-break: break-all;
 }
-
 .order-status-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4rpx;
+  gap: 6rpx;
+  min-width: 0;
 }
-
 .order-status {
-  font-size: 28rpx;
-  font-weight: 500;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg,#1890ff 60%,#40a9ff 100%);
+  padding: 4rpx 18rpx;
+  border-radius: 16rpx;
+  margin-bottom: 2rpx;
+  text-align: right;
 }
-
 .order-status-desc {
-  font-size: 24rpx;
-  color: #666;
-  max-width: 300rpx;
-  white-space: nowrap;
+  font-size: 22rpx;
+  color: #888;
+  max-width: 70vw;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: right;
 }
-
-.order-status.pending {
-  background: #e6f7ff;
-  color: #1890ff;
-}
-
-.order-status.processing {
-  background: #fff7e6;
-  color: #faad14;
-}
-
-.order-status.completed {
-  background: #f6ffed;
-  color: #52c41a;
-}
-
-.order-status.cancelled {
-  background: #fff1f0;
-  color: #ff4d4f;
-}
-
 .order-content {
   margin-bottom: 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18rpx;
 }
-
 .product-info {
-  margin-bottom: 12rpx;
+  min-width: 120rpx;
+  flex: 1 1 45%;
+  word-break: break-all;
 }
-
 .product-name {
   font-size: 28rpx;
-  color: #333;
+  color: #222;
   font-weight: 500;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
   display: block;
+  word-break: break-all;
 }
-
 .product-spec {
-  font-size: 26rpx;
-  color: #666;
+  font-size: 24rpx;
+  color: #888;
   display: block;
+  word-break: break-all;
 }
-
 .price-info {
   display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-top: 0;
+}
+.unit-price {
+  font-size: 22rpx;
+  color: #888;
+  word-break: break-all;
+}
+.total-amount {
+  font-size: 24rpx;
+  color: #ff4d4f;
+  font-weight: 700;
+  background: #fff1f0;
+  border-radius: 8rpx;
+  padding: 2rpx 10rpx;
+  margin-left: 0;
+  margin-top: 2rpx;
+  display: inline-block;
+}
+.usage-info {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+  word-break: break-all;
+}
+.order-footer {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   margin-top: 12rpx;
-}
-
-.unit-price {
-  font-size: 26rpx;
-  color: #666;
-}
-
-.total-amount {
-  font-size: 28rpx;
-  color: #ff4d4f;
-  font-weight: 500;
-}
-
-.order-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 16rpx;
-  padding-top: 16rpx;
+  padding-top: 12rpx;
   border-top: 1rpx solid #f0f0f0;
+  gap: 12rpx;
 }
-
 .order-time-info {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 4rpx;
+  min-width: 0;
 }
-
 .create-time, .delivery-time {
-  font-size: 24rpx;
-  color: #999;
+  font-size: 22rpx;
+  color: #bbb;
+  word-break: break-all;
 }
-
 .order-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12rpx;
+  min-width: 0;
 }
-
 .action-btn {
-  font-size: 26rpx;
-  padding: 12rpx 20rpx;
-  background: #f5f5f5;
-  color: #666;
+  font-size: 24rpx;
+  padding: 10rpx 28rpx;
+  background: linear-gradient(90deg,#e6f7ff 60%,#f0f5ff 100%);
+  color: #1890ff;
   border: none;
-  border-radius: 6rpx;
-  min-width: 120rpx;
+  border-radius: 24rpx;
+  min-width: 100rpx;
   text-align: center;
   white-space: nowrap;
+  margin-bottom: 4rpx;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(24,144,255,0.04);
+  transition: background 0.2s;
 }
-
-.action-btn.negotiate {
-  background: #e6f7ff;
-  color: #1890ff;
-  margin-left: 12rpx;
-  min-width: 140rpx;
+.action-btn:active {
+  background: linear-gradient(90deg,#bae7ff 60%,#e6f7ff 100%);
 }
-
-.action-btn.negotiate::after {
-  border: none;
-}
-
-.action-btn.activate {
-  background: #e6fffb;
-  color: #13c2c2;
-  margin-left: 12rpx;
-  min-width: 140rpx;
-}
-
-.empty-tip {
-  text-align: center;
-  color: #999;
-  font-size: 28rpx;
-  padding: 40rpx 0;
+@media (max-width: 375px) {
+  .order-header, .order-content, .order-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6rpx;
+  }
+  .order-item {
+    padding: 2vw 0;
+  }
+  .order-status-desc {
+    max-width: 95vw;
+  }
 }
 
 /* 合同记录样式 */
@@ -1695,16 +1699,16 @@
 .contract-img-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 16rpx;
-  margin: 16rpx 0 0 0;
+  gap: 12rpx;
+  margin-top: 12rpx;
 }
 .contract-img {
-  width: 180rpx;
-  height: 180rpx;
+  width: 160rpx;
+  height: 120rpx;
   border-radius: 8rpx;
   object-fit: cover;
   background: #f5f5f5;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
 }
 .order-contract-block {
   background: #fff;
@@ -1718,4 +1722,58 @@
   color: #333;
   font-weight: 500;
   margin-bottom: 12rpx;
+}
+
+/* 订单号与状态同行美化 */
+.order-id-status {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 4rpx;
+}
+.order-id-label {
+  font-size: 22rpx;
+  color: #888;
+}
+.order-id-full {
+  font-size: 22rpx;
+  color: #333;
+  background: #f5f5f5;
+  border-radius: 6rpx;
+  padding: 2rpx 8rpx;
+  margin-right: 8rpx;
+}
+.order-status-badge {
+  font-size: 22rpx;
+  color: #fff;
+  background: #1890ff;
+  border-radius: 12rpx;
+  padding: 2rpx 16rpx;
+  min-width: 60rpx;
+  text-align: center;
+  display: inline-block;
+}
+.order-info-row {
+  display: flex;
+  align-items: center;
+  margin: 6rpx 0;
+}
+.order-info-label {
+  font-size: 22rpx;
+  color: #888;
+  min-width: 100rpx;
+}
+.order-info-value {
+  font-size: 22rpx;
+  color: #333;
+  margin-right: 12rpx;
+}
+.order-amount {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12rpx;
 }
