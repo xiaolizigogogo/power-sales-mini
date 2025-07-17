@@ -46,8 +46,6 @@
             </view>
           </view>
         </view>
-        <view class="company" wx:if="{{ userInfo.companyName }}">{{ userInfo.companyName }}</view>
-        <view class="phone" wx:if="{{ userInfo.phone }}">{{ userInfo.phone }}</view>
         <view class="manager-info" 
               wx:if="{{ userInfo.managerName }}" 
               bindtap="contactManager">
@@ -87,13 +85,6 @@
     </view>
   </view>
 
-  <!-- 临时调试信息 -->
-  <view style="background: #f0f0f0; padding: 20rpx; margin: 20rpx; border-radius: 10rpx; font-size: 24rpx;" wx:if="{{stats}}">
-    <text>调试信息：</text>
-    <text>orderCount: {{stats.orderCount}}</text>
-    <text>contractCount: {{stats.contractCount}}</text>
-    <text>powerPoints: {{stats.powerPoints}}</text>
-  </view>
 
   <!-- 快捷功能区 -->
   <view class="quick-actions">
@@ -106,36 +97,6 @@
     </view>
   </view>
 
-  <!-- 用电数据卡片 -->
-  <view class="power-card">
-    <view class="card-header">
-      <text class="title">本月用电概况</text>
-      <text class="more" bindtap="viewPowerData">查看详情</text>
-    </view>
-    <view class="power-stats">
-      <view class="power-item">
-        <text class="item-label">用电量</text>
-        <view class="item-value">
-          <text class="number">{{ powerData.monthlyConsumption || 0 }}</text>
-          <text class="unit">度</text>
-        </view>
-      </view>
-      <view class="power-item">
-        <text class="item-label">电费</text>
-        <view class="item-value">
-          <text class="number">{{ powerData.monthlyBill || 0 }}</text>
-          <text class="unit">元</text>
-        </view>
-      </view>
-      <view class="power-item highlight">
-        <text class="item-label">节省</text>
-        <view class="item-value">
-          <text class="number">{{ powerData.savingRate || 0 }}</text>
-          <text class="unit">%</text>
-        </view>
-      </view>
-    </view>
-  </view>
 
   <!-- 功能菜单 -->
   <view class="menu-section">

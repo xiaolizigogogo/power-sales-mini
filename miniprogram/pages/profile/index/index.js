@@ -3,6 +3,7 @@ const { authAPI, orderAPI, userAPI } = require('../../../utils/api')
 const auth = require('../../../utils/auth')
 const { checkRoleAccess } = require('../../../utils/auth')
 const { roleManager } = require('../../../utils/role-manager')
+const config = require('../../../utils/config');
 
 Page({
   data: {
@@ -281,6 +282,8 @@ Page({
         userInfo,
         isLoggedIn: true
       });
+      // 刷新统计数据
+      await this.loadUserStats();
       console.log('页面数据更新完成，当前用户信息:', this.data.userInfo);
       console.log('页面数据更新完成，当前登录状态:', this.data.isLoggedIn);
     } catch (error) {
@@ -328,9 +331,8 @@ Page({
   async loadAllData() {
     try {
       console.log('开始加载所有数据');
-      // 并行加载所有数据
+      // 并行加载所有数据（去掉loadUserStats）
       await Promise.all([
-        this.loadUserStats(),
         this.loadPowerData(),
         this.loadNotificationCount()
       ]);
@@ -352,45 +354,41 @@ Page({
   async loadUserStats() {
     try {
       console.log('开始加载用户统计数据');
+      // 合同数用新接口统计
+      const userId = this.data.userInfo.id;
+      let contractCount = 0;
+      if (userId) {
+        const res = await app.request({
+          url: `${config.apiConfig.baseURL}/manager/customers/${userId}/orders-contracts`
+        });
+        if (res && Array.isArray(res.data)) {
+          contractCount = res.data.reduce((sum, item) => {
+            if (item.contracts && Array.isArray(item.contracts)) {
+              return sum + item.contracts.length;
+            }
+            return sum;
+          }, 0);
+        } else {
+          contractCount = 0;
+        }
+      }
+      // 订单数等其它统计可保留原逻辑
       const response = await orderAPI.getMyOrderStats();
-      console.log('订单统计响应:', response);
-      
+      let orderCount = 0, powerPoints = 0;
       if (response && (response.success || response.code === 200)) {
         const data = response.data || response;
-        console.log('订单统计数据:', data);
-        
-        // 兼容新旧两种数据格式
-        let stats;
-        if (data.orderCount !== undefined) {
-          // 新格式：直接使用
-          stats = {
-            orderCount: data.orderCount || 0,
-            contractCount: data.contractCount || 0,
-            powerPoints: data.powerPoints || 0
-          };
-        } else {
-          // 旧格式：转换字段名
-          stats = {
-            orderCount: data.all || 0,
-            contractCount: data.contract || 0,
-            powerPoints: data.active || 0
-          };
-        }
-        
-        console.log('设置统计数据:', stats);
-        this.setData({ stats });
-        console.log('统计数据设置完成，当前页面stats:', this.data.stats);
-      } else {
-        console.log('订单统计响应失败，设置默认值');
-        // 设置默认值
-        this.setData({
-          stats: {
-            orderCount: 0,
-            contractCount: 0,
-            powerPoints: 0
-          }
-        });
+        orderCount = data.orderCount || data.all || 0;
+        powerPoints = data.powerPoints || data.active || 0;
+        contractCount = data.contractCount || data.active || 0;
       }
+      this.setData({
+        stats: {
+          orderCount,
+          contractCount,
+          powerPoints
+        }
+      });
+      console.log('统计数据设置完成，当前页面stats:', this.data.stats);
     } catch (error) {
       console.error('加载用户统计数据失败:', error);
       // 设置默认值
@@ -571,10 +569,7 @@ Page({
         break;
       case 'contracts':
         // 合同页面暂未实现
-        wx.showToast({
-          title: '合同管理功能开发中',
-          icon: 'none'
-        });
+        wx.navigateTo({ url: '/pages/profile/contracts/contracts' });
         break;
       case 'renewal-notice':
         // 续约提醒页面暂未实现
@@ -756,10 +751,7 @@ Page({
         });
         break;
       case 'contracts':
-        wx.showToast({
-          title: '合同管理功能开发中',
-          icon: 'none'
-        });
+        wx.navigateTo({ url: '/pages/profile/contracts/contracts' });
         break;
       case 'power-points':
         wx.showToast({

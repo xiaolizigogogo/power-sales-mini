@@ -47,7 +47,7 @@ Page({
     submitting: false
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     console.log('认证页面加载，参数:', options);
     
     if (options.status) {
@@ -61,6 +61,40 @@ Page({
     }
     
     this.loadUserInfo();
+    // 优先用auth/status接口回显图片
+    try {
+      const res = await authAPI.getAuthStatus();
+      if (res && res.data) {
+        // 优先用authFiles
+        if (res.data.authFiles) {
+          this.setData({
+            'authFiles.businessLicense': res.data.authFiles.businessLicense || '',
+            'authFiles.idCardFront': res.data.authFiles.idCardFront || '',
+            'authFiles.idCardBack': res.data.authFiles.idCardBack || ''
+          });
+        }
+        // 兼容直接返回的url字段
+        if (res.data.businessLicenseUrl || res.data.idCardFrontUrl || res.data.idCardBackUrl) {
+          this.setData({
+            'authFiles.businessLicense': res.data.businessLicenseUrl || this.data.authFiles.businessLicense,
+            'authFiles.idCardFront': res.data.idCardFrontUrl || this.data.authFiles.idCardFront,
+            'authFiles.idCardBack': res.data.idCardBackUrl || this.data.authFiles.idCardBack
+          });
+        }
+      } else {
+        // 降级用profile接口
+        const profileRes = await app.request({ url: '/mini/user/profile' });
+        if (profileRes && profileRes.data) {
+          this.setData({
+            'authFiles.businessLicense': profileRes.data.businessLicenseUrl || '',
+            'authFiles.idCardFront': profileRes.data.idCardFrontUrl || '',
+            'authFiles.idCardBack': profileRes.data.idCardBackUrl || ''
+          });
+        }
+      }
+    } catch (e) {
+      console.error('加载认证图片失败', e);
+    }
     this.loadCurrentAuthStatus();
     
     // 如果是认证中状态，加载已提交的认证数据
@@ -576,11 +610,10 @@ Page({
         
         // 上传文件
         const uploadResult = await this.uploadToServer(tempFilePath, type);
-        
-        // 更新文件路径：保存服务器URL用于提交，本地路径用于显示
+        // 更新文件路径：保存服务器URL用于提交，预览URL用于显示
         this.setData({
-          [`authFiles.${type}`]: tempFilePath,  // 使用本地临时路径用于显示
-          [`authFilesServer.${type}`]: uploadResult.url  // 保存服务器路径用于提交
+          [`authFiles.${type}`]: uploadResult.previewUrl,  // 用预览URL回显
+          [`authFilesServer.${type}`]: uploadResult.storageUrl  // 用storageUrl提交
         });
         
         // 暂时去掉OCR识别功能
@@ -634,7 +667,7 @@ Page({
           console.log('上传响应:', res);
           try {
             const data = JSON.parse(res.data);
-            if (data.code === 200) {
+            if (data.code === 0 || data.code === 200) { // 兼容0和200
               resolve(data.data);
             } else {
               reject(new Error(data.message || '上传失败'));

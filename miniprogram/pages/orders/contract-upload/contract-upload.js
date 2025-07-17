@@ -20,8 +20,9 @@ Page({
   },
   uploadImage(filePath) {
     const app = getApp();
+    const config = require('../../../utils/config');
     app.uploadFile({
-      url: 'http://localhost:8000/api/v1/mini/manager/oss/upload',
+      url: `${config.apiConfig.baseURL}/manager/oss/upload`,
       filePath
     }).then(res => {
       let data = res.data;
@@ -66,8 +67,9 @@ Page({
       return;
     }
     const app = getApp();
+    const config = require('../../../utils/config');
     app.request({
-      url: `http://localhost:8000/api/v1/mini/manager/orders/${this.data.orderId}/contracts/submit`,
+      url: `${config.apiConfig.baseURL}/manager/orders/${this.data.orderId}/contracts/submit`,
       method: 'POST',
       data: urls
     }).then(res => {

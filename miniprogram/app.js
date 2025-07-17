@@ -198,5 +198,29 @@ App({
         }
       });
     });
+  },
+
+  uploadBusinessLicense(filePath) {
+    return this.uploadFile({
+      url: '/upload/auth/businessLicense',
+      filePath,
+      name: 'file'
+    });
+  },
+
+  uploadIdCardFront(filePath) {
+    return this.uploadFile({
+      url: '/upload/auth/idCardFront',
+      filePath,
+      name: 'file'
+    });
+  },
+
+  uploadIdCardBack(filePath) {
+    return this.uploadFile({
+      url: '/upload/auth/idCardBack',
+      filePath,
+      name: 'file'
+    });
   }
 }) 

@@ -627,7 +627,7 @@ Page({
               const uploadPromises = chooseRes.tempFilePaths.map(path => {
                 return new Promise((resolve, reject) => {
                   wx.uploadFile({
-                    url: 'http://localhost:8000/api/v1/mini/manager/oss/upload', // 替换为你的后端地址
+                    url: '/mini/manager/oss/upload',
                     filePath: path,
                     name: 'file',
                     success: (uploadRes) => {
@@ -649,7 +649,7 @@ Page({
               Promise.all(uploadPromises).then(urls => {
                 // 上传成功后，保存到订单合同表
                 wx.request({
-                  url: `http://localhost:8000/api/v1/mini/manager/orders/${contractId}/contracts`,
+                  url: `/mini/manager/orders/${contractId}/contracts`,
                   method: 'POST',
                   header: { 'content-type': 'application/json' },
                   data: urls.map(url => ({ fileUrl: url, fileType: 'image' })),

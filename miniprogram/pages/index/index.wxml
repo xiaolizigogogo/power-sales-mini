@@ -23,27 +23,6 @@
       </view>
     </view>
 
-    <!-- 数据统计 -->
-    <view class="stats-section">
-      <view class="stats-grid">
-        <view class="stat-item">
-          <view class="stat-number">{{statistics.totalOrders || 0}}</view>
-          <view class="stat-label">总订单数</view>
-        </view>
-        <view class="stat-item">
-          <view class="stat-number">{{statistics.totalCustomers || 0}}</view>
-          <view class="stat-label">服务客户</view>
-        </view>
-        <view class="stat-item">
-          <view class="stat-number">{{statistics.totalSavings || 0}}</view>
-          <view class="stat-label">节费金额(万)</view>
-        </view>
-        <view class="stat-item">
-          <view class="stat-number">{{statistics.totalCapacity || 0}}</view>
-          <view class="stat-label">服务容量(MW)</view>
-        </view>
-      </view>
-    </view>
 
     <!-- 产品分类 -->
     <view class="category-section">
@@ -145,89 +124,6 @@
             <text class="notice-time">{{item.publishTime}}</text>
           </view>
           <text class="notice-arrow">></text>
-        </view>
-      </view>
-    </view>
-
-    <!-- 热门产品 -->
-    <view class="hot-section">
-      <view class="section-header">
-        <text class="section-title">热门产品</text>
-        <navigator url="/pages/products/list/list" class="section-more">
-          查看更多
-          <text class="more-icon">></text>
-        </navigator>
-      </view>
-
-      <view class="product-list">
-        <loading wx:if="{{loading}}" />
-        <block wx:elif="{{hotProducts.length > 0}}">
-          <view class="product-item" wx:for="{{hotProducts}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}">
-            <image class="product-image" src="{{item.imageUrl || '/assets/images/default-product.png'}}" mode="aspectFill"></image>
-            <view class="product-info">
-              <text class="product-name">{{item.name}}</text>
-              <text class="product-desc">{{item.description}}</text>
-              <view class="product-tags">
-                <text class="product-tag" wx:if="{{item.isHot}}">热销</text>
-                <text class="product-tag" wx:if="{{item.isNew}}">新品</text>
-                <text class="product-tag" wx:if="{{item.hasDiscount}}">优惠</text>
-              </view>
-              <view class="product-meta">
-                <view class="capacity-range">
-                  <text class="capacity-label">适用容量：</text>
-                  <text class="capacity-value">{{item.minCapacity}}-{{item.maxCapacity}}kW</text>
-                </view>
-                <view class="product-price">
-                  <text class="price-label">起</text>
-                  <text class="price-symbol">¥</text>
-                  <text class="price-value">{{item.basePrice}}</text>
-                  <text class="price-unit">/度</text>
-                </view>
-              </view>
-              <view class="product-actions">
-                <button class="action-btn secondary" catchtap="onConsultTap" data-product="{{item}}">咨询</button>
-                <button class="action-btn primary" catchtap="onOrderTap" data-product="{{item}}">立即下单</button>
-              </view>
-            </view>
-          </view>
-        </block>
-        <empty wx:else text="暂无热门产品" />
-      </view>
-    </view>
-
-    <!-- 服务优势 -->
-    <view class="advantage-section">
-      <view class="section-header">
-        <text class="section-title">服务优势</text>
-      </view>
-      <view class="advantage-list">
-        <view class="advantage-item">
-          <text class="advantage-icon">🔒</text>
-          <view class="advantage-content">
-            <text class="advantage-title">安全可靠</text>
-            <text class="advantage-desc">专业团队，安全保障</text>
-          </view>
-        </view>
-        <view class="advantage-item">
-          <text class="advantage-icon">💰</text>
-          <view class="advantage-content">
-            <text class="advantage-title">节费明显</text>
-            <text class="advantage-desc">平均节费20%-40%</text>
-          </view>
-        </view>
-        <view class="advantage-item">
-          <text class="advantage-icon">⚡</text>
-          <view class="advantage-content">
-            <text class="advantage-title">快速响应</text>
-            <text class="advantage-desc">24小时在线服务</text>
-          </view>
-        </view>
-        <view class="advantage-item">
-          <text class="advantage-icon">🎯</text>
-          <view class="advantage-content">
-            <text class="advantage-title">精准匹配</text>
-            <text class="advantage-desc">智能推荐最优方案</text>
-          </view>
         </view>
       </view>
     </view>
