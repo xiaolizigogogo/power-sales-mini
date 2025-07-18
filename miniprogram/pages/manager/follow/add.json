@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "添加跟进记录",
-  "enablePullDownRefresh": false,
-  "backgroundTextStyle": "dark",
-  "backgroundColor": "#f5f5f5",
-  "usingComponents": {
-    "permission-guard": "/components/permission-guard/index"
-  }
-} 

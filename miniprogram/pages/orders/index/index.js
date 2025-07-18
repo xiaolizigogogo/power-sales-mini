@@ -792,7 +792,7 @@ Page({
   // 去购物
   onGoShopping() {
     wx.switchTab({
-      url: '/pages/products/index/index'
+      url: '/pages/menu/user/products/index/index'
     });
   },
 

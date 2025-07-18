@@ -505,7 +505,7 @@ Page({
   // 去产品页面
   goToProducts() {
     wx.switchTab({
-      url: '/pages/products/index/index'
+      url: '/pages/menu/user/products/index/index'
     })
   },
 

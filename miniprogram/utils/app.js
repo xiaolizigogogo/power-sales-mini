@@ -152,7 +152,7 @@ function navigateToHome() {
   const userType = getUserType()
   if (userType === 'manager') {
     wx.reLaunch({
-      url: '/pages/manager/workplace/workplace'
+      url: '/pages/menu/manager/workplace/workplace'
     })
   } else {
     wx.reLaunch({

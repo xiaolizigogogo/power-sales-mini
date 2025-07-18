@@ -53,7 +53,7 @@
           <view class="section-title">基本信息</view>
           <view class="detail-item">
             <text class="detail-label">认证状态</text>
-            <text class="detail-value">{{customerInfo.authStatus === 'pending' ? '待认证' : customerInfo.authStatus === 'approved' ? '已认证' : '未认证'}}</text>
+            <text class="detail-value">{{customerInfo.authStatus === 'pending' ? '待认证' : customerInfo.authStatus === 'approved' ? '待认证' : '未认证'}}</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">联系电话</text>
@@ -61,15 +61,15 @@
           </view>
           <view class="detail-item">
             <text class="detail-label">地址</text>
-            <text class="detail-value">{{customerInfo.formattedAddress}}</text>
+            <text class="detail-value">{{customerInfo.position}}</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">创建时间</text>
-            <text class="detail-value">{{formatTime(customerInfo.createdAt)}}</text>
+            <text class="detail-value">{{customerInfo.createdAt}}</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">更新时间</text>
-            <text class="detail-value">{{formatTime(customerInfo.updatedAt)}}</text>
+            <text class="detail-value">{{customerInfo.updatedAt}}</text>
           </view>
         </view>
 
@@ -107,11 +107,11 @@
       <!-- 标签页 -->
       <van-tabs active="{{tabIndex}}" bind:change="onTabChange" sticky>
         <van-tab title="跟进记录">
-          <!-- 查看全部跟进记录按钮 -->
+          <!-- 查看全部跟进记录按钮
           <view class="view-all-follows" bindtap="onViewAllFollows">
             <text class="view-all-text">查看全部跟进记录</text>
             <van-icon name="arrow" size="16px" color="#1890ff" />
-          </view>
+          </view> -->
           <!-- 跟进记录列表 -->
           <view class="follow-records">
             <view class="follow-list">
@@ -149,19 +149,19 @@
               <view wx:else class="empty-tip">暂无跟进记录</view>
             </view>
           </view>
-          <!-- 新增跟进记录浮动按钮 - 只在跟进记录标签页显示 -->
+          <!-- 新增跟进记录浮动按钮 - 只在跟进记录标签页显示
           <view class="float-button" bindtap="onAddFollow">
             <text class="icon">+</text>
             <text>添加跟进</text>
-          </view>
+          </view> -->
         </van-tab>
         
         <van-tab title="订单记录">
-          <!-- 查看全部订单按钮 -->
+          <!-- 查看全部订单按钮
           <view class="view-all-orders" bindtap="onViewAllOrders">
             <text class="view-all-text">查看全部订单</text>
             <van-icon name="arrow" size="16px" color="#1890ff" />
-          </view>
+          </view> -->
           <view class="order-records">
             <view wx:if="{{loadingOrders}}" class="loading">
               <van-loading size="24px" />
@@ -213,11 +213,11 @@
         
         <van-tab title="合同记录">
           <view class="contract-records">
-            <!-- 查看全部合同按钮 -->
+            <!-- 查看全部合同按钮
             <view class="view-all-contracts" bindtap="onViewAllContracts">
               <text class="view-all-text">查看全部合同</text>
               <van-icon name="arrow" size="16px" color="#1890ff" />
-            </view>
+            </view> -->
             
             <view wx:if="{{loadingContracts}}" class="loading">
               <van-loading size="24px" />
@@ -233,10 +233,10 @@
                   <view class="contract-img-list">
                     <block wx:for="{{item.contracts}}" wx:key="contract.id">
                       <image class="contract-img"
-                             src="{{contract.fileUrl}}"
+                             src="{{item.fileUrl}}"
                              mode="aspectFill"
                              bindtap="onPreviewContractImg"
-                             data-urls="{{item.contractImgUrls}}"
+                             data-urls="{{item.fileUrl}}"
                              data-index="{{index}}" />
                     </block>
                   </view>

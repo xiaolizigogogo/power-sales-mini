@@ -780,7 +780,7 @@ Page({
       case 'orders':
         // 跳转到订单详情页面
         wx.navigateTo({
-          url: '/pages/orders/index/index'
+          url: '/pages/menu/user/orders/index/index'
         });
         break;
       case 'customers':
@@ -815,7 +815,7 @@ Page({
   // 查看所有订单
   viewAllOrders() {
     wx.navigateTo({
-      url: '/pages/orders/index/index'
+      url: '/pages/menu/user/orders/index/index'
     });
   },
 

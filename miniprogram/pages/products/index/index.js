@@ -167,7 +167,7 @@ Page({
     const userType = this.data.userInfo?.customerType || '用户'
     return {
       title: `为${userType}推荐的电力优选套餐`,
-      path: '/pages/products/index/index',
+      path: '/pages/menu/user/products/index/index',
       imageUrl: '/assets/images/share-products.png'
     }
   },

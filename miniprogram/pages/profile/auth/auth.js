@@ -777,7 +777,7 @@ Page({
             // 通知上一页刷新数据
             const pages = getCurrentPages();
             const prevPage = pages[pages.length - 2];
-            if (prevPage && prevPage.route === 'pages/profile/index/index') {
+            if (prevPage && prevPage.route === 'pages/menu/user/profile/index/index') {
               // 如果上一页是我的页面，调用其刷新方法
               if (typeof prevPage.refreshUserInfo === 'function') {
                 prevPage.refreshUserInfo();
@@ -926,7 +926,7 @@ Page({
         // 通知上一页刷新数据
         const pages = getCurrentPages();
         const prevPage = pages[pages.length - 2];
-        if (prevPage && prevPage.route === 'pages/profile/index/index') {
+        if (prevPage && prevPage.route === 'pages/menu/user/profile/index/index') {
           // 如果上一页是我的页面，调用其刷新方法
           if (typeof prevPage.refreshUserInfo === 'function') {
             prevPage.refreshUserInfo();

@@ -731,37 +731,23 @@ Page({
       customerName: this.data.customerInfo.name
     });
     wx.switchTab({
-      url: '/pages/orders/index/index'
+      url: '/pages/menu/user/orders/index/index'
     });
   },
 
   // 合同图片预览
   onPreviewContractImg(e) {
-    let urls = e.currentTarget.dataset.urls;
-    let index = e.currentTarget.dataset.index;
-    // 修复：如果urls未传递，则自动从this.data.contracts组装
-    if (!urls || !Array.isArray(urls) || !urls.length) {
-      // 尝试从ordersWithContracts中查找
-      if (this.data.ordersWithContracts && this.data.ordersWithContracts.length > 0) {
-        for (const group of this.data.ordersWithContracts) {
-          if (group.contractImgUrls && group.contractImgUrls.length > 0) {
-            urls = group.contractImgUrls;
-            break;
-          }
-        }
-      }
-      // 兜底：从contracts字段组装
-      if (!urls || !urls.length) {
-        urls = (this.data.contracts || []).map(item => item.fileUrl || item.previewUrl || item.storageUrl).filter(Boolean);
-      }
-    }
-    if (typeof index !== 'number') {
-      index = 0;
+    const url = e.currentTarget.dataset.urls;
+    console.log('url', e.currentTarget.dataset);
+    if (!url) {
+      wx.showToast({ title: '没有可预览的图片', icon: 'none' });
+      return;
     }
     wx.previewImage({
-      urls: urls,
-      current: urls && urls[index] ? urls[index] : (urls[0] || '')
+      urls: [url],
+      current: url
     });
+
   },
 
   // 订单号一键复制

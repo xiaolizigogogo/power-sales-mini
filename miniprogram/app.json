@@ -3,43 +3,41 @@
     "pages/index/index",
     "pages/auth/login/login",
     "pages/auth/register/register",
+    "pages/menu/user/products/index/index",
+    "pages/menu/user/profile/index/index",
+    "pages/menu/manager/workplace/workplace",
+    "pages/menu/manager/customers/list",
+    "pages/menu/manager/follow/list",
+    "pages/menu/manager/profile/index",
     "pages/auth/verify/verify",
-    "pages/products/index/index",
-    "pages/products/list/list",
-    "pages/products/detail/detail",
-    "pages/orders/index/index",
-    "pages/profile/index/index",
-    "pages/orders/create/create",
-    "pages/orders/detail/detail",
-    "pages/orders/contract-upload/contract-upload",
-    "pages/products/calculator/calculator",
-    "pages/profile/auth/auth",
-    "pages/manager/workplace/workplace",
-    "pages/manager/customers/list",
-    "pages/manager/customers/detail",
-    "pages/manager/customers/follow-add",
-    "pages/manager/customers/add",
-    "pages/manager/customers/customers",
-    "pages/manager/customers/test-api",
-    "pages/manager/follow/list",
-    "pages/manager/follow/add",
-    "pages/manager/performance/index",
-    "pages/manager/performance/performance",
-    "pages/manager/service/index",
-    "pages/manager/renewal/index",
-    "pages/manager/maintenance/index",
-    "pages/manager/index/index",
-    "pages/manager/customer-add/customer-add",
-    "pages/manager/profile/index",
-    "pages/manager/profile/edit",
-    "pages/manager/profile/change-password",
     "pages/auth/username-login/index",
-    "pages/contract/preview",
-    "pages/customer/contracts/list",
-    "pages/customer/contracts/sign",
-    "pages/manager/customers/contracts",
-    "pages/manager/customers/contracts-test",
-    "pages/manager/orders/list"
+    "pages/menu/user/orders/index/index"
+  ],
+  "subPackages": [
+    {
+      "root": "pages/contract",
+      "pages": ["preview"]
+    },
+    {
+      "root": "pages/customer/contracts",
+      "pages": ["list", "sign"]
+    },
+    {
+      "root": "pages/manager",
+      "pages": ["workplace/workplace", "customers/detail", "customers/follow-add", "customers/add", "customers/customers", "follow/list", "follow/add", "performance/index", "performance/performance", "maintenance/index", "index/index", "customer-add/customer-add", "profile/edit", "profile/change-password", "profile/index"]
+    },
+    {
+      "root": "pages/profile",
+      "pages": ["contracts/contracts", "consumption/consumption","edit/edit","info/info","renewal-notice/renewal-notice","savings/savings","service/service"]
+    },
+    {
+      "root": "pages/orders",
+      "pages": ["create/create","detail/detail","contract-upload/contract-upload"]
+    },
+    {
+      "root": "pages/products",
+      "pages": ["list/list","detail/detail","calculator/calculator"]
+    }
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -58,35 +56,31 @@
         "text": "首页"
       },
       {
-        "pagePath": "pages/products/index/index",
+        "pagePath": "pages/menu/user/products/index/index",
         "text": "产品"
       },
       {
-        "pagePath": "pages/orders/index/index",
+        "pagePath": "pages/menu/user/orders/index/index",
         "text": "订单"
       },
       {
-        "pagePath": "pages/profile/index/index",
+        "pagePath": "pages/menu/user/profile/index/index",
         "text": "我的"
       },
       {
-        "pagePath": "pages/manager/workplace/workplace",
+        "pagePath": "pages/menu/manager/workplace/workplace",
         "text": "工作台"
       },
       {
-        "pagePath": "pages/manager/customers/list",
+        "pagePath": "pages/menu/manager/customers/list",
         "text": "客户"
       },
       {
-        "pagePath": "pages/manager/follow/list",
+        "pagePath": "pages/menu/manager/follow/list",
         "text": "跟进"
       },
       {
-        "pagePath": "pages/manager/performance/index",
-        "text": "业绩"
-      },
-      {
-        "pagePath": "pages/manager/profile/index",
+        "pagePath": "pages/menu/manager/profile/index",
         "text": "我的"
       }
     ]
@@ -94,32 +88,30 @@
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
-    "van-button": "@vant/weapp/dist/button/index",
-    "van-field": "@vant/weapp/dist/field/index",
-    "van-icon": "@vant/weapp/dist/icon/index",
-    "van-tabbar": "@vant/weapp/dist/tabbar/index",
-    "van-tabbar-item": "@vant/weapp/dist/tabbar-item/index",
-    "van-dropdown-menu": "@vant/weapp/dist/dropdown-menu/index",
-    "van-dropdown-item": "@vant/weapp/dist/dropdown-item/index",
-    "van-datetime-picker": "@vant/weapp/dist/datetime-picker/index",
-    "van-cell": "@vant/weapp/dist/cell/index",
-    "van-cell-group": "@vant/weapp/dist/cell-group/index",
-    "van-stepper": "@vant/weapp/dist/stepper/index",
-    "van-slider": "@vant/weapp/dist/slider/index",
-    "van-radio": "@vant/weapp/dist/radio/index",
-    "van-radio-group": "@vant/weapp/dist/radio-group/index",
-    "van-checkbox": "@vant/weapp/dist/checkbox/index",
-    "van-popup": "@vant/weapp/dist/popup/index",
-    "van-overlay": "@vant/weapp/dist/overlay/index",
-    "van-picker": "@vant/weapp/dist/picker/index",
-    "van-tag": "@vant/weapp/dist/tag/index",
-    "van-switch": "@vant/weapp/dist/switch/index",
-    "van-toast": "@vant/weapp/dist/toast/index",
-    "van-dialog": "@vant/weapp/dist/dialog/index",
-    "van-loading": "@vant/weapp/dist/loading/index",
-    "van-empty": "@vant/weapp/dist/empty/index",
-    "van-divider": "@vant/weapp/dist/divider/index",
-    "van-tabs": "@vant/weapp/dist/tabs/index",
-    "van-tab": "@vant/weapp/dist/tab/index"
-    }
+    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/dist/field/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/dist/icon/index",
+    "van-tabbar": "/miniprogram_npm/@vant/weapp/dist/tabbar/index",
+    "van-tabbar-item": "/miniprogram_npm/@vant/weapp/dist/tabbar-item/index",
+    "van-dropdown-menu": "/miniprogram_npm/@vant/weapp/dist/dropdown-menu/index",
+    "van-dropdown-item": "/miniprogram_npm/@vant/weapp/dist/dropdown-item/index",
+    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/dist/datetime-picker/index",
+    "van-cell": "/miniprogram_npm/@vant/weapp/dist/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
+    "van-stepper": "/miniprogram_npm/@vant/weapp/dist/stepper/index",
+    "van-slider": "/miniprogram_npm/@vant/weapp/dist/slider/index",
+    "van-checkbox": "/miniprogram_npm/@vant/weapp/dist/checkbox/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/dist/popup/index",
+    "van-overlay": "/miniprogram_npm/@vant/weapp/dist/overlay/index",
+    "van-picker": "/miniprogram_npm/@vant/weapp/dist/picker/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
+    "van-switch": "/miniprogram_npm/@vant/weapp/dist/switch/index",
+    "van-toast": "/miniprogram_npm/@vant/weapp/dist/toast/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/dist/dialog/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/dist/loading/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/dist/empty/index",
+    "van-divider": "/miniprogram_npm/@vant/weapp/dist/divider/index",
+    "van-tabs": "/miniprogram_npm/@vant/weapp/dist/tabs/index",
+    "van-tab": "/miniprogram_npm/@vant/weapp/dist/tab/index"
+  }
 } 

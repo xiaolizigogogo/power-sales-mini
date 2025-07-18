@@ -1,0 +1,189 @@
+<!--pages/menu/manager/profile/index.wxml-->
+<view class="profile-container">
+  <permission-guard required-user-type="manager">
+    
+    <!-- 头部用户信息 -->
+    <view class="profile-header">
+      <view class="user-avatar" bindtap="onChangeAvatar">
+        <view class="avatar-image" style="background-image: url('{{userInfo.avatar}}');">
+          <text class="avatar-text" wx:if="{{!userInfo.avatar}}">👤</text>
+        </view>
+        <view class="avatar-edit">
+          <text class="edit-icon">📷</text>
+        </view>
+      </view>
+      
+      <view class="user-info">
+        <view class="user-name">{{userInfo.name || '未设置姓名'}}</view>
+        <!-- 只显示部门名，不显示公司名 -->
+        <view class="profile-item">
+          <text class="label">部门</text>
+          <text class="value">{{userInfo.department}}</text>
+        </view>
+        <view class="user-position">{{userInfo.position || '客户经理'}}</view>
+        <view class="user-status">
+          <text class="status-dot {{userInfo.isOnline ? 'online' : 'offline'}}"></text>
+          <text class="status-text">{{userInfo.isOnline ? '在线' : '离线'}}</text>
+        </view>
+      </view>
+      
+      <view class="user-edit" bindtap="onEditProfile">
+        <text class="edit-icon">✏️</text>
+      </view>
+    </view>
+    
+    <!-- 账户信息 -->
+    <view class="info-section">
+      <view class="section-title">账户信息</view>
+      <view class="info-list">
+        <view class="info-item" bindtap="onShowAccountInfo">
+          <view class="info-label">
+            <text class="info-icon">👤</text>
+            <text>登录账户</text>
+          </view>
+          <view class="info-value">
+            <text>{{userInfo.username || '未设置'}}</text>
+            <text class="arrow-icon">›</text>
+          </view>
+        </view>
+        
+        <view class="info-item" bindtap="onBindWechat">
+          <view class="info-label">
+            <text class="info-icon">💬</text>
+            <text>微信绑定</text>
+          </view>
+          <view class="info-value">
+            <text class="{{userInfo.isWechatBound ? 'bound' : 'unbound'}}">
+              {{userInfo.isWechatBound ? '已绑定' : '未绑定'}}
+            </text>
+            <text class="arrow-icon">›</text>
+          </view>
+        </view>
+        
+        <view class="info-item" bindtap="onChangePassword">
+          <view class="info-label">
+            <text class="info-icon">🔒</text>
+            <text>修改密码</text>
+          </view>
+          <view class="info-value">
+            <text class="arrow-icon">›</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 业绩统计 -->
+    <view class="stats-section">
+      <view class="section-title">本月业绩</view>
+      <view class="stats-grid">
+        <view class="stat-item" bindtap="onViewCustomers">
+          <view class="stat-number">{{stats.customerCount || 0}}</view>
+          <view class="stat-label">客户数量</view>
+        </view>
+        <view class="stat-item" bindtap="onViewFollows">
+          <view class="stat-number">{{stats.followCount || 0}}</view>
+          <view class="stat-label">跟进次数</view>
+        </view>
+        <view class="stat-item" bindtap="onViewOrders">
+          <view class="stat-number">{{stats.orderCount || 0}}</view>
+          <view class="stat-label">订单数量</view>
+        </view>
+
+      </view>
+    </view>
+    
+    <!-- 功能菜单 -->
+    <view class="menu-section">
+      <view class="section-title">功能菜单</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onViewWorkplace">
+          <text class="menu-icon">🏢</text>
+          <text class="menu-text">工作台</text>
+          <text class="arrow-icon">›</text>
+        </view>
+        
+        <view class="menu-item" bindtap="onViewCustomers">
+          <text class="menu-icon">👥</text>
+          <text class="menu-text">客户管理</text>
+          <text class="arrow-icon">›</text>
+        </view>
+        
+        <view class="menu-item" bindtap="onViewFollows">
+          <text class="menu-icon">📝</text>
+          <text class="menu-text">跟进管理</text>
+          <text class="arrow-icon">›</text>
+        </view>
+        
+        <view class="menu-item" bindtap="onViewPerformance">
+          <text class="menu-icon">📊</text>
+          <text class="menu-text">业绩查看</text>
+          <text class="arrow-icon">›</text>
+        </view>
+        
+        <view class="menu-item" bindtap="onViewSettings">
+          <text class="menu-icon">⚙️</text>
+          <text class="menu-text">设置</text>
+          <text class="arrow-icon">›</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 退出登录 -->
+    <view class="logout-section">
+      <view class="logout-btn" bindtap="onLogout">
+        <text>退出登录</text>
+      </view>
+    </view>
+    
+    <!-- 版本信息 -->
+    <view class="version-section">
+      <view class="version-info">
+        <text class="version-text">版本号：{{version}}</text>
+        <text class="update-time">更新时间：{{updateTime}}</text>
+      </view>
+    </view>
+    
+    <!-- 账户信息弹窗 -->
+    <van-popup show="{{showAccountInfo}}" position="bottom" round bind:close="onCloseAccountInfo">
+      <view class="account-popup">
+        <view class="popup-header">
+          <text class="popup-title">账户信息</text>
+          <text class="close-icon" bindtap="onCloseAccountInfo">×</text>
+        </view>
+        
+        <view class="account-info">
+          <view class="account-item">
+            <text class="account-label">用户名</text>
+            <text class="account-value">{{userInfo.username}}</text>
+          </view>
+          <view class="account-item">
+            <text class="account-label">手机号</text>
+            <text class="account-value">{{userInfo.phone}}</text>
+          </view>
+          <view class="account-item">
+            <text class="account-label">邮箱</text>
+            <text class="account-value">{{userInfo.email}}</text>
+          </view>
+          <view class="account-item">
+            <text class="account-label">注册时间</text>
+            <text class="account-value">{{userInfo.registerTime}}</text>
+          </view>
+          <view class="account-item">
+            <text class="account-label">最后登录</text>
+            <text class="account-value">{{userInfo.lastLoginTime}}</text>
+          </view>
+        </view>
+        
+        <view class="account-actions">
+          <view class="action-btn secondary" bindtap="onBindWechat">
+            {{userInfo.isWechatBound ? '解绑微信' : '绑定微信'}}
+          </view>
+          <view class="action-btn primary" bindtap="onChangePassword">
+            修改密码
+          </view>
+        </view>
+      </view>
+    </van-popup>
+    
+  </permission-guard>
+</view> 

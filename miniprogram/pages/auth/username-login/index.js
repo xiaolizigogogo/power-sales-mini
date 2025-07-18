@@ -304,7 +304,7 @@ Page({
   // 跳转到主页面
   navigateToMain() {
     wx.reLaunch({
-      url: '/pages/manager/workplace/workplace'
+      url: '/pages/menu/manager/workplace/workplace'
     });
   },
 

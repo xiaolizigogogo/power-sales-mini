@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "产品选择",
+  "navigationBarBackgroundColor": "#409EFF",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f5f5",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "disableScroll": false,
+  "usingComponents": {
+    "loading": "/components/loading/loading",
+    "empty": "/components/empty/empty"
+  }
+} 

@@ -63,7 +63,7 @@ Page({
         icon: 'orders',
         title: '订单管理',
         subtitle: '客户订单',
-        url: '/pages/orders/index/index',
+        url: '/ppages/menu/user/orders/index/index',
         color: '#722ed1',
         permission: auth.PERMISSIONS.ORDER_VIEW
       }
@@ -405,7 +405,7 @@ Page({
         break
       case 'orders':
         wx.switchTab({
-          url: '/pages/orders/index/index'
+          url: '/pages/menu/user/orders/index/index'
         })
         break
     }

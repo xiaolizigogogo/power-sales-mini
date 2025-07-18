@@ -1,0 +1,149 @@
+<!--pages/menu/manager/workplace/workplace.wxml-->
+<view class="workplace-container">
+  <!-- 头部用户信息 -->
+  <view class="header">
+    <view class="user-info">
+      <view class="avatar">
+        <image wx:if="{{userInfo.avatar}}" class="avatar-image" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+        <van-icon wx:else class="avatar-icon" name="user-o" size="32px" color="#999"></van-icon>
+      </view>
+      <view class="user-detail">
+        <text class="username">{{userInfo.name || '客户经理'}}</text>
+        <text class="subtitle">今天也要努力工作哦～</text>
+      </view>
+    </view>
+    <view class="date-info">
+      <text class="today">{{todayDate}}</text>
+      <text class="weather">晴 22°C</text>
+    </view>
+  </view>
+
+  <!-- 今日数据统计 -->
+  <view class="today-stats">
+    <view class="stats-title">今日数据</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{todayStats.newCustomers}}</text>
+        <text class="stat-label">新增客户</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{todayStats.followUps}}</text>
+        <text class="stat-label">跟进记录</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{todayStats.visits}}</text>
+        <text class="stat-label">客户拜访</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{todayStats.revenue}}</text>
+        <text class="stat-label">业绩(元)</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速操作 -->
+  <view class="quick-actions">
+    <view class="section-title">快速操作</view>
+    <view class="actions-grid">
+      <view 
+        class="action-item" 
+        wx:for="{{quickActions}}" 
+        wx:key="id"
+        data-action="{{item.id}}"
+        bindtap="onQuickActionTap"
+        style="--action-color: {{item.color}}"
+      >
+        <van-icon class="action-icon" name="{{item.icon}}" size="24px" color="{{item.color}}"></van-icon>
+        <text class="action-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 本周数据概览 -->
+  <view class="weekly-overview">
+    <view class="section-title">本周概览</view>
+    <view class="overview-grid">
+      <view class="overview-item">
+        <text class="overview-number">{{weeklyStats.totalCustomers}}</text>
+        <text class="overview-label">总客户数</text>
+      </view>
+      <view class="overview-item">
+        <text class="overview-number">{{weeklyStats.activeCustomers}}</text>
+        <text class="overview-label">活跃客户</text>
+      </view>
+      <view class="overview-item">
+        <text class="overview-number">{{weeklyStats.followUpRate}}%</text>
+        <text class="overview-label">跟进率</text>
+      </view>
+      <view class="overview-item">
+        <text class="overview-number">{{weeklyStats.conversionRate}}%</text>
+        <text class="overview-label">转化率</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近跟进记录 -->
+  <view class="recent-followups">
+    <view class="section-header">
+      <text class="section-title">最近跟进</text>
+      <text class="section-more" bindtap="onViewMoreFollowUps">查看更多</text>
+    </view>
+    <view class="followup-list">
+      <view 
+        class="followup-item" 
+        wx:for="{{recentFollowUps}}" 
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCustomerTap"
+      >
+        <view class="followup-type {{item.type}}">
+          <text class="type-icon">{{item.type === 'phone' ? '📞' : item.type === 'visit' ? '🚶' : '💬'}}</text>
+        </view>
+        <view class="followup-content">
+          <view class="followup-header">
+            <text class="customer-name">{{item.customerName}}</text>
+            <text class="followup-time">{{item.time}}</text>
+          </view>
+          <text class="followup-desc">{{item.content}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 即将到期提醒 -->
+  <view class="upcoming-reminders">
+    <view class="section-header">
+      <text class="section-title">即将到期</text>
+      <text class="section-more" bindtap="onViewMoreReminders">查看更多</text>
+    </view>
+    <view class="reminder-list">
+      <view 
+        class="reminder-item" 
+        wx:for="{{upcomingReminders}}" 
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onReminderTap"
+      >
+        <view class="reminder-type {{item.type}}">
+          <text class="type-icon">{{item.type === 'follow' ? '📋' : item.type === 'visit' ? '🚶' : '📊'}}</text>
+        </view>
+        <view class="reminder-content">
+          <view class="reminder-header">
+            <text class="reminder-title">{{item.title}}</text>
+            <text class="reminder-time">{{item.time}}</text>
+          </view>
+          <text class="reminder-desc">{{item.content}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner">
+      <text>加载中...</text>
+    </view>
+  </view>
+</view> 

@@ -1,12 +1,12 @@
 // 全局配置文件
 
 // 开发环境
-const isDev = true
+const isDev = false;
 
 // API 配置
 const apiConfig = {
   // API 基础路径 - 小程序端专用路径
-  baseURL: 'http://localhost:8000/api/v1/mini',
+  baseURL: isDev ? 'http://localhost:8000/api/v1/mini' : 'https://dyh.zytcft.com/power/api/v1/mini',
   
   // 请求超时时间（毫秒）
   timeout: 10000,

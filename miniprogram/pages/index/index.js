@@ -23,7 +23,7 @@ Page({
         title: '24小时在线服务',
         description: '专业团队随时为您服务',
         imageUrl: '/assets/images/banner3.jpg',
-        linkUrl: '/pages/profile/index/index'
+        linkUrl: '/pages/menu/user/profile/index/index'
       }
     ],
     
@@ -347,7 +347,7 @@ Page({
   // 跳转到我的订单
   navigateToOrders() {
     wx.navigateTo({
-      url: '/pages/orders/index/index'
+      url: '/pages/menu/user/orders/index/index'
     })
   },
 
@@ -412,7 +412,7 @@ Page({
         break
       case 'orders':
         wx.navigateTo({
-          url: '/pages/orders/index/index'
+          url: '/pages/menu/user/orders/index/index'
         })
         break
       case 'customers':
@@ -439,7 +439,7 @@ Page({
         break
       case 'products':
         wx.navigateTo({
-          url: '/pages/products/index/index'
+          url: '/pages/menu/user/products/index/index'
         })
         break
       case 'support':

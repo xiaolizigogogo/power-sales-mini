@@ -13,13 +13,13 @@ const ROLE_PERMISSIONS = {
   [USER_TYPES.CUSTOMER]: {
     pages: [
       '/pages/index/index',
-      '/pages/products/index/index',
+      'pages/menu/user/orders/index/index',
       '/pages/products/detail/detail',
       '/pages/products/calculator/calculator',
-      '/pages/orders/index/index',
+      '/pages/menu/user/products/index/index',
       '/pages/orders/create/create',
       '/pages/orders/detail/detail',
-      '/pages/profile/index/index',
+      '/pages/menu/user/profile/index/index',
       '/pages/profile/auth/auth',
       '/pages/profile/contracts/contracts',
       '/pages/profile/consumption/consumption',
@@ -37,19 +37,19 @@ const ROLE_PERMISSIONS = {
         text: "首页"
       },
       {
-        pagePath: "pages/products/index/index",
+        pagePath: "pages/menu/user/products/index/index",
         iconPath: "assets/images/icons/product.png",
         selectedIconPath: "assets/images/icons/product-active.png",
         text: "产品"
       },
       {
-        pagePath: "pages/orders/index/index",
+        pagePath: "pages/menu/user/orders/index/index",
         iconPath: "assets/images/icons/order.png",
         selectedIconPath: "assets/images/icons/order-active.png",
         text: "订单"
       },
       {
-        pagePath: "pages/profile/index/index",
+        pagePath: "pages/menu/user/profile/index/index",
         iconPath: "assets/images/icons/profile.png",
         selectedIconPath: "assets/images/icons/profile-active.png",
         text: "我的"
@@ -59,9 +59,9 @@ const ROLE_PERMISSIONS = {
   [USER_TYPES.MANAGER]: {
     pages: [
       '/pages/manager/index/index',
-      '/pages/manager/workplace/workplace',
+      '/pages/menu/manager/workplace/workplace',
       '/pages/manager/customers/customers',
-      '/pages/manager/customers/list',
+      '/pages/menu/manager/customers/list',
       '/pages/manager/customers/detail',
       '/pages/manager/customers/detail/detail',
       '/pages/manager/customers/detail/index',
@@ -69,7 +69,7 @@ const ROLE_PERMISSIONS = {
       '/pages/manager/customers/add',
       '/pages/manager/customer-add/customer-add',
       '/pages/manager/follow/follow',
-      '/pages/manager/follow/list',
+      '/pages/menu/manager/follow/list',
       '/pages/manager/follow/add',
       '/pages/manager/service/service',
       '/pages/manager/service/index',
@@ -79,32 +79,32 @@ const ROLE_PERMISSIONS = {
       '/pages/manager/maintenance/index',
       '/pages/manager/renewal/renewal',
       '/pages/manager/renewal/index',
-      '/pages/manager/profile/index',
+      '/pages/menu/manager/profile/index',
       '/pages/manager/profile/change-password',
       '/pages/manager/profile/edit',
-      '/pages/products/index/index',
+      '/pages/menu/user/orders/index/index',
       '/pages/products/detail/detail',
       '/pages/products/calculator/calculator',
-      '/pages/orders/index/index',
+      '/pages/menu/user/products/index/index',
       '/pages/orders/create/create',
       '/pages/orders/detail/detail',
-      '/pages/profile/index/index'
+      '/pages/menu/user/profile/index/index'
     ],
     tabbar: [
       {
-        pagePath: "pages/manager/workplace/workplace",
+        pagePath: "pages/menu/manager/workplace/workplace",
         iconPath: "",
         selectedIconPath: "",
         text: "工作台"
       },
       {
-        pagePath: "pages/manager/customers/list",
+        pagePath: "pages/menu/manager/customers/list",
         iconPath: "",
         selectedIconPath: "",
         text: "客户"
       },
       {
-        pagePath: "pages/manager/follow/list",
+        pagePath: "pages/menu/manager/follow/list",
         iconPath: "",
         selectedIconPath: "",
         text: "跟进"
@@ -116,7 +116,7 @@ const ROLE_PERMISSIONS = {
         text: "业绩"
       },
       {
-        pagePath: "pages/manager/profile/index",
+        pagePath: "pages/menu/manager/profile/index",
         iconPath: "",
         selectedIconPath: "",
         text: "我的"
@@ -319,7 +319,7 @@ class RoleManager {
     let homePage
     if (userType === USER_TYPES.MANAGER) {
       // 与自定义tabBar中的第一个tab保持一致
-      homePage = '/pages/manager/workplace/workplace'
+      homePage = '/pages/menu/manager/workplace/workplace'
     } else {
       homePage = '/pages/index/index'
     }

@@ -1,6 +1,6 @@
 // API 工具类
-const config = require('./config')
-const { showToast, showLoading, hideLoading } = require('./common')
+const config = require('../miniprogram/utils/config')
+const { showToast, showLoading, hideLoading } = require('../miniprogram/utils/common')
 
 class ApiService {
   constructor() {

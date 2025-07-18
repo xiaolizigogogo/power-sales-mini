@@ -558,7 +558,7 @@ Page({
       wx.navigateBack()
     } else {
       wx.switchTab({
-        url: '/pages/profile/index/index'
+        url: '/pages/menu/user/profile/index/index'
       })
     }
   },

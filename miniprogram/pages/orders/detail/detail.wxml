@@ -147,10 +147,11 @@
             data-status="active"
           >确认签约</van-button>
         </block>
-        <block wx:elif="{{ orderInfo.status === 'paid' }}">
+        <block wx:elif="{{ orderInfo.status === 'signed' }}">
           <van-button 
             type="primary" 
-            bind:click="startService"
+            bind:click="updateOrderStatus"
+            data-status="active"
           >开通服务</van-button>
         </block>
         <block wx:elif="{{ orderInfo.status === 'service' }}">

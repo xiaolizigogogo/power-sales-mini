@@ -72,17 +72,17 @@ Component({
           {
             icon: 'apps-o',
             text: '工作台',
-            url: '/pages/manager/workplace/workplace'
+            url: '/pages/menu/manager/workplace/workplace'
           },
           {
             icon: 'friends-o',
             text: '我的客户',
-            url: '/pages/manager/customers/list'
+            url: '/pages/menu/manager/customers/list'
           },
           {
             icon: 'edit',
             text: '跟进管理',
-            url: '/pages/manager/follow/list'
+            url: '/pages/menu/manager/follow/list'
           },
           // {
           //   icon: 'chart-trending-o',
@@ -92,7 +92,7 @@ Component({
           {
             icon: 'user-o',
             text: '我的',
-            url: '/pages/manager/profile/index'
+            url: '/pages/menu/manager/profile/index'
           }
         ];
       } else {
@@ -107,17 +107,17 @@ Component({
           {
             icon: 'shop-o',
             text: '产品',
-            url: '/pages/products/index/index'
+            url: '/pages/menu/user/products/index/index'
           },
           {
             icon: 'orders-o',
             text: '订单',
-            url: '/pages/orders/index/index'
+            url: 'pages/menu/user/orders/index/index'
           },
           {
             icon: 'user-o',
             text: '我的',
-            url: '/pages/profile/index/index'
+            url: '/pages/menu/user/profile/index/index'
           }
         ];
       }
@@ -152,7 +152,7 @@ Component({
       if (!currentPath) {
         const userType = wx.getStorageSync('userType') || roleManager.getCurrentUserType();
         if (userType === USER_TYPES.MANAGER || userType === 'manager') {
-          currentPath = '/pages/manager/workplace/workplace';
+          currentPath = '/pages/menu/manager/workplace/workplace';
         } else {
           currentPath = '/pages/index/index';
         }
@@ -202,32 +202,32 @@ Component({
       }
       
       // 2. 产品页面匹配
-      if (normalizedTab === 'pages/products/index/index') {
+      if (normalizedTab === 'pages/menu/user/products/index/index') {
         return normalizedCurrent.startsWith('pages/products/');
       }
       
       // 3. 订单页面匹配
-      if (normalizedTab === 'pages/orders/index/index') {
+      if (normalizedTab === 'pages/menu/user/orders/index/index') {
         return normalizedCurrent.startsWith('pages/orders/');
       }
       
       // 4. 客户个人资料页面匹配
-      if (normalizedTab === 'pages/profile/index/index') {
+      if (normalizedTab === 'pages/menu/user/profile/index/index') {
         return normalizedCurrent.startsWith('pages/profile/');
       }
       
       // 5. 客户经理页面匹配
       if (normalizedTab.startsWith('pages/manager/')) {
         // 工作台
-        if (normalizedTab === 'pages/manager/workplace/workplace') {
-          return normalizedCurrent === 'pages/manager/workplace/workplace';
+        if (normalizedTab === 'pages/menu/manager/workplace/workplace') {
+          return normalizedCurrent === 'pages/menu/manager/workplace/workplace';
         }
         // 客户管理
-        if (normalizedTab === 'pages/manager/customers/list') {
+        if (normalizedTab === 'pages/menu/manager/customers/list') {
           return normalizedCurrent.startsWith('pages/manager/customers/');
         }
         // 跟进管理  
-        if (normalizedTab === 'pages/manager/follow/list') {
+        if (normalizedTab === 'pages/menu/manager/follow/list') {
           return normalizedCurrent.startsWith('pages/manager/follow/');
         }
         // 业绩查看
@@ -235,7 +235,7 @@ Component({
           return normalizedCurrent.startsWith('pages/manager/performance/');
         }
         // 客户经理个人资料
-        if (normalizedTab === 'pages/manager/profile/index') {
+        if (normalizedTab === 'pages/menu/manager/profile/index') {
           return normalizedCurrent.startsWith('pages/manager/profile/');
         }
       }

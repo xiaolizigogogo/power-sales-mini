@@ -1,0 +1,638 @@
+/* pages/menu/manager/follow/list.wxss */
+.follow-list-container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding-bottom: 180rpx; /* 为底部菜单栏留出更多空间，避免遮挡 */
+}
+
+/* 头部统计 */
+.header-stats {
+  background: white;
+  display: flex;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #52c41a;
+  margin-bottom: 8rpx;
+}
+
+.stat-number.text-danger {
+  color: #ff4d4f;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #666;
+}
+
+/* 搜索栏 */
+.search-bar {
+  background: white;
+  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  margin: 20rpx 30rpx;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 25rpx;
+  padding: 15rpx 20rpx;
+  margin-right: 20rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 15rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  height: 40rpx;
+}
+
+.clear-btn {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 10rpx;
+}
+
+.clear-btn image {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+.filter-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: #52c41a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-btn image {
+  width: 32rpx;
+  height: 32rpx;
+  filter: brightness(0) invert(1);
+}
+
+/* 状态标签 */
+.status-tabs {
+  background: white;
+  margin: 20rpx 30rpx;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.tab-container {
+  display: flex;
+  padding: 20rpx;
+  white-space: nowrap;
+}
+
+.tab-item {
+  flex-shrink: 0;
+  padding: 15rpx 25rpx;
+  margin-right: 15rpx;
+  border-radius: 20rpx;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background: #52c41a;
+  color: white;
+}
+
+.tab-item.danger {
+  background: #fff1f0;
+  border: 1rpx solid #ffccc7;
+}
+
+.tab-item.danger.active {
+  background: #ff4d4f;
+  color: white;
+}
+
+.tab-label {
+  font-size: 24rpx;
+  margin-right: 8rpx;
+}
+
+.tab-count {
+  font-size: 20rpx;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2rpx 8rpx;
+  border-radius: 10rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.tab-item.active .tab-count {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 跟进列表 */
+.follow-list {
+  padding: 0 30rpx;
+}
+
+.follow-item {
+  background: white;
+  margin-bottom: 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  display: flex;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.follow-item:active {
+  transform: scale(0.98);
+}
+
+.follow-item.overdue {
+  border-left: 6rpx solid #ff4d4f;
+  background: #fff6f6;
+}
+
+.follow-type-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.follow-type-icon.phone {
+  background: #e6f7ff;
+}
+
+.follow-type-icon.visit {
+  background: #f6ffed;
+}
+
+.follow-type-icon.wechat {
+  background: #f0f9ff;
+}
+
+.follow-type-icon.email {
+  background: #fff7e6;
+}
+
+.type-text {
+  font-size: 32rpx;
+}
+
+.follow-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.follow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15rpx;
+}
+
+.customer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5rpx;
+}
+
+.customer-company {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.follow-status {
+  padding: 6rpx 15rpx;
+  border-radius: 15rpx;
+  font-size: 20rpx;
+  color: white;
+}
+
+.follow-status.pending {
+  background: #faad14;
+}
+
+.follow-status.completed {
+  background: #52c41a;
+}
+
+.follow-status.cancelled {
+  background: #d9d9d9;
+  color: #666;
+}
+
+.status-text {
+  font-size: 20rpx;
+}
+
+.follow-detail {
+  margin-bottom: 15rpx;
+}
+
+.follow-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.follow-content-text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.follow-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.meta-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.follow-time {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 5rpx;
+}
+
+.priority {
+  font-size: 20rpx;
+  padding: 3rpx 8rpx;
+  border-radius: 8rpx;
+  align-self: flex-start;
+}
+
+.priority-high {
+  background: #fff2e8;
+  color: #fa541c;
+}
+
+.priority-medium {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.priority-low {
+  background: #f0f0f0;
+  color: #999;
+}
+
+.meta-right {
+  text-align: right;
+}
+
+.next-follow {
+  font-size: 22rpx;
+  color: #fa8c16;
+  background: #fff7e6;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.follow-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15rpx;
+}
+
+.tag {
+  font-size: 20rpx;
+  padding: 4rpx 8rpx;
+  margin-right: 8rpx;
+  margin-bottom: 4rpx;
+  background: #f0f0f0;
+  color: #666;
+  border-radius: 8rpx;
+}
+
+.attachments {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.attachment-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
+  opacity: 0.6;
+}
+
+.attachment-count {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.follow-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-left: 20rpx;
+  flex-shrink: 0;
+  min-height: 120rpx;
+}
+
+.action-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: #1890ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15rpx;
+}
+
+.contact-btn image {
+  width: 32rpx;
+  height: 32rpx;
+  filter: brightness(0) invert(1);
+}
+
+.action-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.complete-btn,
+.delay-btn {
+  padding: 8rpx 16rpx;
+  border-radius: 15rpx;
+  font-size: 20rpx;
+  text-align: center;
+  min-width: 80rpx;
+}
+
+.complete-btn {
+  background: #52c41a;
+  color: white;
+}
+
+.delay-btn {
+  background: #faad14;
+  color: white;
+}
+
+/* 加载状态 */
+.load-more,
+.loading {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 24rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100rpx 50rpx;
+}
+
+.empty-state image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.add-follow-btn {
+  padding: 20rpx 40rpx;
+  background: #52c41a;
+  color: white;
+  border-radius: 25rpx;
+  font-size: 24rpx;
+}
+
+/* 筛选弹窗 */
+.filter-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 80vh;
+  width: 100%;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40rpx 30rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-btn {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.close-btn image {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+.filter-content {
+  padding: 30rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.filter-section {
+  margin-bottom: 40rpx;
+}
+
+.filter-label {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.option-item {
+  padding: 15rpx 25rpx;
+  margin-right: 15rpx;
+  margin-bottom: 15rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.option-item.selected {
+  background: #52c41a;
+  color: white;
+}
+
+.modal-footer {
+  display: flex;
+  padding: 20rpx 30rpx 40rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.reset-btn,
+.confirm-btn {
+  flex: 1;
+  text-align: center;
+  padding: 25rpx;
+  border-radius: 25rpx;
+  font-size: 28rpx;
+}
+
+.reset-btn {
+  background: #f8f9fa;
+  color: #666;
+  margin-right: 20rpx;
+}
+
+.confirm-btn {
+  background: #52c41a;
+  color: white;
+}
+
+/* 浮动添加按钮 */
+.floating-add-btn {
+  position: fixed;
+  bottom: 120rpx;
+  right: 30rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background: #52c41a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 20rpx rgba(82, 196, 26, 0.4);
+  z-index: 100;
+}
+
+.floating-add-btn image {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .follow-item {
+    padding: 20rpx;
+  }
+  
+  .follow-type-icon {
+    width: 60rpx;
+    height: 60rpx;
+  }
+  
+  .customer-name {
+    font-size: 28rpx;
+  }
+} 

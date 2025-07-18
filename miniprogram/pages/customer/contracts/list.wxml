@@ -69,7 +69,7 @@
                          mode="aspectFill"
                          bindtap="onPreviewContractImg"
                          data-url="{{item.fileUrl}}"
-                         data-index="{{index}}" />
+                          />
                 </block>
               </view>
             </view>
