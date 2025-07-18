@@ -17,22 +17,7 @@
         </view>
       </view>
       
-      <view class="performance-summary">
-        <view class="summary-item">
-          <view class="summary-number">{{performanceData.monthRevenue}}</view>
-          <view class="summary-label">本月业绩(万)</view>
-        </view>
-        <view class="summary-divider"></view>
-        <view class="summary-item">
-          <view class="summary-number">{{performanceData.monthTarget}}</view>
-          <view class="summary-label">月度目标(万)</view>
-        </view>
-        <view class="summary-divider"></view>
-        <view class="summary-item">
-          <view class="summary-number">{{performanceData.completionRate}}%</view>
-          <view class="summary-label">完成率</view>
-        </view>
-      </view>
+
     </view>
   </view>
 

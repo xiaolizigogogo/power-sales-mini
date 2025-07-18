@@ -15,11 +15,13 @@ Page({
     tabList: [
       { key: 'all', name: '全部', count: 0 },
       { key: 'pending', name: '待确认', count: 0 },
-      { key: 'confirmed', name: '已确认', count: 0 },
-      { key: 'contract', name: '待签约', count: 0 },
-      { key: 'active', name: '服务中', count: 0 },
+      { key: 'negotiating', name: '商务洽谈', count: 0 },
+      { key: 'confirmed', name: '合同签署', count: 0 },
+      { key: 'signed', name: '服务开通', count: 0 },
+      { key: 'in_service', name: '服务中', count: 0 },
       { key: 'completed', name: '已完成', count: 0 },
-      { key: 'cancelled', name: '已取消', count: 0 }
+      { key: 'cancelled', name: '已取消', count: 0 },
+      { key: 'rejected', name: '已拒绝', count: 0 }
     ],
     orderList: [],
     page: 1,
@@ -35,23 +37,23 @@ Page({
     statusOptions: [
       { text: '全部', value: '' },
       { text: '待确认', value: 'pending' },
-      { text: '已确认', value: 'confirmed' },
-      { text: '待签约', value: 'contract' },
-      { text: '服务中', value: 'active' },
+      { text: '商务洽谈', value: 'negotiating' },
+      { text: '合同签署', value: 'confirmed' },
+      { text: '服务开通', value: 'signed' },
+      { text: '服务中', value: 'in_service' },
       { text: '已完成', value: 'completed' },
-      { text: '已取消', value: 'cancelled' }
+      { text: '已取消', value: 'cancelled' },
+      { text: '已拒绝', value: 'rejected' }
     ],
     statusMap: {
-      'pending': { text: '待处理', color: '#fa8c16' },
-      'negotiating': { text: '商务洽谈中', color: '#1890ff' },
-      'confirmed': { text: '已确认', color: '#52c41a' },
-      'paid': { text: '已支付', color: '#2b85e4' },
-      'service': { text: '服务中', color: '#1890ff' },
-      'completed': { text: '已完成', color: '#52c41a' },
-      'cancelled': { text: '已取消', color: '#ff4d4f' },
-      'rejected': { text: '已拒绝', color: '#ff4d4f' },
-      'contract': { text: '待签约', color: '#1890ff' },
-      'active': { text: '服务中', color: '#1890ff' }
+      'pending': { text: '待确认', color: '#FFA500' },
+      'negotiating': { text: '商务洽谈', color: '#1890FF' },
+      'confirmed': { text: '合同签署', color: '#722ED1' },
+      'signed': { text: '服务开通', color: '#13C2C2' },
+      'in_service': { text: '服务中', color: '#52C41A' },
+      'completed': { text: '已完成', color: '#8C8C8C' },
+      'cancelled': { text: '已取消', color: '#FF4D4F' },
+      'rejected': { text: '已拒绝', color: '#FF4D4F' }
     }
   },
 

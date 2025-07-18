@@ -88,10 +88,7 @@
           <view class="stat-number">{{stats.orderCount || 0}}</view>
           <view class="stat-label">订单数量</view>
         </view>
-        <view class="stat-item" bindtap="onViewPerformance">
-          <view class="stat-number">{{stats.revenue || 0}}</view>
-          <view class="stat-label">营业额(万)</view>
-        </view>
+
       </view>
     </view>
     

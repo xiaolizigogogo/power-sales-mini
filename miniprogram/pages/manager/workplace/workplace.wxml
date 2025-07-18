@@ -138,23 +138,7 @@
     </view>
   </view>
 
-  <!-- 业绩进度 -->
-  <view class="performance-progress">
-    <view class="section-header">
-      <text class="section-title">本月业绩</text>
-      <text class="section-more" bindtap="onPerformanceTap">查看详情</text>
-    </view>
-    <view class="progress-content">
-      <view class="progress-numbers">
-        <text class="current-progress">¥{{performanceData.currentProgress}}</text>
-        <text class="target-progress">/ ¥{{performanceData.monthlyTarget}}</text>
-      </view>
-      <view class="progress-bar">
-        <view class="progress-fill" style="width: {{performanceData.progressPercentage}}%"></view>
-      </view>
-      <text class="progress-percentage">已完成 {{performanceData.progressPercentage}}%</text>
-    </view>
-  </view>
+
 
   <!-- 加载状态 -->
   <view class="loading-overlay" wx:if="{{loading}}">

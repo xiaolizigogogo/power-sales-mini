@@ -38,20 +38,7 @@
     </view>
 
     <!-- 状态标签切换 -->
-    <scroll-view class="status-tabs" scroll-x="{{true}}" show-scrollbar="{{false}}">
-      <view class="tab-container">
-        <view 
-          class="tab-item {{activeTab === item.value ? 'active' : ''}}"
-          wx:for="{{statusOptions}}" 
-          wx:key="value"
-          data-tab="{{item.value}}"
-          bindtap="onTabChange"
-        >
-          <text class="tab-label">{{item.label}}</text>
-          <text class="tab-count">{{item.count}}</text>
-        </view>
-      </view>
-    </scroll-view>
+
 
     <!-- 排序和操作栏 -->
     <view class="action-bar">

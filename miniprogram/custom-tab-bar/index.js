@@ -84,11 +84,11 @@ Component({
             text: '跟进管理',
             url: '/pages/manager/follow/list'
           },
-          {
-            icon: 'chart-trending-o',
-            text: '业绩查看',
-            url: '/pages/manager/performance/index'
-          },
+          // {
+          //   icon: 'chart-trending-o',
+          //   text: '业绩查看',
+          //   url: '/pages/manager/performance/index'
+          // },
           {
             icon: 'user-o',
             text: '我的',

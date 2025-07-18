@@ -83,13 +83,11 @@ Page({
     contractUrl: '',
 
     statusMap: {
-      'pending': '待处理',
-      'negotiating': '商务洽谈中',
-      'confirmed': '已确认',
-      'contract': '待签约',
-      'paid': '已支付',
-      'service': '服务中',
-      'active': '服务中',
+      'pending': '待确认',
+      'negotiating': '商务洽谈',
+      'confirmed': '合同签署',
+      'service_starting': '服务开通',
+      'in_service': '服务中',
       'completed': '已完成',
       'cancelled': '已取消',
       'rejected': '已拒绝'

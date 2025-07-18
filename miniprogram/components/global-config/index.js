@@ -26,7 +26,7 @@ Component({
         orderStatus: {
           'pending': { name: '待确认', color: '#FFA500', icon: 'clock' },
           'negotiating': { name: '商务洽谈', color: '#1890FF', icon: 'chat' },
-          'contract_signing': { name: '合同签署', color: '#722ED1', icon: 'edit' },
+          'confirmed': { name: '合同签署', color: '#722ED1', icon: 'edit' },
           'service_starting': { name: '服务开通', color: '#13C2C2', icon: 'play' },
           'in_service': { name: '服务中', color: '#52C41A', icon: 'check' },
           'completed': { name: '已完成', color: '#8C8C8C', icon: 'check-circle' },
