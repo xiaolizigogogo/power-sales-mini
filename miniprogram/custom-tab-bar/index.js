@@ -112,7 +112,7 @@ Component({
           {
             icon: 'orders-o',
             text: '订单',
-            url: 'pages/menu/user/orders/index/index'
+            url: '/pages/menu/user/orders/index/index'
           },
           {
             icon: 'user-o',

@@ -28,7 +28,7 @@
     },
     {
       "root": "pages/profile",
-      "pages": ["contracts/contracts", "consumption/consumption","edit/edit","info/info","renewal-notice/renewal-notice","savings/savings","service/service"]
+      "pages": ["contracts/contracts", "consumption/consumption","edit/edit","info/info","savings/savings","service/service"]
     },
     {
       "root": "pages/orders",

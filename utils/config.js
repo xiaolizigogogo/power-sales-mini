@@ -1,7 +1,7 @@
 // 全局配置文件
 
 // 开发环境
-const isDev = false;
+const isDev = true;
 
 // API 配置
 const apiConfig = {

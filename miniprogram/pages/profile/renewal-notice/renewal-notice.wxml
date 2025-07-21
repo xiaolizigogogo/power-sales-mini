@@ -171,7 +171,7 @@
           </view>
           <view class="summary-item">
             <text class="label">服务期间节费：</text>
-            <text class="value savings">¥{{selectedContract.serviceEvaluation?.savings || 0}}</text>
+            <text class="value savings">¥{{selectedContract.serviceEvaluation && selectedContract.serviceEvaluation.savings ? selectedContract.serviceEvaluation.savings : 0}}</text>
           </view>
         </view>
       </view>
