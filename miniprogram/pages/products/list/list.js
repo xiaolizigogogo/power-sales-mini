@@ -33,6 +33,15 @@ Page({
   onLoad(options) {
     console.log('产品列表页面加载', options)
     
+    // 检查登录状态
+    if (!app.isLoggedIn()) {
+      console.log('产品列表页面：用户未登录，跳转到登录页')
+      wx.redirectTo({
+        url: '/pages/auth/login/login'
+      });
+      return;
+    }
+    
     // 从参数获取分类ID
     if (options.categoryId) {
       this.setData({
@@ -46,7 +55,7 @@ Page({
 
   onShow() {
     // 检查登录状态
-    if (!app.globalData.isLoggedIn) {
+    if (!app.isLoggedIn()) {
       wx.redirectTo({
         url: '/pages/auth/login/login'
       });

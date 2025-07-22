@@ -47,7 +47,7 @@ Page({
 
   onLoad(options) {
     // 检查用户权限
-    if (!checkRoleAccess(['user', 'admin', 'manager', 'sales'])) {
+    if (!checkRoleAccess('products')) {
       wx.redirectTo({
         url: '/pages/auth/login/login'
       });
