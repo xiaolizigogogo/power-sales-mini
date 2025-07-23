@@ -97,9 +97,10 @@ Page({
     // 分类选项
     categories: [
       { id: '', name: '全部' },
-      { id: 'standard', name: '标准套餐' },
-      { id: 'premium', name: '优选套餐' },
-      { id: 'custom', name: '定制套餐' }
+      { id: '工商业用电', name: '工商业用电' },
+      { id: '居民用电', name: '居民用电' },
+      { id: '农业用电', name: '农业用电' },
+      { id: '临时用电', name: '临时用电' }
     ],
     
     // 价格区间选项
@@ -145,6 +146,21 @@ Page({
   },
 
   onShow() {
+    // 检查是否有从首页传递的分类名称
+    const selectedCategory = wx.getStorageSync('selectedCategory')
+    if (selectedCategory) {
+      // 清除存储的分类名称，避免重复使用
+      wx.removeStorageSync('selectedCategory')
+      
+      // 设置分类筛选
+      this.setData({
+        'filters.category': selectedCategory
+      })
+      
+      // 重新加载产品列表
+      this.loadProducts(true)
+    }
+    
     // 刷新用户信息和产品推荐
     this.getUserInfo()
     // 保证tabbar高亮同步

@@ -37,10 +37,10 @@ Page({
     
     // 产品分类
     categories: [
-      { id: 1, name: '工商业用电', icon: '🏢', count: 12 },
-      { id: 2, name: '居民用电', icon: '🏠', count: 8 },
-      { id: 3, name: '农业用电', icon: '🌾', count: 6 },
-      { id: 4, name: '临时用电', icon: '⚡', count: 4 }
+      { id: 1, name: '工商业用电', icon: '🏢' },
+      { id: 2, name: '居民用电', icon: '🏠'},
+      { id: 3, name: '农业用电', icon: '🌾'},
+      { id: 4, name: '临时用电', icon: '⚡'}
     ],
     
     // 最新公告
@@ -64,19 +64,21 @@ Page({
   onShow() {
     console.log('首页onShow，检查登录状态')
     
-    // 使用role-manager检查登录状态
-    if (!roleManager.checkLoginStatus()) {
-      console.log('未登录，跳转到登录页')
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      })
-      return
+    // 检查登录状态，但不强制跳转
+    const isLoggedIn = roleManager.checkLoginStatus()
+    console.log('登录状态:', isLoggedIn)
+    
+    if (isLoggedIn) {
+      console.log('已登录，刷新页面数据')
+      // 已登录时刷新用户信息和统计数据
+      this.refreshUserInfo()
+      this.loadStatistics()
+    } else {
+      console.log('未登录，显示基础页面内容')
+      // 未登录时设置loading为false，显示基础内容
+      this.setData({ loading: false })
     }
     
-    console.log('已登录，刷新页面数据')
-    // 每次显示页面时刷新用户信息和统计数据
-    this.refreshUserInfo()
-    this.loadStatistics()
     // 保证tabbar高亮同步
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().updateActiveTab();
@@ -119,11 +121,9 @@ Page({
     } catch (error) {
       console.error('获取用户信息失败:', error)
       
-      // 如果是未登录错误，跳转到登录页面
+      // 如果是未登录错误，不跳转登录页，只记录日志
       if (error.message === '未登录' || error.message === '登录已失效') {
-        wx.redirectTo({
-          url: '/pages/auth/login/login'
-        })
+        console.log('用户未登录，不强制跳转登录页')
       }
     }
   },
@@ -148,7 +148,7 @@ Page({
       });
     } catch (error) {
       console.error('加载统计数据失败:', error);
-      // 设置默认数据
+      // 设置默认数据（未登录时显示0）
       this.setData({
         statistics: {
           totalOrders: 0,
@@ -315,6 +315,21 @@ Page({
 
   // 立即下单
   onOrderTap(e) {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再下单',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     const product = e.currentTarget.dataset.product
     wx.navigateTo({
       url: `/pages/orders/create/create?productId=${product.id}`
@@ -324,8 +339,16 @@ Page({
   // 跳转到产品列表
   navigateToList(e) {
     const { id } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/products/list/list?categoryId=${id}`
+    
+    // 根据ID找到对应的分类名称
+    const category = this.data.categories.find(cat => cat.id == id)
+    if (category) {
+      // 将分类名称存储到本地存储，供产品页面读取
+      wx.setStorageSync('selectedCategory', category.name)
+    }
+    
+    wx.switchTab({
+      url: '/pages/menu/user/products/index/index'
     })
   },
 
@@ -346,6 +369,21 @@ Page({
 
   // 跳转到我的订单
   navigateToOrders() {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再查看订单',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     wx.navigateTo({
       url: '/pages/menu/user/orders/index/index'
     })
@@ -353,6 +391,21 @@ Page({
 
   // 跳转到客户管理
   navigateToCustomers() {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再访问客户管理',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     wx.switchTab({
       url: '/pages/manager/index/index'
     })
@@ -360,6 +413,21 @@ Page({
 
   // 跳转到我的合同
   navigateToContracts() {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再查看合同',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     wx.navigateTo({
       url: '/pages/profile/contracts/contracts'
     })
@@ -403,6 +471,24 @@ Page({
   // 快捷功能点击
   onQuickActionTap(e) {
     const { action } = e.currentTarget.dataset
+    
+    // 检查是否需要登录
+    const needLoginActions = ['orders', 'customers', 'performance', 'contracts', 'contract-detail', 'products']
+    if (needLoginActions.includes(action) && !roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再使用此功能',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     
     switch (action) {
       case 'calculator':
@@ -474,18 +560,63 @@ Page({
   },
 
   navigateToConsumption() {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再查看用电分析',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     wx.navigateTo({
       url: '/pages/profile/consumption/consumption'
     })
   },
 
   navigateToSavings() {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再查看节费记录',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     wx.navigateTo({
       url: '/pages/profile/savings/savings'
     })
   },
 
   navigateToService() {
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再联系专属客服',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
     wx.navigateTo({
       url: '/pages/profile/service/service'
     })

@@ -46,13 +46,9 @@ Page({
   },
 
   onLoad(options) {
-    // 检查用户权限
-    if (!checkRoleAccess(['user', 'admin', 'manager', 'sales'])) {
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      });
-      return;
-    }
+    // 检查用户权限，但不强制跳转
+    const hasAccess = checkRoleAccess(['user', 'admin', 'manager', 'sales']);
+    console.log('产品详情页面权限检查:', hasAccess);
 
     const { id } = options;
     if (id) {
@@ -385,6 +381,24 @@ Page({
     const { product } = this.data;
     console.log('🛒 创建订单按钮点击');
     console.log('📦 当前产品数据:', product);
+    
+    // 检查登录状态
+    const { roleManager } = require('../../../utils/role-manager');
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再下单',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            });
+          }
+        }
+      });
+      return;
+    }
     
     if (!product) {
       console.error('❌ 产品信息不存在');

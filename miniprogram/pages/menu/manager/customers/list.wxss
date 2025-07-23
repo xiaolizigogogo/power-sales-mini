@@ -12,6 +12,8 @@
   padding: 30rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-item {
@@ -42,6 +44,8 @@
   margin: 20rpx 30rpx;
   border-radius: 12rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  width: calc(100% - 60rpx);
+  box-sizing: border-box;
 }
 
 .search-box {
@@ -81,11 +85,16 @@
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   overflow: hidden;
+  width: calc(100% - 60rpx);
+  box-sizing: border-box;
 }
 
 .tab-container {
   display: inline-flex;
   padding: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
 }
 
 .tab-item {
@@ -96,6 +105,8 @@
   border-radius: 20rpx;
   background: #f8f9fa;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .tab-item.active {
@@ -194,6 +205,8 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  width: calc(100% - 60rpx);
+  box-sizing: border-box;
 }
 
 .sort-buttons {
@@ -244,13 +257,16 @@
 
 /* 客户列表 */
 .customer-list {
-  padding: 0 2vw 20px;
+  padding: 0 30rpx 20px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .customer-item {
   background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
   border-radius: 16px;
-  margin-bottom: 3vw;
+  margin-bottom: 30rpx;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e8f4fd;
   transition: all 0.3s ease;
@@ -261,6 +277,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .customer-item::before {
@@ -282,21 +299,23 @@
 .card-header {
   display: flex;
   align-items: center;
-  padding: 3vw 2vw 2vw 2vw;
+  padding: 30rpx 20rpx 20rpx 20rpx;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-bottom: 1px solid #f0f0f0;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .customer-avatar {
   position: relative;
-  width: 12vw;
-  height: 12vw;
+  width: 120rpx;
+  height: 120rpx;
   min-width: 48px;
   min-height: 48px;
   max-width: 60px;
   max-height: 60px;
-  margin-right: 3vw;
+  margin-right: 30rpx;
   flex-shrink: 0;
 }
 
@@ -360,25 +379,30 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5vw;
+  gap: 10rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .customer-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1vw;
+  margin-bottom: 20rpx;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .customer-name {
-  font-size: 1.1em;
+  font-size: 32rpx;
   font-weight: 700;
   color: #1a1a1a;
-  margin-right: 2vw;
+  margin-right: 20rpx;
   line-height: 1.2;
   min-width: 0;
   word-break: break-all;
+  flex: 1;
 }
 
 .customer-status {
@@ -393,8 +417,10 @@
 .customer-company {
   display: flex;
   align-items: center;
-  gap: 1vw;
+  gap: 20rpx;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .company-text {
@@ -408,8 +434,10 @@
 .customer-phone {
   display: flex;
   align-items: center;
-  gap: 1vw;
+  gap: 20rpx;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .customer-status.potential {
@@ -439,25 +467,30 @@
 
 /* 详细信息区域 */
 .card-details {
-  padding: 2vw 2vw;
+  padding: 20rpx;
   background: #fafafa;
   border-bottom: 1px solid #f0f0f0;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-row {
   display: flex;
   align-items: center;
-  gap: 3vw;
-  margin-bottom: 2vw;
+  gap: 30rpx;
+  margin-bottom: 20rpx;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-item {
   display: flex;
   align-items: center;
-  gap: 1vw;
+  gap: 20rpx;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .detail-text {
@@ -473,8 +506,10 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
-  gap: 2vw;
-  margin-bottom: 1vw;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .time-item {
@@ -486,12 +521,14 @@
 .next-follow {
   display: flex;
   align-items: center;
-  gap: 1vw;
-  padding: 0.5vw 1vw;
+  gap: 20rpx;
+  padding: 10rpx 20rpx;
   background: linear-gradient(135deg, #fff2e8 0%, #fff7e6 100%);
   border-radius: 8px;
   border: 1px solid #ffd591;
-  font-size: 0.9em;
+  font-size: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .follow-text {
@@ -645,29 +682,32 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 2vw;
-  padding: 2vw;
+  gap: 20rpx;
+  padding: 20rpx;
   border-top: 1px solid #f0f0f0;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 1vw;
-  padding: 0 3vw;
-  height: 8vw;
+  gap: 20rpx;
+  padding: 0 30rpx;
+  height: 80rpx;
   min-height: 36px;
   border-radius: 32rpx;
-  font-size: 1em;
+  font-size: 28rpx;
   border: none;
   background: transparent;
   position: relative;
   overflow: hidden;
   min-width: 0;
-  max-width: 40vw;
+  max-width: 200rpx;
   word-break: break-all;
+  box-sizing: border-box;
 }
 
 .action-btn::after {
@@ -1194,17 +1234,21 @@
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 2vw 3vw;
+  padding: 20rpx 30rpx;
   background: #f8f9fa;
-  margin: 2vw 0;
+  margin: 20rpx 0;
   border-radius: 12rpx;
-  gap: 2vw;
+  gap: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .info-left {
   flex: 1 1 60%;
   min-width: 120px;
-  margin-right: 2vw;
+  margin-right: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .info-row {
@@ -1243,7 +1287,9 @@
   flex: 1 1 30%;
   min-width: 80px;
   align-items: flex-end;
-  padding: 1vw 2vw;
+  padding: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .payment-label {

@@ -45,13 +45,9 @@ Page({
   },
 
   onShow() {
-    // 检查登录状态
-    if (!app.globalData.isLoggedIn) {
-      wx.redirectTo({
-        url: '/pages/auth/login/login'
-      });
-      return;
-    }
+    // 检查登录状态，但不强制跳转
+    const isLoggedIn = app.globalData.isLoggedIn
+    console.log('产品列表页面登录状态:', isLoggedIn)
     
     // 页面显示时刷新数据
     this.loadProducts(true);

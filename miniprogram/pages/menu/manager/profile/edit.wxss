@@ -1,1 +1,118 @@
 /* pages/manager/profile/edit.wxss */
+.edit-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 30rpx;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* 表单区域 */
+.form-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-item {
+  margin-bottom: 40rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.required {
+  color: #ff4d4f;
+  margin-left: 4rpx;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-group:focus-within {
+  border-color: #409EFF;
+  background-color: #fff;
+  box-shadow: 0 0 0 6rpx rgba(64, 158, 255, 0.1);
+}
+
+.form-input {
+  flex: 1;
+  height: 88rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: transparent;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+/* 按钮区域 */
+.button-section {
+  padding: 40rpx 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, #409EFF 0%, #5CB3FF 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 4rpx 16rpx rgba(64, 158, 255, 0.3);
+  box-sizing: border-box;
+}
+
+.submit-btn:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(64, 158, 255, 0.3);
+}
+
+.cancel-btn {
+  width: 100%;
+  height: 88rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-top: 20rpx;
+  box-sizing: border-box;
+}
+
+.cancel-btn:active {
+  background: #e9ecef;
+}
