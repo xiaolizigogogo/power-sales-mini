@@ -1,4 +1,4 @@
-<auth-guard>
+<auth-guard require-auth="{{false}}">
   <view class="container">
     <navbar title="电力销售平台" show-back="{{false}}"></navbar>
     
@@ -35,7 +35,6 @@
             <text class="category-icon">{{item.icon}}</text>
           </view>
           <text class="category-name">{{item.name}}</text>
-          <text class="category-count">{{item.count || 0}}个产品</text>
         </view>
       </view>
     </view>

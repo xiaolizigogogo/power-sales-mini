@@ -3,6 +3,9 @@
   min-height: 100vh;
   background: linear-gradient(180deg, #667eea 0%, #764ba2 30%, #f5f5f5 30%);
   padding-bottom: 140rpx; /* 增加底部padding，避免被tabbar遮挡 */
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .container.loading {

@@ -386,6 +386,24 @@ Page({
     console.log('🛒 创建订单按钮点击');
     console.log('📦 当前产品数据:', product);
     
+    // 检查登录状态
+    const { roleManager } = require('../../../utils/role-manager');
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再下单',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            });
+          }
+        }
+      });
+      return;
+    }
+    
     if (!product) {
       console.error('❌ 产品信息不存在');
       return wx.showToast({

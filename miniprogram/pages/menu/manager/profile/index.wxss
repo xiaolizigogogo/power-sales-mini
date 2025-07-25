@@ -3,6 +3,9 @@
   background-color: #f5f5f5;
   min-height: 100vh;
   padding-bottom: calc(200rpx + env(safe-area-inset-bottom)); /* 动态计算底部空间：基础空间 + 安全区域 */
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* 头部用户信息 */

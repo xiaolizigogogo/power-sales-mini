@@ -437,10 +437,19 @@ Page({
     const { productId } = e.currentTarget.dataset;
     
     // 检查用户登录状态
-    const userInfo = wx.getStorageSync('userInfo');
-    if (!userInfo) {
-      wx.navigateTo({
-        url: '/pages/auth/login/login'
+    const { roleManager } = require('../../../utils/role-manager');
+    if (!roleManager.checkLoginStatus()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再下单',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/auth/login/login'
+            });
+          }
+        }
       });
       return;
     }

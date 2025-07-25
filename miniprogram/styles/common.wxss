@@ -1,10 +1,19 @@
 /* 重置样式 */
 page {
   box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 view, text, image, button {
   box-sizing: border-box;
+}
+
+/* 防止页面左右晃动 */
+.container, .page-container, .main-container {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* 清除浮动 */
