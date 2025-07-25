@@ -800,7 +800,7 @@ Page({
         followUpCount: id % 10,
         nextFollowUp: id % 3 === 0 ? `2024-0${(id % 9) + 1}-${String(((id % 28) + 1) + 1).padStart(2, '0')}` : '',
         tags: ['重点客户', '大客户', '老客户'].slice(0, id % 3 + 1),
-        avatar: '/assets/images/default-avatar.png',
+        avatar: '/assets/images/icons/about.png',
         potential: Math.floor(Math.random() * 100000) + 10000,
         orders: this.generateMockOrderSummary(id) // 添加订单数据
       });

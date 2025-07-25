@@ -352,7 +352,7 @@ Page({
         assignedEmployee: {
           name: '张工程师',
           phone: '13800138001',
-          avatar: '/assets/images/default-avatar.png'
+          avatar: '/assets/images/icons/about.png'
         }
       },
       {
@@ -368,7 +368,7 @@ Page({
         assignedEmployee: {
           name: '李经理',
           phone: '13800138002',
-          avatar: '/assets/images/default-avatar.png'
+          avatar: '/assets/images/icons/about.png'
         }
       },
       {
@@ -384,7 +384,7 @@ Page({
         assignedEmployee: {
           name: '王技师',
           phone: '13800138003',
-          avatar: '/assets/images/default-avatar.png'
+          avatar: '/assets/images/icons/about.png'
         }
       },
       {

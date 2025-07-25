@@ -67,10 +67,28 @@ Page({
       if (res && res.data) {
         // 优先用authFiles
         if (res.data.authFiles) {
+          // 检查图片URL有效性并设置
+          const authFiles = {};
+          const fileTypes = ['businessLicense', 'idCardFront', 'idCardBack'];
+          
+          fileTypes.forEach(type => {
+            const url = res.data.authFiles[type];
+            if (url && url.trim()) {
+              // 检查URL是否包含签名参数，如果没有则可能是过期
+              if (url.includes('?Expires=') && url.includes('&Signature=')) {
+                authFiles[type] = url;
+              } else {
+                console.warn(`图片URL缺少签名参数: ${type}`, url);
+                // 尝试重新获取签名URL
+                this.retryGetSignedUrl(type);
+              }
+            }
+          });
+          
           this.setData({
-            'authFiles.businessLicense': res.data.authFiles.businessLicense || '',
-            'authFiles.idCardFront': res.data.authFiles.idCardFront || '',
-            'authFiles.idCardBack': res.data.authFiles.idCardBack || ''
+            'authFiles.businessLicense': authFiles.businessLicense || '',
+            'authFiles.idCardFront': authFiles.idCardFront || '',
+            'authFiles.idCardBack': authFiles.idCardBack || ''
           });
         }
         // 兼容直接返回的url字段
@@ -876,6 +894,79 @@ Page({
         }
       }
     });
+  },
+
+  // 图片加载成功
+  onImageLoad(e) {
+    const { type } = e.currentTarget.dataset;
+    console.log(`图片加载成功: ${type}`);
+  },
+
+  // 图片加载失败
+  onImageError(e) {
+    const { type } = e.currentTarget.dataset;
+    console.error(`图片加载失败: ${type}`, e);
+    
+    // 尝试重新获取签名URL
+    this.retryLoadImage(type);
+  },
+
+  // 重试加载图片
+  async retryLoadImage(type) {
+    try {
+      wx.showLoading({ title: '重新加载图片...' });
+      
+      // 重新获取认证状态，获取最新的签名URL
+      const res = await authAPI.getAuthStatus();
+      if (res && res.data && res.data.authFiles) {
+        const newUrl = res.data.authFiles[type];
+        if (newUrl) {
+          this.setData({
+            [`authFiles.${type}`]: newUrl
+          });
+          
+          wx.showToast({
+            title: '图片重新加载成功',
+            icon: 'success'
+          });
+        } else {
+          throw new Error('未找到图片URL');
+        }
+      } else {
+        throw new Error('获取认证状态失败');
+      }
+    } catch (error) {
+      console.error('重试加载图片失败:', error);
+      wx.showToast({
+        title: '图片加载失败，请检查网络',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 重新获取签名URL
+  async retryGetSignedUrl(type) {
+    try {
+      console.log(`尝试重新获取签名URL: ${type}`);
+      
+      // 调用后端接口重新生成签名URL
+      const res = await app.request({
+        url: '/mini/auth/refresh-image-url',
+        method: 'POST',
+        data: { type }
+      });
+      
+      if (res && res.data && res.data.url) {
+        this.setData({
+          [`authFiles.${type}`]: res.data.url
+        });
+        console.log(`重新获取签名URL成功: ${type}`);
+      }
+    } catch (error) {
+      console.error(`重新获取签名URL失败: ${type}`, error);
+    }
   },
 
   // 取消认证

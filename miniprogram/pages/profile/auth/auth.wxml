@@ -186,7 +186,10 @@
           <image src="{{authFiles.businessLicense}}" 
                  mode="aspectFit" 
                  data-url="{{authFiles.businessLicense}}"
-                 bindtap="previewImage" />
+                 bindtap="previewImage"
+                 binderror="onImageError"
+                 bindload="onImageLoad"
+                 data-type="businessLicense" />
           <view class="image-actions" wx:if="{{authStatus !== 'pending'}}">
             <text class="action-btn" data-type="businessLicense" bindtap="deleteImage">删除</text>
             <text class="action-btn" data-type="businessLicense" bindtap="uploadFile">重新上传</text>
@@ -222,7 +225,10 @@
           <image src="{{authFiles.idCardFront}}" 
                  mode="aspectFit" 
                  data-url="{{authFiles.idCardFront}}"
-                 bindtap="previewImage" />
+                 bindtap="previewImage"
+                 binderror="onImageError"
+                 bindload="onImageLoad"
+                 data-type="idCardFront" />
           <view class="image-actions" wx:if="{{authStatus !== 'pending'}}">
             <text class="action-btn" data-type="idCardFront" bindtap="deleteImage">删除</text>
             <text class="action-btn" data-type="idCardFront" bindtap="uploadFile">重新上传</text>
@@ -249,7 +255,10 @@
           <image src="{{authFiles.idCardBack}}" 
                  mode="aspectFit" 
                  data-url="{{authFiles.idCardBack}}"
-                 bindtap="previewImage" />
+                 bindtap="previewImage"
+                 binderror="onImageError"
+                 bindload="onImageLoad"
+                 data-type="idCardBack" />
           <view class="image-actions" wx:if="{{authStatus !== 'pending'}}">
             <text class="action-btn" data-type="idCardBack" bindtap="deleteImage">删除</text>
             <text class="action-btn" data-type="idCardBack" bindtap="uploadFile">重新上传</text>

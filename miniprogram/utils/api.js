@@ -1378,6 +1378,15 @@ const isDev = false
 
 // 导出API
 module.exports = {
+  // 直接导出request函数，方便页面调用
+  request: (method, url, data = {}, options = {}) => {
+    return apiService.request({
+      method,
+      url,
+      data,
+      ...options
+    });
+  },
   api: {
     ...authAPI,
     ...productAPI,

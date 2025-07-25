@@ -81,7 +81,7 @@ const appConfig = {
   
   // 图片配置
   image: {
-    defaultAvatar: '/assets/images/default-avatar.png',
+    defaultAvatar: '/assets/images/icons/about.png',
     defaultCover: '/assets/images/default-cover.png',
     defaultThumbnail: '/assets/images/default-thumbnail.png'
   }
