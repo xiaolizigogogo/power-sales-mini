@@ -2,7 +2,7 @@ const { productAPI } = require('../../../utils/api');
 const { checkRoleAccess } = require('../../../utils/auth');
 const { formatProductItem } = require('../../../utils/product-helper');
 
-// 模拟产品详情数据
+// 模拟产品详情数据（作为后备方案）
 const mockProductDetail = {
   id: 1,
   name: '工商业基础用电套餐',
@@ -132,11 +132,14 @@ Page({
       let productData = null;
       
       try {
+        // 调用原有的API接口
         const res = await productAPI.getProductDetail(id);
         console.log('📦 产品详情响应:', res);
         
         if (res.code === 200 && res.data) {
           productData = res.data;
+        } else {
+          throw new Error(res.message || '接口返回数据格式错误');
         }
       } catch (error) {
         console.log('⚠️ API调用失败，使用模拟数据:', error);
@@ -166,82 +169,78 @@ Page({
     }
   },
 
-  // 格式化产品数据
+  // 格式化产品数据 - 将原有接口数据转换为新格式
   formatProductData(productData) {
     // 如果已经是新格式，直接返回
-    if (productData.packages && productData.stats) {
+    if (productData.packages && productData.stats && productData.company) {
       return productData;
     }
     
     // 转换旧格式到新格式
-    return {
-      ...productData,
-      type: productData.userTypeText || '普通',
-      price: productData.price || '0.417',
-      priceUnit: '元/度',
-      image: productData.images?.[0] || '/assets/images/products/wind-turbine.jpg',
-      description: productData.description || '一口价,包偏差,各月一致',
-      agreement: '经双方确认解约 量价变更 不可议价',
+    const formattedProduct = {
+      id: productData.id,
+      name: productData.name || productData.productName || '产品名称',
+      type: productData.type || productData.userTypeText || '普通',
+      price: productData.price || productData.basePrice || '0.417',
+      priceUnit: productData.priceUnit || '元/度',
+      image: productData.image || productData.images?.[0] || '/assets/images/products/wind-turbine.jpg',
+      description: productData.description || productData.productDesc || '一口价,包偏差,各月一致',
+      agreement: productData.agreement || '经双方确认解约 量价变更 不可议价',
+      
+      // 统计数据
       stats: {
-        users: 1,
-        inventory: 35808.08,
-        sold: 300
+        users: productData.users || productData.orderUsers || 1,
+        inventory: productData.inventory || productData.stock || 35808.08,
+        sold: productData.sold || productData.soldAmount || 300
       },
+      
+      // 公司信息
       company: {
-        name: productData.companyName || '山西弘博炜业电力科技有限公司',
-        logo: '/assets/images/companies/company-logo.png'
+        name: productData.companyName || productData.company || '山西弘博炜业电力科技有限公司',
+        logo: productData.companyLogo || productData.logo || '/assets/images/companies/company-logo.png'
       },
-      productNo: productData.productNo || '20250715062939857911',
-      targetPeriod: productData.targetPeriod || '2025.08~2025.12',
-      minPurchasePeriod: productData.minPurchasePeriod || '1自然月',
-      maxPurchasePeriod: productData.maxPurchasePeriod || '5自然月',
-      voltageRequirement: productData.voltageRequirement || '交流10kv及以上',
-      minMonthlyUsage: productData.minMonthlyUsage || '1MWh',
-      maxMonthlyUsage: productData.maxMonthlyUsage || '10000MWh',
-      productType: productData.productType || '基础价格套餐',
-      packages: [
-        {
-          month: '08月',
-          name: '基础价格套餐',
-          isTimeOfUse: false,
-          hasAgreedVolume: false,
-          price: '0.417',
-          priceUnit: '元/度'
-        },
-        {
-          month: '09月',
-          name: '基础价格套餐',
-          isTimeOfUse: false,
-          hasAgreedVolume: false,
-          price: '0.417',
-          priceUnit: '元/度'
-        },
-        {
-          month: '10月',
-          name: '基础价格套餐',
-          isTimeOfUse: false,
-          hasAgreedVolume: false,
-          price: '0.417',
-          priceUnit: '元/度'
-        },
-        {
-          month: '11月',
-          name: '基础价格套餐',
-          isTimeOfUse: false,
-          hasAgreedVolume: false,
-          price: '0.417',
-          priceUnit: '元/度'
-        },
-        {
-          month: '12月',
-          name: '基础价格套餐',
-          isTimeOfUse: false,
-          hasAgreedVolume: false,
-          price: '0.417',
-          priceUnit: '元/度'
-        }
-      ]
+      
+      // 基本参数
+      productNo: productData.productNo || productData.productNumber || `PROD${productData.id}`,
+      targetPeriod: productData.targetPeriod || productData.period || '2025.08~2025.12',
+      minPurchasePeriod: productData.minPurchasePeriod || productData.purchasePeriod || '1自然月',
+      maxPurchasePeriod: productData.maxPurchasePeriod || productData.maxPurchasePeriod || '5自然月',
+      voltageRequirement: productData.voltageRequirement || productData.voltage || '交流10kv及以上',
+      minMonthlyUsage: productData.minMonthlyUsage || productData.minUsage || '1MWh',
+      maxMonthlyUsage: productData.maxMonthlyUsage || productData.maxUsage || '10000MWh',
+      productType: productData.productType || productData.packageName || '基础价格套餐',
+      
+      // 套餐信息 - 根据原有数据生成或使用默认值
+      packages: this.generatePackages(productData),
+      
+      // 保留原有字段，以防其他地方还在使用
+      ...productData
     };
+    
+    return formattedProduct;
+  },
+
+  // 生成套餐信息
+  generatePackages(productData) {
+    // 如果已有套餐信息，直接使用
+    if (productData.packages && Array.isArray(productData.packages)) {
+      return productData.packages;
+    }
+    
+    // 根据产品信息生成套餐
+    const basePrice = productData.price || productData.basePrice || '0.417';
+    const packageName = productData.productType || productData.packageName || '基础价格套餐';
+    
+    // 生成5个月的套餐数据
+    const months = ['08月', '09月', '10月', '11月', '12月'];
+    return months.map(month => ({
+      month,
+      name: packageName,
+      isTimeOfUse: productData.isTimeOfUse || false,
+      hasAgreedVolume: productData.hasAgreedVolume || false,
+      price: basePrice,
+      priceUnit: productData.priceUnit || '元/度'
+    }));
   },
 
   // 切换标签页
