@@ -2,81 +2,75 @@ const app = getApp()
 const { api } = require('../../../../../utils/api')
 const utils = require('../../../../../utils/common')
 
-// 模拟产品数据
+// 模拟产品数据（作为后备方案）
 const mockProducts = [
   {
     id: 1,
-    name: '工商业基础用电套餐',
-    categoryName: '标准套餐',
-    price: '0.65',
-    priceRange: '0.60-0.70',
-    priceDesc: '根据用电量阶梯定价',
-    estimatedSavings: '8600',
-    features: ['稳定供电', '基础服务', '标准价格'],
-    suitableDesc: '适合中小型工商业企业',
-    voltage: '380',
-    phase: '三相',
-    category: 'commercial',
-    isHot: false,
-    isRecommended: false,
-    hasDiscount: false,
-    isNew: true
+    logo: '/assets/images/icons/business.png',
+    companyName: '风电公司',
+    name: '一口价,包偏差,各月一致',
+    productNo: '20250715062939857911',
+    price: '0.417',
+    priceUnit: '元/度',
+    type: '普通',
+    targetPeriod: '2025.08~2025.12',
+    purchasePeriod: '1~5自然月',
+    inventory: '35808.08',
+    sold: '300',
+    upwardCoefficient: '-',
+    downwardCoefficient: '-',
+    agreement: '经双方确认解约 量价变更 不可议价',
+    packageName: '基础价格套餐',
+    packageDesc: '不分时段 不约定电量',
+    packagePrice: '0.417',
+    packageUnit: '元/度',
+    isEstimated: false
   },
   {
     id: 2,
-    name: '工商业优选用电套餐',
-    categoryName: '优选套餐',
-    price: '0.58',
-    priceRange: '0.55-0.65',
-    priceDesc: '大客户专享优惠价',
-    estimatedSavings: '15200',
-    features: ['专属服务', '优惠价格', '绿色通道'],
-    suitableDesc: '适合中大型工商业企业',
-    voltage: '380',
-    phase: '三相',
-    category: 'commercial',
-    isHot: true,
-    isRecommended: true,
-    hasDiscount: true,
-    isNew: false
+    logo: '/assets/images/icons/company.png',
+    companyName: '国家电网 STATE GRID',
+    name: '一口价,包偏差,不限压,不限量,可…',
+    productNo: '20241223030643323794',
+    price: '0.415',
+    priceUnit: '元/度',
+    type: '普通',
+    targetPeriod: '2025.01~2025.12',
+    purchasePeriod: '1~4自然月',
+    inventory: '2091758.876',
+    sold: '84916.973',
+    upwardCoefficient: '-',
+    downwardCoefficient: '-',
+    agreement: '经双方确认解约 量价变更 可议价',
+    packageName: '基础价格套餐',
+    packageDesc: '不分时段 不约定电量',
+    packagePrice: '0.415',
+    packageUnit: '元/度',
+    isEstimated: false
   },
   {
     id: 3,
-    name: '工商业定制用电套餐',
-    categoryName: '定制套餐',
-    price: '面议',
-    priceRange: '根据需求定制',
-    priceDesc: '个性化定制方案',
-    estimatedSavings: '25000',
-    features: ['个性定制', '专属经理', 'VIP服务'],
-    suitableDesc: '适合大型工商业企业和集团客户',
-    voltage: '380',
-    phase: '三相',
-    category: 'commercial',
-    isHot: false,
-    isRecommended: true,
-    hasDiscount: false,
-    isNew: false
-  },
-  {
-    id: 4,
-    name: '居民生活用电套餐',
-    categoryName: '标准套餐',
-    price: '0.56',
-    priceRange: '0.52-0.60',
-    priceDesc: '阶梯电价优惠',
-    estimatedSavings: '1200',
-    features: ['家庭优惠', '安全可靠', '便民服务'],
-    suitableDesc: '适合普通居民家庭',
-    voltage: '220',
-    phase: '单相',
-    category: 'residential',
-    isHot: true,
-    isRecommended: false,
-    hasDiscount: true,
-    isNew: false
+    logo: '/assets/images/icons/company.png',
+    companyName: '国家电网 STATE GRID',
+    name: '分时签,包偏差,不限压,不限量,可',
+    productNo: '20250714024032087470',
+    price: '0.401',
+    priceUnit: '元/度',
+    type: '普通',
+    targetPeriod: '2025.08~2025.12',
+    purchasePeriod: '1~4自然月',
+    inventory: '2091758.876',
+    sold: '0',
+    upwardCoefficient: '-',
+    downwardCoefficient: '-',
+    agreement: '经双方确认解约 量价变更 可议价',
+    packageName: '基础价格套餐',
+    packageDesc: '不分时段 不约定电量',
+    packagePrice: '0.401',
+    packageUnit: '元/度',
+    isEstimated: true
   }
-]
+];
 
 Page({
   data: {
@@ -146,21 +140,6 @@ Page({
   },
 
   onShow() {
-    // 检查是否有从首页传递的分类名称
-    const selectedCategory = wx.getStorageSync('selectedCategory')
-    if (selectedCategory) {
-      // 清除存储的分类名称，避免重复使用
-      wx.removeStorageSync('selectedCategory')
-      
-      // 设置分类筛选
-      this.setData({
-        'filters.category': selectedCategory
-      })
-      
-      // 重新加载产品列表
-      this.loadProducts(true)
-    }
-    
     // 刷新用户信息和产品推荐
     this.getUserInfo()
     // 保证tabbar高亮同步
@@ -187,9 +166,45 @@ Page({
       imageUrl: '/assets/images/share-products.png'
     }
   },
+
+  // 数据格式转换函数 - 将原有接口数据转换为新格式
+  formatProductData(product) {
+    // 如果已经是新格式，直接返回
+    if (product.logo && product.companyName && product.productNo) {
+      return product;
+    }
+    
+    // 转换旧格式到新格式
+    return {
+      id: product.id,
+      logo: product.logo || product.companyLogo || '/assets/images/icons/company.png',
+      companyName: product.companyName || product.company || '未知公司',
+      name: product.name || product.productName || '产品名称',
+      productNo: product.productNo || product.productNumber || `PROD${product.id}`,
+      price: product.price || product.basePrice || '0.00',
+      priceUnit: product.priceUnit || '元/度',
+      type: product.type || product.userTypeText || '普通',
+      targetPeriod: product.targetPeriod || product.period || '2025.01~2025.12',
+      purchasePeriod: product.purchasePeriod || product.minPurchasePeriod || '1自然月',
+      inventory: product.inventory || product.stock || '0',
+      sold: product.sold || product.soldAmount || '0',
+      upwardCoefficient: product.upwardCoefficient || '-',
+      downwardCoefficient: product.downwardCoefficient || '-',
+      agreement: product.agreement || '经双方确认解约 量价变更 不可议价',
+      packageName: product.packageName || product.productType || '基础价格套餐',
+      packageDesc: product.packageDesc || '不分时段 不约定电量',
+      packagePrice: product.packagePrice || product.price || '0.00',
+      packageUnit: product.packageUnit || '元/度',
+      isEstimated: product.isEstimated || false,
+      // 保留原有字段，以防其他地方还在使用
+      ...product
+    };
+  },
+
   async loadProducts(refresh = false) {
     if (this.data.loading && !refresh) return;
     this.setData({ loading: true, error: null });
+    
     try {
       const params = {
         page: refresh ? 1 : this.data.page,
@@ -199,29 +214,114 @@ Page({
         priceRange: this.data.filters.priceRange,
         suitable: this.data.filters.suitable
       };
-      const res = await api.getProducts(params);
-      const list = Array.isArray(res.data) ? res.data : [];
-      const formattedProducts = list.map(product => ({
-        ...product,
-        tags: this.getProductTags(product)
-      }));
+
+      console.log('🔍 尝试加载产品列表，参数:', params);
+
+      let productData = null;
+      
+      try {
+        // 调用原有的API接口
+        const res = await api.getProducts(params);
+        console.log('📦 API响应:', res);
+        
+        if (res.code === 200 && res.data) {
+          productData = res.data;
+        } else {
+          throw new Error(res.message || '接口返回数据格式错误');
+        }
+      } catch (error) {
+        console.log('⚠️ API调用失败，使用模拟数据:', error);
+        // API调用失败时使用模拟数据
+        productData = mockProducts;
+      }
+
+      // 筛选数据
+      let filteredProducts = Array.isArray(productData) ? productData : [];
+      
+      // 分类筛选
+      if (params.category) {
+        filteredProducts = filteredProducts.filter(p => 
+          (p.categoryName && p.categoryName.includes(params.category)) ||
+          (p.category && p.category.includes(params.category))
+        );
+      }
+
+      // 关键词搜索
+      if (params.keyword) {
+        const keyword = params.keyword.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => 
+          (p.name && p.name.toLowerCase().includes(keyword)) ||
+          (p.productName && p.productName.toLowerCase().includes(keyword)) ||
+          (p.companyName && p.companyName.toLowerCase().includes(keyword)) ||
+          (p.company && p.company.toLowerCase().includes(keyword))
+        );
+      }
+
+      // 价格区间筛选
+      if (params.priceRange) {
+        const [min, max] = params.priceRange.split('-').map(Number);
+        filteredProducts = filteredProducts.filter(p => {
+          const price = p.price || p.basePrice;
+          if (!price || price === '面议') return true;
+          const priceNum = parseFloat(price);
+          return priceNum >= min && priceNum <= max;
+        });
+      }
+
+      // 适用性筛选
+      if (params.suitable) {
+        const powerInfo = this.data.powerInfo;
+        if (powerInfo) {
+          filteredProducts = filteredProducts.filter(p => {
+            // 根据用户用电量判断是否适合
+            const consumption = powerInfo.currentMonth?.consumption || 0;
+            if (consumption < 5000) {
+              return p.categoryName?.includes('标准') || p.category?.includes('标准');
+            } else if (consumption < 20000) {
+              return p.categoryName?.includes('优选') || p.category?.includes('优选');
+            } else {
+              return p.categoryName?.includes('定制') || p.category?.includes('定制');
+            }
+          });
+        }
+      }
+
+      // 分页处理
+      const start = (params.page - 1) * params.pageSize;
+      const end = start + params.pageSize;
+      const pageProducts = filteredProducts.slice(start, end);
+
+      // 格式化产品数据
+      const formattedProducts = pageProducts.map(product => 
+        this.formatProductData(product)
+      );
+
       this.setData({
         products: refresh ? formattedProducts : [...this.data.products, ...formattedProducts],
         page: params.page + 1,
-        hasMore: list.length === this.data.pageSize,
+        hasMore: end < filteredProducts.length,
         loading: false,
         refreshing: false
       });
-      if (refresh) wx.stopPullDownRefresh();
+
+      if (refresh) {
+        wx.stopPullDownRefresh();
+      }
+
+      console.log('✅ 产品列表加载完成:', formattedProducts.length, '个产品');
     } catch (error) {
+      console.error('❌ 加载产品列表失败:', error);
       this.setData({
         loading: false,
         refreshing: false,
         error: error.message || '加载失败，请重试'
       });
-      if (refresh) wx.stopPullDownRefresh();
+      if (refresh) {
+        wx.stopPullDownRefresh();
+      }
     }
   },
+
   // 获取用户信息
   async getUserInfo() {
     try {
@@ -548,113 +648,5 @@ Page({
     }
     
     return tags
-  },
-
-  // 加载产品列表
-  async loadProducts(refresh = false) {
-    if (this.data.loading && !refresh) return
-    
-    this.setData({ 
-      loading: true,
-      error: null
-    })
-    
-    try {
-      const params = {
-        page: refresh ? 1 : this.data.page,
-        pageSize: this.data.pageSize,
-        category: this.data.filters.category,
-        keyword: this.data.searchKeyword,
-        priceRange: this.data.filters.priceRange,
-        suitable: this.data.filters.suitable
-      }
-
-      console.log('尝试加载产品列表，参数:', params)
-
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      // 筛选模拟数据
-      let filteredProducts = [...mockProducts]
-
-      // 分类筛选
-      if (params.category) {
-        filteredProducts = filteredProducts.filter(p => p.categoryName.includes(params.category))
-      }
-
-      // 关键词搜索
-      if (params.keyword) {
-        const keyword = params.keyword.toLowerCase()
-        filteredProducts = filteredProducts.filter(p => 
-          p.name.toLowerCase().includes(keyword) ||
-          p.categoryName.toLowerCase().includes(keyword) ||
-          p.features.some(f => f.toLowerCase().includes(keyword))
-        )
-      }
-
-      // 价格区间筛选
-      if (params.priceRange) {
-        const [min, max] = params.priceRange.split('-').map(Number)
-        filteredProducts = filteredProducts.filter(p => {
-          if (p.price === '面议') return true
-          const price = parseFloat(p.price)
-          return price >= min && price <= max
-        })
-      }
-
-      // 适用性筛选
-      if (params.suitable) {
-        const powerInfo = this.data.powerInfo
-        if (powerInfo) {
-          filteredProducts = filteredProducts.filter(p => {
-            // 根据用户用电量判断是否适合
-            const consumption = powerInfo.currentMonth.consumption
-            if (consumption < 5000) {
-              return p.categoryName.includes('标准')
-            } else if (consumption < 20000) {
-              return p.categoryName.includes('优选')
-            } else {
-              return p.categoryName.includes('定制')
-            }
-          })
-        }
-      }
-
-      // 分页处理
-      const start = (params.page - 1) * params.pageSize
-      const end = start + params.pageSize
-      const pageProducts = filteredProducts.slice(start, end)
-
-      // 格式化产品数据
-      const formattedProducts = pageProducts.map(product => ({
-        ...product,
-        tags: this.getProductTags(product)
-      }))
-
-      this.setData({
-        products: refresh ? formattedProducts : [...this.data.products, ...formattedProducts],
-        page: params.page + 1,
-        hasMore: end < filteredProducts.length,
-        loading: false,
-        refreshing: false
-      })
-
-      if (refresh) {
-        wx.stopPullDownRefresh()
-      }
-
-      console.log('设置模拟产品数据:', formattedProducts.length, '个产品')
-    } catch (error) {
-      console.error('加载产品列表失败:', error)
-      this.setData({
-        loading: false,
-        refreshing: false,
-        error: error.message || '加载失败，请重试'
-      })
-
-      if (refresh) {
-        wx.stopPullDownRefresh()
-      }
-    }
   }
 }) 
