@@ -8,7 +8,6 @@
     <view class="header-title">商品详情</view>
     <view class="header-right">
       <van-icon name="phone-o" size="20" color="#333" bindtap="onCall" />
-      <van-icon name="wap-home-o" size="20" color="#333" bindtap="onShop" />
     </view>
   </view>
 
@@ -186,17 +185,5 @@
 
 <!-- 底部操作栏 -->
 <view class="bottom-bar">
-  <view class="bottom-left">
-    <view class="bottom-btn" bindtap="onShop">
-      <van-icon name="shop-o" size="20" color="#666" />
-      <text>店铺</text>
-    </view>
-    <view class="bottom-btn" bindtap="onFavorite">
-      <van-icon name="star-o" size="20" color="#666" />
-      <text>收藏</text>
-    </view>
-  </view>
-  <view class="bottom-right">
-    <van-button type="primary" size="large" bindtap="onOrder">立即下单</van-button>
-  </view>
+  <van-button type="primary" size="large" bindtap="onOrder">立即下单</van-button>
 </view> 

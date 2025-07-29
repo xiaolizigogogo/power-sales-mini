@@ -2,11 +2,23 @@ const { productAPI } = require('../../../utils/api');
 const { checkRoleAccess } = require('../../../utils/auth');
 const { formatProductItem } = require('../../../utils/product-helper');
 
+// 产品类型映射
+const typeMapping = {
+  'normal': '普通',
+  'business': '工商业',
+  'industrial': '工业',
+  'commercial': '商业',
+  'residential': '居民',
+  'agricultural': '农业',
+  'temporary': '临时',
+  'default': '普通'
+};
+
 // 模拟产品详情数据（作为后备方案）
 const mockProductDetail = {
   id: 1,
   name: '工商业基础用电套餐',
-  type: '普通',
+  type: 'business',
   price: '0.417',
   priceUnit: '元/度',
   image: '/assets/images/products/wind-turbine.jpg',
@@ -90,6 +102,8 @@ Page({
   },
 
   onLoad(options) {
+    console.log('🚀 产品详情页面加载，参数:', options);
+    
     // 检查用户权限
     if (!checkRoleAccess('products')) {
       wx.redirectTo({
@@ -100,8 +114,10 @@ Page({
 
     const { id } = options;
     if (id) {
+      console.log('📋 加载产品详情，ID:', id);
       this.loadProductDetail(id);
     } else {
+      console.log('📋 使用模拟数据');
       // 如果没有传入ID，使用模拟数据
       this.setData({
         product: mockProductDetail,
@@ -169,6 +185,19 @@ Page({
     }
   },
 
+  // 翻译产品类型
+  translateType(type) {
+    if (!type) return '普通';
+    
+    // 如果已经是中文，直接返回
+    if (typeMapping[type.toLowerCase()] === undefined && !typeMapping[type]) {
+      return type;
+    }
+    
+    // 转换为中文
+    return typeMapping[type.toLowerCase()] || typeMapping[type] || '普通';
+  },
+
   // 格式化产品数据 - 将原有接口数据转换为新格式
   formatProductData(productData) {
     // 如果已经是新格式，直接返回
@@ -180,7 +209,7 @@ Page({
     const formattedProduct = {
       id: productData.id,
       name: productData.name || productData.productName || '产品名称',
-      type: productData.type || productData.userTypeText || '普通',
+      type: this.translateType(productData.type || productData.userTypeText || '普通'),
       price: productData.price || productData.basePrice || '0.417',
       priceUnit: productData.priceUnit || '元/度',
       image: productData.image || productData.images?.[0] || '/assets/images/products/wind-turbine.jpg',
@@ -267,24 +296,7 @@ Page({
     });
   },
 
-  // 跳转到店铺
-  onShop() {
-    wx.navigateTo({
-      url: '/pages/shop/index/index'
-    });
-  },
 
-  // 收藏/取消收藏
-  onFavorite() {
-    const product = this.data.product;
-    if (!product) return;
-    
-    // 这里应该调用收藏API
-    wx.showToast({
-      title: '收藏成功',
-      icon: 'success'
-    });
-  },
 
   // 加入对比
   onAddToCompare() {
@@ -312,10 +324,63 @@ Page({
   // 立即下单
   onOrder() {
     const product = this.data.product;
-    if (!product) return;
+    console.log('立即下单 - 产品数据:', product);
+    
+    if (!product) {
+      wx.showToast({
+        title: '产品数据加载中，请稍后重试',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    if (!product.id) {
+      wx.showToast({
+        title: '产品ID不存在',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    const url = `/pages/orders/create/create?productId=${product.id}`;
+    console.log('跳转到:', url);
     
     wx.navigateTo({
-      url: `/pages/order/create/index?productId=${product.id}`
+      url: url,
+      success: () => {
+        console.log('跳转成功');
+      },
+      fail: (error) => {
+        console.error('跳转失败:', error);
+        wx.showToast({
+          title: '页面跳转失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 测试下单方法
+  testOrder() {
+    console.log('🧪 测试下单按钮被点击');
+    wx.showToast({
+      title: '测试按钮点击成功',
+      icon: 'success'
+    });
+    
+    // 测试跳转
+    wx.navigateTo({
+      url: '/pages/orders/create/create?productId=1',
+      success: () => {
+        console.log('测试跳转成功');
+      },
+      fail: (error) => {
+        console.error('测试跳转失败:', error);
+        wx.showToast({
+          title: '测试跳转失败: ' + error.errMsg,
+          icon: 'none'
+        });
+      }
     });
   },
 
@@ -367,8 +432,28 @@ Page({
 
   // 咨询客服
   contactService() {
-    wx.makePhoneCall({
-      phoneNumber: '400-123-4567'
+    wx.showModal({
+      title: '咨询客服',
+      content: '是否拨打客服电话 400-123-4567？',
+      confirmText: '拨打',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          wx.makePhoneCall({
+            phoneNumber: '400-123-4567',
+            success: () => {
+              console.log('拨打客服电话成功');
+            },
+            fail: (error) => {
+              console.error('拨打客服电话失败:', error);
+              wx.showToast({
+                title: '拨打失败，请稍后重试',
+                icon: 'none'
+              });
+            }
+          });
+        }
+      }
     });
   },
 

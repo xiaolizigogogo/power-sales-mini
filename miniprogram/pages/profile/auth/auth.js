@@ -63,6 +63,7 @@ Page({
     this.loadUserInfo();
     // 优先用auth/status接口回显图片
     try {
+      console.log('开始加载认证图片...');
       const res = await authAPI.getAuthStatus();
       if (res && res.data) {
         // 优先用authFiles
@@ -76,19 +77,39 @@ Page({
             if (url && url.trim()) {
               // 检查URL是否包含签名参数，如果没有则可能是过期
               if (url.includes('?Expires=') && url.includes('&Signature=')) {
-                authFiles[type] = url;
-              } else {
-                console.warn(`图片URL缺少签名参数: ${type}`, url);
-                // 尝试重新获取签名URL
-                this.retryGetSignedUrl(type);
-              }
+                // 检查URL是否过期
+                const expiresMatch = url.match(/[?&]Expires=(\d+)/);
+                if (expiresMatch) {
+                  const expiresTime = parseInt(expiresMatch[1]);
+                  const currentTime = Math.floor(Date.now() / 1000);
+                  
+                  if (expiresTime > currentTime) {
+                    // URL未过期
+                    authFiles[type] = url;
+                    console.log(`图片URL有效: ${type}`, url);
+                  } else {
+                    console.warn(`图片URL已过期: ${type}`, url);
+                    // URL已过期，不设置到authFiles中，让图片加载失败时自动重试
+                  }
+                } else {
+                  authFiles[type] = url;
+                }
+                              } else {
+                  console.warn(`图片URL缺少签名参数: ${type}`, url);
+                  // URL格式不正确，不设置到authFiles中，让图片加载失败时自动重试
+                }
             }
           });
           
+          console.log('设置认证图片:', authFiles);
           this.setData({
             'authFiles.businessLicense': authFiles.businessLicense || '',
             'authFiles.idCardFront': authFiles.idCardFront || '',
-            'authFiles.idCardBack': authFiles.idCardBack || ''
+            'authFiles.idCardBack': authFiles.idCardBack || '',
+            // 同时设置服务器路径，用于提交验证
+            'authFilesServer.businessLicense': authFiles.businessLicense || '',
+            'authFilesServer.idCardFront': authFiles.idCardFront || '',
+            'authFilesServer.idCardBack': authFiles.idCardBack || ''
           });
         }
         // 兼容直接返回的url字段
@@ -96,7 +117,11 @@ Page({
           this.setData({
             'authFiles.businessLicense': res.data.businessLicenseUrl || this.data.authFiles.businessLicense,
             'authFiles.idCardFront': res.data.idCardFrontUrl || this.data.authFiles.idCardFront,
-            'authFiles.idCardBack': res.data.idCardBackUrl || this.data.authFiles.idCardBack
+            'authFiles.idCardBack': res.data.idCardBackUrl || this.data.authFiles.idCardBack,
+            // 同时设置服务器路径，用于提交验证
+            'authFilesServer.businessLicense': res.data.businessLicenseUrl || this.data.authFilesServer.businessLicense,
+            'authFilesServer.idCardFront': res.data.idCardFrontUrl || this.data.authFilesServer.idCardFront,
+            'authFilesServer.idCardBack': res.data.idCardBackUrl || this.data.authFilesServer.idCardBack
           });
         }
       } else {
@@ -106,7 +131,11 @@ Page({
           this.setData({
             'authFiles.businessLicense': profileRes.data.businessLicenseUrl || '',
             'authFiles.idCardFront': profileRes.data.idCardFrontUrl || '',
-            'authFiles.idCardBack': profileRes.data.idCardBackUrl || ''
+            'authFiles.idCardBack': profileRes.data.idCardBackUrl || '',
+            // 同时设置服务器路径，用于提交验证
+            'authFilesServer.businessLicense': profileRes.data.businessLicenseUrl || '',
+            'authFilesServer.idCardFront': profileRes.data.idCardFrontUrl || '',
+            'authFilesServer.idCardBack': profileRes.data.idCardBackUrl || ''
           });
         }
       }
@@ -117,7 +146,10 @@ Page({
     
     // 如果是认证中状态，加载已提交的认证数据
     if (this.data.authStatus === 'pending') {
-      this.loadAuthData();
+      // 延迟加载认证数据，确保onLoad中的图片设置不被覆盖
+      setTimeout(() => {
+        this.loadAuthData();
+      }, 100);
     }
   },
 
@@ -260,7 +292,28 @@ Page({
           const updateData = this.mapAuthDataFromServer(authData);
           
           if (Object.keys(updateData).length > 0) {
-            this.setData(updateData);
+            // 合并数据而不是覆盖，确保已设置的图片不被清除
+            const currentData = this.data;
+            const mergedData = {};
+            
+            Object.keys(updateData).forEach(key => {
+              if (key === 'authFiles' || key === 'authFilesServer') {
+                // 对于图片数据，只设置空值，不覆盖已有值
+                const currentFiles = currentData[key] || {};
+                const newFiles = updateData[key] || {};
+                mergedData[key] = { ...currentFiles };
+                
+                Object.keys(newFiles).forEach(fileKey => {
+                  if (newFiles[fileKey] && !currentFiles[fileKey]) {
+                    mergedData[key][fileKey] = newFiles[fileKey];
+                  }
+                });
+              } else {
+                mergedData[key] = updateData[key];
+              }
+            });
+            
+            this.setData(mergedData);
           }
           
           // 保存到本地缓存
@@ -302,6 +355,10 @@ Page({
         
         if (cachedAuthData.authFiles && typeof cachedAuthData.authFiles === 'object') {
           updateData.authFiles = { ...this.data.authFiles, ...cachedAuthData.authFiles };
+          // 如果没有authFilesServer，使用authFiles作为服务器路径
+          if (!cachedAuthData.authFilesServer) {
+            updateData.authFilesServer = { ...this.data.authFilesServer, ...cachedAuthData.authFiles };
+          }
         }
         
         if (cachedAuthData.authFilesServer && typeof cachedAuthData.authFilesServer === 'object') {
@@ -313,7 +370,28 @@ Page({
         }
         
         if (Object.keys(updateData).length > 0) {
-          this.setData(updateData);
+          // 合并数据而不是覆盖，确保已设置的图片不被清除
+          const currentData = this.data;
+          const mergedData = {};
+          
+          Object.keys(updateData).forEach(key => {
+            if (key === 'authFiles' || key === 'authFilesServer') {
+              // 对于图片数据，只设置空值，不覆盖已有值
+              const currentFiles = currentData[key] || {};
+              const newFiles = updateData[key] || {};
+              mergedData[key] = { ...currentFiles };
+              
+              Object.keys(newFiles).forEach(fileKey => {
+                if (newFiles[fileKey] && !currentFiles[fileKey]) {
+                  mergedData[key][fileKey] = newFiles[fileKey];
+                }
+              });
+            } else {
+              mergedData[key] = updateData[key];
+            }
+          });
+          
+          this.setData(mergedData);
         }
         
         console.log('缓存认证数据加载完成');
@@ -413,6 +491,8 @@ Page({
     
     if (Object.keys(authFiles).length > 0) {
       updateData.authFiles = { ...this.data.authFiles, ...authFiles };
+      // 同时设置服务器路径，用于提交验证
+      updateData.authFilesServer = { ...this.data.authFilesServer, ...authFiles };
     }
     
     // 映射OCR结果
@@ -826,9 +906,13 @@ Page({
 
   // 验证认证文件
   validateAuthFiles() {
-    const { authFilesServer } = this.data;
+    const { authFilesServer, authFiles } = this.data;
+    
+    console.log('验证认证文件 - authFilesServer:', authFilesServer);
+    console.log('验证认证文件 - authFiles:', authFiles);
     
     if (!authFilesServer.businessLicense) {
+      console.log('营业执照验证失败 - authFilesServer.businessLicense:', authFilesServer.businessLicense);
       wx.showToast({
         title: '请上传营业执照',
         icon: 'none'
@@ -837,6 +921,7 @@ Page({
     }
     
     if (!authFilesServer.idCardFront) {
+      console.log('身份证正面验证失败 - authFilesServer.idCardFront:', authFilesServer.idCardFront);
       wx.showToast({
         title: '请上传身份证正面',
         icon: 'none'
@@ -845,6 +930,7 @@ Page({
     }
     
     if (!authFilesServer.idCardBack) {
+      console.log('身份证反面验证失败 - authFilesServer.idCardBack:', authFilesServer.idCardBack);
       wx.showToast({
         title: '请上传身份证反面',
         icon: 'none'
@@ -852,6 +938,7 @@ Page({
       return false;
     }
     
+    console.log('认证文件验证通过');
     return true;
   },
 
@@ -907,7 +994,13 @@ Page({
     const { type } = e.currentTarget.dataset;
     console.error(`图片加载失败: ${type}`, e);
     
-    // 尝试重新获取签名URL
+    // 检查错误类型
+    const errorDetail = e.detail;
+    if (errorDetail && errorDetail.errMsg) {
+      console.log(`图片加载错误详情: ${errorDetail.errMsg}`);
+    }
+    
+    // 统一使用retryLoadImage方法重新获取图片
     this.retryLoadImage(type);
   },
 
@@ -921,8 +1014,10 @@ Page({
       if (res && res.data && res.data.authFiles) {
         const newUrl = res.data.authFiles[type];
         if (newUrl) {
+          console.log(`重新获取到图片URL: ${type}`, newUrl);
           this.setData({
-            [`authFiles.${type}`]: newUrl
+            [`authFiles.${type}`]: newUrl,
+            [`authFilesServer.${type}`]: newUrl  // 同时更新服务器路径
           });
           
           wx.showToast({
@@ -946,28 +1041,7 @@ Page({
     }
   },
 
-  // 重新获取签名URL
-  async retryGetSignedUrl(type) {
-    try {
-      console.log(`尝试重新获取签名URL: ${type}`);
-      
-      // 调用后端接口重新生成签名URL
-      const res = await app.request({
-        url: '/mini/auth/refresh-image-url',
-        method: 'POST',
-        data: { type }
-      });
-      
-      if (res && res.data && res.data.url) {
-        this.setData({
-          [`authFiles.${type}`]: res.data.url
-        });
-        console.log(`重新获取签名URL成功: ${type}`);
-      }
-    } catch (error) {
-      console.error(`重新获取签名URL失败: ${type}`, error);
-    }
-  },
+
 
   // 取消认证
   cancelAuth() {

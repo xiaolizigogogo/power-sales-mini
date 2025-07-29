@@ -161,24 +161,7 @@ Page({
     })
   },
 
-  // 跳转到店铺
-  onShop() {
-    wx.navigateTo({
-      url: '/pages/shop/index/index'
-    })
-  },
 
-  // 收藏/取消收藏
-  onFavorite() {
-    const product = this.data.product
-    if (!product) return
-    
-    // 这里应该调用收藏API
-    wx.showToast({
-      title: '收藏成功',
-      icon: 'success'
-    })
-  },
 
   // 加入对比
   onAddToCompare() {

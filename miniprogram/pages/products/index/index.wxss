@@ -368,34 +368,12 @@
   padding: 16rpx 32rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   z-index: 99;
 }
 
-.bottom-left {
-  display: flex;
-  gap: 48rpx;
-}
-
-.bottom-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.bottom-btn text {
-  font-size: 24rpx;
-  color: #666;
-}
-
-.bottom-right {
-  flex: 1;
-  margin-left: 48rpx;
-}
-
-.bottom-right .van-button {
+.bottom-bar .van-button {
   width: 100%;
   height: 80rpx;
   border-radius: 40rpx;
