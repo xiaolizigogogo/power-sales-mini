@@ -20,7 +20,7 @@
     },
     {
       "root": "pages/customer/contracts",
-      "pages": ["list", "sign"]
+      "pages": ["list", "sign", "detail"]
     },
     {
       "root": "pages/manager",

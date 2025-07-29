@@ -164,7 +164,6 @@
         
         <!-- 操作按钮区域 -->
         <view class="card-actions">
-    
           <button 
             class="action-btn success"
             data-id="{{item.id}}"
@@ -188,7 +187,7 @@
       <!-- 加载更多 -->
       <view class="load-more" wx:if="{{hasMore && !loading}}">
         <text>上拉加载更多</text>
-      </view>总
+      </view>
       
       <!-- 加载中 -->
       <view class="loading" wx:if="{{loading}}">
@@ -259,9 +258,9 @@
       </view>
     </view>
 
-    <!-- 浮动添加按钮 -->
-    <view class="floating-add-btn" bindtap="onAddCustomer">
-      <van-icon name="plus" size="20px" color="#fff"></van-icon>
+    <!-- 浮动分享按钮 -->
+    <view class="floating-share-btn" bindtap="onShareToWeChat">
+      <van-icon name="share-o" size="20px" color="#fff"></van-icon>
     </view>
 
     <!-- 订单状态更新弹窗 -->

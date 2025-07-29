@@ -7,7 +7,7 @@ const ENV_TYPES = {
 }
 
 // 当前环境（可以通过修改这个值来切换环境）
-const CURRENT_ENV = ENV_TYPES.PRODUCTION
+const CURRENT_ENV = ENV_TYPES.DEVELOPMENT
 
 // 环境配置
 const envConfigs = {

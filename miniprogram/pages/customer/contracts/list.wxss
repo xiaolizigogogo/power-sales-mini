@@ -81,6 +81,7 @@
   padding: 30rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .contract-card:active {
@@ -99,7 +100,7 @@
 }
 
 .contract-no {
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: #323233;
 }
@@ -110,6 +111,32 @@
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
   background-color: rgba(25, 137, 250, 0.1);
+  color: #1989fa;
+}
+
+.contract-status.pending {
+  background-color: rgba(250, 173, 20, 0.1);
+  color: #faad14;
+}
+
+.contract-status.signed {
+  background-color: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.contract-status.completed {
+  background-color: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.contract-status.expired {
+  background-color: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+.contract-status.cancelled {
+  background-color: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
 }
 
 /* 合同信息 */
@@ -146,33 +173,6 @@
   font-weight: 600;
 }
 
-/* 时间信息 */
-.contract-time {
-  margin-bottom: 30rpx;
-  padding: 20rpx;
-  background-color: #f7f8fa;
-  border-radius: 8rpx;
-}
-
-.time-item {
-  display: flex;
-  align-items: center;
-  padding: 8rpx 0;
-}
-
-.time-item .label {
-  font-size: 24rpx;
-  color: #969799;
-  min-width: 120rpx;
-  flex-shrink: 0;
-}
-
-.time-item .value {
-  font-size: 24rpx;
-  color: #646566;
-  flex: 1;
-}
-
 /* 状态说明 */
 .status-desc {
   margin-bottom: 30rpx;
@@ -181,33 +181,7 @@
   border-radius: 8rpx;
   border-left: 4rpx solid #1989fa;
 }
-.order-contract-block {
-  margin-bottom: 32rpx;
-  background: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
-  padding: 24rpx;
-}
-.order-header {
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 16rpx;
-  font-weight: 500;
-}
-.contract-img-list {
-  display: flex;
-  flex-direction: row;
-  gap: 16rpx;
-  overflow-x: auto;
-}
-.contract-img {
-  width: 180rpx;
-  height: 180rpx;
-  border-radius: 8rpx;
-  background: #f7f7f7;
-  border: 1rpx solid #eee;
-  object-fit: cover;
-}
+
 .desc-text {
   font-size: 26rpx;
   color: #1989fa;

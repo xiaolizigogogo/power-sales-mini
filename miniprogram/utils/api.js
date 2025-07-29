@@ -1447,6 +1447,10 @@ module.exports = {
     async completeFollowup(id, data) {
       return apiService.post(`/manager/followups/${id}/complete`, data);
     },
+    // 取消跟进接口
+    async cancelFollowup(id, data) {
+      return apiService.post(`/manager/followups/${id}/cancel`, data);
+    },
     // 延期跟进接口
     async postponeFollowup(id, data) {
       return apiService.post(`/manager/followups/${id}/postpone`, data);

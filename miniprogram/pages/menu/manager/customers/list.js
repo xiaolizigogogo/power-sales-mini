@@ -649,6 +649,125 @@ Page({
   },
 
   /**
+   * 分享小程序给微信好友
+   */
+  onShareToWeChat() {
+    console.log('分享小程序给微信好友');
+    
+    // 显示分享选项
+    wx.showActionSheet({
+      itemList: ['分享给朋友', '分享到朋友圈'],
+      success: (res) => {
+        console.log('用户选择了分享选项:', res.tapIndex);
+        
+        if (res.tapIndex === 0) {
+          // 分享给朋友
+          this.shareToFriend();
+        } else if (res.tapIndex === 1) {
+          // 分享到朋友圈
+          this.shareToTimeline();
+        }
+      },
+      fail: (err) => {
+        console.error('显示分享选项失败:', err);
+        wx.showToast({
+          title: '分享功能暂不可用',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  /**
+   * 分享给朋友
+   */
+  shareToFriend() {
+    // 由于微信小程序的限制，无法直接调用分享
+    // 我们通过显示分享菜单来引导用户
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage']
+    });
+    
+    wx.showToast({
+      title: '请点击右上角分享给朋友',
+      icon: 'none',
+      duration: 3000
+    });
+    
+    // 记录分享行为
+    this.recordShareAction('friend');
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  shareToTimeline() {
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareTimeline']
+    });
+    
+    wx.showToast({
+      title: '请点击右上角分享到朋友圈',
+      icon: 'none',
+      duration: 3000
+    });
+    
+    // 记录分享行为
+    this.recordShareAction('timeline');
+  },
+
+  /**
+   * 记录分享行为
+   */
+  async recordShareAction(type) {
+    try {
+      console.log('记录分享行为:', type);
+      // 这里可以调用API记录分享统计
+      // await apiService.post('/share/record', { type, page: 'customer-list' });
+    } catch (error) {
+      console.error('记录分享行为失败:', error);
+    }
+  },
+
+  /**
+   * 分享给朋友
+   */
+  onShareAppMessage() {
+    return {
+      title: '电力销售管理系统 - 专业的客户管理工具',
+      path: '/pages/index/index',
+      imageUrl: '/assets/images/icons/众益logo.jpg',
+      success: function(res) {
+        console.log('分享成功', res);
+        wx.showToast({
+          title: '分享成功',
+          icon: 'success'
+        });
+      },
+      fail: function(err) {
+        console.error('分享失败', err);
+        wx.showToast({
+          title: '分享失败',
+          icon: 'error'
+        });
+      }
+    };
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  onShareTimeline() {
+    return {
+      title: '电力销售管理系统 - 专业的客户管理工具',
+      query: '',
+      imageUrl: '/assets/images/icons/众益logo.jpg'
+    };
+  },
+
+  /**
    * 批量操作
    */
   onBatchOperation() {

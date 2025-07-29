@@ -680,34 +680,32 @@
 /* 操作按钮区域 */
 .card-actions {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 20rpx;
-  padding: 20rpx;
+  padding: 20rpx 30rpx;
   border-top: 1px solid #f0f0f0;
-  min-width: 0;
   width: 100%;
   box-sizing: border-box;
 }
 
 .action-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20rpx;
-  padding: 0 30rpx;
-  height: 80rpx;
-  min-height: 36px;
-  border-radius: 32rpx;
-  font-size: 28rpx;
+  gap: 12rpx;
+  padding: 0 24rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  font-size: 26rpx;
   border: none;
   background: transparent;
   position: relative;
   overflow: hidden;
+  flex: 1;
   min-width: 0;
-  max-width: 200rpx;
-  word-break: break-all;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .action-btn::after {
@@ -745,6 +743,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.action-btn text {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .action-btn:active {
@@ -775,6 +779,38 @@
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+/* 响应式设计 */
+@media (max-width: 750rpx) {
+  .card-actions {
+    padding: 16rpx 20rpx;
+    gap: 16rpx;
+  }
+  
+  .action-btn {
+    padding: 0 16rpx;
+    height: 64rpx;
+    font-size: 24rpx;
+    gap: 8rpx;
+  }
+  
+  .action-btn van-icon {
+    font-size: 28rpx !important;
+  }
+}
+
+@media (max-width: 600rpx) {
+  .card-actions {
+    flex-direction: column;
+    gap: 12rpx;
+  }
+  
+  .action-btn {
+    width: 100%;
+    height: 80rpx;
+    font-size: 28rpx;
+  }
 }
 
 .potential-value {
@@ -989,25 +1025,93 @@
   color: white;
 }
 
-/* 浮动添加按钮 */
-.floating-add-btn {
+/* 浮动分享按钮 */
+.floating-share-btn {
   position: fixed;
   right: 30rpx;
   bottom: 120rpx;
   width: 100rpx;
   height: 100rpx;
-  background: #1890ff;
+  background: linear-gradient(135deg, #52c41a, #73d13d);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 16rpx rgba(24, 144, 255, 0.35);
+  box-shadow: 0 4rpx 16rpx rgba(82, 196, 26, 0.35);
   z-index: 100;
+  transition: all 0.3s ease;
+  animation: float-pulse 2s ease-in-out infinite;
 }
 
-.floating-add-btn image {
+.floating-share-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(82, 196, 26, 0.5);
+  animation: none;
+}
+
+.floating-share-btn::before {
+  content: '';
+  position: absolute;
+  top: -4rpx;
+  left: -4rpx;
+  right: -4rpx;
+  bottom: -4rpx;
+  background: linear-gradient(135deg, #52c41a, #73d13d, #52c41a);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.3;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes float-pulse {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 4rpx 16rpx rgba(82, 196, 26, 0.35);
+  }
+  50% {
+    transform: translateY(-6rpx);
+    box-shadow: 0 8rpx 24rpx rgba(82, 196, 26, 0.45);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.floating-share-btn image {
   width: 40rpx;
   height: 40rpx;
+}
+
+/* 分享提示样式 */
+.share-tip {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20rpx 40rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  z-index: 1001;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  20%, 80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 /* 响应式适配 */

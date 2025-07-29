@@ -59,49 +59,109 @@
     <!-- 跟进列表 -->
     <view class="follow-list">
       <view 
-        class="follow-item {{item.isOverdue ? 'overdue' : ''}}"
+        class="follow-item {{item.isOverdue ? 'overdue' : ''}} {{item.priority === 'high' ? 'high-priority' : ''}} {{item.isTask ? 'task-type' : 'record-type'}}"
         wx:for="{{followList}}" 
         wx:key="id"
         data-id="{{item.id}}"
         bindtap="onFollowTap"
       >
-        <!-- 跟进类型图标 -->
-        <view class="follow-type-icon {{item.followType}}">
-          <text class="type-text">
-            {{item.followType === 'phone' ? '📞' : 
-              item.followType === 'visit' ? '🚶' : 
-              item.followType === 'wechat' ? '💬' : '📧'}}
-          </text>
-        </view>
-        
-        <!-- 跟进内容 -->
-        <view class="follow-content">
-          <view class="follow-header">
-            <view class="customer-info">
+        <!-- 卡片头部 -->
+        <view class="card-header">
+          <!-- 跟进类型图标 -->
+          <view class="follow-type-icon {{item.followType}} {{item.isTask ? 'task' : 'record'}}">
+            <text class="type-text">{{item.followTypeIcon}}</text>
+            <view class="type-badge" wx:if="{{item.isTask}}">
+              <text class="badge-text">待办</text>
+            </view>
+          </view>
+          
+          <!-- 跟进基本信息 -->
+          <view class="follow-basic-info">
+            <view class="follow-header">
+              <text class="follow-title">{{item.title}}</text>
+              <view class="follow-status {{item.status}}">
+                <text class="status-text">{{item.statusName}}</text>
+              </view>
+            </view>
+            <view class="customer-brief">
               <text class="customer-name">{{item.customerName}}</text>
               <text class="customer-company">{{item.customerCompany}}</text>
             </view>
-            <view class="follow-status {{item.status}}">
-              <text class="status-text">{{item.statusName}}</text>
-            </view>
           </view>
           
+          <!-- 优先级标识 -->
+          <view class="priority-badge priority-{{item.priority}}" wx:if="{{item.isTask}}">
+            <text class="priority-text">{{item.priorityName}}</text>
+          </view>
+        </view>
+        
+        <!-- 跟进内容区域 -->
+        <view class="follow-content">
           <view class="follow-detail">
-            <text class="follow-title">{{item.title}}</text>
-            <text class="follow-content-text">{{item.content}}</text>
+            <text class="follow-content-text">{{item.contentSummary}}</text>
           </view>
           
-          <view class="follow-meta">
-            <view class="meta-left">
-              <text class="follow-time">跟进时间: {{item.followTime}}</text>
-              <text class="priority priority-{{item.priority}}">{{item.priorityName}}优先级</text>
+          <!-- 跟进结果（仅记录类型显示） -->
+          <view class="follow-result" wx:if="{{item.result && !item.isTask}}">
+            <view class="result-header">
+              <van-icon name="success" size="12px" color="#52c41a"></van-icon>
+              <text class="result-label">跟进结果：</text>
             </view>
-            
-            <view class="meta-right" wx:if="{{item.nextFollowTime}}">
-              <text class="next-follow">下次跟进: {{item.nextFollowTime}}</text>
+            <text class="result-content">{{item.result}}</text>
+          </view>
+        </view>
+        
+        <!-- 时间信息区域 -->
+        <view class="time-info-section">
+          <!-- 待办任务型：显示计划时间和下次跟进时间 -->
+          <view class="time-row" wx:if="{{item.isTask}}">
+            <view class="time-item" wx:if="{{item.planTime}}">
+              <van-icon name="clock-o" size="12px" color="#666"></van-icon>
+              <text class="time-label">计划时间：</text>
+              <text class="time-value">{{item.planTime}}</text>
+            </view>
+            <view class="time-item" wx:if="{{item.followerName}}">
+              <van-icon name="user-o" size="12px" color="#666"></van-icon>
+              <text class="time-label">负责人：</text>
+              <text class="time-value">{{item.followerName}}</text>
             </view>
           </view>
           
+          <!-- 记录型：显示实际时间和创建时间 -->
+          <view class="time-row" wx:if="{{!item.isTask}}">
+            <view class="time-item" wx:if="{{item.actualTime}}">
+              <van-icon name="success" size="12px" color="#52c41a"></van-icon>
+              <text class="time-label">执行时间：</text>
+              <text class="time-value">{{item.actualTime}}</text>
+            </view>
+            <view class="time-item" wx:if="{{item.followerName}}">
+              <van-icon name="user-o" size="12px" color="#666"></van-icon>
+              <text class="time-label">跟进人：</text>
+              <text class="time-value">{{item.followerName}}</text>
+            </view>
+          </view>
+          
+          <view class="time-row" wx:if="{{!item.isTask}}">
+            <view class="time-item" wx:if="{{item.createTime}}">
+              <van-icon name="calendar-o" size="12px" color="#666"></van-icon>
+              <text class="time-label">创建时间：</text>
+              <text class="time-value">{{item.createTime}}</text>
+            </view>
+          </view>
+          
+          <!-- 下次跟进时间（仅待办任务显示） -->
+          <view class="next-follow-row" wx:if="{{item.nextFollowTime && item.isTask}}">
+            <view class="next-follow {{item.isOverdue ? 'overdue' : ''}}">
+              <van-icon name="calendar-o" size="12px" color="{{item.isOverdue ? '#ff4d4f' : '#faad14'}}"></van-icon>
+              <text class="next-label">下次跟进：</text>
+              <text class="next-value">{{item.nextFollowTime}}</text>
+              <text class="overdue-tag" wx:if="{{item.isOverdue}}">已逾期</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 标签和附件 -->
+        <view class="tags-attachments">
           <!-- 标签 -->
           <view class="follow-tags" wx:if="{{item.tags.length > 0}}">
             <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
@@ -114,33 +174,39 @@
           </view>
         </view>
         
-        <!-- 操作按钮 -->
+        <!-- 操作按钮区域 -->
         <view class="follow-actions">
-          <view class="action-top">
+          <view class="action-left">
             <view 
               class="contact-btn"
               data-phone="{{item.customerPhone}}"
               data-wechat="{{item.customerWechat}}"
-              bindtap="onQuickContact"
+              catchtap="onQuickContact"
             >
               <van-icon name="phone-o" size="16px" color="#52c41a"></van-icon>
+              <text class="btn-text">联系</text>
             </view>
           </view>
           
-          <view class="action-bottom" wx:if="{{item.status === 'pending'}}">
+          <!-- 待办任务的操作按钮 -->
+          <view class="action-right" wx:if="{{item.isTask && item.status === 'pending'}}">
             <view 
               class="complete-btn"
               data-id="{{item.id}}"
-              bindtap="onCompleteFollow"
+              data-item="{{item}}"
+              catchtap="onCompleteFollow"
             >
+              <van-icon name="success" size="14px" color="#fff"></van-icon>
               <text>完成</text>
             </view>
             <view 
-              class="delay-btn"
+              class="cancel-btn"
               data-id="{{item.id}}"
-              bindtap="onDelayFollow"
+              data-item="{{item}}"
+              catchtap="onCancelFollow"
             >
-              <text>延期</text>
+              <van-icon name="close" size="14px" color="#fff"></van-icon>
+              <text>取消</text>
             </view>
           </view>
         </view>
@@ -225,4 +291,75 @@
       <van-icon name="plus" size="20px" color="#fff"></van-icon>
     </view>-->
   </view>
+
+  <!-- 完成跟进弹框 -->
+  <van-dialog
+    use-slot
+    title="完成跟进"
+    show="{{showCompleteDialog}}"
+    show-cancel-button
+    confirm-button-text="确认完成"
+    cancel-button-text="取消"
+    bind:confirm="confirmComplete"
+    bind:close="closeCompleteDialog"
+  >
+    <view class="dialog-content">
+      <van-field
+        label="跟进结果"
+        type="textarea"
+        placeholder="请输入跟进结果"
+        value="{{completeForm.result}}"
+        bind:change="onCompleteResultChange"
+        autosize
+        maxlength="500"
+        show-word-limit
+      />
+      <van-field
+        label="下次跟进时间"
+        placeholder="请选择下次跟进时间"
+        value="{{completeForm.nextFollowDate}}"
+        bind:tap="onSelectNextFollowDate"
+        readonly
+        right-icon="arrow"
+      />
+    </view>
+  </van-dialog>
+  
+  <!-- 时间选择器 -->
+  <!-- 暂时注释掉，测试是否还会显示
+  <van-datetime-picker
+    wx:if="{{showDatePicker}}"
+    type="datetime"
+    value="{{currentDate}}"
+    min-date="{{minDate}}"
+    max-date="{{maxDate}}"
+    bind:confirm="onDateConfirm"
+    bind:cancel="onDateCancel"
+  />
+  -->
+  
+  <!-- 取消跟进弹框 -->
+  <van-dialog
+    use-slot
+    title="取消跟进"
+    show="{{showCancelDialog}}"
+    show-cancel-button
+    confirm-button-text="确认取消"
+    cancel-button-text="返回"
+    bind:confirm="confirmCancel"
+    bind:close="closeCancelDialog"
+  >
+    <view class="dialog-content">
+      <van-field
+        label="取消原因"
+        type="textarea"
+        placeholder="请输入取消原因"
+        value="{{cancelForm.reason}}"
+        bind:change="onCancelReasonChange"
+        autosize
+        maxlength="200"
+        show-word-limit
+      />
+    </view>
+  </van-dialog>
 </permission-guard> 

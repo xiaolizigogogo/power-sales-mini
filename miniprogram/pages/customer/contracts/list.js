@@ -12,7 +12,7 @@ Page({
     activeTab: 'all',
     tabs: [
       { key: 'all', name: '全部', count: 0 },
-      { key: 'signed', name: '进行中', count: 0 },
+      { key: 'signed', name: '已签署', count: 0 },
       { key: 'completed', name: '已完成', count: 0 },
     ],
     
@@ -23,19 +23,22 @@ Page({
     
     // 搜索
     searchKeyword: '',
+    showSearchBar: false,
     
-    // 状态映射
+    // 状态映射 - 根据rules.yaml标准定义
     statusMap: {
-      'signed': { text: '进行中', color: '#07c160' },
+      'pending': { text: '待签署', color: '#faad14' },
+      'signed': { text: '已签署', color: '#52c41a' },
       'completed': { text: '已完成', color: '#52c41a' },
-      'cancelled': { text: '已取消', color: '#969799' }
+      'expired': { text: '已过期', color: '#ff4d4f' },
+      'cancelled': { text: '已取消', color: '#ff4d4f' }
     },
     
     // 状态说明
     statusDescMap: {
       'pending': '合同已生成，等待您签署',
-      'signed': '您已签署，等待企业方确认',
-      'completed': '合同签署完成，服务已生效',
+      'signed': '合同已签署，等待服务开通',
+      'completed': '合同执行完成，服务已结束',
       'expired': '合同已过期，需要重新签署',
       'cancelled': '合同已取消'
     }
@@ -51,6 +54,7 @@ Page({
   },
 
   onPullDownRefresh() {
+    this.loadContracts(true);
   },
 
   onReachBottom() {
@@ -97,6 +101,10 @@ Page({
             uploadedAt: contractFile.uploadedAt
           })) : [];
           const contractImgUrls = contracts.filter(c => c.fileType === 'image').map(c => c.fileUrl);
+          
+          // 调试：打印每个订单的状态
+          console.log('订单状态:', order.orderNo, order.status);
+          
           return {
             order,
             contracts,
@@ -131,6 +139,7 @@ Page({
       wx.stopPullDownRefresh();
     }
   },
+
   onPreviewContractImg(e) {
     const url = e.currentTarget.dataset.url;
     console.log('url', e.currentTarget.dataset);
@@ -143,6 +152,7 @@ Page({
       current: url
     });
   },
+
   // 加载更多合同
   async loadMoreContracts() {
     await this.loadContracts(false);
@@ -150,51 +160,80 @@ Page({
 
   // 加载模拟合同数据
   loadMockContracts() {
-    const mockContracts = [
+    const mockOrdersWithContracts = [
       {
-        id: 1,
-        contractNo: 'CONTRACT_2025001',
-        orderNo: 'ORDER_2025001',
-        productName: '企业电力优化服务',
-        servicePeriod: 12,
-        amount: '50000.00',
-        status: 'pending',
-        createTime: '2025-01-15 10:30:00',
-        expireTime: '2025-02-15 10:30:00',
-        customerName: '测试企业',
-        serviceAddress: '北京市朝阳区测试地址'
+        order: {
+          id: 1,
+          orderNo: 'ORDER_2025001',
+          productName: '工商业用电套餐A',
+          servicePeriod: 12,
+          amount: '120000.00',
+          status: 'pending',
+          createTime: '2025-01-15 10:30:00',
+          expireTime: '2025-02-15 10:30:00',
+          customerName: '测试企业',
+          serviceAddress: '北京市朝阳区测试地址'
+        },
+        contracts: [],
+        contractImgUrls: []
       },
       {
-        id: 2,
-        contractNo: 'CONTRACT_2025002',
-        orderNo: 'ORDER_2025002',
-        productName: '工业用电优化方案',
-        servicePeriod: 24,
-        amount: '120000.00',
-        status: 'signed',
-        createTime: '2025-01-10 14:20:00',
-        signedTime: '2025-01-12 09:15:00',
-        customerName: '测试企业',
-        serviceAddress: '上海市浦东新区测试地址'
+        order: {
+          id: 2,
+          orderNo: 'ORDER_2025002',
+          productName: '工业用电优化方案',
+          servicePeriod: 24,
+          amount: '50000.00',
+          status: 'signed',
+          createTime: '2025-01-10 14:20:00',
+          signedTime: '2025-01-12 09:15:00',
+          customerName: '测试企业',
+          serviceAddress: '上海市浦东新区测试地址'
+        },
+        contracts: [
+          {
+            id: 1,
+            fileUrl: 'https://example.com/contract1.jpg',
+            fileType: 'image',
+            uploadedAt: '2025-01-12 09:15:00'
+          }
+        ],
+        contractImgUrls: ['https://example.com/contract1.jpg']
       },
       {
-        id: 3,
-        contractNo: 'CONTRACT_2025003',
-        orderNo: 'ORDER_2025003',
-        productName: '商业用电管理服务',
-        servicePeriod: 6,
-        amount: '30000.00',
-        status: 'completed',
-        createTime: '2024-12-20 16:45:00',
-        signedTime: '2024-12-25 11:30:00',
-        completedTime: '2024-12-26 10:00:00',
-        customerName: '测试企业',
-        serviceAddress: '广州市天河区测试地址'
+        order: {
+          id: 3,
+          orderNo: 'ORDER_2025003',
+          productName: '商业用电管理服务',
+          servicePeriod: 6,
+          amount: '30000.00',
+          status: 'completed',
+          createTime: '2024-12-20 16:45:00',
+          signedTime: '2024-12-25 11:30:00',
+          completedTime: '2024-12-26 10:00:00',
+          customerName: '测试企业',
+          serviceAddress: '广州市天河区测试地址'
+        },
+        contracts: [
+          {
+            id: 2,
+            fileUrl: 'https://example.com/contract2.jpg',
+            fileType: 'image',
+            uploadedAt: '2024-12-25 11:30:00'
+          },
+          {
+            id: 3,
+            fileUrl: 'https://example.com/contract3.jpg',
+            fileType: 'image',
+            uploadedAt: '2024-12-25 11:30:00'
+          }
+        ],
+        contractImgUrls: ['https://example.com/contract2.jpg', 'https://example.com/contract3.jpg']
       }
     ];
 
     this.setData({
-      contracts: mockContracts,
+      ordersWithContracts: mockOrdersWithContracts,
       hasMore: false
     });
 
@@ -203,13 +242,13 @@ Page({
 
   // 更新标签页计数
   updateTabCounts() {
-    const { contracts } = this.data;
+    const { ordersWithContracts } = this.data;
     const tabs = this.data.tabs.map(tab => {
       let count = 0;
       if (tab.key === 'all') {
-        count = contracts.length;
+        count = ordersWithContracts.length;
       } else {
-        count = contracts.filter(contract => contract.status === tab.key).length;
+        count = ordersWithContracts.filter(item => item.order.status === tab.key).length;
       }
       return { ...tab, count };
     });
@@ -222,6 +261,11 @@ Page({
     const activeTab = e.detail.name;
     this.setData({ activeTab });
     this.loadContracts(true);
+  },
+
+  // 显示搜索栏
+  showSearch() {
+    this.setData({ showSearchBar: !this.data.showSearchBar });
   },
 
   // 搜索输入
@@ -244,9 +288,26 @@ Page({
 
   // 查看合同详情
   viewContractDetail(e) {
-    const { id } = e.currentTarget.dataset;
+    const orderData = e.currentTarget.dataset.order;
+    console.log('点击查看详情，数据：', orderData);
+    
+    if (!orderData) {
+      wx.showToast({ title: '数据错误', icon: 'none' });
+      return;
+    }
+    
+    // 将数据存储到本地，供详情页使用
+    wx.setStorageSync('contractDetailData', orderData);
+    
     wx.navigateTo({
-      url: `/pages/customer/contracts/detail?id=${id}`
+      url: `/pages/customer/contracts/detail?id=${orderData.order.id}`,
+      success: () => {
+        console.log('跳转到详情页面成功');
+      },
+      fail: (error) => {
+        console.error('跳转到详情页面失败：', error);
+        wx.showToast({ title: '页面跳转失败', icon: 'none' });
+      }
     });
   },
 
@@ -261,9 +322,9 @@ Page({
   // 下载合同
   downloadContract(e) {
     const { id } = e.currentTarget.dataset;
-    const contract = this.data.contracts.find(c => c.id === id);
+    const orderData = this.data.ordersWithContracts.find(item => item.order.id === id);
     
-    if (!contract || !contract.contractUrl) {
+    if (!orderData || orderData.contractImgUrls.length === 0) {
       wx.showToast({
         title: '合同文件不存在',
         icon: 'none'
@@ -273,8 +334,9 @@ Page({
 
     wx.showLoading({ title: '下载中...' });
     
+    // 下载第一张合同图片
     wx.downloadFile({
-      url: contract.contractUrl,
+      url: orderData.contractImgUrls[0],
       success(res) {
         wx.hideLoading();
         wx.saveFile({

@@ -1,0 +1,141 @@
+<view class="contract-detail">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{ loading }}">
+    <van-loading type="spinner" color="#1989fa" />
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 合同详情内容 -->
+  <view class="detail-content" wx:else>
+    <!-- 合同头部 -->
+    <view class="contract-header">
+      <view class="header-info">
+        <view class="contract-no">{{orderData.order.orderNo}}</view>
+        <view class="contract-status {{orderData.order.status}}">
+          {{statusMap[orderData.order.status] ? statusMap[orderData.order.status].text : '未知状态'}}
+        </view>
+      </view>
+      <view class="status-desc" wx:if="{{statusDescMap[orderData.order.status]}}">
+        {{statusDescMap[orderData.order.status]}}
+      </view>
+    </view>
+
+    <!-- 订单信息 -->
+    <view class="info-section">
+      <view class="section-title">订单信息</view>
+      <view class="info-list">
+        <view class="info-item">
+          <text class="label">订单编号：</text>
+          <text class="value">{{orderData.order.orderNo}}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">产品名称：</text>
+          <text class="value">{{orderData.order.productName}}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务期限：</text>
+          <text class="value">{{orderData.order.servicePeriod}}个月</text>
+        </view>
+        <view class="info-item">
+          <text class="label">合同金额：</text>
+          <text class="value highlight">¥{{formatAmount(orderData.order.amount)}}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">服务地址：</text>
+          <text class="value">{{orderData.order.serviceAddress}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 客户信息 -->
+    <view class="info-section">
+      <view class="section-title">客户信息</view>
+      <view class="info-list">
+        <view class="info-item">
+          <text class="label">客户名称：</text>
+          <text class="value">{{orderData.order.customerName}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderData.order.contactName}}">
+          <text class="label">联系人：</text>
+          <text class="value">{{orderData.order.contactName}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderData.order.contactPhone}}">
+          <text class="label">联系电话：</text>
+          <text class="value">{{orderData.order.contactPhone}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时间信息 -->
+    <view class="info-section">
+      <view class="section-title">时间信息</view>
+      <view class="info-list">
+        <view class="info-item">
+          <text class="label">创建时间：</text>
+          <text class="value">{{formatTime(orderData.order.createTime)}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderData.order.signedTime}}">
+          <text class="label">签署时间：</text>
+          <text class="value">{{formatTime(orderData.order.signedTime)}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderData.order.completedTime}}">
+          <text class="label">完成时间：</text>
+          <text class="value">{{formatTime(orderData.order.completedTime)}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 合同图片 -->
+    <view class="info-section" wx:if="{{orderData.contractImgUrls.length > 0}}">
+      <view class="section-title">合同图片</view>
+      <view class="contract-images">
+        <block wx:for="{{orderData.contractImgUrls}}" wx:key="*this">
+          <view class="image-item">
+            <image 
+              class="contract-img"
+              src="{{item}}"
+              mode="aspectFill"
+              bindtap="onPreviewContractImg"
+              data-url="{{item}}"
+            />
+            <view class="image-overlay">
+              <van-icon name="eye-o" size="24rpx" color="#fff" />
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-container" wx:if="{{!orderData.contractImgUrls.length}}">
+      <van-empty 
+        image="search" 
+        description="暂无合同图片"
+      />
+    </view>
+  </view>
+
+  <!-- 底部操作按钮 -->
+  <view class="bottom-actions" wx:if="{{!loading}}">
+    <view class="action-buttons">
+      <van-button 
+        wx:if="{{orderData.order.status === 'pending'}}"
+        type="primary" 
+        size="large"
+        bind:click="signContract"
+        block
+      >
+        签署合同
+      </van-button>
+      <van-button 
+        wx:if="{{orderData.order.status === 'completed' && orderData.contractImgUrls.length > 0}}"
+        type="default" 
+        size="large"
+        bind:click="downloadContract"
+        block
+      >
+        下载合同
+      </van-button>
+    </view>
+  </view>
+</view> 

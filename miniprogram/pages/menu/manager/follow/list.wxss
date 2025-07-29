@@ -160,282 +160,6 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* 跟进列表 */
-.follow-list {
-  padding: 0 30rpx;
-}
-
-.follow-item {
-  background: white;
-  margin-bottom: 20rpx;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  display: flex;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-  position: relative;
-}
-
-.follow-item:active {
-  transform: scale(0.98);
-}
-
-.follow-item.overdue {
-  border-left: 6rpx solid #ff4d4f;
-  background: #fff6f6;
-}
-
-.follow-type-icon {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20rpx;
-  flex-shrink: 0;
-}
-
-.follow-type-icon.phone {
-  background: #e6f7ff;
-}
-
-.follow-type-icon.visit {
-  background: #f6ffed;
-}
-
-.follow-type-icon.wechat {
-  background: #f0f9ff;
-}
-
-.follow-type-icon.email {
-  background: #fff7e6;
-}
-
-.type-text {
-  font-size: 32rpx;
-}
-
-.follow-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.follow-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15rpx;
-}
-
-.customer-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.customer-name {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 5rpx;
-}
-
-.customer-company {
-  font-size: 24rpx;
-  color: #666;
-}
-
-.follow-status {
-  padding: 6rpx 15rpx;
-  border-radius: 15rpx;
-  font-size: 20rpx;
-  color: white;
-}
-
-.follow-status.pending {
-  background: #faad14;
-}
-
-.follow-status.completed {
-  background: #52c41a;
-}
-
-.follow-status.cancelled {
-  background: #d9d9d9;
-  color: #666;
-}
-
-.status-text {
-  font-size: 20rpx;
-}
-
-.follow-detail {
-  margin-bottom: 15rpx;
-}
-
-.follow-title {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 8rpx;
-  display: block;
-}
-
-.follow-content-text {
-  font-size: 24rpx;
-  color: #666;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.follow-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15rpx;
-}
-
-.meta-left {
-  display: flex;
-  flex-direction: column;
-}
-
-.follow-time {
-  font-size: 22rpx;
-  color: #999;
-  margin-bottom: 5rpx;
-}
-
-.priority {
-  font-size: 20rpx;
-  padding: 3rpx 8rpx;
-  border-radius: 8rpx;
-  align-self: flex-start;
-}
-
-.priority-high {
-  background: #fff2e8;
-  color: #fa541c;
-}
-
-.priority-medium {
-  background: #f6ffed;
-  color: #52c41a;
-}
-
-.priority-low {
-  background: #f0f0f0;
-  color: #999;
-}
-
-.meta-right {
-  text-align: right;
-}
-
-.next-follow {
-  font-size: 22rpx;
-  color: #fa8c16;
-  background: #fff7e6;
-  padding: 6rpx 12rpx;
-  border-radius: 8rpx;
-}
-
-.follow-tags {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 15rpx;
-}
-
-.tag {
-  font-size: 20rpx;
-  padding: 4rpx 8rpx;
-  margin-right: 8rpx;
-  margin-bottom: 4rpx;
-  background: #f0f0f0;
-  color: #666;
-  border-radius: 8rpx;
-}
-
-.attachments {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10rpx;
-}
-
-.attachment-icon {
-  width: 24rpx;
-  height: 24rpx;
-  margin-right: 8rpx;
-  opacity: 0.6;
-}
-
-.attachment-count {
-  font-size: 22rpx;
-  color: #666;
-}
-
-.follow-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-left: 20rpx;
-  flex-shrink: 0;
-  min-height: 120rpx;
-}
-
-.action-top {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.contact-btn {
-  width: 60rpx;
-  height: 60rpx;
-  background: #1890ff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15rpx;
-}
-
-.contact-btn image {
-  width: 32rpx;
-  height: 32rpx;
-  filter: brightness(0) invert(1);
-}
-
-.action-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.complete-btn,
-.delay-btn {
-  padding: 8rpx 16rpx;
-  border-radius: 15rpx;
-  font-size: 20rpx;
-  text-align: center;
-  min-width: 80rpx;
-}
-
-.complete-btn {
-  background: #52c41a;
-  color: white;
-}
-
-.delay-btn {
-  background: #faad14;
-  color: white;
-}
-
 /* 加载状态 */
 .load-more,
 .loading {
@@ -638,4 +362,754 @@
   .customer-name {
     font-size: 28rpx;
   }
+} 
+
+/* 响应式设计 */
+@media (max-width: 750rpx) {
+  .card-header {
+    padding: 20rpx 16rpx 16rpx 16rpx;
+  }
+  
+  .customer-name {
+    font-size: 28rpx;
+  }
+  
+  .customer-company {
+    font-size: 24rpx;
+  }
+  
+  .follow-title {
+    font-size: 28rpx;
+  }
+  
+  .follow-content-text {
+    font-size: 24rpx;
+  }
+  
+  .time-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8rpx;
+  }
+  
+  .follow-actions {
+    flex-direction: column;
+    gap: 12rpx;
+  }
+  
+  .action-left,
+  .action-right {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600rpx) {
+  .follow-type-icon {
+    width: 60rpx;
+    height: 60rpx;
+    margin-right: 16rpx;
+  }
+  
+  .type-text {
+    font-size: 24rpx;
+  }
+  
+  .customer-name {
+    font-size: 24rpx;
+  }
+  
+  .customer-company {
+    font-size: 20rpx;
+  }
+  
+  .follow-title {
+    font-size: 26rpx;
+  }
+  
+  .follow-content-text {
+    font-size: 22rpx;
+  }
+  
+  .time-label,
+  .time-value {
+    font-size: 22rpx;
+  }
+  
+  .tag {
+    font-size: 20rpx;
+  }
+  
+  .btn-text {
+    font-size: 22rpx;
+  }
+}
+
+/* 跟进列表 */
+.follow-list {
+  padding: 0 30rpx 20px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* 跟进列表项 */
+.follow-item {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 16px;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8f4fd;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.follow-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1890ff, #40a9ff, #69c0ff);
+}
+
+.follow-item:active {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.follow-item.overdue {
+  border-color: #ffccc7;
+  box-shadow: 0 4px 20px rgba(255, 77, 79, 0.15);
+}
+
+.follow-item.overdue::before {
+  background: linear-gradient(90deg, #ff4d4f, #ff7875, #ffa39e);
+}
+
+.follow-item.high-priority {
+  border-color: #ffd591;
+  box-shadow: 0 4px 20px rgba(250, 173, 20, 0.15);
+}
+
+.follow-item.high-priority::before {
+  background: linear-gradient(90deg, #faad14, #ffc53d, #ffd666);
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  padding: 30rpx 20rpx 20rpx 20rpx;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #f0f0f0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 跟进类型图标 */
+.follow-type-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  position: relative;
+}
+
+.follow-type-icon.task {
+  background: linear-gradient(135deg, #faad14, #ffc53d);
+  box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2);
+}
+
+.follow-type-icon.record {
+  background: linear-gradient(135deg, #52c41a, #73d13d);
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2);
+}
+
+.follow-type-icon.phone {
+  background: linear-gradient(135deg, #52c41a, #73d13d);
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2);
+}
+
+.follow-type-icon.visit {
+  background: linear-gradient(135deg, #722ed1, #9254de);
+  box-shadow: 0 2px 8px rgba(114, 46, 209, 0.2);
+}
+
+.follow-type-icon.wechat {
+  background: linear-gradient(135deg, #13c2c2, #36cfc9);
+  box-shadow: 0 2px 8px rgba(19, 194, 194, 0.2);
+}
+
+.follow-type-icon.email {
+  background: linear-gradient(135deg, #fa8c16, #ffa940);
+  box-shadow: 0 2px 8px rgba(250, 140, 22, 0.2);
+}
+
+.type-text {
+  font-size: 32rpx;
+  color: white;
+}
+
+.type-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  background: #ff4d4f;
+  color: white;
+  font-size: 18rpx;
+  padding: 2rpx 6rpx;
+  border-radius: 8rpx;
+  font-weight: 600;
+}
+
+.badge-text {
+  font-size: 18rpx;
+}
+
+/* 任务类型和记录类型的卡片样式 */
+.follow-item.task-type {
+  border-left: 4px solid #faad14;
+}
+
+.follow-item.task-type::before {
+  background: linear-gradient(90deg, #faad14, #ffc53d, #ffd666);
+}
+
+.follow-item.record-type {
+  border-left: 4px solid #52c41a;
+}
+
+.follow-item.record-type::before {
+  background: linear-gradient(90deg, #52c41a, #73d13d, #95de64);
+}
+
+/* 编辑按钮样式 */
+.edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  border: none;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+  color: #1890ff;
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.edit-btn:active {
+  background: rgba(24, 144, 255, 0.2);
+}
+
+/* 优先级标识 */
+.priority-badge {
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.priority-badge.priority-high {
+  background: #fff2f0;
+  color: #cf1322;
+}
+
+.priority-badge.priority-medium {
+  background: #fff7e6;
+  color: #d46b08;
+}
+
+.priority-badge.priority-low {
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+.priority-text {
+  font-size: 20rpx;
+}
+
+/* 跟进内容区域 */
+.follow-content {
+  padding: 20rpx;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.follow-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.follow-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.3;
+  min-width: 0;
+  word-break: break-all;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.follow-status {
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.follow-status.pending {
+  background: #fff7e6;
+  color: #d46b08;
+}
+
+.follow-status.completed {
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+.follow-status.cancelled {
+  background: #f5f5f5;
+  color: #8c8c8c;
+}
+
+.follow-detail {
+  margin-bottom: 16rpx;
+}
+
+.follow-content-text {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+
+
+/* 跟进结果 */
+.follow-result {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.result-label {
+  font-size: 24rpx;
+  color: #389e0d;
+  font-weight: 600;
+  margin-left: 8rpx;
+}
+
+.result-content {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+
+
+/* 时间信息区域 */
+.time-info-section {
+  padding: 20rpx;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.time-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.time-label {
+  font-size: 24rpx;
+  color: #666;
+  margin: 0 8rpx 0 8rpx;
+}
+
+.time-value {
+  font-size: 24rpx;
+  color: #333;
+  font-weight: 500;
+  min-width: 0;
+  word-break: break-all;
+}
+
+.next-follow-row {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.next-follow {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 16rpx;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.next-follow.overdue {
+  background: #fff2f0;
+  border-color: #ffccc7;
+}
+
+.next-label {
+  font-size: 24rpx;
+  color: #d46b08;
+  font-weight: 600;
+  margin: 0 8rpx 0 8rpx;
+}
+
+.next-follow.overdue .next-label {
+  color: #cf1322;
+}
+
+.next-value {
+  font-size: 24rpx;
+  color: #333;
+  font-weight: 500;
+  min-width: 0;
+  word-break: break-all;
+  flex: 1;
+}
+
+.overdue-tag {
+  font-size: 20rpx;
+  color: #cf1322;
+  background: #ffccc7;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  margin-left: 8rpx;
+  flex-shrink: 0;
+}
+
+/* 标签和附件 */
+.tags-attachments {
+  padding: 16rpx 20rpx;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.follow-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.tag {
+  font-size: 22rpx;
+  color: #1890ff;
+  background: #e6f7ff;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  border: 1px solid #91d5ff;
+}
+
+.attachments {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.attachment-icon {
+  flex-shrink: 0;
+}
+
+.attachment-count {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 操作按钮区域 */
+.follow-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  border-top: 1px solid #f0f0f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.action-left {
+  display: flex;
+  gap: 16rpx;
+}
+
+.contact-btn,
+.view-detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  border: none;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.contact-btn {
+  color: #52c41a;
+  background: rgba(82, 196, 26, 0.1);
+}
+
+.contact-btn:active {
+  background: rgba(82, 196, 26, 0.2);
+}
+
+.view-detail-btn {
+  color: #1890ff;
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.view-detail-btn:active {
+  background: rgba(24, 144, 255, 0.2);
+}
+
+.btn-text {
+  font-size: 24rpx;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.action-right {
+  display: flex;
+  gap: 12rpx;
+}
+
+.complete-btn,
+.delay-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  border: none;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.complete-btn {
+  color: #fff;
+  background: #52c41a;
+}
+
+.complete-btn:active {
+  background: #389e0d;
+}
+
+.delay-btn {
+  color: #faad14;
+  background: rgba(250, 173, 20, 0.1);
+}
+
+.delay-btn:active {
+  background: rgba(250, 173, 20, 0.2);
+} 
+
+/* 跟进基本信息 */
+.follow-basic-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.follow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8rpx;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.follow-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.3;
+  min-width: 0;
+  word-break: break-all;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.follow-status {
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.follow-status.pending {
+  background: #fff7e6;
+  color: #d46b08;
+}
+
+.follow-status.completed {
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+.follow-status.cancelled {
+  background: #f5f5f5;
+  color: #8c8c8c;
+}
+
+.customer-brief {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.customer-name {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+  min-width: 0;
+  word-break: break-all;
+}
+
+.customer-company {
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 400;
+  min-width: 0;
+  word-break: break-all;
+} 
+
+.cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  border: none;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+  color: #fff;
+  background: #ff4d4f;
+}
+
+.cancel-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #ff4d4f, #ff7875);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cancel-btn:active::before {
+  opacity: 1;
+}
+
+/* 弹框样式 */
+.dialog-content {
+  padding: 32rpx;
+}
+
+.dialog-content .van-field {
+  margin-bottom: 24rpx;
+}
+
+.dialog-content .van-field:last-child {
+  margin-bottom: 0;
 } 
