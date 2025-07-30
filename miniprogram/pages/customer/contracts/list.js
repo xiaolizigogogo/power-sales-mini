@@ -12,7 +12,10 @@ Page({
     activeTab: 'all',
     tabs: [
       { key: 'all', name: '全部', count: 0 },
-      { key: 'signed', name: '已签署', count: 0 },
+      { key: 'pending', name: '待确认', count: 0 },
+      { key: 'contract', name: '合同签署', count: 0 },
+      { key: 'signed', name: '已签约', count: 0 },
+      { key: 'active', name: '服务中', count: 0 },
       { key: 'completed', name: '已完成', count: 0 },
     ],
     
@@ -25,22 +28,32 @@ Page({
     searchKeyword: '',
     showSearchBar: false,
     
-    // 状态映射 - 根据rules.yaml标准定义
+    // 状态映射 - 根据rules.yaml标准定义（订单和合同统一状态）
     statusMap: {
-      'pending': { text: '待签署', color: '#faad14' },
-      'signed': { text: '已签署', color: '#52c41a' },
-      'completed': { text: '已完成', color: '#52c41a' },
-      'expired': { text: '已过期', color: '#ff4d4f' },
-      'cancelled': { text: '已取消', color: '#ff4d4f' }
+      'pending': { text: '待确认', color: '#FFA500' },
+      'negotiating': { text: '商务洽谈', color: '#1890FF' },
+      'confirmed': { text: '已确认', color: '#722ED1' },
+      'contract': { text: '合同签署', color: '#13C2C2' },
+      'signed': { text: '已签约', color: '#52C41A' },
+      'active': { text: '服务中', color: '#52C41A' },
+      'completed': { text: '已完成', color: '#8C8C8C' },
+      'cancelled': { text: '已取消', color: '#FF4D4F' },
+      'rejected': { text: '已拒绝', color: '#FF4D4F' },
+      'expired': { text: '已过期', color: '#ff4d4f' }
     },
     
     // 状态说明
     statusDescMap: {
-      'pending': '合同已生成，等待您签署',
-      'signed': '合同已签署，等待服务开通',
-      'completed': '合同执行完成，服务已结束',
-      'expired': '合同已过期，需要重新签署',
-      'cancelled': '合同已取消'
+      'pending': '订单已提交，等待客户经理确认',
+      'negotiating': '客户经理正在与您洽谈需求',
+      'confirmed': '订单已确认，准备进入合同签署流程',
+      'contract': '进入合同签署阶段，请及时签署合同',
+      'signed': '合同已签署，服务即将开通',
+      'active': '服务已开通，正在为您提供服务',
+      'completed': '服务已完成，感谢您的使用',
+      'cancelled': '订单已取消',
+      'rejected': '订单被拒绝，请联系客户经理',
+      'expired': '订单已过期，需要重新处理'
     }
   },
 
@@ -319,52 +332,7 @@ Page({
     });
   },
 
-  // 下载合同
-  downloadContract(e) {
-    const { id } = e.currentTarget.dataset;
-    const orderData = this.data.ordersWithContracts.find(item => item.order.id === id);
-    
-    if (!orderData || orderData.contractImgUrls.length === 0) {
-      wx.showToast({
-        title: '合同文件不存在',
-        icon: 'none'
-      });
-      return;
-    }
 
-    wx.showLoading({ title: '下载中...' });
-    
-    // 下载第一张合同图片
-    wx.downloadFile({
-      url: orderData.contractImgUrls[0],
-      success(res) {
-        wx.hideLoading();
-        wx.saveFile({
-          tempFilePath: res.tempFilePath,
-          success() {
-            wx.showToast({
-              title: '合同已保存到本地',
-              icon: 'success'
-            });
-          },
-          fail() {
-            wx.showToast({
-              title: '保存失败',
-              icon: 'none'
-            });
-          }
-        });
-      },
-      fail(error) {
-        wx.hideLoading();
-        console.error('下载合同失败:', error);
-        wx.showToast({
-          title: '下载失败',
-          icon: 'none'
-        });
-      }
-    });
-  },
 
   // 刷新数据
   refreshData() {

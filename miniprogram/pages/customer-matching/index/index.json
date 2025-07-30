@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "客户匹配分析",
+  "navigationBarBackgroundColor": "#1890ff",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f7fa",
+  "enablePullDownRefresh": false,
+  "disableScroll": false
+} 

@@ -99,7 +99,7 @@
               <!-- 操作按钮 -->
               <view class="contract-actions" catchtap="true">
                 <van-button 
-                  wx:if="{{item.order.status === 'pending'}}"
+                  wx:if="{{item.order.status === 'contract'}}"
                   type="primary" 
                   size="small"
                   bind:click="signContract"
@@ -108,13 +108,22 @@
                   签署合同
                 </van-button>
                 <van-button 
-                  wx:if="{{item.order.status === 'completed'}}"
+                  wx:if="{{item.order.status === 'signed' || item.order.status === 'active' || item.order.status === 'completed'}}"
                   type="default" 
                   size="small"
-                  bind:click="downloadContract"
-                  data-id="{{item.order.id}}"
+                  bind:click="viewContractDetail"
+                  data-order="{{item}}"
                 >
-                  下载合同
+                  查看详情
+                </van-button>
+                <van-button 
+                  wx:if="{{item.order.status === 'pending'}}"
+                  type="default" 
+                  size="small"
+                  bind:click="viewContractDetail"
+                  data-order="{{item}}"
+                >
+                  查看详情
                 </van-button>
               </view>
             </view>

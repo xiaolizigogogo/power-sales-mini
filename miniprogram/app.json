@@ -11,7 +11,8 @@
     "pages/menu/manager/profile/index",
     "pages/auth/verify/verify",
     "pages/auth/username-login/index",
-    "pages/menu/user/orders/index/index"
+    "pages/menu/user/orders/index/index",
+    "pages/customer-matching/index/index"
   ],
   "subPackages": [
     {

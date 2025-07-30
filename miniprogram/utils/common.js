@@ -128,6 +128,16 @@ function formatMoney(amount, precision = 2) {
   }
   
   const num = parseFloat(amount)
+  
+  // 如果金额超过1000，转换为万元单位
+  if (num >= 1000) {
+    const wanAmount = num / 10000
+    return wanAmount.toLocaleString('zh-CN', {
+      minimumFractionDigits: precision,
+      maximumFractionDigits: precision
+    }) + '万'
+  }
+  
   return num.toLocaleString('zh-CN', {
     minimumFractionDigits: precision,
     maximumFractionDigits: precision

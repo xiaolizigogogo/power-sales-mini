@@ -22,12 +22,14 @@ Page({
       { key: 'all', name: '全部', count: 0 },
       { key: 'pending', name: '待确认', count: 0 },
       { key: 'negotiating', name: '商务洽谈', count: 0 },
-      { key: 'confirmed', name: '合同签署', count: 0 },
-      { key: 'signed', name: '服务开通', count: 0 },
+      { key: 'confirmed', name: '已确认', count: 0 },
+      { key: 'contract', name: '合同签署', count: 0 },
+      { key: 'signed', name: '已签约', count: 0 },
       { key: 'active', name: '服务中', count: 0 },
       { key: 'completed', name: '已完成', count: 0 },
       { key: 'cancelled', name: '已取消', count: 0 },
-      { key: 'rejected', name: '已拒绝', count: 0 }
+      { key: 'rejected', name: '已拒绝', count: 0 },
+      { key: 'expired', name: '已过期', count: 0 }
     ],
     
     // 订单数据
@@ -47,17 +49,19 @@ Page({
       dateRange: ''
     },
     
-    // 筛选选项
+    // 筛选选项 - 根据rules.yaml重新定义
     statusOptions: [
       { text: '全部', value: '' },
       { text: '待确认', value: 'pending' },
       { text: '商务洽谈', value: 'negotiating' },
-      { text: '合同签署', value: 'confirmed' },
-      { text: '服务开通', value: 'signed' },
+      { text: '已确认', value: 'confirmed' },
+      { text: '合同签署', value: 'contract' },
+      { text: '已签约', value: 'signed' },
       { text: '服务中', value: 'active' },
       { text: '已完成', value: 'completed' },
       { text: '已取消', value: 'cancelled' },
-      { text: '已拒绝', value: 'rejected' }
+      { text: '已拒绝', value: 'rejected' },
+      { text: '已过期', value: 'expired' }
     ],
     
     amountRangeOptions: [
@@ -73,30 +77,32 @@ Page({
     actionSheetActions: [],
     selectedOrder: null,
     
-    // 状态映射
+    // 状态映射 - 根据rules.yaml重新定义
     statusMap: {
       'pending': { text: '待确认', color: '#FFA500' },
       'negotiating': { text: '商务洽谈', color: '#1890FF' },
-      'confirmed': { text: '合同签署', color: '#722ED1' },
-      'signed': { text: '服务开通', color: '#13C2C2' },
+      'confirmed': { text: '已确认', color: '#722ED1' },
+      'contract': { text: '合同签署', color: '#13C2C2' },
+      'signed': { text: '已签约', color: '#52C41A' },
       'active': { text: '服务中', color: '#52C41A' },
       'completed': { text: '已完成', color: '#8C8C8C' },
       'cancelled': { text: '已取消', color: '#FF4D4F' },
-      'rejected': { text: '已拒绝', color: '#FF4D4F' }
+      'rejected': { text: '已拒绝', color: '#FF4D4F' },
+      'expired': { text: '已过期', color: '#FF4D4F' }
     },
 
-    // 状态说明
+    // 状态说明 - 根据rules.yaml重新定义
     statusDescMap: {
-      'pending': '订单待处理，等待客户经理确认',
-      'negotiating': '正在进行商务洽谈，请等待',
-      'confirmed': '订单已确认，等待支付',
-      'paid': '订单已支付，等待开通服务',
-      'service': '服务已开通，正常使用中',
-      'completed': '服务已完成',
-      'cancelled': '订单已取消',
-      'rejected': '订单已被拒绝',
-      'contract': '等待签署合同',
-      'active': '服务正常使用中'
+      'pending': '用户下单后，订单初始状态，待客户经理处理',
+      'negotiating': '客户经理与客户沟通需求、价格等',
+      'confirmed': '洽谈达成一致，订单确认',
+      'contract': '进入合同签署流程，需上传合同',
+      'signed': '合同已签署，等待服务开通',
+      'active': '服务已开通，订单执行中',
+      'completed': '服务全部完成，订单闭环',
+      'cancelled': '订单被用户或管理员取消',
+      'rejected': '客户经理或系统拒绝订单',
+      'expired': '订单或合同已过期，需要重新处理'
     }
   },
 
@@ -305,6 +311,14 @@ Page({
       const total = response.data && response.data.total ? response.data.total : 0;
       // 格式化订单数据
       const formattedList = records.map(order => this.formatOrderData(order));
+      
+      console.log('格式化后的订单列表:', formattedList.map(item => ({
+        id: item.id,
+        status: item.status,
+        currentStep: item.currentStep,
+        progressSteps: item.progressSteps
+      })));
+      
       this.setData({
         orderList: refresh ? formattedList : [...this.data.orderList, ...formattedList],
         total,
@@ -461,8 +475,21 @@ Page({
 
     // 进度步骤数组
     const progressSteps = this.getProgressStep(status);
-    // 当前步骤索引
-    const currentStep = progressSteps.findIndex(step => step === statusInfo.text);
+    // 根据状态计算当前步骤索引
+    const statusStepMap = {
+      'pending': 0,      // 待确认
+      'negotiating': 1,  // 商务洽谈
+      'confirmed': 2,    // 已确认
+      'contract': 3,     // 合同签署
+      'signed': 4,       // 已签约
+      'active': 5,       // 服务中
+      'completed': 6     // 已完成
+    };
+    const currentStep = statusStepMap[status] || 0;
+    
+
+
+    
 
     return {
       ...order,
@@ -472,14 +499,14 @@ Page({
       statusText: statusInfo.text,
       statusColor: statusInfo.color,
       
-      // 订单操作权限
-      canCancel: ['pending', 'confirmed'].includes(status),
+      // 订单操作权限 - 根据新状态重新定义
+      canCancel: ['pending', 'negotiating', 'confirmed'].includes(status),
       canPay: status === 'confirmed' && !order.isPaid,
-      canViewContract: ['service', 'completed'].includes(status),
-      canConfirm: status === 'paid',
+      canViewContract: ['signed', 'active', 'completed'].includes(status),
+      canConfirm: status === 'signed',
       
-      // 显示进度
-      showProgress: !['cancelled', 'rejected'].includes(status),
+      // 显示进度 - 只有正常流程的状态才显示进度条
+      showProgress: ['pending', 'negotiating', 'confirmed', 'contract', 'signed', 'active', 'completed'].includes(status),
       progressSteps,
       progressPercent: this.getProgressPercent(status),
       currentStep
@@ -511,19 +538,20 @@ Page({
 
   // 获取进度步骤
   getProgressStep(status) {
-    // 返回进度步骤数组，供进度条和 findIndex 使用
-    return ['待确认', '商务洽谈', '合同签署', '服务开通', '服务中', '已完成'];
+    // 返回进度步骤数组，根据rules.yaml的状态流程定义
+    return ['待确认', '商务洽谈', '已确认', '合同签署', '已签约', '服务中', '已完成'];
   },
 
-  // 获取进度百分比
+  // 获取进度百分比 - 根据rules.yaml的状态流程重新定义
   getProgressPercent(status) {
     const progressMap = {
-      'pending': 10,
-      'negotiating': 25,
-      'confirmed': 40,
-      'signed': 60,
-      'active': 80,
-      'completed': 100
+      'pending': 10,      // 待确认
+      'negotiating': 25,  // 商务洽谈
+      'confirmed': 40,    // 已确认
+      'contract': 55,     // 合同签署
+      'signed': 70,       // 已签约
+      'active': 85,       // 服务中
+      'completed': 100    // 已完成
     };
     return progressMap[status] || 0;
   },
@@ -654,7 +682,7 @@ Page({
       actions.push({ action: 'cancel', text: '取消订单' });
     }
     if (order.canViewContract) {
-      actions.push({ action: 'contract', text: '查看合同' });
+      actions.push({ action: 'contract', text: '查看详情' });
     }
     if (order.canPay) {
       actions.push({ action: 'pay', text: '立即支付' });
@@ -662,8 +690,6 @@ Page({
     if (order.canConfirm) {
       actions.push({ action: 'confirm', text: '确认收货' });
     }
-    
-    actions.push({ action: 'detail', text: '查看详情' });
     
     return actions;
   },
@@ -687,9 +713,6 @@ Page({
         break;
       case 'confirm':
         this.confirmOrder(order);
-        break;
-      case 'detail':
-        this.viewOrderDetail({ currentTarget: { dataset: { order } } });
         break;
     }
   },
@@ -732,7 +755,16 @@ Page({
   },
 
   // 确认收货
-  async confirmOrder(order) {
+  async confirmOrder(e) {
+    const order = e.currentTarget.dataset.order;
+    if (!order || !order.id) {
+      wx.showToast({
+        title: '订单信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
+    
     try {
       const result = await this.showConfirmDialog();
       if (result.confirm) {
@@ -766,16 +798,32 @@ Page({
   },
 
   // 支付订单
-  payOrder(order) {
+  payOrder(e) {
+    const order = e.currentTarget.dataset.order;
+    if (!order || !order.id) {
+      wx.showToast({
+        title: '订单信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
     wx.navigateTo({
       url: `/pages/payment/index?orderId=${order.id}&amount=${order.amount}`
     });
   },
 
-  // 查看合同
-  viewContract(order) {
+  // 查看详情
+  viewContract(e) {
+    const order = e.currentTarget.dataset.order;
+    if (!order || !order.id) {
+      wx.showToast({
+        title: '订单信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
     wx.navigateTo({
-      url: `/pages/contract/detail?orderId=${order.id}`
+      url: `/pages/orders/detail/detail?id=${order.id}`
     });
   },
 

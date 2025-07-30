@@ -11,7 +11,7 @@ const prodConfig = {
 };
 
 // 根据环境选择配置
-const isDev = true; // 使用生产环境
+const isDev = false; // 使用生产环境
 const config = isDev ? devConfig : prodConfig;
 
 // API 配置对象 - 与 api.js 中的引用保持一致

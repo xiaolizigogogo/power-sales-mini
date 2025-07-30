@@ -38,7 +38,15 @@
         </view>
         <view class="info-item">
           <text class="label">合同金额：</text>
-          <text class="value highlight">¥{{formatAmount(orderData.order.amount)}}</text>
+          <text class="value highlight">¥{{orderData.order.amount}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderData.order.actualAmount}}">
+          <text class="label">实际金额：</text>
+          <text class="value highlight">¥{{orderData.order.actualAmount}}</text>
+        </view>
+        <view class="info-item" wx:if="{{orderData.order.quantity}}">
+          <text class="label">数量：</text>
+          <text class="value">{{orderData.order.quantity}}</text>
         </view>
         <view class="info-item">
           <text class="label">服务地址：</text>
@@ -47,40 +55,23 @@
       </view>
     </view>
 
-    <!-- 客户信息 -->
-    <view class="info-section">
-      <view class="section-title">客户信息</view>
-      <view class="info-list">
-        <view class="info-item">
-          <text class="label">客户名称：</text>
-          <text class="value">{{orderData.order.customerName}}</text>
-        </view>
-        <view class="info-item" wx:if="{{orderData.order.contactName}}">
-          <text class="label">联系人：</text>
-          <text class="value">{{orderData.order.contactName}}</text>
-        </view>
-        <view class="info-item" wx:if="{{orderData.order.contactPhone}}">
-          <text class="label">联系电话：</text>
-          <text class="value">{{orderData.order.contactPhone}}</text>
-        </view>
-      </view>
-    </view>
+
 
     <!-- 时间信息 -->
     <view class="info-section">
       <view class="section-title">时间信息</view>
       <view class="info-list">
         <view class="info-item">
-          <text class="label">创建时间：</text>
-          <text class="value">{{formatTime(orderData.order.createTime)}}</text>
+          <text class="label">合同创建时间：</text>
+          <text class="value">{{orderData.order.createdAt}}</text>
         </view>
-        <view class="info-item" wx:if="{{orderData.order.signedTime}}">
-          <text class="label">签署时间：</text>
-          <text class="value">{{formatTime(orderData.order.signedTime)}}</text>
+        <view class="info-item" wx:if="{{orderData.order.serviceStartDate}}">
+          <text class="label">服务开始时间：</text>
+          <text class="value">{{orderData.order.serviceStartDate}}</text>
         </view>
-        <view class="info-item" wx:if="{{orderData.order.completedTime}}">
-          <text class="label">完成时间：</text>
-          <text class="value">{{formatTime(orderData.order.completedTime)}}</text>
+        <view class="info-item" wx:if="{{orderData.order.serviceEndDate}}">
+          <text class="label">服务结束时间：</text>
+          <text class="value">{{orderData.order.serviceEndDate}}</text>
         </view>
       </view>
     </view>

@@ -919,6 +919,44 @@ const customerAPI = {
   }
 }
 
+// 客户匹配分析相关API
+const customerMatchingAPI = {
+  // 提交客户匹配信息
+  async submitCustomerMatching(data) {
+    return apiService.post('/customer-matching/submit', data)
+  },
+
+  // 获取客户匹配历史记录
+  async getCustomerMatchingHistory(params = {}) {
+    return apiService.get('/customer-matching/history', params)
+  },
+
+  // 获取客户匹配详情
+  async getCustomerMatchingDetail(id) {
+    return apiService.get(`/customer-matching/${id}`)
+  },
+
+  // 更新客户匹配信息
+  async updateCustomerMatching(id, data) {
+    return apiService.put(`/customer-matching/${id}`, data)
+  },
+
+  // 删除客户匹配记录
+  async deleteCustomerMatching(id) {
+    return apiService.delete(`/customer-matching/${id}`)
+  },
+
+  // 获取匹配统计信息
+  async getMatchingStatistics() {
+    return apiService.get('/customer-matching/statistics')
+  },
+
+  // 导出客户匹配数据
+  async exportCustomerMatchingData(params = {}) {
+    return apiService.get('/customer-matching/export', params)
+  }
+}
+
 // 跟进管理相关 API
 const followAPI = {
   // 获取跟进记录列表
@@ -1470,5 +1508,6 @@ module.exports = {
   workplaceAPI,
   serviceAPI,
   renewalAPI,
-  complaintAPI
+  complaintAPI,
+  customerMatchingAPI
 } 

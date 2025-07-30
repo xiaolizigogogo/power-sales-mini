@@ -108,9 +108,7 @@
             </view>
           </view>
           <view class="product-price">
-            <text class="price-symbol">¥</text>
-            <text class="price-amount">{{item.amount || '0'}}</text>
-            <text class="price-unit">起</text>
+            <text class="price-amount">{{item.amount || '0'}}元</text>
           </view>
         </view>
 
@@ -150,8 +148,8 @@
           </view>
           <view class="progress-steps">
             <text 
-              class="step-item {{index <= (item.currentStep || 0) ? 'completed' : ''}}"
-              wx:for="{{item.progressSteps || ['下单', '确认', '服务中', '完成']}}"
+              class="step-item"
+              wx:for="{{item.progressSteps || ['待确认', '商务洽谈', '已确认', '合同签署', '已签约', '服务中', '已完成']}}"
               wx:key="*this"
               wx:for-index="index"
             >{{item}}</text>
@@ -171,11 +169,11 @@
             wx:if="{{item.canViewContract}}"
             catchtap="viewContract"
             data-order="{{item}}"
-          >查看合同</button>
+          >查看详情</button>
           <button 
             class="action-btn primary"
             wx:if="{{item.canPay}}"
-            catchtap="onPayOrder"
+            catchtap="payOrder"
             data-order="{{item}}"
           >立即支付</button>
           <button 

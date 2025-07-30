@@ -737,17 +737,44 @@ Page({
   onStatsTap(e) {
     const { type } = e.currentTarget.dataset;
     
+    console.log('统计数据点击:', type);
+    console.log('当前登录状态:', this.data.isLoggedIn);
+    console.log('当前用户信息:', this.data.userInfo);
+    console.log('当前token:', wx.getStorageSync('token'));
+    
     if (!this.data.isLoggedIn) {
+      console.log('用户未登录，显示登录弹窗');
       this.setData({ showAuthDialog: true });
       return;
     }
     
-    console.log('统计数据点击:', type);
     switch (type) {
       case 'orders':
+        console.log('准备跳转到订单页面');
         // 订单页面是tabbar页面，使用switchTab
         wx.switchTab({
-          url: '/pages/menu/user/products/index/index'
+          url: '/pages/menu/user/orders/index/index',
+          success: () => {
+            console.log('跳转到订单页面成功');
+          },
+          fail: (error) => {
+            console.error('跳转到订单页面失败:', error);
+            // 如果switchTab失败，尝试使用navigateTo
+            console.log('尝试使用navigateTo跳转');
+            wx.navigateTo({
+              url: '/pages/menu/user/orders/index/index',
+              success: () => {
+                console.log('navigateTo跳转成功');
+              },
+              fail: (navError) => {
+                console.error('navigateTo也失败了:', navError);
+                wx.showToast({
+                  title: '跳转失败',
+                  icon: 'none'
+                });
+              }
+            });
+          }
         });
         break;
       case 'contracts':

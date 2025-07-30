@@ -346,24 +346,55 @@
   text-overflow: ellipsis;
 }
 
+/* 订单状态样式 - 根据rules.yaml重新定义 */
 .order-status.pending {
   background: #fff7e6;
-  color: #fa8c16;
+  color: #FFA500;
+}
+
+.order-status.negotiating {
+  background: #e6f7ff;
+  color: #1890FF;
 }
 
 .order-status.confirmed {
+  background: #f9f0ff;
+  color: #722ED1;
+}
+
+.order-status.contract {
+  background: #e6fffb;
+  color: #13C2C2;
+}
+
+.order-status.signed {
   background: #f6ffed;
-  color: #52c41a;
+  color: #52C41A;
+}
+
+.order-status.active {
+  background: #f6ffed;
+  color: #52C41A;
+}
+
+.order-status.completed {
+  background: #fafafa;
+  color: #8C8C8C;
 }
 
 .order-status.cancelled {
   background: #fff2f0;
-  color: #ff4d4f;
+  color: #FF4D4F;
 }
 
-.order-status.completed {
-  background: #e6f7ff;
-  color: #1890ff;
+.order-status.rejected {
+  background: #fff2f0;
+  color: #FF4D4F;
+}
+
+.order-status.expired {
+  background: #fff2f0;
+  color: #FF4D4F;
 }
 
 /* 产品信息 */
@@ -427,26 +458,17 @@
 
 .product-price {
   display: flex;
-  align-items: baseline;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.price-symbol {
-  font-size: 24rpx;
-  color: #ff4d4f;
-  font-weight: 600;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 120rpx;
 }
 
 .price-amount {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #ff4d4f;
-}
-
-.price-unit {
-  font-size: 22rpx;
-  color: #999;
+  text-align: right;
+  line-height: 1.2;
 }
 
 /* 服务信息 */
@@ -569,11 +591,7 @@
   transition: all 0.3s ease;
 }
 
-.step-item.completed {
-  background: #e6f7ff;
-  color: #1890ff;
-  font-weight: 600;
-}
+/* 移除复杂的高亮样式，保持简单的步骤显示 */
 
 /* 订单操作 */
 .order-actions {
