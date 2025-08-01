@@ -1461,6 +1461,8 @@ module.exports = {
     ...serviceAPI,
     ...renewalAPI,
     ...complaintAPI,
+    // 客户匹配相关API
+    ...customerMatchingAPI,
     // 跟进统计接口
     async getFollowupStatistics() {
       return apiService.get('/manager/followups/statistics');

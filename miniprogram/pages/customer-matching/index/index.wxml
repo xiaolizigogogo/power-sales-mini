@@ -8,8 +8,8 @@
   <view class="step-indicator">
     <view class="step-list">
       <view 
-        class="step-item {{currentStep >= 0 ? 'active' : ''}} {{currentStep > 0 ? 'completed' : ''}}"
-        wx:for="{{['基本信息', '用电设施', '用电量', '企业特征', '管理能力', '特殊需求']}}"
+        class="step-item {{currentStep >= index ? 'active' : ''}} {{currentStep > index ? 'completed' : ''}}"
+        wx:for="{{['基本信息', '用电设施', '用电量特征', '风险偏好', '管理能力', '合同偏好']}}"
         wx:key="*this"
         wx:for-index="index"
       >
@@ -32,76 +32,6 @@
             placeholder="请输入企业名称"
             value="{{basicInfo.companyName}}"
             data-field="companyName"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">统一社会信用代码</text>
-          <input 
-            class="input" 
-            placeholder="请输入统一社会信用代码"
-            value="{{basicInfo.creditCode}}"
-            data-field="creditCode"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">法定代表人</text>
-          <input 
-            class="input" 
-            placeholder="请输入法定代表人"
-            value="{{basicInfo.legalPerson}}"
-            data-field="legalPerson"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">工商注册地</text>
-          <input 
-            class="input" 
-            placeholder="请输入工商注册地"
-            value="{{basicInfo.registeredAddress}}"
-            data-field="registeredAddress"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">企业开户行</text>
-          <input 
-            class="input" 
-            placeholder="请输入企业开户行"
-            value="{{basicInfo.bankName}}"
-            data-field="bankName"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">账号</text>
-          <input 
-            class="input" 
-            placeholder="请输入账号"
-            value="{{basicInfo.bankAccount}}"
-            data-field="bankAccount"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">购电联系人</text>
-          <input 
-            class="input" 
-            placeholder="请输入购电联系人"
-            value="{{basicInfo.contactPerson}}"
-            data-field="contactPerson"
-            bindinput="onBasicInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">联系电话</text>
-          <input 
-            class="input" 
-            placeholder="请输入联系电话"
-            value="{{basicInfo.contactPhone}}"
-            data-field="contactPhone"
             bindinput="onBasicInfoInput"
           />
         </view>
@@ -187,255 +117,124 @@
       </view>
     </view>
 
-    <!-- 第三步：用电量信息 -->
+    <!-- 第三步：用电量特征 -->
     <view class="form-step" wx:if="{{currentStep === 2}}">
-      <view class="step-title">用电量信息</view>
+      <view class="step-title">用电量特征</view>
       <view class="form-group">
-        <view class="form-item">
-          <text class="label">年度总用电量（万千瓦时） *</text>
-          <input 
-            class="input" 
-            type="digit"
-            placeholder="请输入年度总用电量"
-            value="{{electricityInfo.annualTotal}}"
-            data-field="annualTotal"
-            bindinput="onElectricityInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">平均月用电量（万千瓦时）</text>
-          <input 
-            class="input" 
-            type="digit"
-            placeholder="请输入平均月用电量"
-            value="{{electricityInfo.averageMonthly}}"
-            data-field="averageMonthly"
-            bindinput="onElectricityInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">最大月用电量（万千瓦时）</text>
-          <input 
-            class="input" 
-            type="digit"
-            placeholder="请输入最大月用电量"
-            value="{{electricityInfo.maxMonthly}}"
-            data-field="maxMonthly"
-            bindinput="onElectricityInfoInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">最小月用电量（万千瓦时）</text>
-          <input 
-            class="input" 
-            type="digit"
-            placeholder="请输入最小月用电量"
-            value="{{electricityInfo.minMonthly}}"
-            data-field="minMonthly"
-            bindinput="onElectricityInfoInput"
-          />
-        </view>
-      </view>
-
-      <!-- 月度用电量分布 -->
-      <view class="monthly-data-section">
-        <view class="section-title">月度用电量分布（最近12个月）</view>
-        <view class="monthly-data-list">
-          <view 
-            class="monthly-data-item"
-            wx:for="{{electricityInfo.monthlyData}}"
-            wx:key="*this"
-            wx:for-index="month"
-          >
-            <view class="month-header">{{month + 1}}月</view>
-            <view class="month-inputs">
-              <input 
-                class="month-input" 
-                type="digit"
-                placeholder="总电量"
-                value="{{item.total}}"
-                data-month="{{month}}"
-                data-field="total"
-                bindinput="onMonthlyDataInput"
-              />
-              <input 
-                class="month-input" 
-                type="digit"
-                placeholder="尖峰"
-                value="{{item.peak}}"
-                data-month="{{month}}"
-                data-field="peak"
-                bindinput="onMonthlyDataInput"
-              />
-              <input 
-                class="month-input" 
-                type="digit"
-                placeholder="高峰"
-                value="{{item.high}}"
-                data-month="{{month}}"
-                data-field="high"
-                bindinput="onMonthlyDataInput"
-              />
-              <input 
-                class="month-input" 
-                type="digit"
-                placeholder="平时"
-                value="{{item.normal}}"
-                data-month="{{month}}"
-                data-field="normal"
-                bindinput="onMonthlyDataInput"
-              />
-              <input 
-                class="month-input" 
-                type="digit"
-                placeholder="谷时"
-                value="{{item.valley}}"
-                data-month="{{month}}"
-                data-field="valley"
-                bindinput="onMonthlyDataInput"
-              />
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 用电稳定性评估 -->
-      <view class="assessment-section">
-        <view class="section-title">用电稳定性评估</view>
-        <view class="assessment-group">
-          <view class="assessment-item">
-            <text class="assessment-label">月度用电量波动</text>
-            <radio-group 
-              class="radio-group"
-              data-category="stabilityAssessment"
-              data-field="monthlyFluctuation"
-              bindchange="onAssessmentChange"
-            >
-              <label class="radio-item">
-                <radio value="stable" checked="{{stabilityAssessment.monthlyFluctuation === 'stable'}}" />
-                <text>稳定（波动<10%）</text>
-              </label>
-              <label class="radio-item">
-                <radio value="normal" checked="{{stabilityAssessment.monthlyFluctuation === 'normal'}}" />
-                <text>一般（波动10-30%）</text>
-              </label>
-              <label class="radio-item">
-                <radio value="large" checked="{{stabilityAssessment.monthlyFluctuation === 'large'}}" />
-                <text>较大（波动>30%）</text>
-              </label>
-            </radio-group>
-          </view>
-          <view class="assessment-item">
-            <text class="assessment-label">季节性用电特征</text>
-            <radio-group 
-              class="radio-group"
-              data-category="stabilityAssessment"
-              data-field="seasonalFeature"
-              bindchange="onAssessmentChange"
-            >
-              <label class="radio-item">
-                <radio value="none" checked="{{stabilityAssessment.seasonalFeature === 'none'}}" />
-                <text>无明显季节性</text>
-              </label>
-              <label class="radio-item">
-                <radio value="summer" checked="{{stabilityAssessment.seasonalFeature === 'summer'}}" />
-                <text>夏季用电高峰</text>
-              </label>
-              <label class="radio-item">
-                <radio value="winter" checked="{{stabilityAssessment.seasonalFeature === 'winter'}}" />
-                <text>冬季用电高峰</text>
-              </label>
-              <label class="radio-item">
-                <radio value="spring_autumn" checked="{{stabilityAssessment.seasonalFeature === 'spring_autumn'}}" />
-                <text>春秋季用电高峰</text>
-              </label>
-            </radio-group>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 第四步：企业特征信息 -->
-    <view class="form-step" wx:if="{{currentStep === 3}}">
-      <view class="step-title">企业特征信息</view>
-      <view class="form-group">
-        <view class="form-item">
-          <text class="label">企业规模</text>
+        <view class="assessment-item">
+          <text class="assessment-label">企业用电量规模</text>
           <radio-group 
             class="radio-group"
-            data-category="companyFeatures"
+            data-category="electricityInfo"
             data-field="companySize"
             bindchange="onAssessmentChange"
           >
             <label class="radio-item">
-              <radio value="large" checked="{{companyFeatures.companySize === 'large'}}" />
-              <text>大型企业（年用电量>1000万度）</text>
+              <radio value="large" checked="{{electricityInfo.companySize === 'large'}}" />
+              <text>大型企业（年用电量大于1000万度）</text>
             </label>
             <label class="radio-item">
-              <radio value="medium" checked="{{companyFeatures.companySize === 'medium'}}" />
+              <radio value="medium" checked="{{electricityInfo.companySize === 'medium'}}" />
               <text>中型企业（年用电量100-1000万度）</text>
             </label>
             <label class="radio-item">
-              <radio value="small" checked="{{companyFeatures.companySize === 'small'}}" />
-              <text>小型企业（年用电量<100万度）</text>
+              <radio value="small" checked="{{electricityInfo.companySize === 'small'}}" />
+              <text>小型企业（年用电量小于100万度）</text>
             </label>
           </radio-group>
         </view>
-        <view class="form-item">
-          <text class="label">所属行业类型</text>
-          <input 
-            class="input" 
-            placeholder="请输入所属行业类型"
-            value="{{companyFeatures.industryType}}"
-            data-field="industryType"
-            bindinput="onCompanyFeatureInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">主要产品/服务</text>
-          <input 
-            class="input" 
-            placeholder="请输入主要产品/服务"
-            value="{{companyFeatures.mainProduct}}"
-            data-field="mainProduct"
-            bindinput="onCompanyFeatureInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">风险承受能力</text>
+        
+        <view class="assessment-item">
+          <text class="assessment-label">月度用电量波动情况</text>
           <radio-group 
             class="radio-group"
-            data-category="companyFeatures"
-            data-field="riskTolerance"
+            data-category="electricityInfo"
+            data-field="monthlyFluctuation"
             bindchange="onAssessmentChange"
           >
             <label class="radio-item">
-              <radio value="low" checked="{{companyFeatures.riskTolerance === 'low'}}" />
-              <text>低（希望价格稳定）</text>
+              <radio value="stable" checked="{{electricityInfo.monthlyFluctuation === 'stable'}}" />
+              <text>稳定（波动小于10%）</text>
             </label>
             <label class="radio-item">
-              <radio value="medium" checked="{{companyFeatures.riskTolerance === 'medium'}}" />
-              <text>中等（可接受小幅波动）</text>
+              <radio value="normal" checked="{{electricityInfo.monthlyFluctuation === 'normal'}}" />
+              <text>一般（波动10-30%）</text>
             </label>
             <label class="radio-item">
-              <radio value="high" checked="{{companyFeatures.riskTolerance === 'high'}}" />
-              <text>高（愿意承担风险）</text>
-            </label>
-            <label class="radio-item">
-              <radio value="very_high" checked="{{companyFeatures.riskTolerance === 'very_high'}}" />
-              <text>很高（追求最低价格）</text>
+              <radio value="large" checked="{{electricityInfo.monthlyFluctuation === 'large'}}" />
+              <text>波动大（波动大于30%）</text>
             </label>
           </radio-group>
         </view>
       </view>
     </view>
 
-    <!-- 第五步：管理能力信息 -->
-    <view class="form-step" wx:if="{{currentStep === 4}}">
-      <view class="step-title">管理能力信息</view>
+    <!-- 第四步：风险偏好评估 -->
+    <view class="form-step" wx:if="{{currentStep === 3}}">
+      <view class="step-title">风险偏好评估</view>
       <view class="form-group">
-        <view class="form-item">
-          <text class="label">是否有专业能源管理团队</text>
+        <view class="assessment-item">
+          <text class="assessment-label">风险承受能力</text>
+          <radio-group 
+            class="radio-group"
+            data-category="riskPreference"
+            data-field="riskTolerance"
+            bindchange="onAssessmentChange"
+          >
+            <label class="radio-item">
+              <radio value="low" checked="{{riskPreference.riskTolerance === 'low'}}" />
+              <text>低风险（希望价格完全稳定，不能接受任何波动）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="medium_low" checked="{{riskPreference.riskTolerance === 'medium_low'}}" />
+              <text>中低风险（可以接受小幅波动，但希望控制服务成本）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="medium_high" checked="{{riskPreference.riskTolerance === 'medium_high'}}" />
+              <text>中高风险（愿意承担一定风险，希望分享市场收益）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="high" checked="{{riskPreference.riskTolerance === 'high'}}" />
+              <text>高风险（追求最低价格，风险承受能力强）</text>
+            </label>
+          </radio-group>
+        </view>
+        
+        <view class="assessment-item">
+          <text class="assessment-label">预算管理严格程度</text>
+          <radio-group 
+            class="radio-group"
+            data-category="riskPreference"
+            data-field="budgetManagement"
+            bindchange="onAssessmentChange"
+          >
+            <label class="radio-item">
+              <radio value="very_strict" checked="{{riskPreference.budgetManagement === 'very_strict'}}" />
+              <text>非常严格（严格控制成本）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="strict" checked="{{riskPreference.budgetManagement === 'strict'}}" />
+              <text>比较严格（注重成本控制）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="normal" checked="{{riskPreference.budgetManagement === 'normal'}}" />
+              <text>一般（平衡成本与收益）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="loose" checked="{{riskPreference.budgetManagement === 'loose'}}" />
+              <text>较宽松（追求收益最大化）</text>
+            </label>
+          </radio-group>
+        </view>
+      </view>
+    </view>
+
+    <!-- 第五步：管理能力评估 -->
+    <view class="form-step" wx:if="{{currentStep === 4}}">
+      <view class="step-title">管理能力评估</view>
+      <view class="form-group">
+        <view class="assessment-item">
+          <text class="assessment-label">能源管理能力</text>
           <radio-group 
             class="radio-group"
             data-category="managementCapability"
@@ -444,20 +243,44 @@
           >
             <label class="radio-item">
               <radio value="professional" checked="{{managementCapability.energyTeam === 'professional'}}" />
-              <text>有专业团队</text>
+              <text>专业团队（有专业能源管理团队，对电力市场非常了解）</text>
             </label>
             <label class="radio-item">
               <radio value="part_time" checked="{{managementCapability.energyTeam === 'part_time'}}" />
-              <text>有兼职人员</text>
+              <text>一定认知（有兼职人员，对电力市场有一定了解）</text>
             </label>
             <label class="radio-item">
               <radio value="none" checked="{{managementCapability.energyTeam === 'none'}}" />
-              <text>无专门人员</text>
+              <text>基础管理（无专门人员，对电力市场了解有限）</text>
             </label>
           </radio-group>
         </view>
-        <view class="form-item">
-          <text class="label">对电力市场的了解程度</text>
+        
+        <view class="assessment-item">
+          <text class="assessment-label">技术能力</text>
+          <radio-group 
+            class="radio-group"
+            data-category="managementCapability"
+            data-field="technicalCapability"
+            bindchange="onAssessmentChange"
+          >
+            <label class="radio-item">
+              <radio value="high" checked="{{managementCapability.technicalCapability === 'high'}}" />
+              <text>有储能设备或调峰能力</text>
+            </label>
+            <label class="radio-item">
+              <radio value="medium" checked="{{managementCapability.technicalCapability === 'medium'}}" />
+              <text>用电时间可以灵活调整</text>
+            </label>
+            <label class="radio-item">
+              <radio value="low" checked="{{managementCapability.technicalCapability === 'low'}}" />
+              <text>其他（无特殊技术能力）</text>
+            </label>
+          </radio-group>
+        </view>
+        
+        <view class="assessment-item">
+          <text class="assessment-label">电力市场了解程度</text>
           <radio-group 
             class="radio-group"
             data-category="managementCapability"
@@ -482,106 +305,78 @@
             </label>
           </radio-group>
         </view>
-        <view class="form-item">
-          <text class="label">是否有储能设备</text>
-          <radio-group 
-            class="radio-group"
-            data-category="managementCapability"
-            data-field="storageEquipment"
-            bindchange="onAssessmentChange"
-          >
-            <label class="radio-item">
-              <radio value="yes" checked="{{managementCapability.storageEquipment === 'yes'}}" />
-              <text>有</text>
-            </label>
-            <label class="radio-item">
-              <radio value="no" checked="{{managementCapability.storageEquipment === 'no'}}" />
-              <text>无</text>
-            </label>
-            <label class="radio-item">
-              <radio value="planned" checked="{{managementCapability.storageEquipment === 'planned'}}" />
-              <text>计划建设</text>
-            </label>
-          </radio-group>
-        </view>
-        <view class="form-item">
-          <text class="label">用电时间是否可以调整</text>
-          <radio-group 
-            class="radio-group"
-            data-category="managementCapability"
-            data-field="timeAdjustable"
-            bindchange="onAssessmentChange"
-          >
-            <label class="radio-item">
-              <radio value="flexible" checked="{{managementCapability.timeAdjustable === 'flexible'}}" />
-              <text>可以灵活调整</text>
-            </label>
-            <label class="radio-item">
-              <radio value="slight" checked="{{managementCapability.timeAdjustable === 'slight'}}" />
-              <text>可以小幅调整</text>
-            </label>
-            <label class="radio-item">
-              <radio value="no" checked="{{managementCapability.timeAdjustable === 'no'}}" />
-              <text>基本不能调整</text>
-            </label>
-          </radio-group>
-        </view>
       </view>
     </view>
 
-    <!-- 第六步：特殊需求 -->
+    <!-- 第六步：合同偏好 -->
     <view class="form-step" wx:if="{{currentStep === 5}}">
-      <view class="step-title">特殊需求与偏好</view>
+      <view class="step-title">合同偏好</view>
       <view class="form-group">
-        <view class="form-item">
-          <text class="label">价格要求</text>
-          <textarea 
-            class="textarea" 
-            placeholder="请描述价格要求"
-            value="{{specialNeeds.priceRequirement}}"
-            data-field="priceRequirement"
-            bindinput="onSpecialNeedInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">服务要求</text>
-          <textarea 
-            class="textarea" 
-            placeholder="请描述服务要求"
-            value="{{specialNeeds.serviceRequirement}}"
-            data-field="serviceRequirement"
-            bindinput="onSpecialNeedInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">技术需求</text>
-          <textarea 
-            class="textarea" 
-            placeholder="请描述技术需求"
-            value="{{specialNeeds.technicalRequirement}}"
-            data-field="technicalRequirement"
-            bindinput="onSpecialNeedInput"
-          />
-        </view>
-        <view class="form-item">
-          <text class="label">合同期限偏好</text>
+        <view class="assessment-item">
+          <text class="assessment-label">合同期限偏好</text>
           <radio-group 
             class="radio-group"
-            data-category="specialNeeds"
+            data-category="contractPreference"
             data-field="contractPeriod"
             bindchange="onAssessmentChange"
           >
             <label class="radio-item">
-              <radio value="1" checked="{{specialNeeds.contractPeriod === '1'}}" />
-              <text>1年</text>
+              <radio value="1" checked="{{contractPreference.contractPeriod === '1'}}" />
+              <text>1年（短期合同，灵活性高）</text>
             </label>
             <label class="radio-item">
-              <radio value="2" checked="{{specialNeeds.contractPeriod === '2'}}" />
-              <text>2年</text>
+              <radio value="2" checked="{{contractPreference.contractPeriod === '2'}}" />
+              <text>2年（中期合同，平衡稳定与灵活）</text>
             </label>
             <label class="radio-item">
-              <radio value="3" checked="{{specialNeeds.contractPeriod === '3'}}" />
-              <text>3年</text>
+              <radio value="3" checked="{{contractPreference.contractPeriod === '3'}}" />
+              <text>3年（长期合同，价格稳定性好）</text>
+            </label>
+          </radio-group>
+        </view>
+        
+        <view class="assessment-item">
+          <text class="assessment-label">结算方式偏好</text>
+          <radio-group 
+            class="radio-group"
+            data-category="contractPreference"
+            data-field="settlementMethod"
+            bindchange="onAssessmentChange"
+          >
+            <label class="radio-item">
+              <radio value="monthly" checked="{{contractPreference.settlementMethod === 'monthly'}}" />
+              <text>月结（每月结算，现金流压力小）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="quarterly" checked="{{contractPreference.settlementMethod === 'quarterly'}}" />
+              <text>季结（每季度结算，管理成本低）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="yearly" checked="{{contractPreference.settlementMethod === 'yearly'}}" />
+              <text>年结（年度结算，适合大型企业）</text>
+            </label>
+          </radio-group>
+        </view>
+        
+        <view class="assessment-item">
+          <text class="assessment-label">服务内容偏好</text>
+          <radio-group 
+            class="radio-group"
+            data-category="contractPreference"
+            data-field="serviceContent"
+            bindchange="onAssessmentChange"
+          >
+            <label class="radio-item">
+              <radio value="basic" checked="{{contractPreference.serviceContent === 'basic'}}" />
+              <text>基础服务（基本电力供应）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="value_added" checked="{{contractPreference.serviceContent === 'value_added'}}" />
+              <text>增值服务（包含节能咨询等）</text>
+            </label>
+            <label class="radio-item">
+              <radio value="custom" checked="{{contractPreference.serviceContent === 'custom'}}" />
+              <text>定制服务（根据需求定制方案）</text>
             </label>
           </radio-group>
         </view>
@@ -648,45 +443,37 @@
   <!-- 底部操作按钮 -->
   <view class="bottom-actions">
     <view class="action-buttons" wx:if="{{!showResults}}">
-      <button 
-        class="action-btn secondary"
-        wx:if="{{currentStep > 0}}"
-        bindtap="prevStep"
-      >上一步</button>
-      <button 
-        class="action-btn secondary"
-        bindtap="saveDraft"
-      >保存草稿</button>
-      <button 
-        class="action-btn secondary"
-        bindtap="loadDraft"
-      >加载草稿</button>
-      <button 
-        class="action-btn secondary"
-        bindtap="resetForm"
-      >重置</button>
-      <button 
-        class="action-btn primary"
-        wx:if="{{currentStep < totalSteps - 1}}"
-        bindtap="nextStep"
-      >下一步</button>
-      <button 
-        class="action-btn primary"
-        wx:if="{{currentStep === totalSteps - 1}}"
-        bindtap="submitCustomerInfo"
-        loading="{{loading}}"
-      >提交分析</button>
+      <view class="button-row">
+        <button 
+          class="action-btn secondary"
+          wx:if="{{currentStep > 0}}"
+          bindtap="prevStep"
+        >上一步</button>
+        <button 
+          class="action-btn primary"
+          wx:if="{{currentStep < totalSteps - 1}}"
+          bindtap="nextStep"
+        >下一步</button>
+        <button 
+          class="action-btn primary"
+          wx:if="{{currentStep === totalSteps - 1}}"
+          bindtap="submitCustomerInfo"
+          loading="{{loading}}"
+        >提交分析</button>
+      </view>
     </view>
     
     <view class="action-buttons" wx:if="{{showResults}}">
-      <button 
-        class="action-btn secondary"
-        bindtap="resetForm"
-      >重新分析</button>
-      <button 
-        class="action-btn primary"
-        bindtap="submitCustomerInfo"
-      >保存结果</button>
+      <view class="button-row">
+        <button 
+          class="action-btn secondary"
+          bindtap="resetForm"
+        >重新分析</button>
+        <button 
+          class="action-btn primary"
+          bindtap="submitCustomerInfo"
+        >保存结果</button>
+      </view>
     </view>
   </view>
 </view> 

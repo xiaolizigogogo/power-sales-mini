@@ -547,9 +547,9 @@ Page({
     })
   },
 
-  navigateToComplaint() {
+  navigateToCustomerMatching() {
     wx.navigateTo({
-      url: '/pages/complaint/submit/submit'
+      url: '/pages/customer-matching/index/index'
     })
   },
 

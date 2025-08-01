@@ -5,14 +5,7 @@ Page({
   data: {
     // 客户基本信息
     basicInfo: {
-      companyName: '',
-      creditCode: '',
-      legalPerson: '',
-      registeredAddress: '',
-      bankName: '',
-      bankAccount: '',
-      contactPerson: '',
-      contactPhone: ''
+      companyName: ''
     },
     
     // 用电设施信息
@@ -24,62 +17,30 @@ Page({
       userCodes: ['', '', '']
     },
     
-    // 用电量信息
+    // 用电量特征
     electricityInfo: {
-      annualTotal: '',
-      averageMonthly: '',
-      maxMonthly: '',
-      minMonthly: '',
-      monthlyData: Array(12).fill().map(() => ({
-        total: '',
-        peak: '',
-        high: '',
-        normal: '',
-        valley: ''
-      }))
-    },
-    
-    // 用电稳定性评估
-    stabilityAssessment: {
-      monthlyFluctuation: 'stable', // stable, normal, large
-      seasonalFeature: 'none', // none, summer, winter, spring_autumn
-      workHolidayDiff: 'small', // small, normal, large
-      loadCurveFeature: 'stable' // stable, double_peak, single_peak, fluctuating
-    },
-    
-    // 企业特征信息
-    companyFeatures: {
       companySize: '', // large, medium, small
-      industryType: '',
-      mainProduct: '',
-      productionFeature: 'continuous', // continuous, intermittent, seasonal
-      priceSensitivity: 'very_sensitive', // very_sensitive, sensitive, normal, insensitive
-      budgetManagement: 'very_strict', // very_strict, strict, normal, loose
-      riskTolerance: 'low', // low, medium, high, very_high
-      costControl: 'strict' // strict, normal, loose
+      monthlyFluctuation: '' // stable, normal, large
     },
     
-    // 管理能力信息
+    // 风险偏好评估
+    riskPreference: {
+      riskTolerance: '', // low, medium_low, medium_high, high
+      budgetManagement: '' // very_strict, strict, normal, loose
+    },
+    
+    // 管理能力评估
     managementCapability: {
-      energyTeam: 'none', // professional, part_time, none
-      marketKnowledge: 'none', // very_knowledgeable, knowledgeable, normal, none
-      tradingExperience: 'none', // rich, some, none
-      dispatchCapability: 'weak', // strong, medium, weak
-      storageEquipment: 'no', // yes, no, planned
-      peakShavingCapability: 'no', // yes, no, partial
-      timeAdjustable: 'no', // flexible, slight, no
-      productionFlexibility: 'low' // high, medium, low
+      energyTeam: '', // professional, part_time, none
+      technicalCapability: '', // high, medium, low
+      marketKnowledge: '' // very_knowledgeable, knowledgeable, normal, none
     },
     
-    // 特殊需求
-    specialNeeds: {
-      priceRequirement: '',
-      serviceRequirement: '',
-      technicalRequirement: '',
-      otherRequirement: '',
-      contractPeriod: '1', // 1, 2, 3
-      settlementMethod: 'monthly', // monthly, quarterly, yearly
-      serviceContent: 'basic' // basic, value_added, custom
+    // 合同偏好
+    contractPreference: {
+      contractPeriod: '', // 1, 2, 3
+      settlementMethod: '', // monthly, quarterly, yearly
+      serviceContent: '' // basic, value_added, custom
     },
     
     // 评分结果
@@ -196,16 +157,49 @@ Page({
   calculateMatchingScore() {
     const {
       electricityInfo,
-      stabilityAssessment,
-      companyFeatures,
-      managementCapability
+      riskPreference,
+      managementCapability,
+      contractPreference
     } = this.data;
 
+    // 数据验证
+    if (!electricityInfo.companySize || !electricityInfo.monthlyFluctuation) {
+      wx.showToast({
+        title: '请完善用电量特征信息',
+        icon: 'none'
+      });
+      return { results: {}, recommendations: [] };
+    }
+
+    if (!riskPreference.riskTolerance || !riskPreference.budgetManagement) {
+      wx.showToast({
+        title: '请完善风险偏好评估',
+        icon: 'none'
+      });
+      return { results: {}, recommendations: [] };
+    }
+
+    if (!managementCapability.energyTeam || !managementCapability.technicalCapability) {
+      wx.showToast({
+        title: '请完善管理能力评估',
+        icon: 'none'
+      });
+      return { results: {}, recommendations: [] };
+    }
+
+    if (!contractPreference.contractPeriod || !contractPreference.settlementMethod || !contractPreference.serviceContent) {
+      wx.showToast({
+        title: '请完善合同偏好',
+        icon: 'none'
+      });
+      return { results: {}, recommendations: [] };
+    }
+
     // 用电量特征评分（30分）
-    const electricityScore = this.calculateElectricityScore(electricityInfo, stabilityAssessment);
+    const electricityScore = this.calculateElectricityScore(electricityInfo);
     
     // 风险偏好评分（30分）
-    const riskScore = this.calculateRiskScore(companyFeatures);
+    const riskScore = this.calculateRiskScore(riskPreference);
     
     // 管理能力评分（40分）
     const managementScore = this.calculateManagementScore(managementCapability);
@@ -219,6 +213,12 @@ Page({
       spotTime: this.calculateSpotTimeScore(electricityScore, riskScore, managementScore)
     };
 
+    // 调试输出
+    console.log('=== 评分计算调试 ===');
+    console.log('基础评分:', { electricityScore, riskScore, managementScore });
+    console.log('合同评分:', results);
+    console.log('客户数据:', { electricityInfo, riskPreference, managementCapability });
+
     // 生成推荐
     const recommendations = this.generateRecommendations(results);
 
@@ -230,85 +230,84 @@ Page({
     return { results, recommendations };
   },
 
-  // 用电量特征评分
-  calculateElectricityScore(electricityInfo, stabilityAssessment) {
+  // 用电量特征评分（100分）
+  calculateElectricityScore(electricityInfo) {
     let score = 0;
     
-    // 用电量大小评分（15分）
-    const annualTotal = parseFloat(electricityInfo.annualTotal) || 0;
-    if (annualTotal > 1000) {
-      score += 15; // 大型企业
-    } else if (annualTotal > 100) {
-      score += 10; // 中型企业
-    } else {
-      score += 5; // 小型企业
-    }
+    // 用电量大小评分（50分）
+    const sizeMap = {
+      'large': 50, // 大型企业（年用电量大于1000万度）
+      'medium': 35, // 中型企业（年用电量100-1000万度）
+      'small': 20 // 小型企业（年用电量小于100万度）
+    };
+    score += sizeMap[electricityInfo.companySize] || 0;
     
-    // 用电稳定性评分（15分）
+    // 用电稳定性评分（50分）
     const stabilityMap = {
-      'stable': 15,
-      'normal': 10,
-      'large': 5
+      'stable': 50, // 稳定（波动小于10%）
+      'normal': 35, // 一般（波动10-30%）
+      'large': 20 // 波动大（波动大于30%）
     };
-    score += stabilityMap[stabilityAssessment.monthlyFluctuation] || 0;
+    score += stabilityMap[electricityInfo.monthlyFluctuation] || 0;
     
     return score;
   },
 
-  // 风险偏好评分
-  calculateRiskScore(companyFeatures) {
+  // 风险偏好评分（100分）
+  calculateRiskScore(riskPreference) {
     let score = 0;
     
-    // 风险承受能力评分（20分）
+    // 风险承受能力评分（70分）
     const riskMap = {
-      'low': 5,
-      'medium': 10,
-      'high': 15,
-      'very_high': 20
+      'low': 20, // 低风险
+      'medium_low': 40, // 中低风险
+      'medium_high': 60, // 中高风险
+      'high': 70 // 高风险
     };
-    score += riskMap[companyFeatures.riskTolerance] || 0;
+    score += riskMap[riskPreference.riskTolerance] || 0;
     
-    // 预算管理严格程度评分（10分）
+    // 预算管理严格程度评分（30分）
     const budgetMap = {
-      'very_strict': 5,
-      'strict': 8,
-      'normal': 10,
-      'loose': 10
+      'very_strict': 15, // 非常严格
+      'strict': 25, // 比较严格
+      'normal': 30, // 一般
+      'loose': 30 // 较宽松
     };
-    score += budgetMap[companyFeatures.budgetManagement] || 0;
+    score += budgetMap[riskPreference.budgetManagement] || 0;
     
     return score;
   },
 
-  // 管理能力评分
+  // 管理能力评分（100分）
   calculateManagementScore(managementCapability) {
     let score = 0;
     
-    // 能源管理能力评分（20分）
+    // 能源管理能力评分（50分）
     const teamMap = {
-      'professional': 20,
-      'part_time': 15,
-      'none': 10
+      'professional': 50, // 专业团队
+      'part_time': 35, // 一定认知
+      'none': 20 // 基础管理
     };
     score += teamMap[managementCapability.energyTeam] || 0;
     
-    // 技术能力评分（10分）
-    if (managementCapability.storageEquipment === 'yes' || managementCapability.peakShavingCapability === 'yes') {
-      score += 10;
-    } else if (managementCapability.timeAdjustable === 'flexible') {
-      score += 8;
-    } else {
-      score += 5;
-    }
-    
-    // 电力市场了解程度评分（10分）
-    const knowledgeMap = {
-      'very_knowledgeable': 10,
-      'knowledgeable': 8,
-      'normal': 5,
-      'none': 3
+    // 技术能力评分（25分）
+    const technicalMap = {
+      'high': 25, // 有储能设备或调峰能力
+      'medium': 20, // 用电时间可以灵活调整
+      'low': 10 // 其他（无特殊技术能力）
     };
-    score += knowledgeMap[managementCapability.marketKnowledge] || 0;
+    score += technicalMap[managementCapability.technicalCapability] || 0;
+    
+    // 电力市场了解程度评分（25分）
+    const knowledgeMap = {
+      'very_knowledgeable': 25, // 非常了解
+      'knowledgeable': 20, // 比较了解
+      'normal': 15, // 一般了解
+      'none': 10 // 不了解
+    };
+    // 如果为空值，默认为"none"
+    const marketKnowledge = managementCapability.marketKnowledge || 'none';
+    score += knowledgeMap[marketKnowledge] || 0;
     
     return score;
   },
@@ -316,13 +315,20 @@ Page({
   // 各合同类型评分计算
   calculateFixedPriceScore(electricityScore, riskScore, managementScore) {
     // 固定价合同适合：用电稳定 + 低风险偏好 + 基础管理能力
+    // 用电稳定性权重高，风险承受能力低，管理能力要求不高
     const stabilityWeight = 0.4;
     const riskWeight = 0.4;
     const managementWeight = 0.2;
     
+    // 风险评分需要反向计算（风险越低，越适合固定价）
+    const riskInverted = 100 - riskScore;
+    
+    // 用电稳定性加分（稳定用电更适合固定价）
+    const stabilityBonus = electricityScore >= 70 ? 10 : 0;
+    
     return Math.round(electricityScore * stabilityWeight + 
-                     (30 - riskScore) * riskWeight + 
-                     managementScore * managementWeight);
+                     riskInverted * riskWeight + 
+                     managementScore * managementWeight + stabilityBonus);
   },
 
   calculateFixedServiceFeeScore(electricityScore, riskScore, managementScore) {
@@ -331,9 +337,12 @@ Page({
     const riskWeight = 0.3;
     const managementWeight = 0.4;
     
+    // 管理能力加分（有一定管理能力更适合）
+    const managementBonus = managementScore >= 60 ? 8 : 0;
+    
     return Math.round(electricityScore * electricityWeight + 
                      riskScore * riskWeight + 
-                     managementScore * managementWeight);
+                     managementScore * managementWeight + managementBonus);
   },
 
   calculatePriceDifferenceScore(electricityScore, riskScore, managementScore) {
@@ -342,9 +351,15 @@ Page({
     const riskWeight = 0.4;
     const managementWeight = 0.3;
     
-    return Math.round((60 - electricityScore) * electricityWeight + 
+    // 用电量评分需要反向计算（波动越大，越适合价差分成）
+    const electricityInverted = Math.max(0, 100 - electricityScore);
+    
+    // 风险偏好加分（中高风险更适合）
+    const riskBonus = riskScore >= 60 ? 10 : 0;
+    
+    return Math.round(electricityInverted * electricityWeight + 
                      riskScore * riskWeight + 
-                     managementScore * managementWeight);
+                     managementScore * managementWeight + riskBonus);
   },
 
   calculateMarketPriceScore(electricityScore, riskScore, managementScore) {
@@ -353,9 +368,15 @@ Page({
     const riskWeight = 0.3;
     const managementWeight = 0.4;
     
+    // 企业规模加分（大型企业更适合）
+    const sizeBonus = electricityScore >= 80 ? 10 : 0;
+    
+    // 管理能力加分（专业团队更适合）
+    const managementBonus = managementScore >= 80 ? 10 : 0;
+    
     return Math.round(electricityScore * electricityWeight + 
                      riskScore * riskWeight + 
-                     managementScore * managementWeight);
+                     managementScore * managementWeight + sizeBonus + managementBonus);
   },
 
   calculateSpotTimeScore(electricityScore, riskScore, managementScore) {
@@ -364,9 +385,12 @@ Page({
     const riskWeight = 0.2;
     const managementWeight = 0.6;
     
+    // 技术能力加分（有技术能力更适合）
+    const technicalBonus = managementScore >= 70 ? 15 : 0;
+    
     return Math.round(electricityScore * electricityWeight + 
                      riskScore * riskWeight + 
-                     managementScore * managementWeight);
+                     managementScore * managementWeight + technicalBonus);
   },
 
   // 生成推荐
@@ -385,9 +409,9 @@ Page({
     
     scores.sort((a, b) => b.score - a.score);
     
-    // 生成推荐
+    // 生成推荐（至少推荐前3个）
     scores.forEach((item, index) => {
-      if (item.score >= item.threshold) {
+      if (item.score >= item.threshold || index < 3) {
         recommendations.push({
           rank: index + 1,
           type: item.type,
@@ -404,9 +428,9 @@ Page({
 
   // 获取匹配等级
   getMatchLevel(score) {
-    if (score >= 80) return '高度匹配';
+    if (score >= 85) return '高度匹配';
     if (score >= 70) return '良好匹配';
-    if (score >= 60) return '一般匹配';
+    if (score >= 55) return '一般匹配';
     return '低度匹配';
   },
 
@@ -444,24 +468,34 @@ Page({
       
       // 准备提交数据
       const submitData = {
-        ...this.data.basicInfo,
-        ...this.data.facilityInfo,
-        ...this.data.electricityInfo,
-        ...this.data.stabilityAssessment,
-        ...this.data.companyFeatures,
-        ...this.data.managementCapability,
-        ...this.data.specialNeeds,
-        matchingResults: results,
-        recommendations: recommendations,
+        // 基本信息
+        companyName: this.data.basicInfo.companyName,
+        
+        // 用电设施信息（JSON字符串）
+        facilityInfo: JSON.stringify(this.data.facilityInfo),
+        
+        // 用电量特征（JSON字符串）
+        electricityInfo: JSON.stringify(this.data.electricityInfo),
+        
+        // 风险偏好评估（JSON字符串）
+        riskPreference: JSON.stringify(this.data.riskPreference),
+        
+        // 管理能力评估（JSON字符串）
+        managementCapability: JSON.stringify(this.data.managementCapability),
+        
+        // 合同偏好（JSON字符串）
+        contractPreference: JSON.stringify(this.data.contractPreference),
+        
+        // 匹配结果（JSON字符串）
+        matchingResults: JSON.stringify(results),
+        recommendations: JSON.stringify(recommendations),
+        
+        // 提交时间
         submitTime: new Date().toISOString()
       };
       
       // 调用API保存数据
-      const response = await apiService.request({
-        url: '/customer-matching/submit',
-        method: 'POST',
-        data: submitData
-      });
+      const response = await api.submitCustomerMatching(submitData);
       
       if (response.code === 200) {
         wx.showToast({
@@ -492,13 +526,12 @@ Page({
   async saveDraft() {
     try {
       const draftData = {
-        ...this.data.basicInfo,
-        ...this.data.facilityInfo,
-        ...this.data.electricityInfo,
-        ...this.data.stabilityAssessment,
-        ...this.data.companyFeatures,
-        ...this.data.managementCapability,
-        ...this.data.specialNeeds,
+        basicInfo: this.data.basicInfo,
+        facilityInfo: this.data.facilityInfo,
+        electricityInfo: this.data.electricityInfo,
+        riskPreference: this.data.riskPreference,
+        managementCapability: this.data.managementCapability,
+        contractPreference: this.data.contractPreference,
         saveTime: new Date().toISOString()
       };
       
@@ -525,13 +558,28 @@ Page({
       const draftData = wx.getStorageSync('customer_matching_draft');
       if (draftData) {
         // 恢复数据到各个部分
-        Object.keys(draftData).forEach(key => {
-          if (this.data.hasOwnProperty(key)) {
-            this.setData({
-              [key]: draftData[key]
-            });
-          }
-        });
+        const dataToRestore = {};
+        
+        if (draftData.basicInfo) {
+          dataToRestore.basicInfo = draftData.basicInfo;
+        }
+        if (draftData.facilityInfo) {
+          dataToRestore.facilityInfo = draftData.facilityInfo;
+        }
+        if (draftData.electricityInfo) {
+          dataToRestore.electricityInfo = draftData.electricityInfo;
+        }
+        if (draftData.riskPreference) {
+          dataToRestore.riskPreference = draftData.riskPreference;
+        }
+        if (draftData.managementCapability) {
+          dataToRestore.managementCapability = draftData.managementCapability;
+        }
+        if (draftData.contractPreference) {
+          dataToRestore.contractPreference = draftData.contractPreference;
+        }
+        
+        this.setData(dataToRestore);
         
         wx.showToast({
           title: '草稿已加载',
@@ -552,14 +600,7 @@ Page({
         if (res.confirm) {
           this.setData({
             basicInfo: {
-              companyName: '',
-              creditCode: '',
-              legalPerson: '',
-              registeredAddress: '',
-              bankName: '',
-              bankAccount: '',
-              contactPerson: '',
-              contactPhone: ''
+              companyName: ''
             },
             facilityInfo: {
               transformerCount: '',
@@ -569,52 +610,22 @@ Page({
               userCodes: ['', '', '']
             },
             electricityInfo: {
-              annualTotal: '',
-              averageMonthly: '',
-              maxMonthly: '',
-              minMonthly: '',
-              monthlyData: Array(12).fill().map(() => ({
-                total: '',
-                peak: '',
-                high: '',
-                normal: '',
-                valley: ''
-              }))
-            },
-            stabilityAssessment: {
-              monthlyFluctuation: 'stable',
-              seasonalFeature: 'none',
-              workHolidayDiff: 'small',
-              loadCurveFeature: 'stable'
-            },
-            companyFeatures: {
               companySize: '',
-              industryType: '',
-              mainProduct: '',
-              productionFeature: 'continuous',
-              priceSensitivity: 'very_sensitive',
-              budgetManagement: 'very_strict',
-              riskTolerance: 'low',
-              costControl: 'strict'
+              monthlyFluctuation: ''
+            },
+            riskPreference: {
+              riskTolerance: '',
+              budgetManagement: ''
             },
             managementCapability: {
-              energyTeam: 'none',
-              marketKnowledge: 'none',
-              tradingExperience: 'none',
-              dispatchCapability: 'weak',
-              storageEquipment: 'no',
-              peakShavingCapability: 'no',
-              timeAdjustable: 'no',
-              productionFlexibility: 'low'
+              energyTeam: '',
+              technicalCapability: '',
+              marketKnowledge: ''
             },
-            specialNeeds: {
-              priceRequirement: '',
-              serviceRequirement: '',
-              technicalRequirement: '',
-              otherRequirement: '',
-              contractPeriod: '1',
-              settlementMethod: 'monthly',
-              serviceContent: 'basic'
+            contractPreference: {
+              contractPeriod: '',
+              settlementMethod: '',
+              serviceContent: ''
             },
             currentStep: 0,
             showResults: false

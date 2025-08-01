@@ -66,12 +66,12 @@
           <text class="action-name">产品对比</text>
           <text class="action-desc">方案优劣对比</text>
         </view>
-        <view class="action-item" bindtap="navigateToComplaint">
+        <view class="action-item" bindtap="navigateToCustomerMatching">
           <view class="action-icon-wrapper">
-            <text class="action-icon">📢</text>
+            <text class="action-icon">🎯</text>
           </view>
-          <text class="action-name">投诉建议</text>
-          <text class="action-desc">问题反馈</text>
+          <text class="action-name">客户匹配</text>
+          <text class="action-desc">智能匹配方案</text>
         </view>
       </view>
     </view>
